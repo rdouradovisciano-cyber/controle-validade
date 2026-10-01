@@ -41,6 +41,7 @@ function render() {
   $("countAll").textContent = products.length; $("countSoon").textContent = so; $("countExpired").textContent = ex;
   $("topAlert").classList.toggle("hidden", !(ex || so));
   $("topAlert").textContent = `Atenção: ${ex} vencido(s) e ${so} vencendo em breve.`;
+  try { buildAtalhos(); } catch {}
   const cnt = {}; products.forEach(p => { if (p.barcode) cnt[p.barcode] = (cnt[p.barcode] || 0) + 1; });
   const hoje = products.filter(p => daysLeft(p.expiry) === 0 && (!cat || p.category === cat));
   $("todayBanner").classList.toggle("hidden", !hoje.length);
@@ -61,8 +62,9 @@ function show(title, scan) {
 }
 function resetForm() {
   $("productForm").reset(); $("docId").value = ""; $("quantity").value = 1;
-  $("category").value = store.get(LC, "") || ""; $("saveNext").classList.remove("hidden");
+  $("category").value = store.get(LC, "") || ""; $("saveNext").classList.remove("hidden"); toggleCodes();
 }
+function toggleCodes() { $("semCodigo").classList.toggle("hidden", !!$("barcode").value.trim() && !["FLV", "Padaria"].includes($("category").value)); }
 async function stopScanner() {
   const s = scanner; scanner = null;
   if (s) { try { await s.stop(); } catch {} try { s.clear(); } catch {} }
@@ -72,18 +74,21 @@ function closeModal() { stopScanner(); $("modal").classList.add("hidden"); reset
 function openForm(code = "") { resetForm(); show("Cadastrar produto"); $("barcode").value = code; fillKnown(code); $("name").focus(); }
 function fillKnown(code) {
   const k = code && products.find(p => p.barcode === code);
-  if (k && !$("docId").value) { if (!$("name").value) $("name").value = k.name || ""; if (k.category) $("category").value = k.category; }
+  if (k && !$("docId").value) { if (!$("name").value) $("name").value = k.name || ""; if (k.category) $("category").value = k.category;
+    $("cBalanca").value = k.codigo_balanca || ""; $("cDoacao").value = k.codigo_doacao || ""; }
+  toggleCodes();
 }
 function edit(id) {
   const p = products.find(x => x.id === id); if (!p) return;
   resetForm(); show("Editar produto"); $("saveNext").classList.add("hidden");
   $("docId").value = id; $("barcode").value = p.barcode || ""; $("name").value = p.name || "";
   $("category").value = p.category || ""; $("quantity").value = p.quantity; $("expiry").value = p.expiry || "";
+  $("cBalanca").value = p.codigo_balanca || ""; $("cDoacao").value = p.codigo_doacao || ""; toggleCodes();
 }
 function save(next) {
   const id = $("docId").value, q = Number(String($("quantity").value).replace(",", "."));
   const data = { barcode: $("barcode").value.trim().slice(0, 32), name: $("name").value.trim().slice(0, 120),
-    category: $("category").value, expiry: $("expiry").value, quantity: q, por: myName() };
+    category: $("category").value, expiry: $("expiry").value, quantity: q, por: myName(), codigo_balanca: $("cBalanca").value.trim().slice(0, 12), codigo_doacao: $("cDoacao").value.trim().slice(0, 12) };
   if (!data.name || !CATS.includes(data.category) || !data.expiry || !(q > 0)) { toast("Preencha nome, categoria, validade e quantidade."); return; }
   store.set(LC, data.category);
   if (db) {
@@ -116,17 +121,18 @@ function beep() { audio(); tone(1000, 0, .09); }
 function alarm() { [0, .4, .8].forEach(t => { tone(880, t, .17); tone(660, t + .18, .17); }); if (navigator.vibrate) navigator.vibrate([200, 100, 200]); }
 async function onCode(code) {
   if (scanMode === "doacao") return donationScan(code);
+  if (scanMode === "etiqueta") return labelScan(code);
   if (navigator.vibrate) navigator.vibrate(100);
   beep(); await stopScanner(); resetForm();
   const known = products.find(p => p.barcode === code); logScan(code, known);
   show(known ? `Novo lote de «${known.name}» (já há ${products.filter(p => p.barcode === code).length} validade(s))` : "Produto identificado");
   $("barcode").value = code; fillKnown(code); (known ? $("expiry") : $("name")).focus();
 }
-let scanMode = "estoque";
-async function openScan(mode = "estoque") {
-  scanMode = mode === "doacao" ? "doacao" : "estoque";
-  resetForm(); show(scanMode === "doacao" ? "Bipar itens da doação" : "Ler código de barras", true);
-  $("scanManual").textContent = scanMode === "doacao" ? "Concluir" : "Digitar código";
+let scanMode = "loja";
+async function openScan(mode = "loja") {
+  scanMode = ["doacao", "etiqueta"].includes(mode) ? mode : "loja";
+  resetForm(); show({ doacao: "Bipar itens da doação", etiqueta: "Bipar para etiqueta" }[scanMode] || "Ler código de barras", true);
+  $("scanManual").textContent = scanMode === "loja" ? "Digitar código" : "Cancelar";
   ["retryScan", "torchBtn"].forEach(i => $(i).classList.add("hidden"));
   $("scanMsg").textContent = "Aponte a câmera traseira para o código de barras.";
   await stopScanner();
@@ -194,15 +200,14 @@ fillCategories();
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
 $("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.del) remove(b.dataset.del); };
 $("manualOpen").onclick = () => openForm(); $("scanOpen").onclick = () => openScan(); $("retryScan").onclick = () => openScan(scanMode);
-$("scanManual").onclick = async () => { await stopScanner(); if (scanMode === "doacao") closeModal(); else openForm(); };
+$("scanManual").onclick = async () => { await stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("modal").classList.contains("hidden")) closeModal(); });
 $("productForm").onsubmit = e => { e.preventDefault(); save(false); };
 $("saveNext").onclick = () => { if ($("productForm").reportValidity()) save(true); };
-$("barcode").onchange = () => fillKnown($("barcode").value.trim());
+$("barcode").oninput = toggleCodes; $("category").onchange = toggleCodes; $("barcode").onchange = () => fillKnown($("barcode").value.trim());
 $("qMinus").onclick = () => { const q = Number($("quantity").value) || 1; $("quantity").value = Math.max(1, Math.round(q) - 1); };
 $("qPlus").onclick = () => { $("quantity").value = Math.round(Number($("quantity").value) || 0) + 1; };
-document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => { const d = today(); d.setDate(d.getDate() + Number(b.dataset.add)); $("expiry").value = iso(d); });
 $("exportScope").onchange = () => $("exportCategory").classList.toggle("hidden", $("exportScope").value !== "category");
 $("csvBtn").onclick = () => { const r = exportRows(); if (r) download(new Blob([csvContent(r)], { type: "text/csv;charset=utf-8" }), `controle-validade-${stamp()}.csv`); };
 $("pdfBtn").onclick = () => { const r = exportRows(); if (!r) return; try { download(makePdf(r), `controle-validade-${stamp()}.pdf`); } catch (e) { console.error(e); toast("Não foi possível gerar o PDF."); } };
@@ -228,50 +233,42 @@ if (cloud && V.initializeApp) {
   } catch (e) { console.error(e); db = null; setSync("falha ao iniciar o Firebase"); }
 } else { products = store.get(LK, []); setSync("modo local neste aparelho (configure o Firebase para sincronizar)"); render(); }
 
-// ---------- identificação do aparelho, presença e histórico de leituras ----------
+// ---------- aparelho, contadores (visitas/online) e histórico de leituras ----------
 const myId = store.get("validamais-device", null) || (() => { const i = uid().slice(0, 8); store.set("validamais-device", i); return i; })();
-const myName = () => store.get("validamais-nome", "") || ("Aparelho " + myId.slice(0, 4));
+const myName = () => "Aparelho " + myId.slice(0, 4);
 const ms = t => t && t.toMillis ? t.toMillis() : (t ? Number(t) : Date.now());
-const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? "agora" : m < 60 ? `há ${m} min` : m < 1440 ? `há ${Math.round(m / 60)} h` : `há ${Math.round(m / 1440)} dia(s)`; };
-const ONLINE_MS = 3 * 60 * 1000;
-let devices = [], scans = [], unsubDev = null, unsubScan = null;
-function renderPresence() {
-  const now = Date.now(), list = [...devices].sort((a, b) => ms(b.lastSeen) - ms(a.lastSeen));
-  const on = list.filter(d => now - ms(d.lastSeen) < ONLINE_MS);
-  $("onlineCount").textContent = on.length; $("deviceCount").textContent = list.length;
-  $("deviceList").innerHTML = db ? (list.map(d => { const o = now - ms(d.lastSeen) < ONLINE_MS;
-    return `<p>${o ? "🟢" : "⚪"} <b>${esc(d.nome || d.id)}</b> (${esc(d.ua || "")}) · ${o ? "online agora" : "visto " + ago(ms(d.lastSeen))} · ${esc(d.visitas || 1)} acesso(s)</p>`; }).join("") || '<p class="muted">Carregando…</p>')
-    : '<p class="muted">Disponível quando o Firebase estiver configurado.</p>';
-}
+const ONLINE_MS = 5 * 60 * 1000;
+let scans = [], unsubScan = null;
 function renderScans() {
-  $("scanList").innerHTML = scans.length ? scans.map(s => `<p><b>${esc(s.barcode)}</b> · ${s.cadastrado ? esc(s.nome) : "não cadastrado"}<br><span class="muted">${new Date(ms(s.em)).toLocaleString("pt-BR")} · ${esc(s.por || "")}</span></p>`).join("") : '<p class="muted">Nenhuma leitura ainda.</p>';
+  $("scanList").innerHTML = scans.length ? scans.map(s => `<p><b>${esc(s.barcode)}</b> · ${s.cadastrado ? esc(s.nome) : "não cadastrado"}<br><span class="muted">${new Date(ms(s.em)).toLocaleString("pt-BR")}</span></p>`).join("") : '<p class="muted">Nenhuma leitura ainda.</p>';
 }
 function logScan(code, known) {
-  const rec = { barcode: String(code).slice(0, 32), nome: ((known && known.name) || "").slice(0, 120), por: myName().slice(0, 40), cadastrado: !!known };
+  const rec = { barcode: String(code).slice(0, 32), nome: ((known && known.name) || "").slice(0, 120), por: myName(), cadastrado: !!known };
   if (db) V.addDoc(V.collection(db, "scans"), { ...rec, em: V.serverTimestamp() }).catch(console.error);
   else { const l = store.get("validamais-scans", []); l.unshift({ ...rec, em: Date.now() }); store.set("validamais-scans", l.slice(0, 200)); }
+}
+async function pollStats() {          // contagem agregada: 1 leitura por consulta (barato na cota gratuita)
+  if (document.visibilityState !== "visible") return;
+  try { const col = V.collection(db, "devices");
+    const on = await V.getAggregateFromServer(V.query(col, V.where("lastSeen", ">", V.Timestamp.fromMillis(Date.now() - ONLINE_MS))), { n: V.count() });
+    const all = await V.getAggregateFromServer(col, { v: V.sum("visitas") });
+    $("nOnline").textContent = on.data().n; $("nVisitas").textContent = all.data().v || 0; $("dotO").classList.toggle("on", on.data().n > 0);
+  } catch (e) { console.warn(e); }
 }
 function startPresence() {
   const ref = V.doc(db, "devices", myId), ua = navigator.userAgent;
   const first = store.get("validamais-first", null) || (() => { const f = new Date().toISOString(); store.set("validamais-first", f); return f; })();
-  const beat = () => { if (document.visibilityState === "visible") V.setDoc(ref, { nome: myName().slice(0, 40), lastSeen: V.serverTimestamp() }, { merge: true }).catch(() => {}); };
-  V.setDoc(ref, { nome: myName().slice(0, 40), firstSeen: first, lastSeen: V.serverTimestamp(), visitas: V.increment(1), ua: /Android/.test(ua) ? "Android" : /iPhone|iPad/.test(ua) ? "iOS" : "Computador" }, { merge: true }).catch(console.error);
-  setInterval(beat, 120000); document.addEventListener("visibilitychange", beat); $("meuNome").onchange = beat;
+  const beat = () => { if (document.visibilityState === "visible") V.setDoc(ref, { nome: myName(), lastSeen: V.serverTimestamp() }, { merge: true }).catch(() => {}); };
+  V.setDoc(ref, { nome: myName(), firstSeen: first, lastSeen: V.serverTimestamp(), visitas: V.increment(1), ua: /Android/.test(ua) ? "Android" : /iPhone|iPad/.test(ua) ? "iOS" : "Computador" }, { merge: true })
+    .catch(console.error).finally(() => setTimeout(pollStats, 1500));
+  setInterval(beat, 120000); setInterval(pollStats, 60000); document.addEventListener("visibilitychange", beat);
 }
-$("meuNome").value = store.get("validamais-nome", "");
-$("meuNome").oninput = () => store.set("validamais-nome", $("meuNome").value.trim().slice(0, 40));
-// Só escuta a nuvem enquanto o painel está aberto (economiza a cota gratuita)
-$("usersBox").ontoggle = () => {
-  if ($("usersBox").open) { renderPresence(); if (db && !unsubDev) unsubDev = V.onSnapshot(V.collection(db, "devices"), s => { devices = s.docs.map(d => ({ id: d.id, ...d.data() })); renderPresence(); }); }
-  else if (unsubDev) { unsubDev(); unsubDev = null; }
-};
+function localStats() { const v = store.get("validamais-visitas", 0) + 1; store.set("validamais-visitas", v); $("nVisitas").textContent = v; $("nOnline").textContent = 1; $("dotO").classList.add("on"); }
 $("scansBox").ontoggle = () => {
   if ($("scansBox").open) { if (db) { if (!unsubScan) unsubScan = V.onSnapshot(V.query(V.collection(db, "scans"), V.orderBy("em", "desc"), V.limit(30)), s => { scans = s.docs.map(d => d.data()); renderScans(); }); }
     else { scans = store.get("validamais-scans", []).slice(0, 30); renderScans(); } }
   else if (unsubScan) { unsubScan(); unsubScan = null; }
 };
-setInterval(() => { if ($("usersBox").open) renderPresence(); }, 30000);
-
 
 // ---------- setor, menu lateral, voz e foto da validade ----------
 const SECTORS = ["Padaria", "FLV", "Ovos", "Laticínios", "Mercearia"];
@@ -317,7 +314,7 @@ const fq = q => (Math.round(q * 1000) / 1000).toLocaleString("pt-BR", { maximumF
 const sumU = u => don.itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0);
 const dataBR = d => new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 function tab(t) {
-  ["Estoque", "Doacao"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); });
+  ["Loja", "Doacao", "Etiquetas"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); });
 }
 function renderDon() {
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dItens").textContent = don.itens.length;
@@ -341,7 +338,7 @@ function donationScan(code) {
   if (/^2\d{12}$/.test(code)) { const s = parseScale(code); key = "B" + s.item; unidade = "kg"; qtd = s.kg;
     if (!(qtd > 0)) { toast("Etiqueta de balança sem peso legível. Ajuste a configuração 'balanca' no config.js."); return; } }
   else { key = code; unidade = "un"; qtd = 1; }
-  let nome = (unidade === "un" && (products.find(p => p.barcode === code) || {}).name) || names[key];
+  let nome = (unidade === "un" && (products.find(p => p.barcode === code) || {}).name) || (unidade === "kg" && (products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(key.slice(1))) || {}).name) || names[key];
   if (!nome) { nome = (prompt(unidade === "kg" ? `Item de balança ${key.slice(1)} (${fq(qtd)} kg). Qual o nome do produto?` : `Código ${code}. Qual o nome do produto?`) || "").trim();
     if (!nome) { lastScan.t = Date.now(); return; } names[key] = nome; store.set(NK, names); }
   const total = addDon(nome, unidade, qtd);
@@ -349,8 +346,14 @@ function donationScan(code) {
 }
 // pesagem manual
 function renderKey() { $("dNome").textContent = dSel || "Toque num produto"; $("dValor").textContent = dVal || "0"; document.querySelectorAll("#dAtalhos button[data-n]").forEach(b => b.classList.toggle("sel", b.dataset.n === dSel)); }
-const atalhos = C.doacaoAtalhos || ["Mamão", "Banana", "Tomate", "Pão Francês", "Laranja", "Batata", "Cebola", "Maçã", "Cenoura", "Alface"];
-$("dAtalhos").innerHTML = atalhos.map(n => `<button type="button" data-n="${esc(n)}">${esc(n)}</button>`).join("") + '<button type="button" id="dOutro">＋ Outro</button>';
+let atalhosKey = "";
+function buildAtalhos() {
+  const all = [...new Set([...(C.doacaoAtalhos || ["Mamão", "Banana", "Tomate", "Pão Francês", "Laranja", "Batata", "Cebola", "Maçã", "Cenoura", "Alface"]), ...products.filter(p => p.codigo_doacao).map(p => p.name)])], k = all.join("|");
+  if (k === atalhosKey) return; atalhosKey = k;
+  $("dAtalhos").innerHTML = all.map(n => `<button type="button" data-n="${esc(n)}">${esc(n)}</button>`).join("") + '<button type="button" id="dOutro">＋ Outro</button>'; renderKey();
+}
+$("dCodOk").onclick = () => { const v = $("dCod").value.trim(), pr = v && products.find(p => String(p.codigo_doacao) === v);
+  if (!pr) return toast("Código de doação não encontrado."); dSel = pr.name; $("dCod").value = ""; renderKey(); };
 $("keypad").innerHTML = ["7", "8", "9", "4", "5", "6", "1", "2", "3", ",", "0", "⌫"].map(k => `<button type="button" data-k="${k}">${k}</button>`).join("") + '<button type="button" class="add" id="dAdd">Adicionar</button>';
 $("dAtalhos").onclick = e => { const b = e.target.closest("button"); if (!b) return;
   if (b.id === "dOutro") { const n = (prompt("Nome do produto:") || "").trim(); if (n) dSel = n.slice(0, 60); } else dSel = b.dataset.n; renderKey(); };
@@ -368,13 +371,13 @@ $("dLista").onclick = e => { const b = e.target.closest("[data-drop]"); if (!b) 
 $("dLimpar").onclick = () => { if (don.itens.length && confirm("Apagar toda a lista da doação atual?")) { don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); } };
 // romaneio
 function romText(d) {
-  return [`ROMANEIO DE DOAÇÃO - ${C.loja || "Valida+"}`, `Data: ${dataBR(d.data)}`, `Responsável: ${d.por}`, "------------------------",
+  return [`ROMANEIO DE DOAÇÃO - ${C.loja || "Valida+"}`, `Data: ${dataBR(d.data)}`, "------------------------",
     ...d.itens.map(i => `${i.nome}: ${fq(i.qtd)} ${i.unidade}`), "------------------------",
     `TOTAL: ${fq(d.totalKg)} kg · ${fq(d.totalUn)} un (${d.itens.length} itens)`].join("\n");
 }
 function romPdf(d) {
   const pdf = new V.jsPDF(); pdf.setFontSize(16); pdf.text("Romaneio de doação", 14, 16);
-  pdf.setFontSize(9); pdf.text(`${C.loja || "Valida+"} · ${dataBR(d.data)} · Responsável: ${d.por}`, 14, 22);
+  pdf.setFontSize(9); pdf.text(`${C.loja || "Valida+"} · ${dataBR(d.data)}`, 14, 22);
   V.autoTable(pdf, { startY: 27, styles: { fontSize: 9 }, headStyles: { fillColor: [22, 101, 52] }, footStyles: { fillColor: [226, 238, 229], textColor: [20, 83, 45] },
     head: [["Item", "Quantidade", "Lançamentos"]], body: d.itens.map(i => [i.nome, `${fq(i.qtd)} ${i.unidade}`, i.lanc]),
     foot: [["TOTAL", `${fq(d.totalKg)} kg · ${fq(d.totalUn)} un`, ""]] });
@@ -382,7 +385,7 @@ function romPdf(d) {
 }
 function showRomaneio(d) {
   curRom = d; $("donaEntrada").classList.add("hidden"); $("donaRomaneio").classList.remove("hidden");
-  $("romBody").innerHTML = `<p class="note">${dataBR(d.data)} · ${esc(d.por)}</p><div class="stats"><div class="stat"><b>${fq(d.totalKg)}</b><span>kg doados</span></div><div class="stat"><b>${fq(d.totalUn)}</b><span>unidades</span></div><div class="stat"><b>${d.itens.length}</b><span>itens</span></div></div>` +
+  $("romBody").innerHTML = `<p class="note">${dataBR(d.data)}</p><div class="stats"><div class="stat"><b>${fq(d.totalKg)}</b><span>kg doados</span></div><div class="stat"><b>${fq(d.totalUn)}</b><span>unidades</span></div><div class="stat"><b>${d.itens.length}</b><span>itens</span></div></div>` +
     d.itens.map(i => `<div class="drow"><div><b>${esc(i.nome)}</b></div><b>${fq(i.qtd)} ${esc(i.unidade)}</b></div>`).join("");
 }
 $("rZap").onclick = async () => { const t = romText(curRom);
@@ -402,15 +405,87 @@ $("dFinalizar").onclick = () => {
   don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); showRomaneio(rec);
 };
 function renderHist(l) { histList = l;
-  $("dHist").innerHTML = l.length ? l.map((h, i) => `<p><b>${dataBR(h.data)}</b> · ${fq(h.totalKg)} kg · ${fq(h.totalUn)} un · ${esc(h.por)} <button class="secondary" data-hist="${i}">Abrir</button></p>`).join("") : '<p class="muted">Nenhuma doação finalizada.</p>'; }
+  $("dHist").innerHTML = l.length ? l.map((h, i) => `<p><b>${dataBR(h.data)}</b> · ${fq(h.totalKg)} kg · ${fq(h.totalUn)} un <button class="secondary" data-hist="${i}">Abrir</button></p>`).join("") : '<p class="muted">Nenhuma doação finalizada.</p>'; }
 $("dHist").onclick = e => { const b = e.target.closest("[data-hist]"); if (b) showRomaneio(histList[Number(b.dataset.hist)]); };
 $("histBox").ontoggle = () => {
   if ($("histBox").open) { if (db) { if (!unsubHist) unsubHist = V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(10)), s => renderHist(s.docs.map(d => d.data()))); } else renderHist(store.get(HK, []).slice(0, 10)); }
   else if (unsubHist) { unsubHist(); unsubHist = null; } };
-$("navEstoque").onclick = () => tab("Estoque"); $("navDoacao").onclick = () => tab("Doacao"); $("dScan").onclick = () => openScan("doacao");
-renderDon(); renderKey();
+const go = t => { tab(t); side(false); }; $("navLoja").onclick = () => go("Loja"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("dScan").onclick = () => openScan("doacao");
+renderDon(); buildAtalhos(); renderKey();
 
-if (db) startPresence();
+// ---------- aba Etiquetas ----------
+const EK = "validamais-etiquetas", PK = "validamais-precos";
+const SZ = { P: { w: 63, h: 30, cols: 3, rows: 9, nome: 8, preco: 15, cod: 6, bar: 6 }, M: { w: 95, h: 50, cols: 2, rows: 5, nome: 12, preco: 26, cod: 8, bar: 12 }, G: { w: 190, h: 90, cols: 1, rows: 3, nome: 20, preco: 52, cod: 11, bar: 24 } };
+let labels = store.get(EK, []), pend = null, eHits = [];
+const brl = v => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }).replace(/\u00a0/g, " ");
+const parsePrice = v => { const s = String(v).trim(); return s.includes(",") ? Number(s.replace(/\./g, "").replace(",", ".")) : Number(s); };
+// itens pesados (FLV/Padaria) usam o código de balança; os demais usam o EAN
+const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.category) || !p.barcode)) ? { code: String(p.codigo_balanca), kg: true } : { code: p.barcode || "", kg: false };
+function renderLabels() {
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => `<div class="drow"><div><b>${esc(l.nome)}</b><small>Tamanho ${esc(l.tam)} · ${brl(l.preco)}${l.kg ? "/kg" : ""} · ${l.code ? esc(l.code) : "sem código"}</small></div><b>×${l.qtd}</b><button class="danger" data-ldrop="${i}" aria-label="Remover">✕</button></div>`).join("") : '<p class="muted">Nenhuma etiqueta na lista.</p>';
+}
+function labelPick(p) {
+  const c = labelCode(p); pend = { nome: p.name, code: c.code, kg: c.kg, tam: "" };
+  $("ePend").classList.remove("hidden"); $("eNome").textContent = p.name;
+  $("eCod").textContent = c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.code}` : "⚠ Sem código cadastrado: a etiqueta sai só com nome e preço.";
+  $("ePreco").value = String(store.get(PK, {})[norm(p.name)] || "").replace(".", ","); $("eQtd").value = 1;
+  document.querySelectorAll("#eTam button").forEach(b => b.classList.remove("sel")); $("ePend").scrollIntoView({ behavior: "smooth" });
+}
+async function labelScan(code) {
+  if (navigator.vibrate) navigator.vibrate(100); beep(); await stopScanner(); closeModal();
+  const scale = /^2\d{12}$/.test(code), item = scale ? Number(parseScale(code).item) : 0;
+  let p = scale ? products.find(x => x.codigo_balanca && Number(x.codigo_balanca) === item) : products.find(x => x.barcode === code);
+  if (!p) { const nome = (prompt(`Código ${code} não cadastrado. Nome do produto:`) || "").trim(); if (!nome) return;
+    p = { name: nome, barcode: scale ? "" : code, codigo_balanca: scale ? String(item) : "", category: scale ? "FLV" : "" }; }
+  labelPick(p);
+}
+$("eScan").onclick = () => openScan("etiqueta");
+$("eBusca").oninput = () => { const q = norm($("eBusca").value); if (q.length < 2) { $("eRes").innerHTML = ""; return; }
+  const seen = new Set();
+  eHits = products.filter(p => norm(p.name || "").includes(q) || (p.barcode || "").includes(q)).filter(p => { const k = p.barcode || p.codigo_balanca || norm(p.name); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 8);
+  $("eRes").innerHTML = eHits.length ? eHits.map((p, i) => `<p><b>${esc(p.name)}</b> <small class="muted">${esc(p.category)}</small> <button class="secondary" data-pick="${i}">Escolher</button></p>`).join("") : '<p class="muted">Nada encontrado.</p>'; };
+$("eRes").onclick = e => { const b = e.target.closest("[data-pick]"); if (b) labelPick(eHits[Number(b.dataset.pick)]); };
+$("eTam").onclick = e => { const b = e.target.closest("button"); if (!b || !pend) return; pend.tam = b.dataset.t; document.querySelectorAll("#eTam button").forEach(x => x.classList.toggle("sel", x === b)); };
+$("eMenos").onclick = () => { $("eQtd").value = Math.max(1, (Number($("eQtd").value) || 1) - 1); }; $("eMais").onclick = () => { $("eQtd").value = (Number($("eQtd").value) || 0) + 1; };
+$("eCancela").onclick = () => { pend = null; $("ePend").classList.add("hidden"); };
+$("eAdd").onclick = () => {
+  if (!pend) return; if (!pend.tam) return toast("Escolha o tamanho: P, M ou G.");
+  const preco = parsePrice($("ePreco").value); if (!(preco > 0)) return toast("Digite o preço.");
+  labels.push({ ...pend, preco, qtd: Math.max(1, Math.round(Number($("eQtd").value) || 1)) }); store.set(EK, labels);
+  const pr = store.get(PK, {}); pr[norm(pend.nome)] = preco; store.set(PK, pr);
+  pend = null; $("ePend").classList.add("hidden"); $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels(); toast("Etiqueta adicionada à lista.");
+};
+$("eLista").onclick = e => { const b = e.target.closest("[data-ldrop]"); if (!b) return; const x = Number(b.dataset.ldrop), it = labels.splice(x, 1)[0];
+  store.set(EK, labels); renderLabels(); toast("Etiqueta removida.", "Desfazer", () => { labels.splice(x, 0, it); store.set(EK, labels); renderLabels(); }); };
+$("eLimpa").onclick = () => { if (labels.length && confirm("Apagar toda a lista de impressão?")) { labels = []; store.set(EK, labels); renderLabels(); } };
+function barcodeImg(code) { try { const c = document.createElement("canvas"); V.JsBarcode(c, code, { format: "CODE128", displayValue: false, margin: 0, height: 60, width: 2 }); return c.toDataURL("image/png"); } catch { return null; } }
+function labelsPdf() {
+  const pdf = new V.jsPDF(); let first = true;
+  for (const t of ["P", "M", "G"]) {
+    const items = labels.filter(l => l.tam === t).flatMap(l => Array(l.qtd).fill(l)); if (!items.length) continue;
+    const s = SZ[t], per = s.cols * s.rows, x0 = (210 - s.cols * s.w) / 2;
+    items.forEach((l, n) => {
+      if (n % per === 0) { if (!first) pdf.addPage(); first = false; }
+      const k = n % per, x = x0 + (k % s.cols) * s.w, y = 10 + Math.floor(k / s.cols) * s.h, cx = x + s.w / 2;
+      pdf.setDrawColor(170); pdf.setLineWidth(.2); pdf.rect(x, y, s.w, s.h);
+      pdf.setTextColor(0); pdf.setFont("helvetica", "bold"); pdf.setFontSize(s.nome);
+      pdf.text(pdf.splitTextToSize(l.nome, s.w - 6).slice(0, 2), cx, y + 2 + s.nome * .36, { align: "center" });
+      pdf.setFontSize(s.preco); pdf.text(brl(l.preco) + (l.kg ? "/kg" : ""), cx, y + s.h * .62, { align: "center" });
+      if (l.code) { const img = barcodeImg(l.code); if (img) pdf.addImage(img, "PNG", x + 6, y + s.h - 2.5 - s.cod * .36 - s.bar, s.w - 12, s.bar);
+        pdf.setFont("helvetica", "normal"); pdf.setFontSize(s.cod); pdf.text(l.code, cx, y + s.h - 1.5, { align: "center" }); }
+    });
+  }
+  return first ? null : pdf.output("blob");
+}
+$("ePdf").onclick = async () => {
+  if (!labels.length) return toast("A lista de impressão está vazia.");
+  try { const blob = labelsPdf(), file = new File([blob], `etiquetas-${iso(new Date())}.pdf`, { type: "application/pdf" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Etiquetas", files: [file] }); else download(blob, file.name);
+  } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Não foi possível gerar o PDF."); } }
+};
+renderLabels();
+
+if (db) startPresence(); else localStats();
 
 // ---------- PWA ----------
 if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(console.error));

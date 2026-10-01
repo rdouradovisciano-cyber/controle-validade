@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14532d">
-<meta name="description" content="Controle de validade de estoque">
+<meta name="description" content="Controle de validade de loja">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Valida+"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
@@ -18,8 +18,7 @@
 <header><button class="secondary" id="menuBtn" aria-label="Abrir menu">☰</button><h1>Valida+</h1></header>
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
-<nav class="tabs"><button id="navEstoque" class="active">📦 Estoque</button><button id="navDoacao">🎁 Doação</button></nav>
-<div id="tabEstoque">
+<div id="tabLoja">
 <div id="topAlert" class="alert hidden" role="status"></div>
 <section class="stats"><div class="stat"><b id="countAll">0</b><span>Produtos</span></div><div class="stat"><b id="countSoon">0</b><span>Vencem em breve</span></div><div class="stat"><b id="countExpired">0</b><span>Vencidos</span></div></section>
 <section class="panel">
@@ -28,10 +27,6 @@
 <div class="filters"><select id="categoryFilter" aria-label="Categoria"></select><select id="statusFilter" aria-label="Status"><option value="">Todos os status</option><option value="expired">Vencidos</option><option value="soon">Vencem em breve</option><option value="ok">Dentro do prazo</option></select></div>
 <div id="list"></div>
 </section>
-<section class="panel"><details id="usersBox"><summary>👥 Quem está usando o app</summary>
-<p class="note">Online agora: <b id="onlineCount">0</b> · Aparelhos que já acessaram: <b id="deviceCount">0</b><br>Conta aparelhos/navegadores, não pessoas.</p>
-<label for="meuNome">Nome deste aparelho (aparece para os outros)</label><input id="meuNome" maxlength="40" placeholder="Ex.: João - Padaria">
-<div id="deviceList" class="rows"></div></details></section>
 <section class="panel"><details id="scansBox"><summary>▦ Histórico de leituras (últimas 30)</summary><div id="scanList" class="rows"></div></details></section>
 <p class="muted" style="font-size:12px;text-align:center">Sincronização: <span id="syncState">iniciando…</span></p>
 </div>
@@ -39,7 +34,7 @@
 <div id="donaEntrada">
 <section class="panel"><div class="stats"><div class="stat"><b id="dKg">0</b><span>kg doados</span></div><div class="stat"><b id="dUn">0</b><span>unidades</span></div><div class="stat"><b id="dItens">0</b><span>itens</span></div></div>
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="dScan">▦ Bipar itens (unidade ou balança)</button></div></section>
-<section class="panel"><h2 class="h2">Pesagem em kg (FLV / Padaria)</h2><div id="dAtalhos" class="grid"></div>
+<section class="panel"><h2 class="h2">Pesagem em kg (FLV / Padaria)</h2><div class="stepper" style="margin-bottom:10px"><input id="dCod" inputmode="numeric" placeholder="Código de doação"><button type="button" class="secondary" id="dCodOk">OK</button></div><div id="dAtalhos" class="grid"></div>
 <div class="kpdisplay"><span id="dNome">Toque num produto</span><span><b id="dValor">0</b> kg</span></div><div id="keypad" class="keypad"></div></section>
 <section class="panel"><h2 class="h2">Lista da doação</h2><div id="dLista"></div>
 <div class="toolbar" style="margin-top:12px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
@@ -49,9 +44,21 @@
 <div id="donaRomaneio" class="hidden"><section class="panel"><h2 class="h2">Romaneio de doação</h2><div id="romBody"></div>
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
 </div>
+<div id="tabEtiquetas" class="hidden">
+<section class="panel"><h2 class="h2">Etiquetas de preço</h2><div class="toolbar"><button class="primary big" id="eScan">▦ Bipar EAN</button></div>
+<input id="eBusca" type="search" placeholder="Ou pesquise o produto pelo nome" style="margin-top:12px"><div id="eRes" class="rows"></div></section>
+<section class="panel hidden" id="ePend"><h2 class="h2" id="eNome"></h2><p class="note" id="eCod"></p>
+<label>Tamanho da etiqueta</label><div class="grid3" id="eTam"><button type="button" data-t="P">P<small>Pequena</small></button><button type="button" data-t="M">M<small>Média</small></button><button type="button" data-t="G">G<small>Grande</small></button></div>
+<label for="ePreco">Preço (R$)</label><input id="ePreco" inputmode="decimal" placeholder="0,00">
+<label for="eQtd">Cópias</label><div class="stepper"><button type="button" class="secondary" id="eMenos" aria-label="Diminuir">−</button><input id="eQtd" type="number" inputmode="numeric" min="1" value="1"><button type="button" class="secondary" id="eMais" aria-label="Aumentar">＋</button></div>
+<div class="toolbar" style="margin-top:12px"><button class="primary big" id="eAdd">Adicionar à lista de impressão</button><button class="secondary" id="eCancela">Cancelar</button></div></section>
+<section class="panel"><h2 class="h2">Lista de impressão</h2><div id="eLista"></div><div class="toolbar" style="margin-top:12px"><button class="secondary" id="eLimpa">Limpar</button><button class="primary big" id="ePdf">Gerar PDF das etiquetas</button></div></section>
+</div>
+<footer class="foot"><span><i class="dot v"></i>VISITAS <b id="nVisitas">–</b></span><span><i class="dot" id="dotO"></i>ONLINE <b id="nOnline">–</b></span></footer>
 </main>
 <div id="sideBg" class="bg hidden"></div>
 <aside id="side" class="side" aria-label="Menu"><div class="sheethead"><h2>Menu</h2><button class="secondary" id="sideClose" aria-label="Fechar menu">✕</button></div>
+<nav class="menu"><button id="navLoja" class="active">🏪 Loja<small>Controle de validades</small></button><button id="navDoacao">🎁 Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Impressão de preços</small></button></nav>
 <section class="panel"><h2 style="font-size:17px;margin:0 0 10px">Exportar</h2>
 <label for="exportScope">O que exportar</label><select id="exportScope"><option value="all">Todos os produtos</option><option value="soon">Vencem em breve</option><option value="expired">Vencidos</option><option value="category">Uma categoria</option></select>
 <select id="exportCategory" class="hidden" aria-label="Categoria para exportar" style="margin-top:8px"></select>
@@ -66,11 +73,11 @@
 <div class="toolbar"><button class="secondary hidden" id="torchBtn">🔦 Lanterna</button><button class="primary hidden" id="retryScan">Tentar novamente</button><button class="secondary" id="scanManual">Digitar código</button></div></div>
 <form id="productForm"><input type="hidden" id="docId"><div class="formgrid">
 <div class="wide"><label for="barcode">Código de barras</label><input id="barcode" inputmode="numeric" placeholder="Bipe ou digite o código" maxlength="32"></div>
+<div class="wide hidden" id="semCodigo"><small class="note">Sem código de barras: informe os códigos internos do produto.</small><div class="formgrid"><div><label for="cBalanca">Código de balança (etiquetas)</label><input id="cBalanca" inputmode="numeric" maxlength="12"></div><div><label for="cDoacao">Código de doação</label><input id="cDoacao" inputmode="numeric" maxlength="12"></div></div></div>
 <div class="wide"><label for="name">Nome do produto *</label><div class="stepper"><input id="name" required maxlength="120" placeholder="Ex.: Leite integral 1 L" autocomplete="off"><button type="button" class="secondary" id="micBtn" aria-label="Ditar nome">🎤</button></div></div>
 <div><label for="category">Categoria *</label><select id="category" required></select></div>
 <div><label for="quantity">Quantidade *</label><div class="stepper"><button type="button" class="secondary" id="qMinus" aria-label="Diminuir">−</button><input id="quantity" type="number" inputmode="decimal" min="0.01" step="any" value="1" required><button type="button" class="secondary" id="qPlus" aria-label="Aumentar">＋</button></div></div>
 <div class="wide"><label for="expiry">Data de validade *</label><input id="expiry" type="date" required>
-<div class="chips"><button type="button" class="secondary" data-add="3">+3 dias</button><button type="button" class="secondary" data-add="7">+7 dias</button><button type="button" class="secondary" data-add="15">+15 dias</button><button type="button" class="secondary" data-add="30">+30 dias</button></div>
 <button type="button" class="secondary" id="ocrBtn" style="width:100%;margin-top:8px">📷 Ler data da embalagem (foto)</button><input type="file" id="ocrFile" accept="image/*" capture="environment" hidden></div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
