@@ -15,8 +15,11 @@
 </head>
 <body>
 <main class="app">
-<header><div><h1>Valida+</h1><small>Controle de validade do estoque</small></div><button class="secondary" id="installBtn" hidden>Instalar app</button></header>
+<header><button class="secondary" id="menuBtn" aria-label="Abrir menu">☰</button><h1>Valida+</h1></header>
+<div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
+<nav class="tabs"><button id="navEstoque" class="active">📦 Estoque</button><button id="navDoacao">🎁 Doação</button></nav>
+<div id="tabEstoque">
 <div id="topAlert" class="alert hidden" role="status"></div>
 <section class="stats"><div class="stat"><b id="countAll">0</b><span>Produtos</span></div><div class="stat"><b id="countSoon">0</b><span>Vencem em breve</span></div><div class="stat"><b id="countExpired">0</b><span>Vencidos</span></div></section>
 <section class="panel">
@@ -25,13 +28,37 @@
 <div class="filters"><select id="categoryFilter" aria-label="Categoria"></select><select id="statusFilter" aria-label="Status"><option value="">Todos os status</option><option value="expired">Vencidos</option><option value="soon">Vencem em breve</option><option value="ok">Dentro do prazo</option></select></div>
 <div id="list"></div>
 </section>
-<section class="panel"><h2 style="font-size:17px;margin:0 0 10px">Exportar dados</h2>
+<section class="panel"><details id="usersBox"><summary>👥 Quem está usando o app</summary>
+<p class="note">Online agora: <b id="onlineCount">0</b> · Aparelhos que já acessaram: <b id="deviceCount">0</b><br>Conta aparelhos/navegadores, não pessoas.</p>
+<label for="meuNome">Nome deste aparelho (aparece para os outros)</label><input id="meuNome" maxlength="40" placeholder="Ex.: João - Padaria">
+<div id="deviceList" class="rows"></div></details></section>
+<section class="panel"><details id="scansBox"><summary>▦ Histórico de leituras (últimas 30)</summary><div id="scanList" class="rows"></div></details></section>
+<p class="muted" style="font-size:12px;text-align:center">Sincronização: <span id="syncState">iniciando…</span></p>
+</div>
+<div id="tabDoacao" class="hidden">
+<div id="donaEntrada">
+<section class="panel"><div class="stats"><div class="stat"><b id="dKg">0</b><span>kg doados</span></div><div class="stat"><b id="dUn">0</b><span>unidades</span></div><div class="stat"><b id="dItens">0</b><span>itens</span></div></div>
+<div class="toolbar" style="margin-top:12px"><button class="primary big" id="dScan">▦ Bipar itens (unidade ou balança)</button></div></section>
+<section class="panel"><h2 class="h2">Pesagem em kg (FLV / Padaria)</h2><div id="dAtalhos" class="grid"></div>
+<div class="kpdisplay"><span id="dNome">Toque num produto</span><span><b id="dValor">0</b> kg</span></div><div id="keypad" class="keypad"></div></section>
+<section class="panel"><h2 class="h2">Lista da doação</h2><div id="dLista"></div>
+<div class="toolbar" style="margin-top:12px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
+<small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
+<section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
+</div>
+<div id="donaRomaneio" class="hidden"><section class="panel"><h2 class="h2">Romaneio de doação</h2><div id="romBody"></div>
+<div class="toolbar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
+</div>
+</main>
+<div id="sideBg" class="bg hidden"></div>
+<aside id="side" class="side" aria-label="Menu"><div class="sheethead"><h2>Menu</h2><button class="secondary" id="sideClose" aria-label="Fechar menu">✕</button></div>
+<section class="panel"><h2 style="font-size:17px;margin:0 0 10px">Exportar</h2>
 <label for="exportScope">O que exportar</label><select id="exportScope"><option value="all">Todos os produtos</option><option value="soon">Vencem em breve</option><option value="expired">Vencidos</option><option value="category">Uma categoria</option></select>
 <select id="exportCategory" class="hidden" aria-label="Categoria para exportar" style="margin-top:8px"></select>
-<div class="toolbar" style="margin-top:10px"><button class="secondary" id="csvBtn">Baixar CSV / Excel</button><button class="secondary" id="pdfBtn">Gerar PDF</button><button class="primary" id="shareBtn">Compartilhar</button></div>
+<div class="toolbar" style="margin-top:10px"><button class="secondary" id="csvBtn">Excel (.csv)</button><button class="secondary" id="pdfBtn">Gerar PDF</button><button class="primary" id="shareBtn">Compartilhar</button></div>
 <small class="note">O compartilhamento usa a janela nativa do celular quando disponível; se não houver, o PDF é baixado.</small></section>
-<p class="muted" style="font-size:12px;text-align:center">Sincronização: <span id="syncState">iniciando…</span></p>
-</main>
+<button class="secondary" id="installBtn" hidden style="width:100%;margin-top:10px">Instalar app</button></aside>
+<div id="sectorBox" class="modal"><section class="sheet"><h2 class="h2">Qual setor você vai conferir?</h2><div id="sectorBtns" class="grid"></div></section></div>
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="modal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 <div class="sheethead"><h2 id="modalTitle">Cadastrar produto</h2><button id="closeModal" class="secondary" aria-label="Fechar">✕</button></div>
@@ -39,11 +66,12 @@
 <div class="toolbar"><button class="secondary hidden" id="torchBtn">🔦 Lanterna</button><button class="primary hidden" id="retryScan">Tentar novamente</button><button class="secondary" id="scanManual">Digitar código</button></div></div>
 <form id="productForm"><input type="hidden" id="docId"><div class="formgrid">
 <div class="wide"><label for="barcode">Código de barras</label><input id="barcode" inputmode="numeric" placeholder="Bipe ou digite o código" maxlength="32"></div>
-<div class="wide"><label for="name">Nome do produto *</label><input id="name" required maxlength="120" placeholder="Ex.: Leite integral 1 L" autocomplete="off"></div>
+<div class="wide"><label for="name">Nome do produto *</label><div class="stepper"><input id="name" required maxlength="120" placeholder="Ex.: Leite integral 1 L" autocomplete="off"><button type="button" class="secondary" id="micBtn" aria-label="Ditar nome">🎤</button></div></div>
 <div><label for="category">Categoria *</label><select id="category" required></select></div>
 <div><label for="quantity">Quantidade *</label><div class="stepper"><button type="button" class="secondary" id="qMinus" aria-label="Diminuir">−</button><input id="quantity" type="number" inputmode="decimal" min="0.01" step="any" value="1" required><button type="button" class="secondary" id="qPlus" aria-label="Aumentar">＋</button></div></div>
 <div class="wide"><label for="expiry">Data de validade *</label><input id="expiry" type="date" required>
-<div class="chips"><button type="button" class="secondary" data-add="3">+3 dias</button><button type="button" class="secondary" data-add="7">+7 dias</button><button type="button" class="secondary" data-add="15">+15 dias</button><button type="button" class="secondary" data-add="30">+30 dias</button></div></div>
+<div class="chips"><button type="button" class="secondary" data-add="3">+3 dias</button><button type="button" class="secondary" data-add="7">+7 dias</button><button type="button" class="secondary" data-add="15">+15 dias</button><button type="button" class="secondary" data-add="30">+30 dias</button></div>
+<button type="button" class="secondary" id="ocrBtn" style="width:100%;margin-top:8px">📷 Ler data da embalagem (foto)</button><input type="file" id="ocrFile" accept="image/*" capture="environment" hidden></div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
 <script src="config.js"></script>
