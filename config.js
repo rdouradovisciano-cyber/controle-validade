@@ -6,7 +6,7 @@ window.VALIDA_CONFIG = {
   // Etiqueta de balança (EAN-13 que começa com 2): 2 + código do item + peso em gramas + dígito.
   // Confira com uma etiqueta real; ajuste se a sua balança usar outra divisão.
   balanca: { codigoDigitos: 6, valorDigitos: 5, divisor: 1000 },
-  // Botões da pesagem (a ordem aqui é a ordem na tela)
+  // Nomes sugeridos na busca da Doação (além dos produtos cadastrados)
   doacaoAtalhos: ["Mamão", "Banana", "Tomate", "Pão Francês", "Laranja", "Batata", "Cebola", "Maçã", "Cenoura", "Alface"],
   firebase: {
     apiKey: "AIzaSyD_fpeoZG7FdJi8q_Zn-IeaDeWe0arrkLs",

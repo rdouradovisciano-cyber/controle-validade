@@ -41,7 +41,6 @@ function render() {
   $("countAll").textContent = products.length; $("countSoon").textContent = so; $("countExpired").textContent = ex;
   $("topAlert").classList.toggle("hidden", !(ex || so));
   $("topAlert").textContent = `Atenção: ${ex} vencido(s) e ${so} vencendo em breve.`;
-  try { buildAtalhos(); } catch {}
   const cnt = {}; products.forEach(p => { if (p.barcode) cnt[p.barcode] = (cnt[p.barcode] || 0) + 1; });
   const hoje = products.filter(p => daysLeft(p.expiry) === 0 && (!cat || p.category === cat));
   $("todayBanner").classList.toggle("hidden", !hoje.length);
@@ -361,21 +360,23 @@ function donationScan(code) {
   toast(`${nome}: +${fq(qtd)} ${unidade} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
 }
 // pesagem manual
-function renderKey() { $("dNome").textContent = dSel || "Toque num produto"; $("dValor").textContent = dVal || "0"; document.querySelectorAll("#dAtalhos button[data-n]").forEach(b => b.classList.toggle("sel", b.dataset.n === dSel)); }
-let atalhosKey = "";
-function buildAtalhos() {
-  const all = [...new Set([...(C.doacaoAtalhos || ["Mamão", "Banana", "Tomate", "Pão Francês", "Laranja", "Batata", "Cebola", "Maçã", "Cenoura", "Alface"]), ...products.filter(p => p.codigo_doacao).map(p => p.name)])], k = all.join("|");
-  if (k === atalhosKey) return; atalhosKey = k;
-  $("dAtalhos").innerHTML = all.map(n => `<button type="button" data-n="${esc(n)}">${esc(n)}</button>`).join("") + '<button type="button" id="dOutro">＋ Outro</button>'; renderKey();
+function renderKey() { $("dNome").textContent = dSel || "Busque um produto acima"; $("dValor").textContent = dVal || "0"; }
+const DEFN = ["Mamão", "Banana", "Tomate", "Pão Francês", "Laranja", "Batata", "Cebola", "Maçã", "Cenoura", "Alface"];
+function dSuggest() {
+  const raw = $("dBusca").value.trim(), q = norm(raw); if (!q) { $("dSug").innerHTML = ""; return; }
+  const byCode = products.filter(p => p.codigo_doacao && String(p.codigo_doacao).toLowerCase() === q).map(p => p.name);
+  const names = [...new Set([...products.map(p => p.name), ...(C.doacaoAtalhos || DEFN)])].filter(n => norm(n).includes(q) && !byCode.includes(n)).slice(0, 6);
+  const list = [...new Set([...byCode, ...names])], exact = list.some(n => norm(n) === q);
+  $("dSug").innerHTML = list.map(n => `<button type="button" data-sel="${esc(n)}">${esc(n)}</button>`).join("") +
+    (exact ? "" : `<button type="button" data-sel="${esc(raw.slice(0, 60))}">＋ Usar «${esc(raw.slice(0, 60))}» como novo produto</button>`);
 }
-$("dCodOk").onclick = () => { const v = $("dCod").value.trim(), pr = v && products.find(p => String(p.codigo_doacao) === v);
-  if (!pr) return toast("Código de doação não encontrado."); selectProd(pr.name); };
-function selectProd(n) { dSel = n; $("dCod").value = (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; renderKey(); }
+$("dBusca").oninput = dSuggest;
+$("dBusca").onkeydown = e => { if (e.key === "Enter") { const b = $("dSug").querySelector("[data-sel]"); if (b) b.click(); } };
+$("dSug").onclick = e => { const b = e.target.closest("[data-sel]"); if (b) selectProd(b.dataset.sel); };
+function selectProd(n) { dSel = n; $("dCod").value = (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderKey(); }
 $("dCodSave").onclick = () => { if (!dSel) return toast("Escolha o produto primeiro."); const pr = products.find(x => norm(x.name) === norm(dSel)) || { name: dSel };
   const v = saveCode(pr, "codigo_doacao", $("dCod").value); if (v !== null) $("dCod").value = v; };
 $("keypad").innerHTML = ["7", "8", "9", "4", "5", "6", "1", "2", "3", ",", "0", "⌫"].map(k => `<button type="button" data-k="${k}">${k}</button>`).join("") + '<button type="button" class="add" id="dAdd">Adicionar</button>';
-$("dAtalhos").onclick = e => { const b = e.target.closest("button"); if (!b) return;
-  if (b.id === "dOutro") { const n = (prompt("Nome do produto:") || "").trim(); if (n) selectProd(n.slice(0, 60)); } else selectProd(b.dataset.n); };
 $("keypad").onclick = e => { const b = e.target.closest("button"); if (!b) return;
   if (b.id === "dAdd") { const q = Number(dVal.replace(",", "."));
     if (!dSel) return toast("Escolha o produto."); if (!(q > 0)) return toast("Digite o peso em kg.");
@@ -430,7 +431,7 @@ $("histBox").ontoggle = () => {
   if ($("histBox").open) { if (db) { if (!unsubHist) unsubHist = V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(10)), s => renderHist(s.docs.map(d => d.data()))); } else renderHist(store.get(HK, []).slice(0, 10)); }
   else if (unsubHist) { unsubHist(); unsubHist = null; } };
 const go = t => { tab(t); side(false); }; $("navLoja").onclick = () => go("Loja"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("dScan").onclick = () => openScan("doacao");
-renderDon(); buildAtalhos(); renderKey();
+renderDon(); renderKey();
 
 // ---------- aba Etiquetas ----------
 const EK = "validamais-etiquetas", PK = "validamais-precos";

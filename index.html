@@ -34,9 +34,9 @@
 <div id="donaEntrada">
 <section class="panel"><div class="stats"><div class="stat"><b id="dKg">0</b><span>kg doados</span></div><div class="stat"><b id="dUn">0</b><span>unidades</span></div><div class="stat"><b id="dItens">0</b><span>itens</span></div></div>
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="dScan">▦ Bipar itens (unidade ou balança)</button></div></section>
-<section class="panel"><h2 class="h2">Pesagem em kg (FLV / Padaria)</h2><label for="dCod">Código de doação</label><div class="stepper"><input id="dCod" maxlength="12" placeholder="Digite o código"><button type="button" class="secondary" id="dCodOk" style="padding:0 12px">Buscar</button><button type="button" class="primary" id="dCodSave" style="padding:0 12px">Salvar</button></div>
-<small class="note" style="margin-bottom:10px">Buscar: seleciona o produto pelo código. Salvar: grava o código no produto selecionado.</small><div id="dAtalhos" class="grid"></div>
-<div class="kpdisplay"><span id="dNome">Toque num produto</span><span><b id="dValor">0</b> kg</span></div><div id="keypad" class="keypad"></div></section>
+<section class="panel"><h2 class="h2">Pesagem em kg (FLV / Padaria)</h2><input id="dBusca" type="search" placeholder="Buscar produto (nome ou código de doação)" autocomplete="off"><div id="dSug" class="rows sug"></div>
+<div class="kpdisplay"><span id="dNome">Busque um produto acima</span><span><b id="dValor">0</b> kg</span></div><div id="keypad" class="keypad"></div>
+<label for="dCod">Código de doação do produto selecionado</label><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></section>
 <section class="panel"><h2 class="h2">Lista da doação</h2><div id="dLista"></div>
 <div class="toolbar" style="margin-top:12px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
 <small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
