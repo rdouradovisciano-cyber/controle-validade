@@ -19,9 +19,9 @@ const iso = d => new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice
 const daysLeft = e => /^\d{4}-\d\d-\d\d$/.test(e || "") ? Math.round((new Date(e + "T00:00:00") - today()) / 864e5) : null;
 const limit = c => (C.alertaDias && (C.alertaDias[c] ?? C.alertaDias.padrao)) ?? 3;
 const status = p => { const d = daysLeft(p.expiry); return d === null ? "ok" : d < 0 ? "expired" : d <= limit(p.category) ? "soon" : "ok"; };
-const when = d => d === null ? "Sem data" : d < 0 ? `Vencido há ${-d} dia${d < -1 ? "s" : ""}` : d === 0 ? "Vence hoje" : d === 1 ? "Vence amanhã" : `Vence em ${d} dias`;
-const fmt = e => daysLeft(e) === null ? "—" : new Date(e + "T00:00:00").toLocaleDateString("pt-BR");
-const stLabel = p => ({ expired: "Vencido", soon: "A vencer", ok: "No prazo" })[status(p)];
+const when = d => d === null ? "Sem validade" : d < 0 ? `Vencido há ${-d} dia${d < -1 ? "s" : ""}` : d === 0 ? "Vence hoje" : d === 1 ? "Vence amanhã" : `Vence em ${d} dias`;
+const fmt = e => daysLeft(e) === null ? "Sem validade" : new Date(e + "T00:00:00").toLocaleDateString("pt-BR");
+const stLabel = p => daysLeft(p.expiry) === null ? "Sem validade" : ({ expired: "Vencido", soon: "A vencer", ok: "No prazo" })[status(p)];
 
 function toast(msg, action, fn) {
   const t = $("toast"); t.textContent = msg + " ";
@@ -64,7 +64,8 @@ function resetForm() {
   $("productForm").reset(); $("docId").value = ""; $("quantity").value = 1;
   $("category").value = store.get(LC, "") || ""; $("saveNext").classList.remove("hidden"); toggleCodes();
 }
-function toggleCodes() { $("semCodigo").classList.toggle("hidden", !!$("barcode").value.trim() && !["FLV", "Padaria"].includes($("category").value)); }
+function toggleCodes() {
+  const flv = $("category").value === "FLV"; $("expiry").required = !flv; $("expLabel").textContent = flv ? "Data de validade (opcional)" : "Data de validade *"; $("semCodigo").classList.toggle("hidden", !!$("barcode").value.trim() && !["FLV", "Padaria"].includes($("category").value)); }
 async function stopScanner() {
   const s = scanner; scanner = null;
   if (s) { try { await s.stop(); } catch {} try { s.clear(); } catch {} }
@@ -89,7 +90,7 @@ function save(next) {
   const id = $("docId").value, q = Number(String($("quantity").value).replace(",", "."));
   const data = { barcode: $("barcode").value.trim().slice(0, 32), name: $("name").value.trim().slice(0, 120),
     category: $("category").value, expiry: $("expiry").value, quantity: q, por: myName(), codigo_balanca: $("cBalanca").value.trim().slice(0, 12), codigo_doacao: $("cDoacao").value.trim().slice(0, 12) };
-  if (!data.name || !CATS.includes(data.category) || !data.expiry || !(q > 0)) { toast("Preencha nome, categoria, validade e quantidade."); return; }
+  if (!data.name || !CATS.includes(data.category) || (!data.expiry && data.category !== "FLV") || !(q > 0)) { toast(data.category === "FLV" ? "Preencha nome e categoria." : "Preencha nome, categoria, validade e quantidade."); return; }
   store.set(LC, data.category);
   if (db) {
     const ts = V.serverTimestamp();
@@ -306,6 +307,21 @@ $("ocrFile").onchange = async () => {
   $("ocrFile").value = ""; };
 document.addEventListener("keydown", e => { if (e.key === "Escape") side(false); });
 
+// ---------- códigos internos editáveis (balança / doação) ----------
+const sameProd = (a, b) => (b.barcode && a.barcode === b.barcode) || (!b.barcode && !a.barcode && norm(a.name) === norm(b.name));
+const newRec = (p, field, v, ts) => ({ name: p.name, barcode: p.barcode || "", category: p.category || "FLV", expiry: "", quantity: 1, por: myName(), codigo_balanca: "", codigo_doacao: "", [field]: v, ...(ts ? { createdAt: ts, updatedAt: ts } : {}) });
+function saveCode(p, field, raw) {                 // grava o código em todos os lotes do produto (ou cria um item FLV sem validade)
+  const v = String(raw || "").trim().toUpperCase(), re = field === "codigo_balanca" ? /^\d{1,6}$/ : /^[A-Z0-9]{1,12}$/;
+  if (v && !re.test(v)) { toast(field === "codigo_balanca" ? "O código de balança deve ter só números (até 6)." : "Use só letras e números (até 12)."); return null; }
+  const dup = v && products.find(x => x[field] === v && !sameProd(x, p)); if (dup) { toast(`Esse código já pertence a «${dup.name}».`); return null; }
+  const mine = products.filter(x => sameProd(x, p)), fail = e => { console.error(e); toast("Erro ao salvar na nuvem."); };
+  if (db) { const ts = V.serverTimestamp();
+    if (mine.length) mine.forEach(x => V.updateDoc(V.doc(db, "products", x.id), { [field]: v, updatedAt: ts }).catch(fail));
+    else V.addDoc(V.collection(db, "products"), newRec(p, field, v, ts)).catch(fail);
+  } else { if (mine.length) mine.forEach(x => { x[field] = v; }); else products.push({ ...newRec(p, field, v), id: uid() }); persist(); render(); }
+  toast(v ? "Código salvo." : "Código removido."); return v;
+}
+
 // ---------- aba Doação ----------
 const DK = "validamais-doacao", HK = "validamais-doacoes", NK = "validamais-dnomes";
 let don = store.get(DK, null) || { itens: [], inicio: new Date().toISOString() }, dSel = "", dVal = "", curRom = null, histList = [], unsubHist = null, lastScan = { c: "", t: 0 };
@@ -353,10 +369,13 @@ function buildAtalhos() {
   $("dAtalhos").innerHTML = all.map(n => `<button type="button" data-n="${esc(n)}">${esc(n)}</button>`).join("") + '<button type="button" id="dOutro">＋ Outro</button>'; renderKey();
 }
 $("dCodOk").onclick = () => { const v = $("dCod").value.trim(), pr = v && products.find(p => String(p.codigo_doacao) === v);
-  if (!pr) return toast("Código de doação não encontrado."); dSel = pr.name; $("dCod").value = ""; renderKey(); };
+  if (!pr) return toast("Código de doação não encontrado."); selectProd(pr.name); };
+function selectProd(n) { dSel = n; $("dCod").value = (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; renderKey(); }
+$("dCodSave").onclick = () => { if (!dSel) return toast("Escolha o produto primeiro."); const pr = products.find(x => norm(x.name) === norm(dSel)) || { name: dSel };
+  const v = saveCode(pr, "codigo_doacao", $("dCod").value); if (v !== null) $("dCod").value = v; };
 $("keypad").innerHTML = ["7", "8", "9", "4", "5", "6", "1", "2", "3", ",", "0", "⌫"].map(k => `<button type="button" data-k="${k}">${k}</button>`).join("") + '<button type="button" class="add" id="dAdd">Adicionar</button>';
 $("dAtalhos").onclick = e => { const b = e.target.closest("button"); if (!b) return;
-  if (b.id === "dOutro") { const n = (prompt("Nome do produto:") || "").trim(); if (n) dSel = n.slice(0, 60); } else dSel = b.dataset.n; renderKey(); };
+  if (b.id === "dOutro") { const n = (prompt("Nome do produto:") || "").trim(); if (n) selectProd(n.slice(0, 60)); } else selectProd(b.dataset.n); };
 $("keypad").onclick = e => { const b = e.target.closest("button"); if (!b) return;
   if (b.id === "dAdd") { const q = Number(dVal.replace(",", "."));
     if (!dSel) return toast("Escolha o produto."); if (!(q > 0)) return toast("Digite o peso em kg.");
@@ -420,14 +439,15 @@ let labels = store.get(EK, []), pend = null, eHits = [];
 const brl = v => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }).replace(/\u00a0/g, " ");
 const parsePrice = v => { const s = String(v).trim(); return s.includes(",") ? Number(s.replace(/\./g, "").replace(",", ".")) : Number(s); };
 // itens pesados (FLV/Padaria) usam o código de balança; os demais usam o EAN
+const codeText = c => c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.code}` : "⚠ Sem código cadastrado: a etiqueta sai só com nome e preço.";
 const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.category) || !p.barcode)) ? { code: String(p.codigo_balanca), kg: true } : { code: p.barcode || "", kg: false };
 function renderLabels() {
   $("eLista").innerHTML = labels.length ? labels.map((l, i) => `<div class="drow"><div><b>${esc(l.nome)}</b><small>Tamanho ${esc(l.tam)} · ${brl(l.preco)}${l.kg ? "/kg" : ""} · ${l.code ? esc(l.code) : "sem código"}</small></div><b>×${l.qtd}</b><button class="danger" data-ldrop="${i}" aria-label="Remover">✕</button></div>`).join("") : '<p class="muted">Nenhuma etiqueta na lista.</p>';
 }
 function labelPick(p) {
-  const c = labelCode(p); pend = { nome: p.name, code: c.code, kg: c.kg, tam: "" };
+  const c = labelCode(p); pend = { nome: p.name, code: c.code, kg: c.kg, tam: "", src: p }; $("eCodBal").value = p.codigo_balanca || "";
   $("ePend").classList.remove("hidden"); $("eNome").textContent = p.name;
-  $("eCod").textContent = c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.code}` : "⚠ Sem código cadastrado: a etiqueta sai só com nome e preço.";
+  $("eCod").textContent = codeText(c);
   $("ePreco").value = String(store.get(PK, {})[norm(p.name)] || "").replace(".", ","); $("eQtd").value = 1;
   document.querySelectorAll("#eTam button").forEach(b => b.classList.remove("sel")); $("ePend").scrollIntoView({ behavior: "smooth" });
 }
@@ -447,11 +467,13 @@ $("eBusca").oninput = () => { const q = norm($("eBusca").value); if (q.length < 
 $("eRes").onclick = e => { const b = e.target.closest("[data-pick]"); if (b) labelPick(eHits[Number(b.dataset.pick)]); };
 $("eTam").onclick = e => { const b = e.target.closest("button"); if (!b || !pend) return; pend.tam = b.dataset.t; document.querySelectorAll("#eTam button").forEach(x => x.classList.toggle("sel", x === b)); };
 $("eMenos").onclick = () => { $("eQtd").value = Math.max(1, (Number($("eQtd").value) || 1) - 1); }; $("eMais").onclick = () => { $("eQtd").value = (Number($("eQtd").value) || 0) + 1; };
+$("eCodSave").onclick = () => { if (!pend) return; const v = saveCode(pend.src, "codigo_balanca", $("eCodBal").value); if (v === null) return;
+  pend.src = { ...pend.src, codigo_balanca: v }; const c = labelCode(pend.src); pend.code = c.code; pend.kg = c.kg; $("eCod").textContent = codeText(c); $("eCodBal").value = v; };
 $("eCancela").onclick = () => { pend = null; $("ePend").classList.add("hidden"); };
 $("eAdd").onclick = () => {
   if (!pend) return; if (!pend.tam) return toast("Escolha o tamanho: P, M ou G.");
   const preco = parsePrice($("ePreco").value); if (!(preco > 0)) return toast("Digite o preço.");
-  labels.push({ ...pend, preco, qtd: Math.max(1, Math.round(Number($("eQtd").value) || 1)) }); store.set(EK, labels);
+  labels.push({ nome: pend.nome, code: pend.code, kg: pend.kg, tam: pend.tam, preco, qtd: Math.max(1, Math.round(Number($("eQtd").value) || 1)) }); store.set(EK, labels);
   const pr = store.get(PK, {}); pr[norm(pend.nome)] = preco; store.set(PK, pr);
   pend = null; $("ePend").classList.add("hidden"); $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels(); toast("Etiqueta adicionada à lista.");
 };
