@@ -60,13 +60,18 @@
 </main>
 <div id="sideBg" class="bg hidden"></div>
 <aside id="side" class="side" aria-label="Menu"><div class="sheethead"><h2>Menu</h2><button class="secondary" id="sideClose" aria-label="Fechar menu">✕</button></div>
-<nav class="menu"><button id="navLoja" class="active">🏪 Loja<small>Controle de validades</small></button><button id="navDoacao">🎁 Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Impressão de preços</small></button></nav>
+<nav class="menu"><button id="navLoja" class="active">🏪 Loja<small>Controle de validades</small></button><button id="navDoacao">🎁 Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Impressão de preços</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
 <section class="panel"><h2 style="font-size:17px;margin:0 0 10px">Exportar</h2>
 <label for="exportScope">O que exportar</label><select id="exportScope"><option value="all">Todos os produtos</option><option value="soon">Vencem em breve</option><option value="expired">Vencidos</option><option value="category">Uma categoria</option></select>
 <select id="exportCategory" class="hidden" aria-label="Categoria para exportar" style="margin-top:8px"></select>
 <div class="toolbar" style="margin-top:10px"><button class="secondary" id="csvBtn">Excel (.csv)</button><button class="secondary" id="pdfBtn">Gerar PDF</button><button class="primary" id="shareBtn">Compartilhar</button></div>
 <small class="note">O compartilhamento usa a janela nativa do celular quando disponível; se não houver, o PDF é baixado.</small></section>
 <button class="secondary" id="installBtn" hidden style="width:100%;margin-top:10px">Instalar app</button></aside>
+<div id="impModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="impTitle"><div class="sheethead"><h2 id="impTitle">Importar lista de produtos</h2><button class="secondary" id="impClose" aria-label="Fechar">✕</button></div>
+<p class="note">Uma linha por produto. Separe as colunas com <b>;</b> (ponto e vírgula), tabulação (ao colar do Excel) ou <b>|</b>. Ordem: <b>nome; código de balança; código de doação; EAN; categoria</b>. Só o nome é obrigatório. Quem já existe (pelo EAN ou pelo nome) é atualizado; os novos entram como FLV, sem validade, se você não informar a categoria.</p>
+<textarea id="impText" rows="8" placeholder="Mamão Papaya;123;45&#10;Banana Prata;124;46&#10;Pão Francês;200;B1;;Padaria"></textarea>
+<div class="toolbar" style="margin-top:8px"><button class="secondary" id="impFileBtn">📎 Escolher arquivo</button><button class="secondary" id="impModel">Baixar modelo</button></div><input type="file" id="impFile" accept=".csv,.txt,.tsv,text/plain,text/csv" hidden>
+<div class="toolbar" style="margin-top:10px"><button class="secondary big" id="impCheck">Conferir lista</button><button class="primary big" id="impGo" disabled>Cadastrar</button></div><div id="impPrev" class="rows"></div></section></div>
 <div id="sectorBox" class="modal"><section class="sheet"><h2 class="h2">Qual setor você vai conferir?</h2><div id="sectorBtns" class="grid"></div></section></div>
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="modal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">

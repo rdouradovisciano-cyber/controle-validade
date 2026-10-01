@@ -508,6 +508,68 @@ $("ePdf").onclick = async () => {
 };
 renderLabels();
 
+// ---------- importar lista de produtos (nome + códigos) ----------
+const HDR = { nome: /^(nome|produto|descri)/, bal: /(balan|plu)/, doa: /doa/, ean: /(ean|barra|gtin)/, cat: /(categ|setor)/ };
+const catOf = s => { const n = norm(s); return CATS.find(c => norm(c) === n) || (/^(hortifruti|fruta|legume|verdura)/.test(n) ? "FLV" : null); };
+const cleanNum = s => String(s || "").trim().replace(/\.0+$/, "");
+function parseRows(text) {
+  const lines = String(text).replace(/\r/g, "").split("\n").map(l => l.trim()).filter(Boolean); if (!lines.length) return [];
+  const sample = lines.slice(0, 5).join("\n"), d = ["\t", ";", "|"].find(c => sample.includes(c)) || ",";
+  let cols = { nome: 0, bal: 1, doa: 2, ean: 3, cat: 4 }, start = 0;
+  const head = lines[0].split(d).map(c => norm(c));
+  if (head.some(c => HDR.nome.test(c))) { cols = {}; head.forEach((c, i) => { for (const k in HDR) if (!(k in cols) && HDR[k].test(c)) { cols[k] = i; break; } }); start = 1; }
+  return lines.slice(start).map((l, i) => { const c = l.split(d).map(x => x.trim().replace(/^"|"$/g, "").trim()), g = k => cols[k] === undefined ? "" : (c[cols[k]] || "");
+    return { linha: start + i + 1, nome: g("nome").slice(0, 120), bal: cleanNum(g("bal")), doa: g("doa").replace(/\s+/g, "").toUpperCase(), ean: cleanNum(g("ean")), cat: g("cat") }; });
+}
+function analyzeList(text) {
+  const out = [], seen = new Set(), claims = { codigo_balanca: {}, codigo_doacao: {} };
+  products.forEach(x => { const k = x.barcode || norm(x.name); ["codigo_balanca", "codigo_doacao"].forEach(f => { if (x[f]) claims[f][String(x[f]).toUpperCase()] = { k, nome: x.name }; }); });
+  for (const r of parseRows(text).slice(0, 500)) {
+    const bad = msg => out.push({ ...r, st: "erro", msg });
+    if (!r.nome) { bad("sem nome"); continue; }
+    if (r.bal && !/^\d{1,6}$/.test(r.bal)) { bad("código de balança inválido (só números, até 6)"); continue; }
+    if (r.doa && !/^[A-Z0-9]{1,12}$/.test(r.doa)) { bad("código de doação inválido (letras/números, até 12)"); continue; }
+    if (r.ean && !/^\d{6,14}$/.test(r.ean)) { bad("EAN inválido"); continue; }
+    let cat = ""; if (r.cat) { cat = catOf(r.cat); if (!cat) { bad("categoria desconhecida: " + r.cat); continue; } }
+    const matched = products.filter(x => r.ean ? (x.barcode === r.ean || (!x.barcode && norm(x.name) === norm(r.nome))) : norm(x.name) === norm(r.nome));
+    const key = matched.length ? (matched[0].barcode || norm(matched[0].name)) : (r.ean || norm(r.nome));
+    if (seen.has(key)) { bad("produto repetido na lista"); continue; }
+    const pairs = [["codigo_balanca", r.bal], ["codigo_doacao", r.doa]].filter(([, v]) => v);
+    const clash = pairs.map(([f, v]) => ({ v, c: claims[f][v] })).find(x => x.c && x.c.k !== key);
+    if (clash) { bad(`código ${clash.v} já pertence a «${clash.c.nome}»`); continue; }
+    seen.add(key); pairs.forEach(([f, v]) => { claims[f][v] = { k: key, nome: r.nome }; });
+    out.push({ ...r, cat, matched, st: matched.length ? "atualiza" : "novo" });
+  }
+  return out;
+}
+function applyImport(rows) {
+  const ts = db ? V.serverTimestamp() : null, fail = e => { console.error(e); toast("Erro ao salvar na nuvem."); }; let n = 0, u = 0;
+  for (const r of rows.filter(x => x.st !== "erro")) {
+    const f = {}; if (r.bal) f.codigo_balanca = r.bal; if (r.doa) f.codigo_doacao = r.doa; if (r.ean) f.barcode = r.ean; if (r.cat) f.category = r.cat;
+    if (r.matched.length) { u++; r.matched.forEach(x => db ? V.updateDoc(V.doc(db, "products", x.id), { ...f, updatedAt: ts }).catch(fail) : Object.assign(x, f)); }
+    else { n++; const rec = { name: r.nome, barcode: "", category: "FLV", expiry: "", quantity: 1, por: myName(), codigo_balanca: "", codigo_doacao: "", ...f };
+      if (db) V.addDoc(V.collection(db, "products"), { ...rec, createdAt: ts, updatedAt: ts }).catch(fail); else products.push({ ...rec, id: uid() }); }
+  }
+  if (!db) { persist(); render(); } return { n, u };
+}
+let impRows = [];
+function impCheck() {
+  impRows = analyzeList($("impText").value); const ok = impRows.filter(r => r.st !== "erro").length, er = impRows.length - ok;
+  $("impGo").disabled = !ok; $("impGo").textContent = ok ? `Cadastrar ${ok} produto(s)` : "Cadastrar";
+  $("impPrev").innerHTML = impRows.length ? `<p><b>${impRows.filter(r => r.st === "novo").length} novos · ${impRows.filter(r => r.st === "atualiza").length} atualizações · ${er} com erro</b></p><div class="impl">` +
+    impRows.map(r => r.st === "erro" ? `<p class="bad">✖ Linha ${r.linha}: ${esc(r.msg)}</p>` : `<p>${r.st === "novo" ? "＋" : "↻"} <b>${esc(r.nome)}</b> <span class="muted">${[r.bal && "Balança " + r.bal, r.doa && "Doação " + r.doa, r.ean && "EAN " + r.ean, r.cat && esc(r.cat)].filter(Boolean).join(" · ") || "sem códigos"}</span></p>`).join("") + "</div>" : '<p class="muted">Nenhuma linha encontrada.</p>';
+}
+const impOpen = o => $("impModal").classList.toggle("hidden", !o);
+$("navImport").onclick = () => { side(false); impOpen(true); };
+$("impClose").onclick = () => impOpen(false);
+$("impCheck").onclick = impCheck;
+$("impGo").onclick = () => { const { n, u } = applyImport(impRows); impRows = []; $("impText").value = ""; $("impPrev").innerHTML = ""; $("impGo").disabled = true; impOpen(false); toast(`Importação concluída: ${n} novo(s), ${u} atualizado(s).`); };
+$("impFileBtn").onclick = () => $("impFile").click();
+$("impFile").onchange = async () => { const f = $("impFile").files[0]; if (!f) return; const buf = await f.arrayBuffer();
+  let t; try { t = new TextDecoder("utf-8", { fatal: true }).decode(buf); } catch { t = new TextDecoder("windows-1252").decode(buf); }
+  $("impText").value = t.replace(/^\ufeff/, ""); $("impFile").value = ""; impCheck(); };
+$("impModel").onclick = () => download(new Blob(["\ufeffnome;codigo_balanca;codigo_doacao;ean;categoria\r\nMamão Papaya;123;45;;FLV\r\nBanana Prata;124;46;;FLV\r\nPão Francês;200;B1;;Padaria\r\n"], { type: "text/csv;charset=utf-8" }), "modelo-importacao-valida.csv");
+
 if (db) startPresence(); else localStats();
 
 // ---------- PWA ----------
