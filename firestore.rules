@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ACESSO ABERTO (sem login): quem tiver o link/projectId consegue ler e alterar.
+    // As regras abaixo apenas garantem que os dados gravados tenham o formato correto.
+    match /products/{id} {
+      allow read: if true;
+      allow delete: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(
+          ['barcode','name','category','expiry','quantity','createdAt','updatedAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 120
+        && request.resource.data.category in ['Ovos','FLV','Padaria','Laticínios','Mercearia','Bebidas','Congelados','Higiene e limpeza','Outros']
+        && request.resource.data.expiry is string
+        && request.resource.data.expiry.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.quantity is number
+        && request.resource.data.quantity > 0 && request.resource.data.quantity < 100000
+        && request.resource.data.barcode is string && request.resource.data.barcode.size() <= 32;
+    }
+  }
+}
