@@ -1,6 +1,6 @@
 // Configuração do Valida+. Edite apenas este arquivo.
 window.VALIDA_CONFIG = {
-  loja: "Minha loja",
+  loja: "Sam's Club Radial Leste",
   // Dias de antecedência para o aviso "vence em breve" (por categoria ou padrão)
   alertaDias: { padrao: 3, Ovos: 5, FLV: 2, Padaria: 1 },
   // Etiqueta de balança (EAN-13 que começa com 2): 2 + código do item + peso em gramas + dígito.

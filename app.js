@@ -3,7 +3,10 @@
 const C = window.VALIDA_CONFIG || {}, V = window.V || {}, fb = C.firebase || {};
 const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros"];
 const $ = id => document.getElementById(id);
-const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria";
+const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria", TK = "validamais-tam";
+let curTab = "Loja";
+const LOJA = C.loja || "Sam's Club Radial Leste";
+const EMPTY_FLV = '<div class="empty"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="#9db8a4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 28h44l-5 22a4 4 0 0 1-4 3H19a4 4 0 0 1-4-3z"/><path d="M22 28c0-9 4-16 10-16s10 7 10 16"/><path d="M32 12c0-4 3-7 8-7 0 5-3 8-8 7z"/></svg><p>Nenhum produto do FLV com validade para vencer no momento.</p></div>';
 let products = [], db = null, scanner = null, toastTimer;
 const cloud = !!fb.apiKey && !/COLE_|SEU_/.test(fb.apiKey + fb.projectId);
 const store = {
@@ -46,12 +49,13 @@ function render() {
   $("todayBanner").classList.toggle("hidden", !hoje.length);
   $("todayBanner").textContent = `⚠ VENCEM HOJE (${hoje.length}): ` + hoje.slice(0, 5).map(p => p.name).join(", ") + (hoje.length > 5 ? "…" : "");
   if (!hoje.length) alarmed = false; else if (!alarmed && actx) { alarmed = true; alarm(); }
-  const rows = products.filter(p => (!cat || p.category === cat) && (!st || status(p) === st) &&
+  const rows = products.filter(p => (!cat || p.category === cat) && !(cat === "FLV" && daysLeft(p.expiry) === null) && (!st || status(p) === st) &&
     (!q || (p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q)))
     .sort((a, b) => (a.expiry || "9999").localeCompare(b.expiry || "9999"));
-  $("list").innerHTML = rows.length ? rows.map(p => { const s = status(p);
-    return `<article class="product ${s}"><h3>${esc(p.name)}</h3><p>${esc(p.category)} · Qtd: ${esc(p.quantity)} · Validade: <b>${fmt(p.expiry)}</b>${cnt[p.barcode] > 1 ? ` · <b>${cnt[p.barcode]} lotes</b> deste código` : ""}</p><p>Código: ${esc(p.barcode || "não informado")}</p><span class="pill">${when(daysLeft(p.expiry))}</span><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
-  }).join("") : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>';
+  const tams = store.get(TK, {});
+  $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p), k = pkey(p);
+    return `<article class="product ${cls}"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><p class="meta">Validade: <b>${fmt(p.expiry)}</b>${cnt[p.barcode] > 1 ? ` · ${cnt[p.barcode]} lotes` : ""}</p><div class="pills"><span class="pill">${when(dl)}</span><button class="tam" data-tam="${esc(k)}" aria-label="Alternar tamanho da etiqueta">🏷 Etiqueta ${tams[k] || "M"}</button></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
+  }).join("") : (cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
 }
 
 // ---------- modal e formulário ----------
@@ -97,7 +101,7 @@ function save(next) {
                  : V.addDoc(V.collection(db, "products"), { ...data, createdAt: ts, updatedAt: ts });
     p.catch(e => { console.error(e); toast("Erro ao salvar na nuvem. Confira as regras do Firestore."); });
   } else {
-    if (id) products = products.map(x => x.id === id ? { ...x, ...data } : x); else products.push({ ...data, id: uid() });
+    if (id) products = products.map(x => x.id === id ? { ...x, ...data, updatedAt: Date.now() } : x); else products.push({ ...data, id: uid(), updatedAt: Date.now() });
     persist(); render();
   }
   closeModal(); toast("Produto salvo."); if (next) openScan();
@@ -183,7 +187,7 @@ function download(blob, name) {
 function makePdf(rows) {
   const pdf = new V.jsPDF();
   pdf.setFontSize(16); pdf.text("Relatório de validade", 14, 16);
-  pdf.setFontSize(9); pdf.text(`${C.loja || "Valida+"} · Gerado em ${new Date().toLocaleString("pt-BR")} · ${rows.length} produto(s)`, 14, 22);
+  pdf.setFontSize(9); pdf.text(`${LOJA} · Gerado em ${new Date().toLocaleString("pt-BR")} · ${rows.length} produto(s)`, 14, 22);
   const col = t => t === "Vencido" ? [185, 28, 28] : t === "A vencer" ? [161, 98, 7] : [22, 101, 52];
   V.autoTable(pdf, { startY: 27, styles: { fontSize: 8 }, headStyles: { fillColor: [22, 101, 52] },
     head: [["Produto", "Categoria", "Código", "Validade", "Qtd", "Status"]],
@@ -198,8 +202,9 @@ const stamp = () => iso(new Date());
 fillCategories();
 ["search"].forEach(i => $(i).oninput = render);
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
-$("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.del) remove(b.dataset.del); };
-$("manualOpen").onclick = () => openForm(); $("scanOpen").onclick = () => openScan(); $("retryScan").onclick = () => openScan(scanMode);
+$("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.tam !== undefined) { const m = store.get(TK, {}), k = b.dataset.tam; m[k] = { P: "M", M: "G", G: "P" }[m[k] || "M"]; store.set(TK, m); render(); return; }
+  if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.del) remove(b.dataset.del); };
+$("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Etiquetas" ? "etiqueta" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = async () => { await stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("modal").classList.contains("hidden")) closeModal(); });
@@ -324,21 +329,26 @@ function saveCode(p, field, raw) {                 // grava o código em todos o
 // ---------- aba Doação ----------
 const DK = "validamais-doacao", HK = "validamais-doacoes", NK = "validamais-dnomes";
 let don = store.get(DK, null) || { itens: [], inicio: new Date().toISOString() }, dSel = "", dVal = "", curRom = null, histList = [], unsubHist = null, lastScan = { c: "", t: 0 };
-const norm = s => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+function norm(s) { return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim(); }
+function pkey(p) { return p.barcode || norm(p.name); }
+function tamOf(p) { return (p && store.get(TK, {})[pkey(p)]) || "M"; }
+function dayOf(p) { const t = p.updatedAt, v = t && t.toMillis ? t.toMillis() : (t ? Number(t) : Date.now()); return new Date(v).toLocaleDateString("pt-BR"); }
 const fq = q => (Math.round(q * 1000) / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 3 });
 const sumU = u => don.itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0);
 const dataBR = d => new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 function tab(t) {
+  curTab = t;
   ["Loja", "Doacao", "Etiquetas"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); });
 }
 function renderDon() {
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dItens").textContent = don.itens.length;
   $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="drow"><div><b>${esc(i.nome)}</b><small>${i.lanc} lançamento(s)</small></div><b>${fq(i.qtd)} ${esc(i.unidade)}</b><button class="danger" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).join("") : '<p class="muted">Nada lançado ainda. Bipe um item ou use a pesagem.</p>';
 }
-function addDon(nome, unidade, qtd) {
+function addDon(nome, unidade, qtd, cod = "") {
   qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0;
   const key = norm(nome) + "|" + unidade; let it = don.itens.find(i => i.key === key);
   if (it) { it.qtd = Math.round((it.qtd + qtd) * 1000) / 1000; it.lanc++; } else { it = { key, nome: nome.trim().slice(0, 60), unidade, qtd, lanc: 1 }; don.itens.push(it); }
+  const pr = products.find(x => norm(x.name) === norm(nome)); it.cod = it.cod || cod || (pr && (pr.codigo_doacao || pr.barcode || pr.codigo_balanca)) || "";
   store.set(DK, don); renderDon(); return it.qtd;
 }
 function parseScale(code) {                       // EAN-13 de balança: 2 + código do item + peso (g) + dígito verificador
@@ -356,7 +366,7 @@ function donationScan(code) {
   let nome = (unidade === "un" && (products.find(p => p.barcode === code) || {}).name) || (unidade === "kg" && (products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(key.slice(1))) || {}).name) || names[key];
   if (!nome) { nome = (prompt(unidade === "kg" ? `Item de balança ${key.slice(1)} (${fq(qtd)} kg). Qual o nome do produto?` : `Código ${code}. Qual o nome do produto?`) || "").trim();
     if (!nome) { lastScan.t = Date.now(); return; } names[key] = nome; store.set(NK, names); }
-  const total = addDon(nome, unidade, qtd);
+  const total = addDon(nome, unidade, qtd, unidade === "un" ? code : "");
   toast(`${nome}: +${fq(qtd)} ${unidade} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
 }
 // pesagem manual
@@ -388,26 +398,37 @@ $("keypad").onclick = e => { const b = e.target.closest("button"); if (!b) retur
   renderKey(); };
 $("dLista").onclick = e => { const b = e.target.closest("[data-drop]"); if (!b) return; const x = Number(b.dataset.drop), it = don.itens.splice(x, 1)[0];
   store.set(DK, don); renderDon(); toast(`${it.nome} removido.`, "Desfazer", () => { don.itens.splice(x, 0, it); store.set(DK, don); renderDon(); }); };
-$("dLimpar").onclick = () => { if (don.itens.length && confirm("Apagar toda a lista da doação atual?")) { don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); } };
+$("dLimpar").onclick = () => { if (don.itens.length && confirm("Apagar toda a lista da doação atual?")) { don = { itens: [], inicio: new Date().toISOString(), codigo: "" }; $("dNum").value = ""; store.set(DK, don); renderDon(); } };
 // romaneio
+const CKK = "validamais-conf", romKey = d => d.data + "|" + (d.codigo || "");
+const confGet = d => store.get(CKK, {})[romKey(d)] || [];
+function confSet(d, i, v) { const all = store.get(CKK, {}), a = all[romKey(d)] || []; a[i] = v; all[romKey(d)] = a; store.set(CKK, all); }
 function romText(d) {
-  return [`ROMANEIO DE DOAÇÃO - ${C.loja || "Valida+"}`, `Data: ${dataBR(d.data)}`, "------------------------",
-    ...d.itens.map(i => `${i.nome}: ${fq(i.qtd)} ${i.unidade}`), "------------------------",
-    `TOTAL: ${fq(d.totalKg)} kg · ${fq(d.totalUn)} un (${d.itens.length} itens)`].join("\n");
+  const c = confGet(d);
+  return [`DOAÇÃO FLV ${d.codigo || ""}`.trim(), `Data: ${dataBR(d.data)}`, `Loja: ${LOJA}`, "------------------------",
+    ...d.itens.map((i, x) => `[${c[x] ? "x" : " "}] ${i.cod || "-"} | ${i.nome} | ${fq(i.qtd)} ${i.unidade} | ${i.tam || "M"}`), "------------------------",
+    `TOTAL: ${fq(d.totalKg)} kg · ${fq(d.totalUn)} un · ${d.itens.length} itens`].join("\n");
 }
 function romPdf(d) {
-  const pdf = new V.jsPDF(); pdf.setFontSize(16); pdf.text("Romaneio de doação", 14, 16);
-  pdf.setFontSize(9); pdf.text(`${C.loja || "Valida+"} · ${dataBR(d.data)}`, 14, 22);
-  V.autoTable(pdf, { startY: 27, styles: { fontSize: 9 }, headStyles: { fillColor: [22, 101, 52] }, footStyles: { fillColor: [226, 238, 229], textColor: [20, 83, 45] },
-    head: [["Item", "Quantidade", "Lançamentos"]], body: d.itens.map(i => [i.nome, `${fq(i.qtd)} ${i.unidade}`, i.lanc]),
-    foot: [["TOTAL", `${fq(d.totalKg)} kg · ${fq(d.totalUn)} un`, ""]] });
+  const pdf = new V.jsPDF(), conf = confGet(d); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text(`DOAÇÃO FLV ${d.codigo || ""}`.trim(), 14, 16);
+  pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Data: ${dataBR(d.data)}   Loja: ${LOJA}`, 14, 23);
+  V.autoTable(pdf, { startY: 28, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [22, 101, 52] }, footStyles: { fillColor: [226, 238, 229], textColor: [20, 83, 45] }, columnStyles: { 0: { cellWidth: 26 } },
+    head: [["CONFERIDO", "CÓDIGO", "NOME", "QUANTIDADES", "ETIQUETA"]], body: d.itens.map(i => ["", i.cod || "-", i.nome, `${fq(i.qtd)} ${i.unidade}`, i.tam || "M"]),
+    foot: [["", "TOTAL", `${fq(d.totalKg)} kg · ${fq(d.totalUn)} un`, `${d.itens.length} itens`, ""]],
+    didDrawCell: h => { if (h.section !== "body") return; const c = h.cell, x = h.row.index, m = c.y + c.height / 2;
+      if (h.column.index === 0) { pdf.setDrawColor(60); pdf.setLineWidth(.3); pdf.rect(c.x + 9, m - 2, 4, 4);
+        if (conf[x]) { pdf.setDrawColor(22, 101, 52); pdf.line(c.x + 9.6, m, c.x + 11, m + 1.5); pdf.line(c.x + 11, m + 1.5, c.x + 12.6, m - 1.6); } }
+      else if (conf[x] && h.column.index <= 3) { pdf.setDrawColor(220, 38, 38); pdf.setLineWidth(.5); pdf.line(c.x + 1, m, c.x + c.width - 1, m); } } });
   return pdf.output("blob");
 }
 function showRomaneio(d) {
-  curRom = d; $("donaEntrada").classList.add("hidden"); $("donaRomaneio").classList.remove("hidden");
-  $("romBody").innerHTML = `<p class="note">${dataBR(d.data)}</p><div class="stats"><div class="stat"><b>${fq(d.totalKg)}</b><span>kg doados</span></div><div class="stat"><b>${fq(d.totalUn)}</b><span>unidades</span></div><div class="stat"><b>${d.itens.length}</b><span>itens</span></div></div>` +
-    d.itens.map(i => `<div class="drow"><div><b>${esc(i.nome)}</b></div><b>${fq(i.qtd)} ${esc(i.unidade)}</b></div>`).join("");
+  curRom = d; $("donaEntrada").classList.add("hidden"); $("donaRomaneio").classList.remove("hidden"); const c = confGet(d);
+  $("romHead").innerHTML = `<h3 class="romtitle">DOAÇÃO FLV ${esc(d.codigo || "")}</h3><p class="note">Data: ${dataBR(d.data)} · Loja: ${esc(LOJA)}</p>`;
+  $("romBody").innerHTML = `<div class="rwrap"><table class="rom"><thead><tr><th>CONF.</th><th>CÓDIGO</th><th>NOME</th><th>QUANTIDADES</th><th>ETIQUETA</th></tr></thead><tbody>` +
+    d.itens.map((i, x) => `<tr class="${c[x] ? "done" : ""}"><td><input type="checkbox" data-ck="${x}" ${c[x] ? "checked" : ""} aria-label="Conferido"></td><td>${esc(i.cod || "—")}</td><td>${esc(i.nome)}</td><td>${fq(i.qtd)} ${esc(i.unidade)}</td><td>${esc(i.tam || "M")}</td></tr>`).join("") +
+    `</tbody></table></div><p class="romtotal">TOTAL: ${fq(d.totalKg)} kg · ${fq(d.totalUn)} un · ${d.itens.length} itens</p>`;
 }
+$("romBody").onchange = e => { const k = e.target.closest("[data-ck]"); if (!k) return; confSet(curRom, Number(k.dataset.ck), k.checked); k.closest("tr").classList.toggle("done", k.checked); };
 $("rZap").onclick = async () => { const t = romText(curRom);
   if (navigator.share) { try { await navigator.share({ title: "Romaneio de doação", text: t }); } catch (e) { if (e.name !== "AbortError") toast("Não foi possível compartilhar."); } }
   else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank"); };
@@ -417,12 +438,12 @@ $("rPdf").onclick = async () => { try { const blob = romPdf(curRom), file = new 
 $("rNova").onclick = () => { $("donaRomaneio").classList.add("hidden"); $("donaEntrada").classList.remove("hidden"); };
 $("dFinalizar").onclick = () => {
   if (!don.itens.length) return toast("A lista está vazia.");
-  const rec = { data: iso(new Date()), por: myName().slice(0, 40), totalKg: Math.round(sumU("kg") * 1000) / 1000, totalUn: Math.round(sumU("un") * 1000) / 1000,
-    itens: don.itens.map(({ nome, unidade, qtd, lanc }) => ({ nome, unidade, qtd, lanc })) };
+  const rec = { data: iso(new Date()), por: myName().slice(0, 40), codigo: (don.codigo || prompt("Código da doação (ex.: 4918). Pode deixar em branco:") || "").trim().slice(0, 12), totalKg: Math.round(sumU("kg") * 1000) / 1000, totalUn: Math.round(sumU("un") * 1000) / 1000,
+    itens: don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc, cod: cod || "", tam: tamOf(products.find(x => norm(x.name) === norm(nome))) })) };
   if (!confirm(`Finalizar a doação: ${fq(rec.totalKg)} kg e ${fq(rec.totalUn)} un?`)) return;
   if (db) V.addDoc(V.collection(db, "doacoes"), { ...rec, em: V.serverTimestamp() }).catch(e => { console.error(e); toast("Erro ao salvar na nuvem (confira as regras). O romaneio foi gerado."); });
   else { const h = store.get(HK, []); h.unshift({ ...rec, em: Date.now() }); store.set(HK, h.slice(0, 50)); }
-  don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); showRomaneio(rec);
+  don = { itens: [], inicio: new Date().toISOString(), codigo: "" }; $("dNum").value = ""; store.set(DK, don); renderDon(); showRomaneio(rec);
 };
 function renderHist(l) { histList = l;
   $("dHist").innerHTML = l.length ? l.map((h, i) => `<p><b>${dataBR(h.data)}</b> · ${fq(h.totalKg)} kg · ${fq(h.totalUn)} un <button class="secondary" data-hist="${i}">Abrir</button></p>`).join("") : '<p class="muted">Nenhuma doação finalizada.</p>'; }
@@ -431,6 +452,7 @@ $("histBox").ontoggle = () => {
   if ($("histBox").open) { if (db) { if (!unsubHist) unsubHist = V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(10)), s => renderHist(s.docs.map(d => d.data()))); } else renderHist(store.get(HK, []).slice(0, 10)); }
   else if (unsubHist) { unsubHist(); unsubHist = null; } };
 const go = t => { tab(t); side(false); }; $("navLoja").onclick = () => go("Loja"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("dScan").onclick = () => openScan("doacao");
+$("dNum").value = don.codigo || ""; $("dNum").oninput = () => { don.codigo = $("dNum").value.trim().slice(0, 12); store.set(DK, don); };
 renderDon(); renderKey();
 
 // ---------- aba Etiquetas ----------
@@ -446,11 +468,11 @@ function renderLabels() {
   $("eLista").innerHTML = labels.length ? labels.map((l, i) => `<div class="drow"><div><b>${esc(l.nome)}</b><small>Tamanho ${esc(l.tam)} · ${brl(l.preco)}${l.kg ? "/kg" : ""} · ${l.code ? esc(l.code) : "sem código"}</small></div><b>×${l.qtd}</b><button class="danger" data-ldrop="${i}" aria-label="Remover">✕</button></div>`).join("") : '<p class="muted">Nenhuma etiqueta na lista.</p>';
 }
 function labelPick(p) {
-  const c = labelCode(p); pend = { nome: p.name, code: c.code, kg: c.kg, tam: "", src: p }; $("eCodBal").value = p.codigo_balanca || "";
+  const c = labelCode(p); pend = { nome: p.name, code: c.code, kg: c.kg, tam: tamOf(p), src: p }; $("eCodBal").value = p.codigo_balanca || "";
   $("ePend").classList.remove("hidden"); $("eNome").textContent = p.name;
   $("eCod").textContent = codeText(c);
   $("ePreco").value = String(store.get(PK, {})[norm(p.name)] || "").replace(".", ","); $("eQtd").value = 1;
-  document.querySelectorAll("#eTam button").forEach(b => b.classList.remove("sel")); $("ePend").scrollIntoView({ behavior: "smooth" });
+  document.querySelectorAll("#eTam button").forEach(b => b.classList.toggle("sel", b.dataset.t === pend.tam)); $("ePend").scrollIntoView({ behavior: "smooth" });
 }
 async function labelScan(code) {
   if (navigator.vibrate) navigator.vibrate(100); beep(); await stopScanner(); closeModal();
@@ -466,7 +488,7 @@ $("eBusca").oninput = () => { const q = norm($("eBusca").value); if (q.length < 
   eHits = products.filter(p => norm(p.name || "").includes(q) || (p.barcode || "").includes(q)).filter(p => { const k = p.barcode || p.codigo_balanca || norm(p.name); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 8);
   $("eRes").innerHTML = eHits.length ? eHits.map((p, i) => `<p><b>${esc(p.name)}</b> <small class="muted">${esc(p.category)}</small> <button class="secondary" data-pick="${i}">Escolher</button></p>`).join("") : '<p class="muted">Nada encontrado.</p>'; };
 $("eRes").onclick = e => { const b = e.target.closest("[data-pick]"); if (b) labelPick(eHits[Number(b.dataset.pick)]); };
-$("eTam").onclick = e => { const b = e.target.closest("button"); if (!b || !pend) return; pend.tam = b.dataset.t; document.querySelectorAll("#eTam button").forEach(x => x.classList.toggle("sel", x === b)); };
+$("eTam").onclick = e => { const b = e.target.closest("button"); if (!b || !pend) return; pend.tam = b.dataset.t; { const m = store.get(TK, {}); m[pkey(pend.src)] = pend.tam; store.set(TK, m); } document.querySelectorAll("#eTam button").forEach(x => x.classList.toggle("sel", x === b)); };
 $("eMenos").onclick = () => { $("eQtd").value = Math.max(1, (Number($("eQtd").value) || 1) - 1); }; $("eMais").onclick = () => { $("eQtd").value = (Number($("eQtd").value) || 0) + 1; };
 $("eCodSave").onclick = () => { if (!pend) return; const v = saveCode(pend.src, "codigo_balanca", $("eCodBal").value); if (v === null) return;
   pend.src = { ...pend.src, codigo_balanca: v }; const c = labelCode(pend.src); pend.code = c.code; pend.kg = c.kg; $("eCod").textContent = codeText(c); $("eCodBal").value = v; };
