@@ -81,6 +81,19 @@ summary{font-weight:700;cursor:pointer;min-height:40px;display:flex;align-items:
 .ltam{display:flex;gap:5px;flex:1}.ltam button{min-width:40px;min-height:30px;padding:0 12px;border-radius:99px;font-size:13px;font-weight:800;background:#fff;color:var(--g);border:1.5px solid #b9cfc2}.ltam .sel{background:var(--g);color:#fff;border-color:var(--g)}
 .lqtd{font-size:18px;min-width:44px;text-align:center;color:var(--ink)}
 .lrow .danger{min-height:32px;min-width:32px;padding:0;background:transparent;color:#d98a8a;font-size:18px;font-weight:600}
+/* etiquetas estilo Contestoque */
+.csum{display:flex;gap:28px;background:#fff;border:1px solid #d9dfe5;padding:10px 14px;margin:10px 0 8px}
+.csum span{display:block;font-size:13px;color:var(--ink)}.csum b{font-size:22px;color:var(--g);font-weight:700}
+.clist{margin:0 -12px;background:#fff;border-top:1px solid var(--ln)}
+.crw{display:flex;justify-content:space-between;gap:8px;padding:8px 12px 7px;border-bottom:1px solid var(--ln)}
+.crl{min-width:0;flex:1}.ccode{font-size:26px;font-weight:500;letter-spacing:.2px;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.1;word-break:break-all}
+.cname{font-size:14px;text-transform:uppercase;color:var(--mut);margin-top:2px;line-height:1.2}
+.crr{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;flex:none}
+.cqty{font-size:26px;font-weight:500;line-height:1.1;color:var(--ink)}
+.crr .ltam{display:flex;align-items:center;gap:4px;flex:none}
+.crr .ltam button{min-width:30px;min-height:26px;padding:0 8px;border-radius:99px;font-size:12px;font-weight:800;background:#fff;color:var(--g);border:1.5px solid #b9cfc2}
+.crr .ltam .sel{background:var(--g);color:#fff;border-color:var(--g)}
+.crr .ltam .cdel{border:0;background:transparent;color:#d98a8a;min-width:28px;font-size:15px;padding:0}
 /* FAB */
 .fabwrap{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .fabmain{width:56px;height:56px;border-radius:50%;padding:0;background:var(--g);color:#fff;font-size:30px;line-height:1;box-shadow:0 4px 12px #1e53384d;transition:transform .2s}
@@ -132,7 +145,7 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <label>Tamanho da etiqueta</label><div class="grid3" id="eTam"><button type="button" data-t="P">P<small>Pequena</small></button><button type="button" data-t="M">M<small>Média</small></button><button type="button" data-t="G">G<small>Grande</small></button></div>
 <label for="eQtd">Cópias</label><div class="stepper"><button type="button" class="secondary" id="eMenos" aria-label="Diminuir">−</button><input id="eQtd" type="number" inputmode="numeric" min="1" value="1"><button type="button" class="secondary" id="eMais" aria-label="Aumentar">＋</button></div>
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="eAdd">Adicionar à lista</button><button class="secondary" id="eCancela">Cancelar</button></div></section>
-<section class="panel"><h2 class="h2">Lista</h2><div id="eLista"></div></section>
+<div class="csum"><div><span>PRODUTOS</span><b id="eSumP">0</b></div><div><span>QUANTIDADE TOTAL</span><b id="eSumQ">0</b></div></div><div id="eLista" class="clist"></div>
 </div>
 <footer class="foot"><span><i class="dot v"></i>VISITAS <b id="nVisitas">–</b></span><span><i class="dot" id="dotO"></i>ONLINE <b id="nOnline">–</b></span></footer>
 </main>
@@ -691,7 +704,8 @@ let labels = store.get(EK, []), pend = null, eHits = [];
 const codeText = c => c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.code}` : "⚠ Sem código cadastrado para este produto.";
 const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.category) || !p.barcode)) ? { code: String(p.codigo_balanca), kg: true } : { code: p.barcode || "", kg: false };
 function renderLabels() {
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => `<div class="lcard"><div class="lcode">${l.code ? esc(l.code) : "SEM CÓDIGO"}</div><div class="lname">${esc(l.nome)}</div><div class="lrow"><div class="ltam" data-i="${i}">${["P", "M", "G"].map(t => `<button type="button" data-t="${t}" class="${(l.tam || "M") === t ? "sel" : ""}">${t}</button>`).join("")}</div><b class="lqtd">x${l.qtd}</b><button class="danger" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div>`).join("") : '<p class="muted">Nenhuma etiqueta na lista.</p>';
+  $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => `<div class="crw"><div class="crl"><div class="ccode">${l.code ? esc(l.code) : "SEM CÓDIGO"}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}</div><div class="ltam" data-i="${i}">${["P", "M", "G"].map(t => `<button type="button" data-t="${t}" class="${(l.tam || "M") === t ? "sel" : ""}">${t}</button>`).join("")}<button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 function labelPick(p) {
   const c = labelCode(p); pend = { nome: p.name, code: c.code, kg: c.kg, tam: tamOf(p), src: p }; $("eCodBal").value = p.codigo_balanca || "";
@@ -726,7 +740,7 @@ $("eAdd").onclick = () => {
 };
 $("eLista").onclick = e => { const b = e.target.closest("[data-ldrop]"); if (!b) return; const x = Number(b.dataset.ldrop), it = labels.splice(x, 1)[0];
   store.set(EK, labels); renderLabels(); toast("Etiqueta removida.", "Desfazer", () => { labels.splice(x, 0, it); store.set(EK, labels); renderLabels(); }); };
-$("eLista").addEventListener("click", ev => { const b = ev.target.closest(".ltam button"); if (!b) return; const i = Number(b.parentElement.dataset.i), l = labels[i]; if (!l || l.tam === b.dataset.t) return;
+$("eLista").addEventListener("click", ev => { const b = ev.target.closest(".ltam button"); if (!b || !b.dataset.t) return; const i = Number(b.parentElement.dataset.i), l = labels[i]; if (!l || l.tam === b.dataset.t) return;
   l.tam = b.dataset.t; store.set(EK, labels); const m = store.get(TK, {}); if (l.key) { m[l.key] = l.tam; store.set(TK, m); } renderLabels(); });
 renderLabels();
 
