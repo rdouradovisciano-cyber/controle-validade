@@ -94,6 +94,7 @@ summary{font-weight:700;cursor:pointer;min-height:40px;display:flex;align-items:
 .crr .ltam button{min-width:30px;min-height:26px;padding:0 8px;border-radius:99px;font-size:12px;font-weight:800;background:#fff;color:var(--g);border:1.5px solid #b9cfc2}
 .crr .ltam .sel{background:var(--g);color:#fff;border-color:var(--g)}
 .crr .ltam .cdel{border:0;background:transparent;color:#d98a8a;min-width:28px;font-size:15px;padding:0}
+.pick{padding:13px 4px;border-bottom:1px solid var(--ln);font-size:15px;cursor:pointer}.pick:active{background:var(--lt)}.pick b{text-transform:uppercase}
 /* FAB */
 .fabwrap{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .fabmain{width:56px;height:56px;border-radius:50%;padding:0;background:var(--g);color:#fff;font-size:30px;line-height:1;box-shadow:0 4px 12px #1e53384d;transition:transform .2s}
@@ -138,7 +139,7 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
 </div>
 <div id="tabEtiquetas" class="hidden">
-<section class="panel"><h2 class="h2">Lista de etiquetas</h2><div class="toolbar"><button class="primary big" id="eScan">▦ Bipar EAN</button></div>
+<section class="panel"><div class="toolbar"><button class="primary big" id="eScan">▦ Bipar EAN</button></div>
 <input id="eBusca" type="search" placeholder="Ou pesquise o produto pelo nome" style="margin-top:12px"><div id="eRes" class="rows"></div></section>
 <section class="panel hidden" id="ePend"><h2 class="h2" id="eNome"></h2><p class="note" id="eCod"></p>
 <label for="eCodBal">Código de balança (PLU) deste produto</label><div class="stepper"><input id="eCodBal" inputmode="numeric" maxlength="6" placeholder="Ex.: 123"><button type="button" class="secondary" id="eCodSave" style="padding:0 14px">Salvar código</button></div>
@@ -705,14 +706,13 @@ const codeText = c => c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.cod
 const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.category) || !p.barcode)) ? { code: String(p.codigo_balanca), kg: true } : { code: p.barcode || "", kg: false };
 function renderLabels() {
   $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => `<div class="crw"><div class="crl"><div class="ccode">${l.code ? esc(l.code) : "SEM CÓDIGO"}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}</div><div class="ltam" data-i="${i}">${["P", "M", "G"].map(t => `<button type="button" data-t="${t}" class="${(l.tam || "M") === t ? "sel" : ""}">${t}</button>`).join("")}<button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => `<div class="crw"><div class="crl"><div class="ccode">${l.code ? esc(l.code) : "SEM CÓDIGO"}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 function labelPick(p) {
-  const c = labelCode(p); pend = { nome: p.name, code: c.code, kg: c.kg, tam: tamOf(p), src: p }; $("eCodBal").value = p.codigo_balanca || "";
-  $("ePend").classList.remove("hidden"); $("eNome").textContent = p.name;
-  $("eCod").textContent = codeText(c);
-  $("eQtd").value = 1;
-  document.querySelectorAll("#eTam button").forEach(b => b.classList.toggle("sel", b.dataset.t === pend.tam)); $("ePend").scrollIntoView({ behavior: "smooth" });
+  const c = labelCode(p), key = pkey(p), ex = labels.find(l => l.key === key && l.code === c.code);
+  if (ex) ex.qtd = (Number(ex.qtd) || 1) + 1; else labels.push({ nome: p.name, code: c.code, kg: c.kg, tam: "M", key, qtd: 1 });
+  store.set(EK, labels); pend = null; $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels();
+  toast((c.code ? c.code + " · " : "") + p.name + " adicionado.");
 }
 async function labelScan(code) {
   if (navigator.vibrate) navigator.vibrate(100); beep(); await stopScanner(); closeModal();
@@ -726,7 +726,7 @@ $("eScan").onclick = () => openScan("etiqueta");
 $("eBusca").oninput = () => { const q = norm($("eBusca").value); if (q.length < 2) { $("eRes").innerHTML = ""; return; }
   const seen = new Set();
   eHits = products.filter(p => norm(p.name || "").includes(q) || (p.barcode || "").includes(q)).filter(p => { const k = p.barcode || p.codigo_balanca || norm(p.name); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 8);
-  $("eRes").innerHTML = eHits.length ? eHits.map((p, i) => `<p><b>${esc(p.name)}</b> <small class="muted">${esc(p.category)}</small> <button class="secondary" data-pick="${i}">Escolher</button></p>`).join("") : '<p class="muted">Nada encontrado.</p>'; };
+  $("eRes").innerHTML = eHits.length ? eHits.map((p, i) => `<div class="pick" data-pick="${i}"><b>${esc(p.name)}</b> <small class="muted">${esc(p.category || "")}</small></div>`).join("") : '<p class="muted">Nada encontrado.</p>'; };
 $("eRes").onclick = e => { const b = e.target.closest("[data-pick]"); if (b) labelPick(eHits[Number(b.dataset.pick)]); };
 $("eTam").onclick = e => { const b = e.target.closest("button"); if (!b || !pend) return; pend.tam = b.dataset.t; { const m = store.get(TK, {}); m[pkey(pend.src)] = pend.tam; store.set(TK, m); } document.querySelectorAll("#eTam button").forEach(x => x.classList.toggle("sel", x === b)); };
 $("eMenos").onclick = () => { $("eQtd").value = Math.max(1, (Number($("eQtd").value) || 1) - 1); }; $("eMais").onclick = () => { $("eQtd").value = (Number($("eQtd").value) || 0) + 1; };
@@ -740,8 +740,6 @@ $("eAdd").onclick = () => {
 };
 $("eLista").onclick = e => { const b = e.target.closest("[data-ldrop]"); if (!b) return; const x = Number(b.dataset.ldrop), it = labels.splice(x, 1)[0];
   store.set(EK, labels); renderLabels(); toast("Etiqueta removida.", "Desfazer", () => { labels.splice(x, 0, it); store.set(EK, labels); renderLabels(); }); };
-$("eLista").addEventListener("click", ev => { const b = ev.target.closest(".ltam button"); if (!b || !b.dataset.t) return; const i = Number(b.parentElement.dataset.i), l = labels[i]; if (!l || l.tam === b.dataset.t) return;
-  l.tam = b.dataset.t; store.set(EK, labels); const m = store.get(TK, {}); if (l.key) { m[l.key] = l.tam; store.set(TK, m); } renderLabels(); });
 renderLabels();
 
 // ---------- importar lista de produtos (nome + códigos) ----------
