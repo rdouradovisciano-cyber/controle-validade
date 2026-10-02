@@ -101,6 +101,9 @@ summary{font-weight:700;cursor:pointer;min-height:40px;display:flex;align-items:
 .dq{font-size:24px;font-weight:600;white-space:nowrap}.dq span{font-size:13px;color:var(--mut);font-weight:600}
 .cdel{border:0;background:transparent;color:#d98a8a;min-width:32px;min-height:32px;padding:0;font-size:16px}
 .wrow{display:flex;gap:8px;margin-top:8px}.wrow input{flex:1}.wrow button{min-width:110px}
+.fabrow{display:flex;align-items:center;gap:10px}
+.fabscan{height:56px;border-radius:28px;padding:0 20px;background:var(--g);color:#fff;font-size:16px;box-shadow:0 4px 12px #1e53384d}
+.utog{display:flex;gap:6px;margin-top:8px}.utog button{flex:1;min-height:40px;background:var(--lt);color:var(--g)}.utog .sel{background:var(--g);color:#fff}
 /* FAB */
 .fabwrap{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .fabmain{width:56px;height:56px;border-radius:50%;padding:0;background:var(--g);color:#fff;font-size:30px;line-height:1;box-shadow:0 4px 12px #1e53384d;transition:transform .2s}
@@ -134,14 +137,14 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button></div>
 <div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></section>
 <section class="panel dlistp"><div id="dLista"></div>
-<label for="dNum">Número da nota fiscal</label><input id="dNum" inputmode="numeric" maxlength="12" placeholder="Ex.: 4918" style="margin-bottom:10px">
 <div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
 <small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
-<section class="panel"><details id="pesoBox"><summary>⚖️ Lançar peso em kg (FLV / Padaria)</summary>
-<input id="dBusca" type="search" placeholder="Buscar produto (nome ou código de doação)" autocomplete="off"><div id="dSug" class="rows sug"></div>
-<div class="kpdisplay"><span id="dNome">Busque um produto acima</span></div>
-<div class="wrow"><input id="dPeso" inputmode="decimal" placeholder="Peso em kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div>
-<label for="dCod">Código de doação do produto selecionado</label><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
+<section class="panel"><h2 class="h2">⚖️ Lançar peso (kg)</h2>
+<input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off"><div id="dSug" class="rows sug"></div>
+<div class="wrow"><div class="kpdisplay" style="flex:1;margin:0"><span id="dNome">Escolha o produto</span></div></div>
+<div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div>
+<div class="wrow"><input id="dPeso" inputmode="decimal" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div>
+<details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
 <section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
 </div>
 <div id="donaRomaneio" class="hidden"><section class="panel"><div id="romHead"></div><div id="romBody"></div>
@@ -174,8 +177,7 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <div class="toolbar" style="margin-top:8px"><button class="secondary" id="impFileBtn">📎 Escolher arquivo</button><button class="secondary" id="impModel">Baixar modelo</button></div><input type="file" id="impFile" accept=".csv,.txt,.tsv,text/plain,text/csv" hidden>
 <div class="toolbar" style="margin-top:10px"><button class="secondary big" id="impCheck">Conferir lista</button><button class="primary big" id="impGo" disabled>Cadastrar</button></div><div id="impPrev" class="rows"></div></section></div>
 <div id="sectorBox" class="modal"><section class="sheet"><h2 class="h2">Qual setor você vai conferir?</h2><div id="sectorBtns" class="grid"></div></section></div>
-<div id="fabScrim" class="fabscrim hidden"></div><div class="fabwrap" id="fabWrap"><div class="fabmenu"><button class="fabitem" id="fab">▦ Bipar código</button><button class="fabitem loja-only" id="fabManual">＋ Cadastro manual</button><button class="fabitem loja-only" id="fabZap">💬 Enviar por WhatsApp</button></div><button class="fabmain" id="fabMain" aria-label="Ações rápidas">＋</button></div>
-<div id="nfModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="nfTitle"><h2 id="nfTitle" class="h2">Número da nota fiscal</h2><p class="note" id="nfInfo"></p><input id="nfNum" inputmode="numeric" maxlength="12" placeholder="Ex.: 4918" autocomplete="off"><div class="toolbar" style="margin-top:12px"><button class="primary big" id="nfOk">Finalizar doação</button><button class="secondary" id="nfCancel">Cancelar</button></div></section></div>
+<div id="fabScrim" class="fabscrim hidden"></div><div class="fabwrap" id="fabWrap"><div class="fabmenu"><button class="fabitem loja-only" id="fabManual">＋ Cadastro manual</button><button class="fabitem loja-only" id="fabZap">💬 Enviar por WhatsApp</button></div><div class="fabrow"><button class="fabscan" id="fab">▦ Bipar</button><button class="fabmain" id="fabMain" aria-label="Mais ações">＋</button></div></div>
 <div id="confView" class="app hidden"></div>
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="modal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -239,27 +241,28 @@ function b64e(o) { let s = ""; new TextEncoder().encode(JSON.stringify(o)).forEa
 function b64d(s) { s = s.replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(s + "=".repeat((4 - s.length % 4) % 4)), c => c.charCodeAt(0)))); }
 const hashStr = s => { let h = 5381; for (const ch of s) h = ((h << 5) + h + ch.charCodeAt(0)) | 0; return (h >>> 0).toString(36); };
 const nBR = n => Number(n).toLocaleString("pt-BR", { maximumFractionDigits: 3 });
+const totTxt = (k, u, n) => [k > 0 ? nBR(k) + " kg" : "", u > 0 ? nBR(u) + " un" : "", n + (n === 1 ? " item" : " itens")].filter(Boolean).join(" · ");
 function confUrl(d) {
-  const o = { c: d.codigo || "", d: d.data, l: LOJA, k: d.totalKg, u: d.totalUn, i: d.itens.map(i => [i.cod || "-", i.nome, nBR(i.qtd) + " " + i.unidade]) };
+  const o = { d: d.data, l: LOJA, k: d.totalKg, u: d.totalUn, i: d.itens.map(i => [i.cod || "-", i.nome, nBR(i.qtd) + " " + i.unidade]) };
   return location.origin + location.pathname.replace(/index\.html$/, "") + "#conf=" + b64e(o);
 }
 function confMode() {
   if (!location.hash.startsWith("#conf=")) return false;
-  ["main.app", "#sectorBox", "#fab", "#side", "#sideBg", "#modal", "#impModal", "#toast"].forEach(q => { const el = document.querySelector(q); if (el) el.classList.add("hidden"); });
+  ["main.app", "#sectorBox", "#fabWrap", "#fabScrim", "#side", "#sideBg", "#modal", "#impModal", "#toast"].forEach(q => { const el = document.querySelector(q); if (el) el.classList.add("hidden"); });
   const view = $("confView"); view.classList.remove("hidden"); let d;
   try { d = b64d(location.hash.slice(6)); } catch { view.innerHTML = '<p class="note">Link inválido ou incompleto. Peça para reenviar.</p>'; return true; }
   const KEY = "validamais-cv-" + hashStr(location.hash); let on = store.get(KEY, []);
-  const day = new Date(d.d + "T00:00:00").toLocaleDateString("pt-BR"), title = `DOAÇÃO FLV ${d.c || ""}`.trim();
+  const day = new Date(d.d + "T00:00:00").toLocaleDateString("pt-BR"), title = "DOAÇÃO FLV";
   const draw = () => { const n = on.filter(Boolean).length;
     view.innerHTML = `<h1 class="romtitle">${esc(title)}</h1><p class="note">Data: ${day} · Loja: ${esc(d.l)}</p><div class="prog"><div style="width:${d.i.length ? Math.round(n / d.i.length * 100) : 0}%"></div></div><p class="note"><b>${n} de ${d.i.length}</b> conferidos · toque no item para riscar</p>` +
       d.i.map((r, x) => `<label class="crow ${on[x] ? "done" : ""}" data-x="${x}"><input type="checkbox" ${on[x] ? "checked" : ""}><span class="ct"><b>${esc(r[0])}</b> · ${esc(r[1])}</span><span class="cq">${esc(r[2])}</span></label>`).join("") +
-      `<p class="romtotal">TOTAL: ${nBR(d.k)} kg · ${nBR(d.u)} un · ${d.i.length} itens</p><div class="toolbar" style="margin-top:12px"><button class="primary big" id="cvSend">Enviar conferência no WhatsApp</button><button class="secondary" id="cvReset">Desmarcar tudo</button></div><p class="note" style="text-align:center"><a href="./">Abrir o Valida+</a></p>`; };
+      `<p class="romtotal">TOTAL: ${totTxt(d.k, d.u, d.i.length)}</p><div class="toolbar" style="margin-top:12px"><button class="primary big" id="cvSend">Enviar conferência no WhatsApp</button><button class="secondary" id="cvReset">Desmarcar tudo</button></div><p class="note" style="text-align:center"><a href="./">Abrir o Valida+</a></p>`; };
   view.onchange = e => { const l = e.target.closest("[data-x]"); if (!l) return; on[Number(l.dataset.x)] = e.target.checked; store.set(KEY, on); draw(); };
   view.onclick = async e => {
     if (e.target.id === "cvReset" && confirm("Desmarcar todos os itens?")) { on = []; store.set(KEY, on); draw(); }
     if (e.target.id !== "cvSend") return;
     const n = on.filter(Boolean).length, t = [`CONFERÊNCIA - ${title}`, `Data: ${day}`, `Loja: ${d.l}`, `Conferidos: ${n} de ${d.i.length}`, "------------------------",
-      ...d.i.map((r, x) => on[x] ? `[x] ~${r[0]} | ${r[1]} | ${r[2]}~` : `[ ] ${r[0]} | ${r[1]} | ${r[2]}`), "------------------------", `TOTAL: ${nBR(d.k)} kg · ${nBR(d.u)} un · ${d.i.length} itens`].join("\n");
+      ...d.i.map((r, x) => on[x] ? `[x] ~${r[0]} | ${r[1]} | ${r[2]}~` : `[ ] ${r[0]} | ${r[1]} | ${r[2]}`), "------------------------", `TOTAL: ${totTxt(d.k, d.u, d.i.length)}`].join("\n");
     if (navigator.share) { try { await navigator.share({ title: "Conferência", text: t }); } catch {} } else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank");
   };
   draw(); return true;
@@ -575,7 +578,7 @@ function saveCode(p, field, raw) {                 // grava o código em todos o
 }
 
 // ---------- aba Doação ----------
-const DK = "validamais-doacao", HK = "validamais-doacoes", NK = "validamais-dnomes";
+const UK = "validamais-dunid", DK = "validamais-doacao", HK = "validamais-doacoes", NK = "validamais-dnomes";
 let don = store.get(DK, null) || { itens: [], inicio: new Date().toISOString() }, dSel = "", dVal = "", curRom = null, histList = [], unsubHist = null, lastScan = { c: "", t: 0 };
 function norm(s) { return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim(); }
 function pkey(p) { return p.barcode || norm(p.name); }
@@ -590,7 +593,7 @@ function tab(t) {
   document.body.dataset.tab = t;
 }
 function renderDon() {
-  $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dItens").textContent = don.itens.length;
+  $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dKg").parentElement.style.display = sumU("kg") > 0 ? "" : "none"; $("dUn").parentElement.style.display = sumU("un") > 0 ? "" : "none"; $("dItens").textContent = don.itens.length;
   $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem"><div class="dn"><b>${esc(i.nome)}</b><small>${i.lanc} lançamento(s)</small></div><div class="dq">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Bipe um item para começar.</p>';
 }
 function addDon(nome, unidade, qtd, cod = "") {
@@ -615,11 +618,12 @@ function donationScan(code) {
   let nome = (unidade === "un" && (products.find(p => p.barcode === code) || {}).name) || (unidade === "kg" && (products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(key.slice(1))) || {}).name) || names[key];
   if (!nome) { nome = (prompt(unidade === "kg" ? `Item de balança ${key.slice(1)} (${fq(qtd)} kg). Qual o nome do produto?` : `Código ${code}. Qual o nome do produto?`) || "").trim();
     if (!nome) { lastScan.t = Date.now(); return; } names[key] = nome; store.set(NK, names); }
-  const total = addDon(nome, unidade, qtd, unidade === "un" ? code : "");
+  const scaleLbl = /^2\d{12}$/.test(code); if (unidade === "kg" && unitOf(nome) === "un") { unidade = "un"; qtd = 1; }
+  const total = addDon(nome, unidade, qtd, (!scaleLbl && unidade === "un") ? code : "");
   toast(`${nome}: +${fq(qtd)} ${unidade} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
 }
 // pesagem manual
-function renderKey() { $("dNome").textContent = dSel || "Busque um produto acima"; }
+function renderKey() { $("dNome").textContent = dSel || "Escolha o produto"; }
 const DEFN = ["Mamão", "Banana", "Tomate", "Pão Francês", "Laranja", "Batata", "Cebola", "Maçã", "Cenoura", "Alface"];
 function dSuggest() {
   const raw = $("dBusca").value.trim(), q = norm(raw); if (!q) { $("dSug").innerHTML = ""; return; }
@@ -632,39 +636,45 @@ function dSuggest() {
 $("dBusca").oninput = dSuggest;
 $("dBusca").onkeydown = e => { if (e.key === "Enter") { const b = $("dSug").querySelector("[data-sel]"); if (b) b.click(); } };
 $("dSug").onclick = e => { const b = e.target.closest("[data-sel]"); if (b) selectProd(b.dataset.sel); };
-function selectProd(n) { dSel = n; $("dCod").value = (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderKey(); $("dPeso").focus(); }
+const unitOf = n => store.get(UK, {})[norm(n)] || (/^abacaxi/.test(norm(n)) ? "un" : "kg");
+function setUnit(u, save) { dUnit = u; $("uKg").classList.toggle("sel", u === "kg"); $("uUn").classList.toggle("sel", u === "un");
+  $("dPeso").placeholder = u === "un" ? "unidades (ex.: 3)" : "kg (ex.: 2,5)"; $("dPeso").inputMode = u === "un" ? "numeric" : "decimal";
+  if (save && dSel) { const m = store.get(UK, {}); m[norm(dSel)] = u; store.set(UK, m); } }
+let dUnit = "kg"; $("uKg").onclick = () => setUnit("kg", true); $("uUn").onclick = () => setUnit("un", true);
+function selectProd(n) { dSel = n; setUnit(unitOf(n), false); $("dCod").value = (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderKey(); $("dPeso").focus(); }
 $("dCodSave").onclick = () => { if (!dSel) return toast("Escolha o produto primeiro."); const pr = products.find(x => norm(x.name) === norm(dSel)) || { name: dSel };
   const v = saveCode(pr, "codigo_doacao", $("dCod").value); if (v !== null) $("dCod").value = v; };
-function dPesoAdd() { const q = Number(($("dPeso").value || "").replace(",", "."));
-  if (!dSel) return toast("Escolha o produto."); if (!(q > 0)) return toast("Digite o peso em kg.");
-  const total = addDon(dSel, "kg", q); toast(`${dSel}: +${fq(q)} kg → total ${fq(total)} kg`); $("dPeso").value = ""; $("dPeso").focus(); }
+function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",", "."));
+  if (!dSel) return toast("Escolha o produto."); if (!(q > 0)) return toast(dUnit === "un" ? "Digite a quantidade." : "Digite o peso em kg.");
+  if (dUnit === "un") q = Math.round(q); if (!(q > 0)) return toast("Digite a quantidade.");
+  const total = addDon(dSel, dUnit, q); toast(`${dSel}: +${fq(q)} ${dUnit} → total ${fq(total)} ${dUnit}`); $("dPeso").value = ""; $("dPeso").focus(); }
 $("dAdd").onclick = dPesoAdd; $("dPeso").onkeydown = e => { if (e.key === "Enter") dPesoAdd(); };
 $("dLista").onclick = e => { const b = e.target.closest("[data-drop]"); if (!b) return; const x = Number(b.dataset.drop), it = don.itens.splice(x, 1)[0];
   store.set(DK, don); renderDon(); toast(`${it.nome} removido.`, "Desfazer", () => { don.itens.splice(x, 0, it); store.set(DK, don); renderDon(); }); };
-$("dLimpar").onclick = () => { if (don.itens.length && confirm("Apagar toda a lista da doação atual?")) { don = { itens: [], inicio: new Date().toISOString(), codigo: "" }; $("dNum").value = ""; store.set(DK, don); renderDon(); } };
+$("dLimpar").onclick = () => { if (don.itens.length && confirm("Apagar toda a lista da doação atual?")) { don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); } };
 // romaneio
 function romText(d) {   // texto para o WhatsApp + link da tela de conferência (toque risca o item)
-  return [`DOAÇÃO FLV ${d.codigo || ""}`.trim(), `Data: ${dataBR(d.data)}`, `Loja: ${LOJA}`, "------------------------",
+  return ["DOAÇÃO FLV", `Data: ${dataBR(d.data)}`, `Loja: ${LOJA}`, "------------------------",
     ...d.itens.map(i => `[ ] ${i.cod || "-"} | ${i.nome} | ${fq(i.qtd)} ${i.unidade}`), "------------------------",
-    `TOTAL: ${fq(d.totalKg)} kg · ${fq(d.totalUn)} un · ${d.itens.length} itens`, "",
+    `TOTAL: ${totTxt(d.totalKg, d.totalUn, d.itens.length)}`, "",
     "👉 Toque no link para conferir e riscar os itens:", confUrl(d)].join("\n");
 }
 function romPdf(d) {    // PDF com coluna CONFERIDO (caixinhas vazias para marcar)
-  const pdf = new V.jsPDF(); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text(`DOAÇÃO FLV ${d.codigo || ""}`.trim(), 14, 16);
+  const pdf = new V.jsPDF(); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text("DOAÇÃO FLV", 14, 16);
   pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Data: ${dataBR(d.data)}   Loja: ${LOJA}`, 14, 23);
   pdf.setTextColor(22, 101, 52); pdf.textWithLink("Toque aqui para conferir e riscar os itens no celular", 14, 29, { url: confUrl(d) }); pdf.setTextColor(0);
   V.autoTable(pdf, { startY: 34, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [22, 101, 52] }, footStyles: { fillColor: [226, 238, 229], textColor: [20, 83, 45] }, columnStyles: { 0: { cellWidth: 26 } },
     head: [["CONFERIDO", "CÓDIGO", "NOME", "QUANTIDADES"]], body: d.itens.map(i => ["", i.cod || "-", i.nome, `${fq(i.qtd)} ${i.unidade}`]),
-    foot: [["", "TOTAL", `${fq(d.totalKg)} kg · ${fq(d.totalUn)} un`, `${d.itens.length} itens`]],
+    foot: [["", "TOTAL", totTxt(d.totalKg, d.totalUn, 0).replace(/ · 0 itens$/, ""), `${d.itens.length} itens`]],
     didDrawCell: h => { if (h.section === "body" && h.column.index === 0) { const c = h.cell; pdf.setDrawColor(60); pdf.setLineWidth(.3); pdf.rect(c.x + 9, c.y + c.height / 2 - 2, 4, 4); } } });
   return pdf.output("blob");
 }
 function showRomaneio(d) {
   curRom = d; $("donaEntrada").classList.add("hidden"); $("donaRomaneio").classList.remove("hidden");
-  $("romHead").innerHTML = `<h3 class="romtitle">DOAÇÃO FLV ${esc(d.codigo || "")}</h3><p class="note">Data: ${dataBR(d.data)} · Loja: ${esc(LOJA)}</p>`;
+  $("romHead").innerHTML = `<h3 class="romtitle">DOAÇÃO FLV</h3><p class="note">Data: ${dataBR(d.data)} · Loja: ${esc(LOJA)}</p>`;
   $("romBody").innerHTML = `<div class="rwrap"><table class="rom"><thead><tr><th>CÓDIGO</th><th>NOME</th><th>QUANTIDADES</th></tr></thead><tbody>` +
     d.itens.map(i => `<tr><td>${esc(i.cod || "—")}</td><td>${esc(i.nome)}</td><td>${fq(i.qtd)} ${esc(i.unidade)}</td></tr>`).join("") +
-    `</tbody></table></div><p class="romtotal">TOTAL: ${fq(d.totalKg)} kg · ${fq(d.totalUn)} un · ${d.itens.length} itens</p>`;
+    `</tbody></table></div><p class="romtotal">TOTAL: ${totTxt(d.totalKg, d.totalUn, d.itens.length)}</p>`;
 }
 $("rZap").onclick = async () => { const t = romText(curRom);
   if (navigator.share) { try { await navigator.share({ title: "Romaneio de doação", text: t }); } catch (e) { if (e.name !== "AbortError") toast("Não foi possível compartilhar."); } }
@@ -675,29 +685,20 @@ $("rPdf").onclick = async () => { try { const blob = romPdf(curRom), file = new 
 $("rConf").onclick = () => { location.hash = confUrl(curRom).split("#")[1]; location.reload(); };
 $("rNova").onclick = () => { $("donaRomaneio").classList.add("hidden"); $("donaEntrada").classList.remove("hidden"); };
 function finalizeDon() {
-  const rec = { data: iso(new Date()), por: myName().slice(0, 40), codigo: String(don.codigo || "").slice(0, 12), totalKg: Math.round(sumU("kg") * 1000) / 1000, totalUn: Math.round(sumU("un") * 1000) / 1000,
+  const rec = { data: iso(new Date()), por: myName().slice(0, 40), totalKg: Math.round(sumU("kg") * 1000) / 1000, totalUn: Math.round(sumU("un") * 1000) / 1000,
     itens: don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc, cod: cod || "" })) };
   if (db) V.addDoc(V.collection(db, "doacoes"), { ...rec, em: V.serverTimestamp() }).catch(e => { console.error(e); toast("Erro ao salvar na nuvem (confira as regras). O romaneio foi gerado."); });
   else { const h = store.get(HK, []); h.unshift({ ...rec, em: Date.now() }); store.set(HK, h.slice(0, 50)); }
-  don = { itens: [], inicio: new Date().toISOString(), codigo: "" }; $("dNum").value = ""; store.set(DK, don); renderDon(); showRomaneio(rec);
+  don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); showRomaneio(rec);
 }
-$("dFinalizar").onclick = () => {      // pede o número da nota fiscal antes de finalizar
-  if (!don.itens.length) return toast("A lista está vazia.");
-  $("nfInfo").textContent = `Total: ${fq(sumU("kg"))} kg · ${fq(sumU("un"))} un · ${don.itens.length} itens. O número aparece no romaneio como «DOAÇÃO FLV número».`;
-  $("nfNum").value = don.codigo || ""; $("nfModal").classList.remove("hidden"); $("nfNum").focus();
-};
-$("nfOk").onclick = () => { const v = $("nfNum").value.replace(/\D/g, "").slice(0, 12); if (!v) return toast("Digite o número da nota fiscal.");
-  don.codigo = v; store.set(DK, don); $("nfModal").classList.add("hidden"); finalizeDon(); };
-$("nfCancel").onclick = () => $("nfModal").classList.add("hidden");
-$("nfNum").onkeydown = e => { if (e.key === "Enter") $("nfOk").click(); };
+$("dFinalizar").onclick = () => { if (!don.itens.length) return toast("A lista está vazia."); finalizeDon(); };
 function renderHist(l) { histList = l;
-  $("dHist").innerHTML = l.length ? l.map((h, i) => `<p><b>${dataBR(h.data)}</b> · ${fq(h.totalKg)} kg · ${fq(h.totalUn)} un <button class="secondary" data-hist="${i}">Abrir</button></p>`).join("") : '<p class="muted">Nenhuma doação finalizada.</p>'; }
+  $("dHist").innerHTML = l.length ? l.map((h, i) => `<p><b>${dataBR(h.data)}</b> · ${totTxt(h.totalKg, h.totalUn, 0).replace(/ · 0 itens$|^0 itens$/, "")} <button class="secondary" data-hist="${i}">Abrir</button></p>`).join("") : '<p class="muted">Nenhuma doação finalizada.</p>'; }
 $("dHist").onclick = e => { const b = e.target.closest("[data-hist]"); if (b) showRomaneio(histList[Number(b.dataset.hist)]); };
 $("histBox").ontoggle = () => {
   if ($("histBox").open) { if (db) { if (!unsubHist) unsubHist = V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(10)), s => renderHist(s.docs.map(d => d.data()))); } else renderHist(store.get(HK, []).slice(0, 10)); }
   else if (unsubHist) { unsubHist(); unsubHist = null; } };
 const go = t => { tab(t); side(false); }; $("navLoja").onclick = () => go("Loja"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("dScan").onclick = () => openScan("doacao");
-$("dNum").value = don.codigo || ""; $("dNum").oninput = () => { don.codigo = $("dNum").value.trim().slice(0, 12); store.set(DK, don); };
 renderDon(); renderKey();
 
 // ---------- aba Etiquetas ----------
@@ -826,5 +827,12 @@ $("fab").addEventListener("click",function(){set(false)});
 $("fabManual").onclick=function(){set(false);$("manualOpen").click()};
 $("fabZap").onclick=function(){set(false);$("shareBtn").click()};
 ["Loja","Doacao","Etiquetas"].forEach(function(n){$("tb"+n).onclick=function(){set(false);$("nav"+n).click()}});})();</script>
+<script>(function(){var T=["Loja","Doacao","Etiquetas"],x0=0,y0=0,ok=false,g=function(i){return document.getElementById(i)};
+function blocked(t){if(t.closest&&t.closest("input,textarea,select,.rwrap,#reader,.side,.modal,#confView,.fabwrap"))return true;
+var m=document.querySelectorAll(".modal,#confView,.side.open");for(var i=0;i<m.length;i++){if(!m[i].classList.contains("hidden")&&getComputedStyle(m[i]).display!=="none")return true}return false}
+document.addEventListener("touchstart",function(e){if(e.touches.length!==1){ok=false;return}var t=e.touches[0];x0=t.clientX;y0=t.clientY;ok=!blocked(e.target)},{passive:true});
+document.addEventListener("touchend",function(e){if(!ok)return;ok=false;var t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;
+if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*2)return;var cur=T.indexOf(document.body.dataset.tab||"Loja"),n=cur+(dx<0?1:-1);
+if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:true});})();</script>
 </body></html>
 
