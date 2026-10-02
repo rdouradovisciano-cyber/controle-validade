@@ -50,3 +50,6 @@ textarea{width:100%;border:1px solid #d5ded7;border-radius:12px;padding:12px;fon
 .rwrap{overflow-x:auto}.rom{width:100%;border-collapse:collapse;font-size:13px}.rom th{background:#166534;color:#fff;padding:8px 6px;text-align:left;font-size:10.5px}.rom td{padding:9px 6px;border-bottom:1px solid #e5ebe6}.rom input{width:24px;height:24px}
 .rom tr.done td:nth-child(2),.rom tr.done td:nth-child(3),.rom tr.done td:nth-child(4){text-decoration:line-through;text-decoration-color:#dc2626;text-decoration-thickness:2px}
 .romtitle{font-size:22px;margin:0 0 4px;color:#14532d}.romtotal{font-weight:800;margin:12px 0 0;color:#14532d}
+.crow{display:flex;align-items:center;gap:12px;padding:14px 10px;border-bottom:1px solid #e5ebe6;background:#fff;cursor:pointer}.crow input{width:28px;height:28px;flex:none;accent-color:#166534}.ct{flex:1;font-size:15px}.cq{font-weight:800;white-space:nowrap}
+.crow.done .ct,.crow.done .cq{text-decoration:line-through;text-decoration-color:#dc2626;text-decoration-thickness:2px;color:#8a968d}
+.prog{height:8px;background:#e5ebe6;border-radius:99px;overflow:hidden;margin:8px 0}.prog div{height:100%;background:#22a06b}

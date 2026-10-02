@@ -16,6 +16,38 @@ const store = {
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
+// ---------- tela de conferência (abre pelo link enviado no WhatsApp; não usa Firebase) ----------
+function b64e(o) { let s = ""; new TextEncoder().encode(JSON.stringify(o)).forEach(c => { s += String.fromCharCode(c); }); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+function b64d(s) { s = s.replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(s + "=".repeat((4 - s.length % 4) % 4)), c => c.charCodeAt(0)))); }
+const hashStr = s => { let h = 5381; for (const ch of s) h = ((h << 5) + h + ch.charCodeAt(0)) | 0; return (h >>> 0).toString(36); };
+const nBR = n => Number(n).toLocaleString("pt-BR", { maximumFractionDigits: 3 });
+function confUrl(d) {
+  const o = { c: d.codigo || "", d: d.data, l: LOJA, k: d.totalKg, u: d.totalUn, i: d.itens.map(i => [i.cod || "-", i.nome, nBR(i.qtd) + " " + i.unidade]) };
+  return location.origin + location.pathname.replace(/index\.html$/, "") + "#conf=" + b64e(o);
+}
+function confMode() {
+  if (!location.hash.startsWith("#conf=")) return false;
+  ["main.app", "#sectorBox", "#fab", "#side", "#sideBg", "#modal", "#impModal", "#toast"].forEach(q => { const el = document.querySelector(q); if (el) el.classList.add("hidden"); });
+  const view = $("confView"); view.classList.remove("hidden"); let d;
+  try { d = b64d(location.hash.slice(6)); } catch { view.innerHTML = '<p class="note">Link inválido ou incompleto. Peça para reenviar.</p>'; return true; }
+  const KEY = "validamais-cv-" + hashStr(location.hash); let on = store.get(KEY, []);
+  const day = new Date(d.d + "T00:00:00").toLocaleDateString("pt-BR"), title = `DOAÇÃO FLV ${d.c || ""}`.trim();
+  const draw = () => { const n = on.filter(Boolean).length;
+    view.innerHTML = `<h1 class="romtitle">${esc(title)}</h1><p class="note">Data: ${day} · Loja: ${esc(d.l)}</p><div class="prog"><div style="width:${d.i.length ? Math.round(n / d.i.length * 100) : 0}%"></div></div><p class="note"><b>${n} de ${d.i.length}</b> conferidos · toque no item para riscar</p>` +
+      d.i.map((r, x) => `<label class="crow ${on[x] ? "done" : ""}" data-x="${x}"><input type="checkbox" ${on[x] ? "checked" : ""}><span class="ct"><b>${esc(r[0])}</b> · ${esc(r[1])}</span><span class="cq">${esc(r[2])}</span></label>`).join("") +
+      `<p class="romtotal">TOTAL: ${nBR(d.k)} kg · ${nBR(d.u)} un · ${d.i.length} itens</p><div class="toolbar" style="margin-top:12px"><button class="primary big" id="cvSend">Enviar conferência no WhatsApp</button><button class="secondary" id="cvReset">Desmarcar tudo</button></div><p class="note" style="text-align:center"><a href="./">Abrir o Valida+</a></p>`; };
+  view.onchange = e => { const l = e.target.closest("[data-x]"); if (!l) return; on[Number(l.dataset.x)] = e.target.checked; store.set(KEY, on); draw(); };
+  view.onclick = async e => {
+    if (e.target.id === "cvReset" && confirm("Desmarcar todos os itens?")) { on = []; store.set(KEY, on); draw(); }
+    if (e.target.id !== "cvSend") return;
+    const n = on.filter(Boolean).length, t = [`CONFERÊNCIA - ${title}`, `Data: ${day}`, `Loja: ${d.l}`, `Conferidos: ${n} de ${d.i.length}`, "------------------------",
+      ...d.i.map((r, x) => on[x] ? `[x] ~${r[0]} | ${r[1]} | ${r[2]}~` : `[ ] ${r[0]} | ${r[1]} | ${r[2]}`), "------------------------", `TOTAL: ${nBR(d.k)} kg · ${nBR(d.u)} un · ${d.i.length} itens`].join("\n");
+    if (navigator.share) { try { await navigator.share({ title: "Conferência", text: t }); } catch {} } else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank");
+  };
+  draw(); return true;
+}
+if (confMode()) return;
+
 // ---------- datas e status ----------
 const today = () => { const t = new Date(); t.setHours(0,0,0,0); return t; };
 const iso = d => new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
@@ -398,16 +430,17 @@ $("dLista").onclick = e => { const b = e.target.closest("[data-drop]"); if (!b) 
   store.set(DK, don); renderDon(); toast(`${it.nome} removido.`, "Desfazer", () => { don.itens.splice(x, 0, it); store.set(DK, don); renderDon(); }); };
 $("dLimpar").onclick = () => { if (don.itens.length && confirm("Apagar toda a lista da doação atual?")) { don = { itens: [], inicio: new Date().toISOString(), codigo: "" }; $("dNum").value = ""; store.set(DK, don); renderDon(); } };
 // romaneio
-function romText(d) {   // texto para o WhatsApp: o encarregado marca [x] e ~risca~ o que conferiu
+function romText(d) {   // texto para o WhatsApp + link da tela de conferência (toque risca o item)
   return [`DOAÇÃO FLV ${d.codigo || ""}`.trim(), `Data: ${dataBR(d.data)}`, `Loja: ${LOJA}`, "------------------------",
-    "CONFERÊNCIA: troque [ ] por [x] e ~risque~ o item conferido", "------------------------",
     ...d.itens.map(i => `[ ] ${i.cod || "-"} | ${i.nome} | ${fq(i.qtd)} ${i.unidade}`), "------------------------",
-    `TOTAL: ${fq(d.totalKg)} kg · ${fq(d.totalUn)} un · ${d.itens.length} itens`].join("\n");
+    `TOTAL: ${fq(d.totalKg)} kg · ${fq(d.totalUn)} un · ${d.itens.length} itens`, "",
+    "👉 Toque no link para conferir e riscar os itens:", confUrl(d)].join("\n");
 }
 function romPdf(d) {    // PDF com coluna CONFERIDO (caixinhas vazias para marcar)
   const pdf = new V.jsPDF(); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text(`DOAÇÃO FLV ${d.codigo || ""}`.trim(), 14, 16);
   pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Data: ${dataBR(d.data)}   Loja: ${LOJA}`, 14, 23);
-  V.autoTable(pdf, { startY: 28, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [22, 101, 52] }, footStyles: { fillColor: [226, 238, 229], textColor: [20, 83, 45] }, columnStyles: { 0: { cellWidth: 26 } },
+  pdf.setTextColor(22, 101, 52); pdf.textWithLink("Toque aqui para conferir e riscar os itens no celular", 14, 29, { url: confUrl(d) }); pdf.setTextColor(0);
+  V.autoTable(pdf, { startY: 34, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [22, 101, 52] }, footStyles: { fillColor: [226, 238, 229], textColor: [20, 83, 45] }, columnStyles: { 0: { cellWidth: 26 } },
     head: [["CONFERIDO", "CÓDIGO", "NOME", "QUANTIDADES"]], body: d.itens.map(i => ["", i.cod || "-", i.nome, `${fq(i.qtd)} ${i.unidade}`]),
     foot: [["", "TOTAL", `${fq(d.totalKg)} kg · ${fq(d.totalUn)} un`, `${d.itens.length} itens`]],
     didDrawCell: h => { if (h.section === "body" && h.column.index === 0) { const c = h.cell; pdf.setDrawColor(60); pdf.setLineWidth(.3); pdf.rect(c.x + 9, c.y + c.height / 2 - 2, 4, 4); } } });
@@ -426,16 +459,24 @@ $("rZap").onclick = async () => { const t = romText(curRom);
 $("rPdf").onclick = async () => { try { const blob = romPdf(curRom), file = new File([blob], `romaneio-doacao-${curRom.data}.pdf`, { type: "application/pdf" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Romaneio de doação", files: [file] }); else download(blob, file.name);
   } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Não foi possível gerar o PDF."); } } };
+$("rConf").onclick = () => { location.hash = confUrl(curRom).split("#")[1]; location.reload(); };
 $("rNova").onclick = () => { $("donaRomaneio").classList.add("hidden"); $("donaEntrada").classList.remove("hidden"); };
-$("dFinalizar").onclick = () => {
-  if (!don.itens.length) return toast("A lista está vazia.");
-  const rec = { data: iso(new Date()), por: myName().slice(0, 40), codigo: (don.codigo || prompt("Código da doação (ex.: 4918). Pode deixar em branco:") || "").trim().slice(0, 12), totalKg: Math.round(sumU("kg") * 1000) / 1000, totalUn: Math.round(sumU("un") * 1000) / 1000,
+function finalizeDon() {
+  const rec = { data: iso(new Date()), por: myName().slice(0, 40), codigo: String(don.codigo || "").slice(0, 12), totalKg: Math.round(sumU("kg") * 1000) / 1000, totalUn: Math.round(sumU("un") * 1000) / 1000,
     itens: don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc, cod: cod || "" })) };
-  if (!confirm(`Finalizar a doação: ${fq(rec.totalKg)} kg e ${fq(rec.totalUn)} un?`)) return;
   if (db) V.addDoc(V.collection(db, "doacoes"), { ...rec, em: V.serverTimestamp() }).catch(e => { console.error(e); toast("Erro ao salvar na nuvem (confira as regras). O romaneio foi gerado."); });
   else { const h = store.get(HK, []); h.unshift({ ...rec, em: Date.now() }); store.set(HK, h.slice(0, 50)); }
   don = { itens: [], inicio: new Date().toISOString(), codigo: "" }; $("dNum").value = ""; store.set(DK, don); renderDon(); showRomaneio(rec);
+}
+$("dFinalizar").onclick = () => {      // pede o número da nota fiscal antes de finalizar
+  if (!don.itens.length) return toast("A lista está vazia.");
+  $("nfInfo").textContent = `Total: ${fq(sumU("kg"))} kg · ${fq(sumU("un"))} un · ${don.itens.length} itens. O número aparece no romaneio como «DOAÇÃO FLV número».`;
+  $("nfNum").value = don.codigo || ""; $("nfModal").classList.remove("hidden"); $("nfNum").focus();
 };
+$("nfOk").onclick = () => { const v = $("nfNum").value.replace(/\D/g, "").slice(0, 12); if (!v) return toast("Digite o número da nota fiscal.");
+  don.codigo = v; store.set(DK, don); $("nfModal").classList.add("hidden"); finalizeDon(); };
+$("nfCancel").onclick = () => $("nfModal").classList.add("hidden");
+$("nfNum").onkeydown = e => { if (e.key === "Enter") $("nfOk").click(); };
 function renderHist(l) { histList = l;
   $("dHist").innerHTML = l.length ? l.map((h, i) => `<p><b>${dataBR(h.data)}</b> · ${fq(h.totalKg)} kg · ${fq(h.totalUn)} un <button class="secondary" data-hist="${i}">Abrir</button></p>`).join("") : '<p class="muted">Nenhuma doação finalizada.</p>'; }
 $("dHist").onclick = e => { const b = e.target.closest("[data-hist]"); if (b) showRomaneio(histList[Number(b.dataset.hist)]); };

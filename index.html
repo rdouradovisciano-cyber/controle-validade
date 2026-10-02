@@ -37,13 +37,13 @@
 <section class="panel"><h2 class="h2">Pesagem em kg (FLV / Padaria)</h2><input id="dBusca" type="search" placeholder="Buscar produto (nome ou código de doação)" autocomplete="off"><div id="dSug" class="rows sug"></div>
 <div class="kpdisplay"><span id="dNome">Busque um produto acima</span><span><b id="dValor">0</b> kg</span></div><div id="keypad" class="keypad"></div>
 <label for="dCod">Código de doação do produto selecionado</label><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></section>
-<section class="panel"><h2 class="h2">Lista da doação</h2><label for="dNum">Código da doação (nota fiscal)</label><input id="dNum" inputmode="numeric" maxlength="12" placeholder="Ex.: 4918" style="margin-bottom:10px"><div id="dLista"></div>
+<section class="panel"><h2 class="h2">Lista da doação</h2><label for="dNum">Número da nota fiscal</label><input id="dNum" inputmode="numeric" maxlength="12" placeholder="Ex.: 4918" style="margin-bottom:10px"><div id="dLista"></div>
 <div class="toolbar" style="margin-top:12px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
 <small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
 <section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
 </div>
 <div id="donaRomaneio" class="hidden"><section class="panel"><div id="romHead"></div><div id="romBody"></div>
-<div class="toolbar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
+<div class="toolbar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
 </div>
 <div id="tabEtiquetas" class="hidden">
 <section class="panel"><h2 class="h2">Etiquetas de preço</h2><div class="toolbar"><button class="primary big" id="eScan">▦ Bipar EAN</button></div>
@@ -74,6 +74,8 @@
 <div class="toolbar" style="margin-top:10px"><button class="secondary big" id="impCheck">Conferir lista</button><button class="primary big" id="impGo" disabled>Cadastrar</button></div><div id="impPrev" class="rows"></div></section></div>
 <div id="sectorBox" class="modal"><section class="sheet"><h2 class="h2">Qual setor você vai conferir?</h2><div id="sectorBtns" class="grid"></div></section></div>
 <button class="primary big fab" id="fab">▦ Bipar código</button>
+<div id="nfModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="nfTitle"><h2 id="nfTitle" class="h2">Número da nota fiscal</h2><p class="note" id="nfInfo"></p><input id="nfNum" inputmode="numeric" maxlength="12" placeholder="Ex.: 4918" autocomplete="off"><div class="toolbar" style="margin-top:12px"><button class="primary big" id="nfOk">Finalizar doação</button><button class="secondary" id="nfCancel">Cancelar</button></div></section></div>
+<div id="confView" class="app hidden"></div>
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="modal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 <div class="sheethead"><h2 id="modalTitle">Cadastrar produto</h2><button id="closeModal" class="secondary" aria-label="Fechar">✕</button></div>
