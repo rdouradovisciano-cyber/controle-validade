@@ -1,6 +1,6 @@
-const CACHE = "validamais-v11";
-const CORE = ["./", "./index.html", "./styles.css", "./config.js", "./vendor.js", "./app.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
-self.addEventListener("install", e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())));
+const CACHE = "validamais-v12";
+const CORE = ["./", "./index.html", "./styles.css", "./config.js", "./vendor.js", "./app.js", "./manifest.webmanifest", "./icone-192.png", "./icon-512.png"];
+self.addEventListener("install", e => e.waitUntil(caches.open(CACHE).then(c => Promise.all(CORE.map(u => c.add(u).catch(() => {})))).then(() => self.skipWaiting())));
 self.addEventListener("activate", e => e.waitUntil(caches.keys().then(k => Promise.all(k.filter(n => n !== CACHE).map(n => caches.delete(n)))).then(() => self.clients.claim())));
 // Rede primeiro (sempre pega a versão nova); sem rede, usa o cache.
 self.addEventListener("fetch", e => {
