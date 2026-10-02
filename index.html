@@ -46,21 +46,20 @@
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
 </div>
 <div id="tabEtiquetas" class="hidden">
-<section class="panel"><h2 class="h2">Etiquetas de preço</h2><div class="toolbar"><button class="primary big" id="eScan">▦ Bipar EAN</button></div>
+<section class="panel"><h2 class="h2">Lista de etiquetas</h2><div class="toolbar"><button class="primary big" id="eScan">▦ Bipar EAN</button></div>
 <input id="eBusca" type="search" placeholder="Ou pesquise o produto pelo nome" style="margin-top:12px"><div id="eRes" class="rows"></div></section>
 <section class="panel hidden" id="ePend"><h2 class="h2" id="eNome"></h2><p class="note" id="eCod"></p>
 <label for="eCodBal">Código de balança (PLU) deste produto</label><div class="stepper"><input id="eCodBal" inputmode="numeric" maxlength="6" placeholder="Ex.: 123"><button type="button" class="secondary" id="eCodSave" style="padding:0 14px">Salvar código</button></div>
 <label>Tamanho da etiqueta</label><div class="grid3" id="eTam"><button type="button" data-t="P">P<small>Pequena</small></button><button type="button" data-t="M">M<small>Média</small></button><button type="button" data-t="G">G<small>Grande</small></button></div>
-<label for="ePreco">Preço (R$)</label><input id="ePreco" inputmode="decimal" placeholder="0,00">
 <label for="eQtd">Cópias</label><div class="stepper"><button type="button" class="secondary" id="eMenos" aria-label="Diminuir">−</button><input id="eQtd" type="number" inputmode="numeric" min="1" value="1"><button type="button" class="secondary" id="eMais" aria-label="Aumentar">＋</button></div>
-<div class="toolbar" style="margin-top:12px"><button class="primary big" id="eAdd">Adicionar à lista de impressão</button><button class="secondary" id="eCancela">Cancelar</button></div></section>
-<section class="panel"><h2 class="h2">Lista de impressão</h2><div id="eLista"></div><div class="toolbar" style="margin-top:12px"><button class="secondary" id="eLimpa">Limpar</button><button class="primary big" id="ePdf">Gerar PDF das etiquetas</button></div></section>
+<div class="toolbar" style="margin-top:12px"><button class="primary big" id="eAdd">Adicionar à lista</button><button class="secondary" id="eCancela">Cancelar</button></div></section>
+<section class="panel"><h2 class="h2">Lista</h2><div id="eLista"></div></section>
 </div>
 <footer class="foot"><span><i class="dot v"></i>VISITAS <b id="nVisitas">–</b></span><span><i class="dot" id="dotO"></i>ONLINE <b id="nOnline">–</b></span></footer>
 </main>
 <div id="sideBg" class="bg hidden"></div>
 <aside id="side" class="side" aria-label="Menu"><div class="sheethead"><h2>Menu</h2><button class="secondary" id="sideClose" aria-label="Fechar menu">✕</button></div>
-<nav class="menu"><button id="navLoja" class="active">🏪 Loja<small>Controle de validades</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Impressão de preços</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
+<nav class="menu"><button id="navLoja" class="active">🏪 Loja<small>Controle de validades</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
 <section class="panel"><h2 style="font-size:17px;margin:0 0 10px">Exportar</h2>
 <label for="exportScope">O que exportar</label><select id="exportScope"><option value="all">Todos os produtos</option><option value="soon">Vencem em breve</option><option value="expired">Vencidos</option><option value="category">Uma categoria</option></select>
 <select id="exportCategory" class="hidden" aria-label="Categoria para exportar" style="margin-top:8px"></select>

@@ -53,3 +53,11 @@ textarea{width:100%;border:1px solid #d5ded7;border-radius:12px;padding:12px;fon
 .crow{display:flex;align-items:center;gap:12px;padding:14px 10px;border-bottom:1px solid #e5ebe6;background:#fff;cursor:pointer}.crow input{width:28px;height:28px;flex:none;accent-color:#166534}.ct{flex:1;font-size:15px}.cq{font-weight:800;white-space:nowrap}
 .crow.done .ct,.crow.done .cq{text-decoration:line-through;text-decoration-color:#dc2626;text-decoration-thickness:2px;color:#8a968d}
 .prog{height:8px;background:#e5ebe6;border-radius:99px;overflow:hidden;margin:8px 0}.prog div{height:100%;background:#22a06b}
+
+.lcard{border:1px solid #cfe0d3;border-radius:12px;padding:12px;margin-bottom:10px;background:#fff}
+.lcode{font-size:34px;font-weight:800;letter-spacing:1px;color:#14532d;font-variant-numeric:tabular-nums;word-break:break-all;line-height:1.1}
+.lname{font-size:17px;font-weight:600;margin:6px 0 10px}
+.lrow{display:flex;align-items:center;gap:10px}
+.ltam{display:flex;gap:6px;flex:1}.ltam button{min-width:48px;min-height:44px;font-size:18px;font-weight:700;background:#e2eee5;color:#14532d}.ltam .sel{background:#166534;color:#fff}
+.lqtd{font-size:24px;min-width:56px;text-align:center}
+.lrow .danger{min-height:44px;min-width:48px}

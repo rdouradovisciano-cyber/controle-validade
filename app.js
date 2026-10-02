@@ -488,22 +488,20 @@ $("dNum").value = don.codigo || ""; $("dNum").oninput = () => { don.codigo = $("
 renderDon(); renderKey();
 
 // ---------- aba Etiquetas ----------
-const EK = "validamais-etiquetas", PK = "validamais-precos";
+const EK = "validamais-etiquetas";
 const SZ = { P: { w: 63, h: 30, cols: 3, rows: 9, nome: 8, preco: 15, cod: 6, bar: 6 }, M: { w: 95, h: 50, cols: 2, rows: 5, nome: 12, preco: 26, cod: 8, bar: 12 }, G: { w: 190, h: 90, cols: 1, rows: 3, nome: 20, preco: 52, cod: 11, bar: 24 } };
 let labels = store.get(EK, []), pend = null, eHits = [];
-const brl = v => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }).replace(/\u00a0/g, " ");
-const parsePrice = v => { const s = String(v).trim(); return s.includes(",") ? Number(s.replace(/\./g, "").replace(",", ".")) : Number(s); };
 // itens pesados (FLV/Padaria) usam o código de balança; os demais usam o EAN
-const codeText = c => c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.code}` : "⚠ Sem código cadastrado: a etiqueta sai só com nome e preço.";
+const codeText = c => c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.code}` : "⚠ Sem código cadastrado para este produto.";
 const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.category) || !p.barcode)) ? { code: String(p.codigo_balanca), kg: true } : { code: p.barcode || "", kg: false };
 function renderLabels() {
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => `<div class="drow"><div><b>${esc(l.nome)}</b><small>Tamanho ${esc(l.tam)} · ${brl(l.preco)}${l.kg ? "/kg" : ""} · ${l.code ? esc(l.code) : "sem código"}</small></div><b>×${l.qtd}</b><button class="danger" data-ldrop="${i}" aria-label="Remover">✕</button></div>`).join("") : '<p class="muted">Nenhuma etiqueta na lista.</p>';
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => `<div class="lcard"><div class="lcode">${l.code ? esc(l.code) : "SEM CÓDIGO"}</div><div class="lname">${esc(l.nome)}</div><div class="lrow"><div class="ltam" data-i="${i}">${["P", "M", "G"].map(t => `<button type="button" data-t="${t}" class="${(l.tam || "M") === t ? "sel" : ""}">${t}</button>`).join("")}</div><b class="lqtd">x${l.qtd}</b><button class="danger" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div>`).join("") : '<p class="muted">Nenhuma etiqueta na lista.</p>';
 }
 function labelPick(p) {
   const c = labelCode(p); pend = { nome: p.name, code: c.code, kg: c.kg, tam: tamOf(p), src: p }; $("eCodBal").value = p.codigo_balanca || "";
   $("ePend").classList.remove("hidden"); $("eNome").textContent = p.name;
   $("eCod").textContent = codeText(c);
-  $("ePreco").value = String(store.get(PK, {})[norm(p.name)] || "").replace(".", ","); $("eQtd").value = 1;
+  $("eQtd").value = 1;
   document.querySelectorAll("#eTam button").forEach(b => b.classList.toggle("sel", b.dataset.t === pend.tam)); $("ePend").scrollIntoView({ behavior: "smooth" });
 }
 async function labelScan(code) {
@@ -527,39 +525,13 @@ $("eCodSave").onclick = () => { if (!pend) return; const v = saveCode(pend.src, 
 $("eCancela").onclick = () => { pend = null; $("ePend").classList.add("hidden"); };
 $("eAdd").onclick = () => {
   if (!pend) return; if (!pend.tam) return toast("Escolha o tamanho: P, M ou G.");
-  const preco = parsePrice($("ePreco").value); if (!(preco > 0)) return toast("Digite o preço.");
-  labels.push({ nome: pend.nome, code: pend.code, kg: pend.kg, tam: pend.tam, preco, qtd: Math.max(1, Math.round(Number($("eQtd").value) || 1)) }); store.set(EK, labels);
-  const pr = store.get(PK, {}); pr[norm(pend.nome)] = preco; store.set(PK, pr);
-  pend = null; $("ePend").classList.add("hidden"); $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels(); toast("Etiqueta adicionada à lista.");
+  labels.push({ nome: pend.nome, code: pend.code, kg: pend.kg, tam: pend.tam || "M", key: pkey(pend.src), qtd: Math.max(1, Math.round(Number($("eQtd").value) || 1)) }); store.set(EK, labels);
+  pend = null; $("ePend").classList.add("hidden"); $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels(); toast("Item adicionado à lista.");
 };
 $("eLista").onclick = e => { const b = e.target.closest("[data-ldrop]"); if (!b) return; const x = Number(b.dataset.ldrop), it = labels.splice(x, 1)[0];
   store.set(EK, labels); renderLabels(); toast("Etiqueta removida.", "Desfazer", () => { labels.splice(x, 0, it); store.set(EK, labels); renderLabels(); }); };
-$("eLimpa").onclick = () => { if (labels.length && confirm("Apagar toda a lista de impressão?")) { labels = []; store.set(EK, labels); renderLabels(); } };
-function barcodeImg(code) { try { const c = document.createElement("canvas"); V.JsBarcode(c, code, { format: "CODE128", displayValue: false, margin: 0, height: 60, width: 2 }); return c.toDataURL("image/png"); } catch { return null; } }
-function labelsPdf() {
-  const pdf = new V.jsPDF(); let first = true;
-  for (const t of ["P", "M", "G"]) {
-    const items = labels.filter(l => l.tam === t).flatMap(l => Array(l.qtd).fill(l)); if (!items.length) continue;
-    const s = SZ[t], per = s.cols * s.rows, x0 = (210 - s.cols * s.w) / 2;
-    items.forEach((l, n) => {
-      if (n % per === 0) { if (!first) pdf.addPage(); first = false; }
-      const k = n % per, x = x0 + (k % s.cols) * s.w, y = 10 + Math.floor(k / s.cols) * s.h, cx = x + s.w / 2;
-      pdf.setDrawColor(170); pdf.setLineWidth(.2); pdf.rect(x, y, s.w, s.h);
-      pdf.setTextColor(0); pdf.setFont("helvetica", "bold"); pdf.setFontSize(s.nome);
-      pdf.text(pdf.splitTextToSize(l.nome, s.w - 6).slice(0, 2), cx, y + 2 + s.nome * .36, { align: "center" });
-      pdf.setFontSize(s.preco); pdf.text(brl(l.preco) + (l.kg ? "/kg" : ""), cx, y + s.h * .62, { align: "center" });
-      if (l.code) { const img = barcodeImg(l.code); if (img) pdf.addImage(img, "PNG", x + 6, y + s.h - 2.5 - s.cod * .36 - s.bar, s.w - 12, s.bar);
-        pdf.setFont("helvetica", "normal"); pdf.setFontSize(s.cod); pdf.text(l.code, cx, y + s.h - 1.5, { align: "center" }); }
-    });
-  }
-  return first ? null : pdf.output("blob");
-}
-$("ePdf").onclick = async () => {
-  if (!labels.length) return toast("A lista de impressão está vazia.");
-  try { const blob = labelsPdf(), file = new File([blob], `etiquetas-${iso(new Date())}.pdf`, { type: "application/pdf" });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Etiquetas", files: [file] }); else download(blob, file.name);
-  } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Não foi possível gerar o PDF."); } }
-};
+$("eLista").addEventListener("click", ev => { const b = ev.target.closest(".ltam button"); if (!b) return; const i = Number(b.parentElement.dataset.i), l = labels[i]; if (!l || l.tam === b.dataset.t) return;
+  l.tam = b.dataset.t; store.set(EK, labels); const m = store.get(TK, {}); if (l.key) { m[l.key] = l.tam; store.set(TK, m); } renderLabels(); });
 renderLabels();
 
 // ---------- importar lista de produtos (nome + códigos) ----------
