@@ -95,6 +95,12 @@ summary{font-weight:700;cursor:pointer;min-height:40px;display:flex;align-items:
 .crr .ltam .sel{background:var(--g);color:#fff;border-color:var(--g)}
 .crr .ltam .cdel{border:0;background:transparent;color:#d98a8a;min-width:28px;font-size:15px;padding:0}
 .pick{padding:13px 4px;border-bottom:1px solid var(--ln);font-size:15px;cursor:pointer}.pick:active{background:var(--lt)}.pick b{text-transform:uppercase}
+.dsum{display:flex;justify-content:space-around;margin-top:10px;font-size:13px;color:var(--mut)}.dsum b{font-size:20px;color:var(--g);margin-right:3px}
+.dlistp{padding:4px 12px 12px}.ditem{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--ln)}
+.dn{flex:1;min-width:0}.dn b{display:block;font-size:16px;text-transform:uppercase;line-height:1.2}.dn small{color:var(--mut);font-size:12px}
+.dq{font-size:24px;font-weight:600;white-space:nowrap}.dq span{font-size:13px;color:var(--mut);font-weight:600}
+.cdel{border:0;background:transparent;color:#d98a8a;min-width:32px;min-height:32px;padding:0;font-size:16px}
+.wrow{display:flex;gap:8px;margin-top:8px}.wrow input{flex:1}.wrow button{min-width:110px}
 /* FAB */
 .fabwrap{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .fabmain{width:56px;height:56px;border-radius:50%;padding:0;background:var(--g);color:#fff;font-size:30px;line-height:1;box-shadow:0 4px 12px #1e53384d;transition:transform .2s}
@@ -125,14 +131,17 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 </div>
 <div id="tabDoacao" class="hidden">
 <div id="donaEntrada">
-<section class="panel"><div class="stats"><div class="stat"><b id="dKg">0</b><span>kg doados</span></div><div class="stat"><b id="dUn">0</b><span>unidades</span></div><div class="stat"><b id="dItens">0</b><span>itens</span></div></div>
-<div class="toolbar" style="margin-top:12px"><button class="primary big" id="dScan">▦ Bipar itens (unidade ou balança)</button></div></section>
-<section class="panel"><h2 class="h2">Pesagem em kg (FLV / Padaria)</h2><input id="dBusca" type="search" placeholder="Buscar produto (nome ou código de doação)" autocomplete="off"><div id="dSug" class="rows sug"></div>
-<div class="kpdisplay"><span id="dNome">Busque um produto acima</span><span><b id="dValor">0</b> kg</span></div><div id="keypad" class="keypad"></div>
-<label for="dCod">Código de doação do produto selecionado</label><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></section>
-<section class="panel"><h2 class="h2">Lista da doação</h2><label for="dNum">Número da nota fiscal</label><input id="dNum" inputmode="numeric" maxlength="12" placeholder="Ex.: 4918" style="margin-bottom:10px"><div id="dLista"></div>
-<div class="toolbar" style="margin-top:12px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
+<section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button></div>
+<div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></section>
+<section class="panel dlistp"><div id="dLista"></div>
+<label for="dNum">Número da nota fiscal</label><input id="dNum" inputmode="numeric" maxlength="12" placeholder="Ex.: 4918" style="margin-bottom:10px">
+<div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
 <small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
+<section class="panel"><details id="pesoBox"><summary>⚖️ Lançar peso em kg (FLV / Padaria)</summary>
+<input id="dBusca" type="search" placeholder="Buscar produto (nome ou código de doação)" autocomplete="off"><div id="dSug" class="rows sug"></div>
+<div class="kpdisplay"><span id="dNome">Busque um produto acima</span></div>
+<div class="wrow"><input id="dPeso" inputmode="decimal" placeholder="Peso em kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div>
+<label for="dCod">Código de doação do produto selecionado</label><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
 <section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
 </div>
 <div id="donaRomaneio" class="hidden"><section class="panel"><div id="romHead"></div><div id="romBody"></div>
@@ -582,7 +591,7 @@ function tab(t) {
 }
 function renderDon() {
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dItens").textContent = don.itens.length;
-  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="drow"><div><b>${esc(i.nome)}</b><small>${i.lanc} lançamento(s)</small></div><b>${fq(i.qtd)} ${esc(i.unidade)}</b><button class="danger" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).join("") : '<p class="muted">Nada lançado ainda. Bipe um item ou use a pesagem.</p>';
+  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem"><div class="dn"><b>${esc(i.nome)}</b><small>${i.lanc} lançamento(s)</small></div><div class="dq">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Bipe um item para começar.</p>';
 }
 function addDon(nome, unidade, qtd, cod = "") {
   qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0;
@@ -610,7 +619,7 @@ function donationScan(code) {
   toast(`${nome}: +${fq(qtd)} ${unidade} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
 }
 // pesagem manual
-function renderKey() { $("dNome").textContent = dSel || "Busque um produto acima"; $("dValor").textContent = dVal || "0"; }
+function renderKey() { $("dNome").textContent = dSel || "Busque um produto acima"; }
 const DEFN = ["Mamão", "Banana", "Tomate", "Pão Francês", "Laranja", "Batata", "Cebola", "Maçã", "Cenoura", "Alface"];
 function dSuggest() {
   const raw = $("dBusca").value.trim(), q = norm(raw); if (!q) { $("dSug").innerHTML = ""; return; }
@@ -623,19 +632,13 @@ function dSuggest() {
 $("dBusca").oninput = dSuggest;
 $("dBusca").onkeydown = e => { if (e.key === "Enter") { const b = $("dSug").querySelector("[data-sel]"); if (b) b.click(); } };
 $("dSug").onclick = e => { const b = e.target.closest("[data-sel]"); if (b) selectProd(b.dataset.sel); };
-function selectProd(n) { dSel = n; $("dCod").value = (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderKey(); }
+function selectProd(n) { dSel = n; $("dCod").value = (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderKey(); $("dPeso").focus(); }
 $("dCodSave").onclick = () => { if (!dSel) return toast("Escolha o produto primeiro."); const pr = products.find(x => norm(x.name) === norm(dSel)) || { name: dSel };
   const v = saveCode(pr, "codigo_doacao", $("dCod").value); if (v !== null) $("dCod").value = v; };
-$("keypad").innerHTML = ["7", "8", "9", "4", "5", "6", "1", "2", "3", ",", "0", "⌫"].map(k => `<button type="button" data-k="${k}">${k}</button>`).join("") + '<button type="button" class="add" id="dAdd">Adicionar</button>';
-$("keypad").onclick = e => { const b = e.target.closest("button"); if (!b) return;
-  if (b.id === "dAdd") { const q = Number(dVal.replace(",", "."));
-    if (!dSel) return toast("Escolha o produto."); if (!(q > 0)) return toast("Digite o peso em kg.");
-    const total = addDon(dSel, "kg", q); toast(`${dSel}: +${fq(q)} kg → total ${fq(total)} kg`); dVal = ""; return renderKey(); }
-  const k = b.dataset.k;
-  if (k === "⌫") dVal = dVal.slice(0, -1);
-  else if (k === ",") { if (!dVal.includes(",")) dVal = (dVal || "0") + ","; }
-  else if (!/,\d{3}$/.test(dVal) && dVal.replace(",", "").length < 7) dVal = dVal === "0" ? k : dVal + k;
-  renderKey(); };
+function dPesoAdd() { const q = Number(($("dPeso").value || "").replace(",", "."));
+  if (!dSel) return toast("Escolha o produto."); if (!(q > 0)) return toast("Digite o peso em kg.");
+  const total = addDon(dSel, "kg", q); toast(`${dSel}: +${fq(q)} kg → total ${fq(total)} kg`); $("dPeso").value = ""; $("dPeso").focus(); }
+$("dAdd").onclick = dPesoAdd; $("dPeso").onkeydown = e => { if (e.key === "Enter") dPesoAdd(); };
 $("dLista").onclick = e => { const b = e.target.closest("[data-drop]"); if (!b) return; const x = Number(b.dataset.drop), it = don.itens.splice(x, 1)[0];
   store.set(DK, don); renderDon(); toast(`${it.nome} removido.`, "Desfazer", () => { don.itens.splice(x, 0, it); store.set(DK, don); renderDon(); }); };
 $("dLimpar").onclick = () => { if (don.itens.length && confirm("Apagar toda a lista da doação atual?")) { don = { itens: [], inicio: new Date().toISOString(), codigo: "" }; $("dNum").value = ""; store.set(DK, don); renderDon(); } };
