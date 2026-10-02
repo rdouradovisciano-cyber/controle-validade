@@ -52,9 +52,8 @@ function render() {
   const rows = products.filter(p => (!cat || p.category === cat) && !(cat === "FLV" && daysLeft(p.expiry) === null) && (!st || status(p) === st) &&
     (!q || (p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q)))
     .sort((a, b) => (a.expiry || "9999").localeCompare(b.expiry || "9999"));
-  const tams = store.get(TK, {});
-  $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p), k = pkey(p);
-    return `<article class="product ${cls}"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><p class="meta">Validade: <b>${fmt(p.expiry)}</b>${cnt[p.barcode] > 1 ? ` · ${cnt[p.barcode]} lotes` : ""}</p><div class="pills"><span class="pill">${when(dl)}</span><button class="tam" data-tam="${esc(k)}" aria-label="Alternar tamanho da etiqueta">🏷 Etiqueta ${tams[k] || "M"}</button></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
+  $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
+    return `<article class="product ${cls}"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><p class="meta">Validade: <b>${fmt(p.expiry)}</b>${cnt[p.barcode] > 1 ? ` · ${cnt[p.barcode]} lotes` : ""}</p><div class="pills"><span class="pill">${when(dl)}</span></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
   }).join("") : (cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
 }
 
@@ -202,8 +201,7 @@ const stamp = () => iso(new Date());
 fillCategories();
 ["search"].forEach(i => $(i).oninput = render);
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
-$("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.tam !== undefined) { const m = store.get(TK, {}), k = b.dataset.tam; m[k] = { P: "M", M: "G", G: "P" }[m[k] || "M"]; store.set(TK, m); render(); return; }
-  if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.del) remove(b.dataset.del); };
+$("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.del) remove(b.dataset.del); };
 $("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Etiquetas" ? "etiqueta" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = async () => { await stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
@@ -400,35 +398,28 @@ $("dLista").onclick = e => { const b = e.target.closest("[data-drop]"); if (!b) 
   store.set(DK, don); renderDon(); toast(`${it.nome} removido.`, "Desfazer", () => { don.itens.splice(x, 0, it); store.set(DK, don); renderDon(); }); };
 $("dLimpar").onclick = () => { if (don.itens.length && confirm("Apagar toda a lista da doação atual?")) { don = { itens: [], inicio: new Date().toISOString(), codigo: "" }; $("dNum").value = ""; store.set(DK, don); renderDon(); } };
 // romaneio
-const CKK = "validamais-conf", romKey = d => d.data + "|" + (d.codigo || "");
-const confGet = d => store.get(CKK, {})[romKey(d)] || [];
-function confSet(d, i, v) { const all = store.get(CKK, {}), a = all[romKey(d)] || []; a[i] = v; all[romKey(d)] = a; store.set(CKK, all); }
-function romText(d) {
-  const c = confGet(d);
+function romText(d) {   // texto para o WhatsApp: o encarregado marca [x] e ~risca~ o que conferiu
   return [`DOAÇÃO FLV ${d.codigo || ""}`.trim(), `Data: ${dataBR(d.data)}`, `Loja: ${LOJA}`, "------------------------",
-    ...d.itens.map((i, x) => `[${c[x] ? "x" : " "}] ${i.cod || "-"} | ${i.nome} | ${fq(i.qtd)} ${i.unidade} | ${i.tam || "M"}`), "------------------------",
+    "CONFERÊNCIA: troque [ ] por [x] e ~risque~ o item conferido", "------------------------",
+    ...d.itens.map(i => `[ ] ${i.cod || "-"} | ${i.nome} | ${fq(i.qtd)} ${i.unidade}`), "------------------------",
     `TOTAL: ${fq(d.totalKg)} kg · ${fq(d.totalUn)} un · ${d.itens.length} itens`].join("\n");
 }
-function romPdf(d) {
-  const pdf = new V.jsPDF(), conf = confGet(d); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text(`DOAÇÃO FLV ${d.codigo || ""}`.trim(), 14, 16);
+function romPdf(d) {    // PDF com coluna CONFERIDO (caixinhas vazias para marcar)
+  const pdf = new V.jsPDF(); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text(`DOAÇÃO FLV ${d.codigo || ""}`.trim(), 14, 16);
   pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Data: ${dataBR(d.data)}   Loja: ${LOJA}`, 14, 23);
   V.autoTable(pdf, { startY: 28, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [22, 101, 52] }, footStyles: { fillColor: [226, 238, 229], textColor: [20, 83, 45] }, columnStyles: { 0: { cellWidth: 26 } },
-    head: [["CONFERIDO", "CÓDIGO", "NOME", "QUANTIDADES", "ETIQUETA"]], body: d.itens.map(i => ["", i.cod || "-", i.nome, `${fq(i.qtd)} ${i.unidade}`, i.tam || "M"]),
-    foot: [["", "TOTAL", `${fq(d.totalKg)} kg · ${fq(d.totalUn)} un`, `${d.itens.length} itens`, ""]],
-    didDrawCell: h => { if (h.section !== "body") return; const c = h.cell, x = h.row.index, m = c.y + c.height / 2;
-      if (h.column.index === 0) { pdf.setDrawColor(60); pdf.setLineWidth(.3); pdf.rect(c.x + 9, m - 2, 4, 4);
-        if (conf[x]) { pdf.setDrawColor(22, 101, 52); pdf.line(c.x + 9.6, m, c.x + 11, m + 1.5); pdf.line(c.x + 11, m + 1.5, c.x + 12.6, m - 1.6); } }
-      else if (conf[x] && h.column.index <= 3) { pdf.setDrawColor(220, 38, 38); pdf.setLineWidth(.5); pdf.line(c.x + 1, m, c.x + c.width - 1, m); } } });
+    head: [["CONFERIDO", "CÓDIGO", "NOME", "QUANTIDADES"]], body: d.itens.map(i => ["", i.cod || "-", i.nome, `${fq(i.qtd)} ${i.unidade}`]),
+    foot: [["", "TOTAL", `${fq(d.totalKg)} kg · ${fq(d.totalUn)} un`, `${d.itens.length} itens`]],
+    didDrawCell: h => { if (h.section === "body" && h.column.index === 0) { const c = h.cell; pdf.setDrawColor(60); pdf.setLineWidth(.3); pdf.rect(c.x + 9, c.y + c.height / 2 - 2, 4, 4); } } });
   return pdf.output("blob");
 }
 function showRomaneio(d) {
-  curRom = d; $("donaEntrada").classList.add("hidden"); $("donaRomaneio").classList.remove("hidden"); const c = confGet(d);
+  curRom = d; $("donaEntrada").classList.add("hidden"); $("donaRomaneio").classList.remove("hidden");
   $("romHead").innerHTML = `<h3 class="romtitle">DOAÇÃO FLV ${esc(d.codigo || "")}</h3><p class="note">Data: ${dataBR(d.data)} · Loja: ${esc(LOJA)}</p>`;
-  $("romBody").innerHTML = `<div class="rwrap"><table class="rom"><thead><tr><th>CONF.</th><th>CÓDIGO</th><th>NOME</th><th>QUANTIDADES</th><th>ETIQUETA</th></tr></thead><tbody>` +
-    d.itens.map((i, x) => `<tr class="${c[x] ? "done" : ""}"><td><input type="checkbox" data-ck="${x}" ${c[x] ? "checked" : ""} aria-label="Conferido"></td><td>${esc(i.cod || "—")}</td><td>${esc(i.nome)}</td><td>${fq(i.qtd)} ${esc(i.unidade)}</td><td>${esc(i.tam || "M")}</td></tr>`).join("") +
+  $("romBody").innerHTML = `<div class="rwrap"><table class="rom"><thead><tr><th>CÓDIGO</th><th>NOME</th><th>QUANTIDADES</th></tr></thead><tbody>` +
+    d.itens.map(i => `<tr><td>${esc(i.cod || "—")}</td><td>${esc(i.nome)}</td><td>${fq(i.qtd)} ${esc(i.unidade)}</td></tr>`).join("") +
     `</tbody></table></div><p class="romtotal">TOTAL: ${fq(d.totalKg)} kg · ${fq(d.totalUn)} un · ${d.itens.length} itens</p>`;
 }
-$("romBody").onchange = e => { const k = e.target.closest("[data-ck]"); if (!k) return; confSet(curRom, Number(k.dataset.ck), k.checked); k.closest("tr").classList.toggle("done", k.checked); };
 $("rZap").onclick = async () => { const t = romText(curRom);
   if (navigator.share) { try { await navigator.share({ title: "Romaneio de doação", text: t }); } catch (e) { if (e.name !== "AbortError") toast("Não foi possível compartilhar."); } }
   else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank"); };
@@ -439,7 +430,7 @@ $("rNova").onclick = () => { $("donaRomaneio").classList.add("hidden"); $("donaE
 $("dFinalizar").onclick = () => {
   if (!don.itens.length) return toast("A lista está vazia.");
   const rec = { data: iso(new Date()), por: myName().slice(0, 40), codigo: (don.codigo || prompt("Código da doação (ex.: 4918). Pode deixar em branco:") || "").trim().slice(0, 12), totalKg: Math.round(sumU("kg") * 1000) / 1000, totalUn: Math.round(sumU("un") * 1000) / 1000,
-    itens: don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc, cod: cod || "", tam: tamOf(products.find(x => norm(x.name) === norm(nome))) })) };
+    itens: don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc, cod: cod || "" })) };
   if (!confirm(`Finalizar a doação: ${fq(rec.totalKg)} kg e ${fq(rec.totalUn)} un?`)) return;
   if (db) V.addDoc(V.collection(db, "doacoes"), { ...rec, em: V.serverTimestamp() }).catch(e => { console.error(e); toast("Erro ao salvar na nuvem (confira as regras). O romaneio foi gerado."); });
   else { const h = store.get(HK, []); h.unshift({ ...rec, em: Date.now() }); store.set(HK, h.slice(0, 50)); }
