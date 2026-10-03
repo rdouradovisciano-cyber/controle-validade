@@ -177,9 +177,6 @@ body.np-open .toast{bottom:auto;top:calc(104px + env(safe-area-inset-top))}
 <div id="donaEntrada">
 <section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button></div>
 <div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></section>
-<section class="panel dlistp"><div id="dLista"></div>
-<div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
-<small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
 <section class="panel"><h2 class="h2 qh">⚖️ Lançar peso <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
 <div id="qBar" class="qbar hidden"><span>Toque num atalho para editar</span><button type="button" class="secondary" id="qReset">Restaurar padrão</button><button type="button" class="primary" id="qDone">Concluir</button></div>
 <div id="qgrid" class="qgrid"></div>
@@ -188,6 +185,9 @@ body.np-open .toast{bottom:auto;top:calc(104px + env(safe-area-inset-top))}
 <div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div>
 <div class="wrow"><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
+<section class="panel dlistp" id="dListaBox"><h2 class="h2" style="margin:8px 0 0">Itens coletados</h2><div id="dLista"></div>
+<div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
+<small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
 <section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
 </div>
 <div id="donaRomaneio" class="hidden"><section class="panel"><div id="romHead"></div><div id="romBody"></div>
@@ -1027,10 +1027,14 @@ g("acClose").onclick=function(){stopAc();g("acModal").classList.add("hidden")};
   function paint() { val.textContent = act ? (act.value || "0") : ""; }
   function measure() { root.style.setProperty("--np-h", pad.offsetHeight + "px"); }
   function open(el) {
+    var first = !pad.classList.contains("show") || act !== el;
     if (act !== el) { if (act) act.classList.remove("np-on"); act = el; fresh = true; }
     el.classList.add("np-on"); ttl.textContent = title(el); okb.textContent = el.dataset.npLabel || "OK"; comma.disabled = isInt(el); paint();
     pad.classList.add("show"); document.body.classList.add("np-open"); measure();
-    try { el.scrollIntoView({ block: "nearest" }); } catch (e) {}
+    if (el.id === "dPeso") {
+      if (first) { var r = document.getElementById("dNome").closest(".wrow"), h = (document.querySelector(".top") || {}).offsetHeight || 0;
+        window.scrollTo({ top: Math.max(0, r.getBoundingClientRect().top + window.scrollY - h - 8), behavior: "smooth" }); }
+    } else { try { el.scrollIntoView({ block: "nearest" }); } catch (e) {} }
   }
   function close() {
     if (act) act.classList.remove("np-on"); act = null; pad.classList.remove("show"); document.body.classList.remove("np-open"); root.style.removeProperty("--np-h");
