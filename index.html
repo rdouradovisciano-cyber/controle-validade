@@ -264,6 +264,30 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .hbadge{background:#dcf3e4;color:var(--g-d);border-radius:99px;padding:2px 9px;font-size:11px;font-weight:800;white-space:nowrap}
 .lm-note{font-size:12px}
 
+/* ===== doação: barra fixa "coletando agora" ===== */
+.nowbar{position:sticky;top:calc(var(--top-h) + env(safe-area-inset-top) + 8px);z-index:9;margin:10px 0 12px;background:#fff;border:1.5px solid var(--g2);border-radius:18px;padding:10px 12px 12px;
+  box-shadow:0 -12px 0 0 var(--bg),0 10px 24px rgba(16,40,28,.16)}
+.nowbar.vazio{border-color:var(--ln);box-shadow:0 -12px 0 0 var(--bg),0 6px 16px rgba(16,40,28,.08)}
+.nowbar.ok{animation:vm-flash .9s ease}
+@keyframes vm-flash{0%{background:#c9eed9;border-color:var(--g3)}100%{background:#fff}}
+.nowtop{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px}
+.nowname{min-width:0;flex:1}
+.nowname small{display:block;font-size:10px;font-weight:800;letter-spacing:.09em;color:var(--mut)}
+#dNome{display:block;font-size:20px;font-weight:800;line-height:1.15;color:var(--g-d);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nowbar.vazio #dNome{color:var(--mut);font-weight:700;text-transform:none;font-size:17px}
+.nowtot{flex:none;text-align:right;font-size:11px;font-weight:600;color:var(--mut);line-height:1.25}
+.nowtot b{display:block;font-size:19px;font-weight:800;color:var(--g);font-variant-numeric:tabular-nums}
+.plus{display:inline-block;margin-right:6px;padding:1px 8px;border-radius:99px;background:var(--g);color:#fff;font-style:normal;font-size:12px;font-weight:800;vertical-align:2px}
+.nowrow{display:flex;gap:8px;align-items:stretch}
+.nowrow .utog{margin:0;flex:none;width:104px}
+.nowrow .utog button{min-height:38px;padding:0}
+#dPeso{flex:1;min-width:0;text-align:center;font-size:20px;font-weight:700}
+#dPeso::placeholder{font-size:14px;font-weight:600}
+.nowrow #dAdd{flex:none;min-width:0;padding:0 16px}
+.ditem.cur{background:var(--lt2);margin:0 -8px;padding-left:8px;padding-right:8px;border-radius:10px;border-bottom-color:transparent}
+body[data-tab="Doacao"] .today{position:static}
+body[data-tab="Doacao"].np-open .toast{top:auto;bottom:calc(var(--np-h,0px) + 10px)}
+
 /* ===== atualizações e acessos ===== */
 .updbox{margin:2px auto 6px;max-width:420px;text-align:center}
 .updbox summary{display:block;min-height:0;font-size:10px;font-weight:500;color:#9aa5b0;cursor:pointer;list-style:none;padding:4px 0}
@@ -335,15 +359,14 @@ body.np-open .toast{bottom:auto;top:calc(var(--top-h) + 8px + env(safe-area-inse
 </div>
 <div id="tabDoacao" class="hidden">
 <div id="donaEntrada">
+<div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><small>COLETANDO AGORA</small><span id="dNome">Escolha o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
+<div class="nowrow"><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
 <section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button></div>
 <div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></section>
-<section class="panel"><h2 class="h2 qh">⚖️ Lançar peso <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
+<section class="panel"><h2 class="h2 qh">⚖️ Escolha o produto <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
 <div id="qBar" class="qbar hidden"><span>Toque num atalho para editar</span><button type="button" class="secondary" id="qReset">Restaurar padrão</button><button type="button" class="primary" id="qDone">Concluir</button></div>
 <div id="qgrid" class="qgrid"></div>
 <input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off"><div id="dSug" class="rows sug"></div>
-<div class="wrow"><div class="kpdisplay" style="flex:1;margin:0"><span id="dNome">Escolha o produto</span></div></div>
-<div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div>
-<div class="wrow"><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
 <section class="panel dlistp" id="dListaBox"><h2 class="h2" style="margin:8px 0 0">Itens coletados</h2><div id="dLista"></div>
 <div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
@@ -815,7 +838,8 @@ function tab(t) {
 }
 function renderDon() {
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dKg").parentElement.style.display = sumU("kg") > 0 ? "" : "none"; $("dUn").parentElement.style.display = sumU("un") > 0 ? "" : "none"; $("dItens").textContent = don.itens.length;
-  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem"><div class="dn"><b>${esc(i.nome)}</b><small>${i.lanc} lançamento(s)</small></div><div class="dq">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Bipe um item para começar.</p>';
+  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b><small>${i.lanc} lançamento(s)</small></div><div class="dq">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Bipe um item para começar.</p>';
+  renderKey();
 }
 function addDon(nome, unidade, qtd, cod = "") {
   qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0;
@@ -844,7 +868,13 @@ function donationScan(code) {
   toast(`${nome}: +${fq(qtd)} ${unidade} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
 }
 // pesagem manual
-function renderKey() { $("dNome").textContent = dSel || "Escolha o produto"; }
+function renderKey() {
+  $("dNome").textContent = dSel || "Escolha o produto"; $("dNow").classList.toggle("vazio", !dSel);
+  const it = dSel && don.itens.find(i => i.key === norm(dSel) + "|" + dUnit);
+  const plus = lastAdd && lastAdd.k === norm(dSel) + "|" + dUnit && Date.now() - lastAdd.t < 2500 ? `<i class="plus">+${fq(lastAdd.q)}</i>` : "";
+  $("dSelInfo").innerHTML = !dSel ? "" : it ? `<b>${plus}${fq(it.qtd)} ${esc(it.unidade)}</b>${it.lanc} lançamento${it.lanc > 1 ? "s" : ""}` : `<b>0 ${dUnit}</b>ainda não lançado`;
+}
+function flashNow() { const n = $("dNow"); n.classList.remove("ok"); void n.offsetWidth; n.classList.add("ok"); clearTimeout(addTimer); addTimer = setTimeout(renderKey, 2600); }
 const DEFN = ["Mamão", "Banana", "Tomate", "Pão Francês", "Laranja", "Batata", "Cebola", "Maçã", "Cenoura", "Alface"];
 function dSuggest() {
   const raw = $("dBusca").value.trim(), q = norm(raw); if (!q) { $("dSug").innerHTML = ""; return; }
@@ -860,8 +890,8 @@ $("dSug").onclick = e => { const b = e.target.closest("[data-sel]"); if (b) sele
 const unitOf = n => store.get(UK, {})[norm(n)] || (/^abacaxi/.test(norm(n)) ? "un" : "kg");
 function setUnit(u, save) { dUnit = u; $("uKg").classList.toggle("sel", u === "kg"); $("uUn").classList.toggle("sel", u === "un");
   $("dPeso").placeholder = u === "un" ? "unidades (ex.: 3)" : "kg (ex.: 2,5)"; $("dPeso").toggleAttribute("data-np-int", u === "un");
-  if (save && dSel) { const m = store.get(UK, {}); m[norm(dSel)] = u; store.set(UK, m); } }
-let dUnit = "kg"; $("uKg").onclick = () => setUnit("kg", true); $("uUn").onclick = () => setUnit("un", true);
+  if (save && dSel) { const m = store.get(UK, {}); m[norm(dSel)] = u; store.set(UK, m); } renderKey(); }
+let dUnit = "kg", lastAdd = null, addTimer = null; $("uKg").onclick = () => setUnit("kg", true); $("uUn").onclick = () => setUnit("un", true);
 const QK = "validamais-atalhos";
 const QDEF = () => ["Chuchu", "Batata", "Abacaxi", "Banana", "Tomate", "Cebola", "Cenoura", "Mamão", "Laranja", "Maçã", "Limão", "Alface", "Pepino", "Pimentão", "Abobrinha", "Melão"].map(n => ({ n, c: "", u: /^abacaxi/i.test(n) ? "un" : "kg" }));
 let shortcuts = (() => { const v = store.get(QK, null); return Array.isArray(v) && v.length ? v : QDEF(); })(), qEdit = false, qIdx = -1, qU = "kg", dCodSel = "";
@@ -892,13 +922,13 @@ $("qgrid").onclick = e => { const b = e.target.closest("[data-q]"); if (!b) retu
   if (qEdit) return qOpen(k === "new" ? "new" : Number(k));
   const s = shortcuts[Number(k)], p = prodFor(s.n); selectProd(p ? p.name : s.n, s.c, s.u); };
 $("navDoacao").addEventListener("click", renderQuick); $("dBusca").addEventListener("focus", renderQuick);
-function selectProd(n, code, unit) { dSel = n; dCodSel = code || ""; setUnit(unit || unitOf(n), false); renderQuick(); $("dCod").value = code || (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderKey(); $("dPeso").focus(); }
+function selectProd(n, code, unit) { dSel = n; dCodSel = code || ""; setUnit(unit || unitOf(n), false); renderQuick(); $("dCod").value = code || (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderDon(); $("dPeso").focus({ preventScroll: true }); }
 $("dCodSave").onclick = () => { if (!dSel) return toast("Escolha o produto primeiro."); const pr = products.find(x => norm(x.name) === norm(dSel)) || { name: dSel };
   const v = saveCode(pr, "codigo_doacao", $("dCod").value); if (v !== null) $("dCod").value = v; };
 function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",", "."));
   if (!dSel) return toast("Escolha o produto."); if (!(q > 0)) return toast(dUnit === "un" ? "Digite a quantidade." : "Digite o peso em kg.");
   if (dUnit === "un") q = Math.round(q); if (!(q > 0)) return toast("Digite a quantidade.");
-  const total = addDon(dSel, dUnit, q, dCodSel); toast(`${dSel}: +${fq(q)} ${dUnit} → total ${fq(total)} ${dUnit}`); $("dPeso").value = ""; $("dPeso").focus(); }
+  lastAdd = { k: norm(dSel) + "|" + dUnit, q, t: Date.now() }; addDon(dSel, dUnit, q, dCodSel); flashNow(); $("dPeso").value = ""; $("dPeso").focus({ preventScroll: true }); }
 $("dAdd").onclick = dPesoAdd; $("dPeso").onkeydown = e => { if (e.key === "Enter") dPesoAdd(); };
 $("dLista").onclick = e => { const b = e.target.closest("[data-drop]"); if (!b) return; const x = Number(b.dataset.drop), it = don.itens.splice(x, 1)[0];
   store.set(DK, don); renderDon(); toast(`${it.nome} removido.`, "Desfazer", () => { don.itens.splice(x, 0, it); store.set(DK, don); renderDon(); }); };
@@ -1121,7 +1151,7 @@ if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
-var UPDATES=[{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+var UPDATES=[{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
@@ -1168,10 +1198,7 @@ var hiddenAt=0;document.addEventListener("visibilitychange",function(){if(docume
     if (act !== el) { if (act) act.classList.remove("np-on"); act = el; fresh = true; }
     el.classList.add("np-on"); ttl.textContent = title(el); okb.textContent = el.dataset.npLabel || "OK"; comma.disabled = isInt(el); paint();
     pad.classList.add("show"); document.body.classList.add("np-open"); measure();
-    if (el.id === "dPeso") {
-      if (first) { var r = document.getElementById("dNome").closest(".wrow"), h = (document.querySelector(".top") || {}).offsetHeight || 0;
-        window.scrollTo({ top: Math.max(0, r.getBoundingClientRect().top + window.scrollY - h - 8), behavior: "smooth" }); }
-    } else { try { el.scrollIntoView({ block: "nearest" }); } catch (e) {} }
+    if (el.id !== "dPeso") { try { el.scrollIntoView({ block: "nearest" }); } catch (e) {} }
   }
   function close() {
     if (act) act.classList.remove("np-on"); act = null; pad.classList.remove("show"); document.body.classList.remove("np-open"); root.style.removeProperty("--np-h");
