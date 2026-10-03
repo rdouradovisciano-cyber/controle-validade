@@ -112,6 +112,9 @@ summary{font-weight:700;cursor:pointer;min-height:40px;display:flex;align-items:
 .qbtn.ed{border-style:dashed;border-color:#d9a400}.qbtn.qadd{background:#fff;border:1.5px dashed var(--g)}
 .hrow{display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid var(--ln)}.hrow .hi{flex:1;font-size:14px;min-width:0}.hrow>button{min-height:38px;padding:0 10px;font-size:13px}
 .hbadge{background:#dcf3e4;color:var(--g);border-radius:99px;padding:1px 8px;font-size:11px;font-weight:800;white-space:nowrap}
+.crw{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.tbadge{display:inline-block;margin-left:6px;background:var(--g);color:#fff;border-radius:99px;font-size:11px;font-weight:800;padding:1px 7px;vertical-align:middle}
+.lm-note{font-size:12px}
 /* FAB */
 .fabwrap{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .fabmain{width:56px;height:56px;border-radius:50%;padding:0;background:var(--g);color:#fff;font-size:30px;line-height:1;box-shadow:0 4px 12px #1e53384d;transition:transform .2s}
@@ -193,6 +196,10 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <label for="qCod">Código de doação (49xx ou PLU)</label><input id="qCod" maxlength="12" autocomplete="off" placeholder="Ex.: 4912">
 <label>Unidade padrão</label><div class="utog"><button type="button" id="qUKg" class="sel">kg</button><button type="button" id="qUUn">un</button></div>
 <div class="toolbar" style="margin-top:14px"><button class="primary big" id="qSave">Salvar</button><button class="danger" id="qDel">Excluir</button></div></section></div>
+<div id="lModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="lmNome"><div class="sheethead"><h2 id="lmNome"></h2><button class="secondary" id="lmClose" aria-label="Fechar">✕</button></div>
+<p class="note" id="lmCod"></p><label>Tamanho da etiqueta</label><div class="utog" id="lmTam"><button type="button" data-t="P">P</button><button type="button" data-t="M">M</button><button type="button" data-t="G">G</button></div>
+<label>Quantidade</label><div class="stepper"><button type="button" class="secondary" id="lmMenos" aria-label="Diminuir">−</button><input id="lmQtd" type="number" inputmode="numeric" min="1" value="1"><button type="button" class="secondary" id="lmMais" aria-label="Aumentar">＋</button></div>
+<div class="toolbar" style="margin-top:14px"><button class="primary big" id="lmOk">Pronto</button></div></section></div>
 <div id="confView" class="app hidden"></div>
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="modal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -771,11 +778,11 @@ const codeText = c => c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.cod
 const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.category) || !p.barcode)) ? { code: String(p.codigo_balanca), kg: true } : { code: p.barcode || "", kg: false };
 function renderLabels() {
   $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => `<div class="crw"><div class="crl"><div class="ccode">${l.code ? esc(l.code) : "SEM CÓDIGO"}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => `<div class="crw"><div class="crl"><div class="ccode">${l.code ? esc(l.code) : "SEM CÓDIGO"}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 function labelPick(p) {
   const c = labelCode(p), key = pkey(p), ex = labels.find(l => l.key === key && l.code === c.code);
-  if (ex) ex.qtd = (Number(ex.qtd) || 1) + 1; else labels.push({ nome: p.name, code: c.code, kg: c.kg, tam: "M", key, qtd: 1 });
+  if (ex) ex.qtd = (Number(ex.qtd) || 1) + 1; else labels.push({ nome: p.name, code: c.code, kg: c.kg, tam: tamOf(p), key, qtd: 1 });
   store.set(EK, labels); pend = null; $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels();
   toast((c.code ? c.code + " · " : "") + p.name + " adicionado.");
 }
@@ -806,6 +813,23 @@ $("eAdd").onclick = () => {
 $("eLista").onclick = e => { const b = e.target.closest("[data-ldrop]"); if (!b) return; const x = Number(b.dataset.ldrop), it = labels.splice(x, 1)[0];
   store.set(EK, labels); renderLabels(); toast("Etiqueta removida.", "Desfazer", () => { labels.splice(x, 0, it); store.set(EK, labels); renderLabels(); }); };
 renderLabels();
+
+// segurar o item da lista abre tamanho (P/M/G) e quantidade
+let lmI = -1;
+function lmDraw() { const l = labels[lmI]; if (!l) return; document.querySelectorAll("#lmTam button").forEach(b => b.classList.toggle("sel", b.dataset.t === (l.tam || "M"))); $("lmQtd").value = l.qtd; }
+function lmOpen(i) { const l = labels[i]; if (!l) return; lmI = i; $("lmNome").textContent = l.nome; $("lmCod").textContent = l.code ? "Código: " + l.code : "Sem código"; lmDraw(); $("lModal").classList.remove("hidden"); if (navigator.vibrate) navigator.vibrate(40); }
+const lmSave = () => { store.set(EK, labels); renderLabels(); };
+$("lmTam").onclick = e => { const b = e.target.closest("button"); const l = labels[lmI]; if (!b || !l) return; l.tam = b.dataset.t; if (l.key) { const m = store.get(TK, {}); m[l.key] = l.tam; store.set(TK, m); } lmSave(); lmDraw(); };
+const lmQ = n => { const l = labels[lmI]; if (!l) return; l.qtd = Math.max(1, Math.round(n) || 1); lmSave(); lmDraw(); };
+$("lmMenos").onclick = () => lmQ((labels[lmI] || {}).qtd - 1); $("lmMais").onclick = () => lmQ((labels[lmI] || {}).qtd + 1); $("lmQtd").onchange = () => lmQ(Number($("lmQtd").value));
+$("lmOk").onclick = $("lmClose").onclick = () => $("lModal").classList.add("hidden");
+(function () { const box = $("eLista"); let t = null, x0 = 0, y0 = 0;
+  const stop = () => { clearTimeout(t); t = null; };
+  box.addEventListener("pointerdown", e => { const r = e.target.closest(".crw"); if (!r || e.target.closest("[data-ldrop]")) return; x0 = e.clientX; y0 = e.clientY;
+    const i = Array.prototype.indexOf.call(box.children, r); t = setTimeout(() => { t = null; lmOpen(i); }, 500); });
+  box.addEventListener("pointermove", e => { if (t && (Math.abs(e.clientX - x0) > 10 || Math.abs(e.clientY - y0) > 10)) stop(); });
+  ["pointerup", "pointercancel", "pointerleave"].forEach(n => box.addEventListener(n, stop));
+  box.addEventListener("contextmenu", e => { if (e.target.closest(".crw")) e.preventDefault(); }); })();
 
 // ---------- importar lista de produtos (nome + códigos) ----------
 const HDR = { nome: /^(nome|produto|descri)/, bal: /(balan|plu)/, doa: /doa/, ean: /(ean|barra|gtin)/, cat: /(categ|setor)/ };
