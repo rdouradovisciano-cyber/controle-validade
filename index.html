@@ -657,7 +657,9 @@ let dUnit = "kg"; $("uKg").onclick = () => setUnit("kg", true); $("uUn").onclick
 const QK = "validamais-atalhos";
 const QDEF = () => ["Chuchu", "Batata", "Abacaxi", "Banana", "Tomate", "Cebola", "Cenoura", "Mamão", "Laranja", "Maçã", "Limão", "Alface", "Pepino", "Pimentão", "Abobrinha", "Melão"].map(n => ({ n, c: "", u: /^abacaxi/i.test(n) ? "un" : "kg" }));
 let shortcuts = (() => { const v = store.get(QK, null); return Array.isArray(v) && v.length ? v : QDEF(); })(), qEdit = false, qIdx = -1, qU = "kg", dCodSel = "";
-const saveQ = () => store.set(QK, shortcuts);
+const sortQ = () => shortcuts.sort((a, b) => a.n.localeCompare(b.n, "pt-BR", { sensitivity: "base" }));
+const saveQ = () => { sortQ(); store.set(QK, shortcuts); };
+sortQ();
 const prodFor = l => { const q = norm(l); return products.find(p => norm(p.name || "").startsWith(q)) || products.find(p => norm(p.name || "").includes(q)); };
 function renderQuick() {
   $("qBar").classList.toggle("hidden", !qEdit); $("qEditBtn").classList.toggle("on", qEdit);
