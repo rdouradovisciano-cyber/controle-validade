@@ -599,7 +599,8 @@ function render() {
   if (!hoje.length) alarmed = false; else if (!alarmed && actx) { alarmed = true; alarm(); }
   const rows = products.filter(p => (!cat || p.category === cat) && !(cat === "FLV" && daysLeft(p.expiry) === null) && (!st || status(p) === st) &&
     (!q || (p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q)))
-    .sort((a, b) => (a.expiry || "9999").localeCompare(b.expiry || "9999"));
+    .sort((a, b) => cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
+      : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
     return `<article class="product ${cls}"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><p class="meta">Validade: <b>${fmt(p.expiry)}</b>${cnt[p.barcode] > 1 ? ` · ${cnt[p.barcode]} lotes` : ""}</p><div class="pills"><span class="pill">${when(dl)}</span></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
   }).join("") : (cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
