@@ -107,6 +107,9 @@ summary{font-weight:700;cursor:pointer;min-height:40px;display:flex;align-items:
 .qgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
 .qbtn{min-height:46px;padding:4px 2px;font-size:13px;line-height:1.1;background:var(--lt);color:var(--g);border:1px solid #cfe0d3;border-radius:10px}
 .qbtn small{display:block;font-size:10px;font-weight:600;color:var(--mut);margin-top:1px}.qbtn.sel{background:var(--g);color:#fff;border-color:var(--g)}.qbtn.sel small{color:#cfe8d8}
+.qh{display:flex;justify-content:space-between;align-items:center}.qgear{min-height:32px;min-width:32px;padding:0;background:transparent;color:#8a96a3;font-size:18px}.qgear.on{color:var(--g)}
+.qbar{display:flex;align-items:center;gap:6px;background:#fff4d1;border:1px solid #f1d878;border-radius:10px;padding:6px 8px;margin-bottom:8px;font-size:12px;color:#6d4c00}.qbar span{flex:1}.qbar button{min-height:34px;padding:0 10px;font-size:12px}
+.qbtn.ed{border-style:dashed;border-color:#d9a400}.qbtn.qadd{background:#fff;border:1.5px dashed var(--g)}
 /* FAB */
 .fabwrap{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .fabmain{width:56px;height:56px;border-radius:50%;padding:0;background:var(--g);color:#fff;font-size:30px;line-height:1;box-shadow:0 4px 12px #1e53384d;transition:transform .2s}
@@ -142,7 +145,8 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <section class="panel dlistp"><div id="dLista"></div>
 <div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
 <small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
-<section class="panel"><h2 class="h2">⚖️ Lançar peso</h2>
+<section class="panel"><h2 class="h2 qh">⚖️ Lançar peso <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
+<div id="qBar" class="qbar hidden"><span>Toque num atalho para editar</span><button type="button" class="secondary" id="qReset">Restaurar padrão</button><button type="button" class="primary" id="qDone">Concluir</button></div>
 <div id="qgrid" class="qgrid"></div>
 <input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off"><div id="dSug" class="rows sug"></div>
 <div class="wrow"><div class="kpdisplay" style="flex:1;margin:0"><span id="dNome">Escolha o produto</span></div></div>
@@ -182,6 +186,11 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <div class="toolbar" style="margin-top:10px"><button class="secondary big" id="impCheck">Conferir lista</button><button class="primary big" id="impGo" disabled>Cadastrar</button></div><div id="impPrev" class="rows"></div></section></div>
 <div id="sectorBox" class="modal"><section class="sheet"><h2 class="h2">Qual setor você vai conferir?</h2><div id="sectorBtns" class="grid"></div></section></div>
 <div id="fabScrim" class="fabscrim hidden"></div><div class="fabwrap" id="fabWrap"><div class="fabmenu"><button class="fabitem loja-only" id="fabManual">＋ Cadastro manual</button><button class="fabitem loja-only" id="fabZap">💬 Enviar por WhatsApp</button></div><div class="fabrow"><button class="fabscan" id="fab">▦ Bipar</button><button class="fabmain" id="fabMain" aria-label="Mais ações">＋</button></div></div>
+<div id="qModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="qTitle"><div class="sheethead"><h2 id="qTitle">Atalho</h2><button class="secondary" id="qClose" aria-label="Fechar">✕</button></div>
+<label for="qNome">Nome do produto</label><input id="qNome" maxlength="40" autocomplete="off" placeholder="Ex.: Chuchu">
+<label for="qCod">Código de doação (49xx ou PLU)</label><input id="qCod" maxlength="12" autocomplete="off" placeholder="Ex.: 4912">
+<label>Unidade padrão</label><div class="utog"><button type="button" id="qUKg" class="sel">kg</button><button type="button" id="qUUn">un</button></div>
+<div class="toolbar" style="margin-top:14px"><button class="primary big" id="qSave">Salvar</button><button class="danger" id="qDel">Excluir</button></div></section></div>
 <div id="confView" class="app hidden"></div>
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="modal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -645,21 +654,41 @@ function setUnit(u, save) { dUnit = u; $("uKg").classList.toggle("sel", u === "k
   $("dPeso").placeholder = u === "un" ? "unidades (ex.: 3)" : "kg (ex.: 2,5)"; $("dPeso").inputMode = u === "un" ? "numeric" : "decimal";
   if (save && dSel) { const m = store.get(UK, {}); m[norm(dSel)] = u; store.set(UK, m); } }
 let dUnit = "kg"; $("uKg").onclick = () => setUnit("kg", true); $("uUn").onclick = () => setUnit("un", true);
-const QUICK = (typeof C !== "undefined" && C.doacaoGrade) || ["Chuchu", "Batata", "Abacaxi", "Banana", "Tomate", "Cebola", "Cenoura", "Mamão", "Laranja", "Maçã", "Limão", "Alface", "Pepino", "Pimentão", "Abobrinha", "Melão"];
+const QK = "validamais-atalhos";
+const QDEF = () => ["Chuchu", "Batata", "Abacaxi", "Banana", "Tomate", "Cebola", "Cenoura", "Mamão", "Laranja", "Maçã", "Limão", "Alface", "Pepino", "Pimentão", "Abobrinha", "Melão"].map(n => ({ n, c: "", u: /^abacaxi/i.test(n) ? "un" : "kg" }));
+let shortcuts = (() => { const v = store.get(QK, null); return Array.isArray(v) && v.length ? v : QDEF(); })(), qEdit = false, qIdx = -1, qU = "kg", dCodSel = "";
+const saveQ = () => store.set(QK, shortcuts);
 const prodFor = l => { const q = norm(l); return products.find(p => norm(p.name || "").startsWith(q)) || products.find(p => norm(p.name || "").includes(q)); };
 function renderQuick() {
-  $("qgrid").innerHTML = QUICK.map(l => { const p = prodFor(l), nm = p ? p.name : l, on = dSel && norm(dSel) === norm(nm);
-    return `<button type="button" class="qbtn${on ? " sel" : ""}" data-q="${esc(l)}">${esc(l)}${p && p.codigo_doacao ? `<small>${esc(p.codigo_doacao)}</small>` : ""}</button>`; }).join("");
+  $("qBar").classList.toggle("hidden", !qEdit); $("qEditBtn").classList.toggle("on", qEdit);
+  $("qgrid").innerHTML = shortcuts.map((s, i) => { const p = prodFor(s.n), nm = p ? p.name : s.n, code = s.c || (p && p.codigo_doacao) || "", on = !qEdit && dSel && norm(dSel) === norm(nm);
+    return `<button type="button" class="qbtn${on ? " sel" : ""}${qEdit ? " ed" : ""}" data-q="${i}">${esc(s.n)}<small>${esc(code)}${code ? " · " : ""}${s.u}</small></button>`; }).join("") + (qEdit ? '<button type="button" class="qbtn qadd" data-q="new">＋ Novo</button>' : "");
 }
-$("qgrid").onclick = e => { const b = e.target.closest("[data-q]"); if (!b) return; const p = prodFor(b.dataset.q); selectProd(p ? p.name : b.dataset.q); };
+function qOpen(i) { qIdx = i; const s = i === "new" ? { n: "", c: "", u: "kg" } : shortcuts[i];
+  $("qTitle").textContent = i === "new" ? "Novo atalho" : "Editar atalho"; $("qNome").value = s.n; $("qCod").value = s.c; qSetU(s.u); $("qDel").classList.toggle("hidden", i === "new");
+  $("qModal").classList.remove("hidden"); $("qNome").focus(); }
+function qSetU(u) { qU = u; $("qUKg").classList.toggle("sel", u === "kg"); $("qUUn").classList.toggle("sel", u === "un"); }
+$("qUKg").onclick = () => qSetU("kg"); $("qUUn").onclick = () => qSetU("un");
+$("qClose").onclick = () => $("qModal").classList.add("hidden");
+$("qSave").onclick = () => { const n = $("qNome").value.trim().slice(0, 40), c = $("qCod").value.trim().toUpperCase().slice(0, 12);
+  if (!n) return toast("Digite o nome do produto."); if (c && !/^[A-Z0-9]{1,12}$/.test(c)) return toast("Código: só letras e números.");
+  const s = { n, c, u: qU }; if (qIdx === "new") shortcuts.push(s); else shortcuts[qIdx] = s;
+  saveQ(); $("qModal").classList.add("hidden"); renderQuick(); };
+$("qDel").onclick = () => { if (qIdx === "new") return; const s = shortcuts.splice(qIdx, 1)[0]; saveQ(); $("qModal").classList.add("hidden"); renderQuick();
+  toast(`${s.n} excluído.`, "Desfazer", () => { shortcuts.splice(qIdx, 0, s); saveQ(); renderQuick(); }); };
+$("qEditBtn").onclick = () => { qEdit = !qEdit; renderQuick(); }; $("qDone").onclick = () => { qEdit = false; renderQuick(); };
+$("qReset").onclick = () => { if (confirm("Voltar para os atalhos padrão? Os seus atalhos serão apagados.")) { shortcuts = QDEF(); saveQ(); renderQuick(); } };
+$("qgrid").onclick = e => { const b = e.target.closest("[data-q]"); if (!b) return; const k = b.dataset.q;
+  if (qEdit) return qOpen(k === "new" ? "new" : Number(k));
+  const s = shortcuts[Number(k)], p = prodFor(s.n); selectProd(p ? p.name : s.n, s.c, s.u); };
 $("navDoacao").addEventListener("click", renderQuick); $("dBusca").addEventListener("focus", renderQuick);
-function selectProd(n) { dSel = n; setUnit(unitOf(n), false); renderQuick(); $("dCod").value = (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderKey(); $("dPeso").focus(); }
+function selectProd(n, code, unit) { dSel = n; dCodSel = code || ""; setUnit(unit || unitOf(n), false); renderQuick(); $("dCod").value = code || (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderKey(); $("dPeso").focus(); }
 $("dCodSave").onclick = () => { if (!dSel) return toast("Escolha o produto primeiro."); const pr = products.find(x => norm(x.name) === norm(dSel)) || { name: dSel };
   const v = saveCode(pr, "codigo_doacao", $("dCod").value); if (v !== null) $("dCod").value = v; };
 function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",", "."));
   if (!dSel) return toast("Escolha o produto."); if (!(q > 0)) return toast(dUnit === "un" ? "Digite a quantidade." : "Digite o peso em kg.");
   if (dUnit === "un") q = Math.round(q); if (!(q > 0)) return toast("Digite a quantidade.");
-  const total = addDon(dSel, dUnit, q); toast(`${dSel}: +${fq(q)} ${dUnit} → total ${fq(total)} ${dUnit}`); $("dPeso").value = ""; $("dPeso").focus(); }
+  const total = addDon(dSel, dUnit, q, dCodSel); toast(`${dSel}: +${fq(q)} ${dUnit} → total ${fq(total)} ${dUnit}`); $("dPeso").value = ""; $("dPeso").focus(); }
 $("dAdd").onclick = dPesoAdd; $("dPeso").onkeydown = e => { if (e.key === "Enter") dPesoAdd(); };
 $("dLista").onclick = e => { const b = e.target.closest("[data-drop]"); if (!b) return; const x = Number(b.dataset.drop), it = don.itens.splice(x, 1)[0];
   store.set(DK, don); renderDon(); toast(`${it.nome} removido.`, "Desfazer", () => { don.itens.splice(x, 0, it); store.set(DK, don); renderDon(); }); };
