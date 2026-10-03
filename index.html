@@ -743,7 +743,8 @@ function markSent(x, val) { const id = hid(x); if (!id) return; x.enviada = val;
   const m = store.get(ENV, {}); if (val) m[id] = 1; else delete m[id]; store.set(ENV, m);
   if (db && x._id) V.updateDoc(V.doc(db, "doacoes", x._id), { enviada: val }).catch(e => console.error(e));
   else { const l = store.get(HK, []), it = l.find(y => String(y.em) === id); if (it) { it.enviada = val; store.set(HK, l); } } }
-function renderHist(l) { histList = l;
+const HID = "validamais-doculto";
+function renderHist(l) { const hd = store.get(HID, {}); l = l.filter(x => !hd[hid(x)]); histList = l;
   $("dHist").innerHTML = l.length ? l.map((x, i) => { const tot = totTxt(x.totalKg, x.totalUn, x.itens ? x.itens.length : 0), sent = isSent(x);
     return `<div class="hrow"><div class="hi"><b>${dataBR(x.data)}</b>${sent ? ' <span class="hbadge">✓ Enviada</span>' : ""}<br><small class="muted">${tot}</small></div><button class="secondary" data-hist="${i}">Abrir</button><button class="${sent ? "primary" : "secondary"}" data-sent="${i}" aria-label="${sent ? "Desmarcar enviada" : "Marcar como enviada"}">✓</button><button class="cdel" data-del="${i}" aria-label="Excluir doação">🗑</button></div>`; }).join("") : '<p class="muted">Nenhuma doação finalizada.</p>'; }
 $("dHist").onclick = e => { const b = e.target.closest("[data-hist],[data-sent],[data-del]"); if (!b) return;
@@ -751,8 +752,10 @@ $("dHist").onclick = e => { const b = e.target.closest("[data-hist],[data-sent],
   const x = histList[Number(b.dataset.sent ?? b.dataset.del)]; if (!x) return;
   if (b.dataset.sent !== undefined) { markSent(x, !isSent(x)); if (!db) reloadLocalHist(); else renderHist(histList); toast(isSent(x) ? "Marcada como enviada." : "Marca de enviada removida."); return; }
   if (!confirm(`Excluir a doação de ${dataBR(x.data)}?`)) return;
-  if (db && x._id) V.deleteDoc(V.doc(db, "doacoes", x._id)).then(() => toast("Doação excluída.")).catch(err => { console.error(err); toast("Não foi possível excluir (confira as regras do Firebase)."); });
-  else { store.set(HK, store.get(HK, []).filter(y => String(y.em) !== hid(x))); reloadLocalHist(); toast("Doação excluída."); } };
+  const id = hid(x), hd = store.get(HID, {}); hd[id] = 1; store.set(HID, hd);          // some já neste aparelho, mesmo que a nuvem recuse
+  store.set(HK, store.get(HK, []).filter(y => String(y.em) !== id)); renderHist(histList);
+  if (db && x._id) V.deleteDoc(V.doc(db, "doacoes", x._id)).then(() => toast("Doação excluída.")).catch(err => { console.error(err); toast("Removida só deste aparelho: o Firebase não permite apagar na nuvem (veja as regras)."); });
+  else toast("Doação excluída."); };
 $("histBox").ontoggle = () => {
   if ($("histBox").open) { if (db) { if (!unsubHist) unsubHist = V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(HLIM)), s => renderHist(s.docs.map(d => ({ ...d.data(), _id: d.id })))); } else reloadLocalHist(); }
   else if (unsubHist) { unsubHist(); unsubHist = null; } };
