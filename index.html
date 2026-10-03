@@ -389,10 +389,15 @@ h.appendChild(b);
 b.onclick=function(){var t=document.documentElement.dataset.tema==="dark"?"light":"dark";try{localStorage.setItem(K,t)}catch(e){}ap(t)};
 ap(document.documentElement.dataset.tema||"dark")});
 })();</script>
+<style id="limpeza">
+.lnk{display:block;margin:2px auto 6px;background:none;color:var(--mut);font-size:13px;min-height:34px;padding:0 8px;text-decoration:underline;border-radius:8px}
+.sdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#9aa5b0}.sdot.ok{background:#2fb37a}.sdot.wait{background:#e0a100}.sdot.err{background:#d64545}
+#tabLoja .stats .stat{cursor:pointer}.stat.on{outline:2px solid var(--g2);outline-offset:-2px}
+</style>
 </head>
 <body data-tab="Loja">
 <main class="app">
-<div class="top"><header><h1>Valida+</h1></header><nav class="tabbar"><button id="tbLoja" class="active">🏪 Loja</button><button id="tbDoacao">📋 Doação</button><button id="tbEtiquetas">🏷️ Etiquetas</button></nav></div>
+<div class="top"><header><h1>Valida+</h1></header><nav class="tabbar"><button id="tbDoacao">📋 Doação</button><button id="tbEtiquetas">🏷️ Etiquetas</button><button id="tbLoja">⏱️ Validades</button></nav></div>
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
@@ -401,12 +406,12 @@ ap(document.documentElement.dataset.tema||"dark")});
 <section class="panel">
 <div class="toolbar"><button class="secondary big" id="manualOpen">＋ Cadastro manual</button></div>
 <input id="search" type="search" placeholder="Buscar por nome ou código" aria-label="Buscar produto" style="margin-top:12px">
-<div class="filters"><select id="categoryFilter" class="hidden" aria-label="Categoria"></select><select id="statusFilter" aria-label="Status"><option value="">Todos os status</option><option value="expired">Vencidos</option><option value="soon">Vencem em breve</option><option value="ok">Dentro do prazo</option></select></div>
-<button type="button" class="secondary" id="verTodos" style="width:100%;margin-bottom:6px"></button>
+<div class="filters"><select id="categoryFilter" class="hidden" aria-label="Categoria"></select><select id="statusFilter" class="hidden" aria-label="Status"><option value="">Todos os status</option><option value="expired">Vencidos</option><option value="soon">Vencem em breve</option><option value="ok">Dentro do prazo</option></select></div>
+<button type="button" class="lnk" id="verTodos"></button>
 <div id="list"></div>
 </section>
 <div class="hidden"><details id="scansBox"><div id="scanList"></div></details></div>
-<p class="muted" style="font-size:12px;text-align:center">Sincronização: <span id="syncState">iniciando…</span></p>
+<p style="text-align:center;margin:8px 0"><span id="syncDot" class="sdot" title="iniciando…"></span><span id="syncState" class="hidden">iniciando…</span></p>
 </div>
 <div id="tabDoacao" class="hidden">
 <div id="donaEntrada">
@@ -437,12 +442,12 @@ ap(document.documentElement.dataset.tema||"dark")});
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="eAdd">Adicionar à lista</button><button class="secondary" id="eCancela">Cancelar</button></div></section>
 <div class="csum"><div><span>PRODUTOS</span><b id="eSumP">0</b></div><div><span>QUANTIDADE TOTAL</span><b id="eSumQ">0</b></div></div><div id="eLista" class="clist"></div>
 </div>
-<footer class="foot"><span><i class="dot v"></i>VISITAS <b id="nVisitas">–</b></span><span><i class="dot" id="dotO"></i>ONLINE <b id="nOnline">–</b></span></footer>
-<details class="updbox" id="updBox"><summary id="updSum"></summary><div id="updBody"></div></details>
+<footer class="foot hidden"><span><i class="dot v"></i>VISITAS <b id="nVisitas">–</b></span><span><i class="dot" id="dotO"></i>ONLINE <b id="nOnline">–</b></span></footer>
+<details class="updbox hidden" id="updBox"><summary id="updSum"></summary><div id="updBody"></div></details>
 </main>
 <div id="sideBg" class="bg hidden"></div>
 <aside id="side" class="side" aria-label="Menu"><div class="sheethead"><h2>Menu</h2><button class="secondary" id="sideClose" aria-label="Fechar menu">✕</button></div>
-<nav class="menu"><button id="navLoja" class="active">🏪 Loja<small>Controle de validades</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
+<nav class="menu"><button id="navLoja">⏱️ Validades<small>Ovos e refrigerados</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
 <section class="panel"><h2 style="font-size:17px;margin:0 0 10px">Exportar</h2>
 <label for="exportScope">O que exportar</label><select id="exportScope"><option value="all">Todos os produtos</option><option value="soon">Vencem em breve</option><option value="expired">Vencidos</option><option value="category">Uma categoria</option></select>
 <select id="exportCategory" class="hidden" aria-label="Categoria para exportar" style="margin-top:8px"></select>
@@ -586,10 +591,15 @@ function fillCategories() {
   opt("category", "Selecione"); opt("categoryFilter", "Todas as categorias"); opt("exportCategory", "Selecione a categoria");
 }
 function render() {
+  { const cf = $("categoryFilter"), oth = [...new Set(products.map(p => p.category).filter(c => c && c !== "FLV"))].sort(), sig = oth.join("|");
+    if (cf.dataset.sig !== sig) { const cur = cf.value; cf.innerHTML = ""; cf.add(new Option("Todos os setores", "")); ["FLV", ...oth].forEach(c => cf.add(new Option(c, c)));
+      cf.value = [...cf.options].some(o => o.value === cur) ? cur : "FLV"; cf.dataset.sig = sig; }
+    cf.classList.toggle("hidden", !oth.length); document.querySelector("#tabLoja .filters").classList.toggle("hidden", !oth.length); $("verTodos").classList.toggle("hidden", !!oth.length); }
   const q = $("search").value.trim().toLowerCase(), cat = $("categoryFilter").value, st = $("statusFilter").value;
   const base = products.filter(p => !cat || p.category === cat), ex = base.filter(p => status(p) === "expired").length, so = base.filter(p => status(p) === "soon").length;
   $("countAll").textContent = products.length;
-  { const vt = $("verTodos"); if (vt) vt.textContent = cat ? `Ver todos os ${products.length} produtos cadastrados` : "Ver só o FLV"; } $("countSoon").textContent = so; $("countExpired").textContent = ex;
+  { const vt = $("verTodos"); if (vt) vt.textContent = cat ? `Ver todos os ${products.length} cadastrados` : "Voltar ao FLV"; }
+  document.querySelectorAll("#tabLoja .stats .stat").forEach((e, i) => e.classList.toggle("on", (i === 1 && st === "soon") || (i === 2 && st === "expired"))); $("countSoon").textContent = so; $("countExpired").textContent = ex;
   $("topAlert").classList.toggle("hidden", !(ex || so));
   $("topAlert").textContent = `Atenção: ${ex} vencido(s) e ${so} vencendo em breve.`;
   const cnt = {}; products.forEach(p => { if (p.barcode) cnt[p.barcode] = (cnt[p.barcode] || 0) + 1; });
@@ -825,6 +835,8 @@ $("scansBox").ontoggle = () => {
 
 // ---------- setor, menu lateral, voz e foto da validade ----------
 const SETOR = "FLV"; $("categoryFilter").value = SETOR; store.set(LC, SETOR); render();
+{ const sf = $("statusFilter"), stt = document.querySelectorAll("#tabLoja .stats .stat");
+  stt[0].onclick = () => { sf.value = ""; render(); }; stt[1].onclick = () => { sf.value = sf.value === "soon" ? "" : "soon"; render(); }; stt[2].onclick = () => { sf.value = sf.value === "expired" ? "" : "expired"; render(); }; }
 $("verTodos").onclick = () => { $("categoryFilter").value = $("categoryFilter").value ? "" : "FLV"; render(); };
 document.addEventListener("pointerdown", () => { audio(); render(); }, { once: true }); // libera o som do alerta no primeiro toque
 const side = o => { $("side").classList.toggle("open", o); $("sideBg").classList.toggle("hidden", !o); };
@@ -1049,6 +1061,7 @@ $("histBox").ontoggle = () => {
   else if (unsubHist) { unsubHist(); unsubHist = null; } };
 const go = t => { tab(t); side(false); }; $("navLoja").onclick = () => go("Loja"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("dScan").onclick = () => openScan("doacao");
 renderDon(); renderKey(); renderQuick();
+tab("Doacao");
 
 // ---------- aba Etiquetas ----------
 const EK = "validamais-etiquetas";
@@ -1194,7 +1207,7 @@ $("fab").addEventListener("click",function(){set(false)});
 $("fabManual").onclick=function(){set(false);$("manualOpen").click()};
 $("fabZap").onclick=function(){set(false);$("shareBtn").click()};
 ["Loja","Doacao","Etiquetas"].forEach(function(n){$("tb"+n).onclick=function(){set(false);$("nav"+n).click()}});})();</script>
-<script>(function(){var T=["Loja","Doacao","Etiquetas"],x0=0,y0=0,ok=false,g=function(i){return document.getElementById(i)};
+<script>(function(){var T=["Doacao","Etiquetas","Loja"],x0=0,y0=0,ok=false,g=function(i){return document.getElementById(i)};
 function blocked(t){if(t.closest&&t.closest("input,textarea,select,.rwrap,#reader,.side,.modal,#confView,.fabwrap"))return true;
 var m=document.querySelectorAll(".modal,#confView,.side.open");for(var i=0;i<m.length;i++){if(!m[i].classList.contains("hidden")&&getComputedStyle(m[i]).display!=="none")return true}return false}
 document.addEventListener("touchstart",function(e){if(e.touches.length!==1){ok=false;return}var t=e.touches[0];x0=t.clientX;y0=t.clientY;ok=!blocked(e.target)},{passive:true});
@@ -1301,5 +1314,8 @@ if(b&&!b.hidden){b.click();return}
 if(/iphone|ipad|ipod/i.test(navigator.userAgent)){var h=g("iosHint");if(h){h.classList.remove("hidden");window.scrollTo(0,0)}msg("No iPhone: toque em Compartilhar e depois em Adicionar à Tela de Início.");return}
 msg("Para instalar: menu do navegador (⋮) e depois Instalar app ou Adicionar à tela inicial.")};
 })();</script>
+<script>/* ponto de status da sincronização */(function(){var s=document.getElementById("syncState"),d=document.getElementById("syncDot");if(!s||!d)return;
+function u(){var t=s.textContent||"";d.title=t;d.className="sdot "+(/^sincronizado/.test(t)?"ok":/erro|falha/.test(t)?"err":/conectando|aguardando|offline|iniciando/.test(t)?"wait":"")}
+new MutationObserver(u).observe(s,{childList:true,characterData:true,subtree:true});u()})();</script>
 </body></html>
 
