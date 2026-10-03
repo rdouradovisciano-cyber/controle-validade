@@ -51,7 +51,6 @@ header{display:flex;align-items:center;gap:10px;height:56px;padding:0 8px 0 16px
 h1{font-size:20px;margin:0;flex:1;font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
 h1::before{content:"✓";width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:17px;font-weight:800;
   background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);box-shadow:0 1px 0 rgba(255,255,255,.2) inset}
-header #menuBtn{background:rgba(255,255,255,.14);color:#fff;font-size:22px;min-width:44px;padding:0;line-height:1;border-radius:12px;margin-right:4px}
 .tabbar{display:flex;gap:6px;padding:0 12px 12px}
 .tabbar button{flex:1;background:rgba(255,255,255,.12);color:rgba(255,255,255,.82);border-radius:12px;min-height:40px;padding:0 6px;font-size:13.5px;font-weight:700}
 .tabbar .active{background:#fff;color:var(--g-d);box-shadow:0 3px 10px rgba(0,0,0,.18)}
@@ -271,11 +270,6 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .updbox summary::-webkit-details-marker{display:none}
 .updbox ul{margin:2px 0 6px;padding-left:16px;font-size:10.5px;line-height:1.45;color:#8a96a3;text-align:left}
 .updbox h4{margin:6px 0 2px;font-size:10px;color:#9aa5b0;text-align:left}
-.acrow{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--ln);font-size:13px}
-.acrow b{color:var(--g-d)}
-.acrow span{color:var(--mut);white-space:nowrap;font-variant-numeric:tabular-nums}
-.achead{margin:12px 0 4px;font-size:12px;color:var(--g-d);text-transform:uppercase;letter-spacing:.05em}
-.acrow small{display:block;color:var(--mut);font-size:11px}
 
 /* ===== botão flutuante ===== */
 .fabwrap{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
@@ -324,7 +318,7 @@ body.np-open .toast{bottom:auto;top:calc(var(--top-h) + 8px + env(safe-area-inse
 </head>
 <body data-tab="Loja">
 <main class="app">
-<div class="top"><header><h1>Valida+</h1><button id="menuBtn" aria-label="Abrir menu">⋮</button></header><nav class="tabbar"><button id="tbLoja" class="active">🏪 Loja</button><button id="tbDoacao">📋 Doação</button><button id="tbEtiquetas">🏷️ Etiquetas</button></nav></div>
+<div class="top"><header><h1>Valida+</h1></header><nav class="tabbar"><button id="tbLoja" class="active">🏪 Loja</button><button id="tbDoacao">📋 Doação</button><button id="tbEtiquetas">🏷️ Etiquetas</button></nav></div>
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
@@ -374,7 +368,7 @@ body.np-open .toast{bottom:auto;top:calc(var(--top-h) + 8px + env(safe-area-inse
 </main>
 <div id="sideBg" class="bg hidden"></div>
 <aside id="side" class="side" aria-label="Menu"><div class="sheethead"><h2>Menu</h2><button class="secondary" id="sideClose" aria-label="Fechar menu">✕</button></div>
-<nav class="menu"><button id="navLoja" class="active">🏪 Loja<small>Controle de validades</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button><button id="navAcessos" style="background:#fff;border:1px solid #cfe0d3">🕒 Últimos acessos<small>Quem entrou e quando</small></button></nav>
+<nav class="menu"><button id="navLoja" class="active">🏪 Loja<small>Controle de validades</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
 <section class="panel"><h2 style="font-size:17px;margin:0 0 10px">Exportar</h2>
 <label for="exportScope">O que exportar</label><select id="exportScope"><option value="all">Todos os produtos</option><option value="soon">Vencem em breve</option><option value="expired">Vencidos</option><option value="category">Uma categoria</option></select>
 <select id="exportCategory" class="hidden" aria-label="Categoria para exportar" style="margin-top:8px"></select>
@@ -400,8 +394,6 @@ body.np-open .toast{bottom:auto;top:calc(var(--top-h) + 8px + env(safe-area-inse
 <div id="opModal" class="modal hidden" style="z-index:100;align-items:center"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="opTitle"><h2 id="opTitle" class="h2" style="font-size:18px">Nome do Operador</h2>
 <p class="note">Digite o seu nome para começar. <b>Atenção: depois de salvo, o nome não poderá ser alterado neste aparelho.</b></p>
 <input id="opNome" maxlength="40" autocomplete="off" placeholder="Ex.: Rodrigo Dourado"><div class="toolbar" style="margin-top:12px"><button class="primary big" id="opOk">Entrar</button></div></section></div>
-<div id="acModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="acTitle"><div class="sheethead"><h2 id="acTitle">Últimos acessos</h2><button class="secondary" id="acClose" aria-label="Fechar">✕</button></div>
-<p class="note" id="acInfo"></p><h4 class="achead">Operadores (todos os aparelhos)</h4><div id="acDev" class="impl" style="max-height:26vh"></div><h4 class="achead">Entradas (data e hora de cada login)</h4><div id="acList" class="impl" style="max-height:34vh"></div><p class="note" id="acNote"></p></section></div>
 <div id="confView" class="app hidden"></div>
 <div id="np" role="group" aria-label="Teclado numérico"><div id="npTop"><span id="npTitle"></span><b id="npVal"></b><button type="button" id="npClose" aria-label="Fechar teclado">⌄</button></div>
 <div id="npGrid"><button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" class="del" data-k="del" aria-label="Apagar">⌫</button>
@@ -761,7 +753,7 @@ $("sectorBtns").innerHTML = SECTORS.map(s => `<button data-s="${s}">${s}</button
 $("sectorBtns").onclick = e => { const b = e.target.closest("button"); if (!b) return; sector = b.dataset.s; $("categoryFilter").value = sector;
   if (sector) store.set(LC, sector); $("sectorBox").classList.add("hidden"); audio(); render(); };
 const side = o => { $("side").classList.toggle("open", o); $("sideBg").classList.toggle("hidden", !o); };
-$("menuBtn").onclick = () => side(true); $("sideBg").onclick = () => side(false); $("sideClose").onclick = () => side(false);
+$("sideBg").onclick = () => side(false); $("sideClose").onclick = () => side(false);
 $("micBtn").onclick = () => {
   const R = window.SpeechRecognition || window.webkitSpeechRecognition; if (!R) return toast("Ditado por voz não é suportado neste navegador.");
   const r = new R(); r.lang = "pt-BR"; r.interimResults = false;
@@ -1158,27 +1150,6 @@ if(nome){start()}else{
   g("opOk").onclick=ok;g("opNome").onkeydown=function(e){if(e.key==="Enter")ok()};}
 // volta ao app depois de 30 min parado conta como novo acesso
 var hiddenAt=0;document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")hiddenAt=Date.now();else if(hiddenAt&&Date.now()-hiddenAt>30*60*1000&&rd(OPK,""))logAccess()});
-// ---- painel Últimos acessos (todos os operadores) ----
-var unD=null,unA=null;
-function ms(x){return x&&x.toMillis?x.toMillis():x?new Date(x).getTime():0}
-function fm(m,full){return m?fmt(new Date(m).toISOString(),full):"—"}
-function stopAc(){if(unD){unD();unD=null}if(unA){unA();unA=null}}
-function drawLocal(){var l=rd(ACK,[]);g("acList").innerHTML=l.length?l.slice(0,100).map(function(x){return'<div class="acrow"><b>'+esc(x.n)+'</b><span>'+fmt(x.t,true)+'</span></div>'}).join(""):'<p class="muted">Nenhum acesso registrado.</p>'}
-g("navAcessos").onclick=function(){var s=g("side"),b=g("sideBg");if(s)s.classList.remove("open");if(b)b.classList.add("hidden");stopAc();
-  var n=rd(OPK,""),f=rd(FIRSTK,"");
-  g("acInfo").innerHTML="Este aparelho: <b>"+esc(n||"—")+"</b>"+(f?" · primeiro acesso "+fmt(f,true):"");
-  g("acDev").innerHTML='<p class="muted">Carregando…</p>';g("acList").innerHTML='<p class="muted">Carregando…</p>';g("acNote").textContent="";
-  g("acModal").classList.remove("hidden");
-  if(typeof db==="undefined"||!db||!window.V){g("acDev").innerHTML='<p class="muted">Sem conexão com a nuvem.</p>';g("acNote").textContent="Mostrando só os acessos deste aparelho.";drawLocal();return}
-  unD=V.onSnapshot(V.query(V.collection(db,"devices"),V.orderBy("lastSeen","desc"),V.limit(100)),function(s){
-    g("acDev").innerHTML=s.docs.length?s.docs.map(function(d){var x=d.data();return'<div class="acrow"><div><b>'+esc(x.nome||"Aparelho")+'</b><small>'+esc(x.ua||"")+' · '+(x.visitas||0)+' visita(s) · desde '+(x.firstSeen?fmt(x.firstSeen,true):"—")+'</small></div><span>'+fm(ms(x.lastSeen),true)+'</span></div>'}).join(""):'<p class="muted">Nenhum aparelho registrado.</p>'},
-    function(){g("acDev").innerHTML='<p class="muted">Não foi possível ler os aparelhos da nuvem.</p>'});
-  unA=V.onSnapshot(V.query(V.collection(db,"acessos"),V.orderBy("em","desc"),V.limit(200)),function(s){
-    if(!s.docs.length){drawLocal();g("acNote").textContent="Ainda não há entradas na nuvem; mostrando as deste aparelho.";return}
-    g("acNote").textContent=s.docs.length+" entrada(s) mais recentes de todos os operadores.";
-    g("acList").innerHTML=s.docs.map(function(d){var x=d.data();return'<div class="acrow"><div><b>'+esc(x.nome||"—")+'</b><small>'+esc(x.ua||"")+' · '+esc(x.dev||"")+'</small></div><span>'+fm(ms(x.em),true)+'</span></div>'}).join("")},
-    function(){drawLocal();g("acNote").textContent="O Firebase não permite ler/gravar a coleção «acessos» (veja as regras). Mostrando só as entradas deste aparelho."})};
-g("acClose").onclick=function(){stopAc();g("acModal").classList.add("hidden")};
 })();</script>
 <script>
 /* Teclado numerico integrado: campos [data-np] ficam readonly e usam o painel inferior */
