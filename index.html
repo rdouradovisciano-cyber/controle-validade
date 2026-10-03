@@ -486,6 +486,12 @@ ap(document.documentElement.dataset.tema||"dark")});
 <label for="nrNome">Nome do produto *</label><input id="nrNome" maxlength="120" autocomplete="off" placeholder="Ex.: Mamão papaya">
 <div class="toolbar" style="margin-top:14px"><button class="primary big" id="nrSave">Cadastrar e continuar</button><button class="secondary big" id="nrCancel">Cancelar</button></div>
 <small class="note">O cadastro fica salvo para todos os usuários.</small></section></div>
+<div id="qtModal" class="modal hidden" style="z-index:36"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="qtNome">
+<div class="sheethead"><h2 id="qtNome">Produto</h2><button class="secondary" id="qtClose" aria-label="Fechar">✕</button></div>
+<p class="note" id="qtInfo"></p>
+<label for="qtQtd">Quantas unidades?</label>
+<div class="stepper"><button type="button" class="secondary" id="qtMenos" aria-label="Diminuir">−</button><input id="qtQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-submit="#qtOk" data-np-label="Adicionar" value="1"><button type="button" class="secondary" id="qtMais" aria-label="Aumentar">＋</button></div>
+<div class="toolbar" style="margin-top:14px"><button class="primary big" id="qtOk">Adicionar</button><button class="secondary big" id="qtCancel">Cancelar</button></div></section></div>
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="modal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 <div class="sheethead"><h2 id="modalTitle">Cadastrar produto</h2><button id="closeModal" class="secondary" aria-label="Fechar">✕</button></div>
@@ -908,7 +914,23 @@ function saveCode(p, field, raw) {                 // grava o código em todos o
 }
 
 // ---------- cadastro rápido ao bipar produto não cadastrado (vale para qualquer usuário) ----------
-let nrResolve = null; const adopted = new Set();
+let nrResolve = null, qtResolve = null; const adopted = new Set();
+function askQty(nome) {                              // "Quantas unidades?" -> número inteiro, ou null se cancelar
+  return new Promise(res => {
+    if (qtResolve) return res(null);
+    qtResolve = res;
+    const it = don.itens.find(i => i.key === norm(nome) + "|un");
+    $("qtNome").textContent = nome;
+    $("qtInfo").textContent = it ? `Já coletado: ${fq(it.qtd)} un em ${it.lanc} lançamento${it.lanc > 1 ? "s" : ""}.` : "Ainda não coletado nesta doação.";
+    $("qtQtd").value = "1"; $("qtModal").classList.remove("hidden"); setTimeout(() => $("qtQtd").focus(), 80);   // o foco abre o teclado numérico
+  });
+}
+function qtDone(v) { $("qtModal").classList.add("hidden"); const r = qtResolve; qtResolve = null; if (r) r(v); }
+$("qtOk").onclick = () => { const q = Math.round(Number($("qtQtd").value)); if (!(q > 0)) return toast("Digite a quantidade."); qtDone(q); };
+$("qtCancel").onclick = $("qtClose").onclick = () => qtDone(null);
+$("qtMenos").onclick = () => { $("qtQtd").value = Math.max(1, (Number($("qtQtd").value) || 1) - 1); };
+$("qtMais").onclick = () => { $("qtQtd").value = (Number($("qtQtd").value) || 0) + 1; };
+document.addEventListener("keydown", e => { if (e.key === "Escape" && qtResolve) qtDone(null); });
 function askNewProduct(code, scale, item) {          // abre a janela e devolve {nome} ou null se cancelar
   return new Promise(res => {
     if (nrResolve) return res(null);
@@ -973,7 +995,7 @@ function parseScale(code) {                       // EAN-13 de balança: 2 + có
 async function donationScan(code) {
   const now = Date.now(); if (code === lastScan.c && now - lastScan.t < 2500) return;   // ignora leitura repetida do mesmo código
   lastScan = { c: code, t: now };
-  if (nrResolve) return;                             // há um cadastro aberto
+  if (nrResolve || qtResolve) return;                // há um cadastro ou uma pergunta de quantidade aberta
   buzz(); beep();
   const names = store.get(NK, {}); let key, unidade, qtd;
   if (/^2\d{12}$/.test(code)) { const s = parseScale(code); key = "B" + s.item; unidade = "kg"; qtd = s.kg;
@@ -988,6 +1010,7 @@ async function donationScan(code) {
     registerProduct({ name: r.nome, barcode: sc ? "" : code, codigo_balanca: plu });
     nome = r.nome; names[key] = nome; store.set(NK, names); }
   const scaleLbl = /^2\d{12}$/.test(code); if (unidade === "kg" && unitOf(nome) === "un") { unidade = "un"; qtd = 1; }
+  if (unidade === "un" && !scaleLbl) { const q = await askQty(nome); if (!q) { lastScan.t = Date.now(); return; } qtd = q; }   // item por unidade: informa a quantidade em vez de bipar várias vezes
   const total = addDon(nome, unidade, qtd, (!scaleLbl && unidade === "un") ? code : "");
   toast(`${nome}: +${fq(qtd)} ${unidade} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
 }
@@ -1277,7 +1300,7 @@ if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
-var UPDATES=[{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+var UPDATES=[{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
