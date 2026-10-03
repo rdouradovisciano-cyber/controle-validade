@@ -663,6 +663,7 @@ function remove(id) {
 }
 
 // ---------- scanner ----------
+const buzz = () => { try { if (navigator.vibrate) navigator.vibrate(50); } catch {} }; // pulso tátil de 50 ms
 let actx, alarmed = false, sector = "";
 const audio = () => { try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); } catch {} };
 function tone(f, t, d) { if (!actx) return; const o = actx.createOscillator(), g = actx.createGain(); o.frequency.value = f; g.gain.value = .25; o.connect(g); g.connect(actx.destination); o.start(actx.currentTime + t); o.stop(actx.currentTime + t + d); }
@@ -889,7 +890,7 @@ function renderDon() {
   renderKey();
 }
 function addDon(nome, unidade, qtd, cod = "") {
-  qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0;
+  qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0; buzz();
   const key = norm(nome) + "|" + unidade; let it = don.itens.find(i => i.key === key);
   if (it) { it.qtd = Math.round((it.qtd + qtd) * 1000) / 1000; it.lanc++; } else { it = { key, nome: nome.trim().slice(0, 60), unidade, qtd, lanc: 1 }; don.itens.push(it); }
   const pr = products.find(x => norm(x.name) === norm(nome)); it.cod = it.cod || cod || (pr && (pr.codigo_doacao || pr.barcode || pr.codigo_balanca)) || "";
@@ -902,7 +903,7 @@ function parseScale(code) {                       // EAN-13 de balança: 2 + có
 function donationScan(code) {
   const now = Date.now(); if (code === lastScan.c && now - lastScan.t < 2500) return;   // ignora leitura repetida do mesmo código
   lastScan = { c: code, t: now };
-  if (navigator.vibrate) navigator.vibrate(100); beep();
+  buzz(); beep();
   const names = store.get(NK, {}); let key, unidade, qtd;
   if (/^2\d{12}$/.test(code)) { const s = parseScale(code); key = "B" + s.item; unidade = "kg"; qtd = s.kg;
     if (!(qtd > 0)) { toast("Etiqueta de balança sem peso legível. Ajuste a configuração 'balanca' no config.js."); return; } }
@@ -967,7 +968,7 @@ $("qEditBtn").onclick = () => { qEdit = !qEdit; renderQuick(); }; $("qDone").onc
 $("qReset").onclick = () => { if (confirm("Voltar para os atalhos padrão? Os seus atalhos serão apagados.")) { shortcuts = QDEF(); saveQ(); renderQuick(); } };
 $("qgrid").onclick = e => { const b = e.target.closest("[data-q]"); if (!b) return; const k = b.dataset.q;
   if (qEdit) return qOpen(k === "new" ? "new" : Number(k));
-  const s = shortcuts[Number(k)], p = prodFor(s.n); selectProd(p ? p.name : s.n, s.c, s.u); };
+  buzz(); const s = shortcuts[Number(k)], p = prodFor(s.n); selectProd(p ? p.name : s.n, s.c, s.u); };
 $("navDoacao").addEventListener("click", renderQuick); $("dBusca").addEventListener("focus", renderQuick);
 function selectProd(n, code, unit) { dSel = n; dCodSel = code || ""; setUnit(unit || unitOf(n), false); renderQuick(); $("dCod").value = code || (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderDon(); $("dPeso").focus({ preventScroll: true }); }
 $("dCodSave").onclick = () => { if (!dSel) return toast("Escolha o produto primeiro."); const pr = products.find(x => norm(x.name) === norm(dSel)) || { name: dSel };
@@ -1057,13 +1058,14 @@ function renderLabels() {
   $("eLista").innerHTML = labels.length ? labels.map((l, i) => `<div class="crw"><div class="crl"><div class="ccode">${l.code ? esc(l.code) : "SEM CÓDIGO"}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 function labelPick(p) {
+  buzz();
   const c = labelCode(p), key = pkey(p), ex = labels.find(l => l.key === key && l.code === c.code);
   if (ex) ex.qtd = (Number(ex.qtd) || 1) + 1; else labels.push({ nome: p.name, code: c.code, kg: c.kg, tam: tamOf(p), key, qtd: 1 });
   store.set(EK, labels); pend = null; $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels();
   toast((c.code ? c.code + " · " : "") + p.name + " adicionado.");
 }
 async function labelScan(code) {
-  if (navigator.vibrate) navigator.vibrate(100); beep(); await stopScanner(); closeModal();
+  buzz(); beep(); await stopScanner(); closeModal();
   const scale = /^2\d{12}$/.test(code), item = scale ? Number(parseScale(code).item) : 0;
   let p = scale ? products.find(x => x.codigo_balanca && Number(x.codigo_balanca) === item) : products.find(x => x.barcode === code);
   if (!p) { const nome = (prompt(`Código ${code} não cadastrado. Nome do produto:`) || "").trim(); if (!nome) return;
@@ -1082,7 +1084,7 @@ $("eCodSave").onclick = () => { if (!pend) return; const v = saveCode(pend.src, 
   pend.src = { ...pend.src, codigo_balanca: v }; const c = labelCode(pend.src); pend.code = c.code; pend.kg = c.kg; $("eCod").textContent = codeText(c); $("eCodBal").value = v; };
 $("eCancela").onclick = () => { pend = null; $("ePend").classList.add("hidden"); };
 $("eAdd").onclick = () => {
-  if (!pend) return; if (!pend.tam) return toast("Escolha o tamanho: P, M ou G.");
+  if (!pend) return; if (!pend.tam) return toast("Escolha o tamanho: P, M ou G."); buzz();
   labels.push({ nome: pend.nome, code: pend.code, kg: pend.kg, tam: pend.tam || "M", key: pkey(pend.src), qtd: Math.max(1, Math.round(Number($("eQtd").value) || 1)) }); store.set(EK, labels);
   pend = null; $("ePend").classList.add("hidden"); $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels(); toast("Item adicionado à lista.");
 };
