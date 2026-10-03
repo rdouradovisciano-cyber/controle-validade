@@ -128,6 +128,31 @@ summary{font-weight:700;cursor:pointer;min-height:40px;display:flex;align-items:
 .fabitem{background:#fff;color:var(--g);border:1px solid var(--ln);border-radius:99px;padding:0 16px;min-height:44px;box-shadow:0 2px 8px #0002;white-space:nowrap}
 body:not([data-tab="Loja"]) .loja-only{display:none}
 .fabscrim{position:fixed;inset:0;z-index:19;background:#0003}
+
+/* ===== Teclado numerico integrado ===== */
+html{scroll-padding-bottom:var(--np-h,0px)}
+body{overscroll-behavior-y:contain}
+[data-np]{caret-color:transparent;cursor:pointer;-webkit-user-select:none;user-select:none}
+[data-np].np-on{border-color:var(--g2);box-shadow:0 0 0 3px #2f7a5233}
+.modal{padding-bottom:calc(10px + var(--np-h,0px))}
+.sheet{max-height:calc(92dvh - var(--np-h,0px))}
+body.np-open .app{padding-bottom:calc(var(--np-h) + 16px)}
+body.np-open .fabwrap,body.np-open .fabscrim{display:none}
+body.np-open .toast{bottom:auto;top:calc(104px + env(safe-area-inset-top))}
+#np{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;background:#eef2ef;border-top:1px solid #cdd7d1;box-shadow:0 -6px 18px #0002;padding:6px 8px calc(8px + env(safe-area-inset-bottom));touch-action:manipulation;-webkit-user-select:none;user-select:none}
+#np.show{display:block}
+#npTop{display:flex;align-items:center;gap:8px;max-width:520px;margin:0 auto 6px;min-height:34px}
+#npTitle{flex:1;min-width:0;font-size:12px;font-weight:700;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
+#npVal{font-size:24px;color:var(--g);font-variant-numeric:tabular-nums;min-width:40px;text-align:right}
+#npClose{min-height:34px;min-width:40px;padding:0;background:#fff;color:var(--g);font-size:18px;border:1px solid #cfe0d3}
+#npGrid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,52px);gap:6px;max-width:520px;margin:0 auto}
+#npGrid button{min-height:0;height:100%;padding:0;font-size:26px;font-weight:600;border-radius:12px;background:#fff;color:var(--ink);border:1px solid #d3dae1;box-shadow:0 1px 1px #0001}
+#npGrid button:active{background:var(--lt);transform:scale(.97)}
+#npGrid .z{grid-column:span 2}
+#npGrid .del{background:#fdecec;color:#c0392b;border-color:#f3c9c9}
+#npGrid .ok{grid-column:4;grid-row:2/5;background:var(--g);color:#fff;border:0;font-size:17px;line-height:1.15}
+#npGrid .ok:active{background:var(--g2)}
+#npGrid button:disabled{opacity:.3}
 </style>
 <title>Valida+ | Controle de validade</title>
 </head>
@@ -161,7 +186,7 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off"><div id="dSug" class="rows sug"></div>
 <div class="wrow"><div class="kpdisplay" style="flex:1;margin:0"><span id="dNome">Escolha o produto</span></div></div>
 <div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div>
-<div class="wrow"><input id="dPeso" inputmode="decimal" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div>
+<div class="wrow"><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
 <section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
 </div>
@@ -174,7 +199,7 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <section class="panel hidden" id="ePend"><h2 class="h2" id="eNome"></h2><p class="note" id="eCod"></p>
 <label for="eCodBal">Código de balança (PLU) deste produto</label><div class="stepper"><input id="eCodBal" inputmode="numeric" maxlength="6" placeholder="Ex.: 123"><button type="button" class="secondary" id="eCodSave" style="padding:0 14px">Salvar código</button></div>
 <label>Tamanho da etiqueta</label><div class="grid3" id="eTam"><button type="button" data-t="P">P<small>Pequena</small></button><button type="button" data-t="M">M<small>Média</small></button><button type="button" data-t="G">G<small>Grande</small></button></div>
-<label for="eQtd">Cópias</label><div class="stepper"><button type="button" class="secondary" id="eMenos" aria-label="Diminuir">−</button><input id="eQtd" type="number" inputmode="numeric" min="1" value="1"><button type="button" class="secondary" id="eMais" aria-label="Aumentar">＋</button></div>
+<label for="eQtd">Cópias</label><div class="stepper"><button type="button" class="secondary" id="eMenos" aria-label="Diminuir">−</button><input id="eQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-submit="#eAdd" data-np-label="Adicionar" value="1"><button type="button" class="secondary" id="eMais" aria-label="Aumentar">＋</button></div>
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="eAdd">Adicionar à lista</button><button class="secondary" id="eCancela">Cancelar</button></div></section>
 <div class="csum"><div><span>PRODUTOS</span><b id="eSumP">0</b></div><div><span>QUANTIDADE TOTAL</span><b id="eSumQ">0</b></div></div><div id="eLista" class="clist"></div>
 </div>
@@ -204,7 +229,7 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <div class="toolbar" style="margin-top:14px"><button class="primary big" id="qSave">Salvar</button><button class="danger" id="qDel">Excluir</button></div></section></div>
 <div id="lModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="lmNome"><div class="sheethead"><h2 id="lmNome"></h2><button class="secondary" id="lmClose" aria-label="Fechar">✕</button></div>
 <p class="note" id="lmCod"></p><label>Tamanho da etiqueta</label><div class="utog" id="lmTam"><button type="button" data-t="P">P</button><button type="button" data-t="M">M</button><button type="button" data-t="G">G</button></div>
-<label>Quantidade</label><div class="stepper"><button type="button" class="secondary" id="lmMenos" aria-label="Diminuir">−</button><input id="lmQtd" type="number" inputmode="numeric" min="1" value="1"><button type="button" class="secondary" id="lmMais" aria-label="Aumentar">＋</button></div>
+<label>Quantidade</label><div class="stepper"><button type="button" class="secondary" id="lmMenos" aria-label="Diminuir">−</button><input id="lmQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-label="OK" value="1"><button type="button" class="secondary" id="lmMais" aria-label="Aumentar">＋</button></div>
 <div class="toolbar" style="margin-top:14px"><button class="primary big" id="lmOk">Pronto</button></div></section></div>
 <div id="opModal" class="modal hidden" style="z-index:100;align-items:center"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="opTitle"><h2 id="opTitle" class="h2" style="font-size:18px">Nome do Operador</h2>
 <p class="note">Digite o seu nome para começar. <b>Atenção: depois de salvo, o nome não poderá ser alterado neste aparelho.</b></p>
@@ -212,6 +237,11 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <div id="acModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="acTitle"><div class="sheethead"><h2 id="acTitle">Últimos acessos</h2><button class="secondary" id="acClose" aria-label="Fechar">✕</button></div>
 <p class="note" id="acInfo"></p><h4 class="achead">Operadores (todos os aparelhos)</h4><div id="acDev" class="impl" style="max-height:26vh"></div><h4 class="achead">Entradas (data e hora de cada login)</h4><div id="acList" class="impl" style="max-height:34vh"></div><p class="note" id="acNote"></p></section></div>
 <div id="confView" class="app hidden"></div>
+<div id="np" role="group" aria-label="Teclado numérico"><div id="npTop"><span id="npTitle"></span><b id="npVal"></b><button type="button" id="npClose" aria-label="Fechar teclado">⌄</button></div>
+<div id="npGrid"><button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" class="del" data-k="del" aria-label="Apagar">⌫</button>
+<button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button><button type="button" class="ok" data-k="ok" id="npOk">Adicionar</button>
+<button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
+<button type="button" data-k=",">,</button><button type="button" class="z" data-k="0">0</button></div></div>
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="modal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 <div class="sheethead"><h2 id="modalTitle">Cadastrar produto</h2><button id="closeModal" class="secondary" aria-label="Fechar">✕</button></div>
@@ -222,7 +252,7 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <div class="wide hidden" id="semCodigo"><small class="note">Sem código de barras: informe os códigos internos do produto.</small><div class="formgrid"><div><label for="cBalanca">Código de balança (etiquetas)</label><input id="cBalanca" inputmode="numeric" maxlength="12"></div><div><label for="cDoacao">Código de doação</label><input id="cDoacao" inputmode="numeric" maxlength="12"></div></div></div>
 <div class="wide"><label for="name">Nome do produto *</label><div class="stepper"><input id="name" required maxlength="120" placeholder="Ex.: Leite integral 1 L" autocomplete="off"><button type="button" class="secondary" id="micBtn" aria-label="Ditar nome">🎤</button></div></div>
 <div><label for="category">Categoria *</label><select id="category" required></select></div>
-<div><label for="quantity">Quantidade *</label><div class="stepper"><button type="button" class="secondary" id="qMinus" aria-label="Diminuir">−</button><input id="quantity" type="number" inputmode="decimal" min="0.01" step="any" value="1" required><button type="button" class="secondary" id="qPlus" aria-label="Aumentar">＋</button></div></div>
+<div><label for="quantity">Quantidade *</label><div class="stepper"><button type="button" class="secondary" id="qMinus" aria-label="Diminuir">−</button><input id="quantity" type="text" readonly inputmode="none" data-np data-np-label="OK" value="1"><button type="button" class="secondary" id="qPlus" aria-label="Aumentar">＋</button></div></div>
 <div class="wide"><label for="expiry" id="expLabel">Data de validade *</label><input id="expiry" type="date" required>
 <button type="button" class="secondary" id="ocrBtn" style="width:100%;margin-top:8px">📷 Ler data da embalagem (foto)</button><input type="file" id="ocrFile" accept="image/*" capture="environment" hidden></div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
@@ -495,8 +525,8 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("modal"
 $("productForm").onsubmit = e => { e.preventDefault(); save(false); };
 $("saveNext").onclick = () => { if ($("productForm").reportValidity()) save(true); };
 $("barcode").oninput = toggleCodes; $("category").onchange = toggleCodes; $("barcode").onchange = () => fillKnown($("barcode").value.trim());
-$("qMinus").onclick = () => { const q = Number($("quantity").value) || 1; $("quantity").value = Math.max(1, Math.round(q) - 1); };
-$("qPlus").onclick = () => { $("quantity").value = Math.round(Number($("quantity").value) || 0) + 1; };
+$("qMinus").onclick = () => { const q = Number(String($("quantity").value).replace(",", ".")) || 1; $("quantity").value = Math.max(1, Math.round(q) - 1); };
+$("qPlus").onclick = () => { $("quantity").value = Math.round(Number(String($("quantity").value).replace(",", ".")) || 0) + 1; };
 $("exportScope").onchange = () => $("exportCategory").classList.toggle("hidden", $("exportScope").value !== "category");
 $("csvBtn").onclick = () => { const r = exportRows(); if (r) download(new Blob([csvContent(r)], { type: "text/csv;charset=utf-8" }), `controle-validade-${stamp()}.csv`); };
 $("pdfBtn").onclick = () => { const r = exportRows(); if (!r) return; try { download(makePdf(r), `controle-validade-${stamp()}.pdf`); } catch (e) { console.error(e); toast("Não foi possível gerar o PDF."); } };
@@ -671,7 +701,7 @@ $("dBusca").onkeydown = e => { if (e.key === "Enter") { const b = $("dSug").quer
 $("dSug").onclick = e => { const b = e.target.closest("[data-sel]"); if (b) selectProd(b.dataset.sel); };
 const unitOf = n => store.get(UK, {})[norm(n)] || (/^abacaxi/.test(norm(n)) ? "un" : "kg");
 function setUnit(u, save) { dUnit = u; $("uKg").classList.toggle("sel", u === "kg"); $("uUn").classList.toggle("sel", u === "un");
-  $("dPeso").placeholder = u === "un" ? "unidades (ex.: 3)" : "kg (ex.: 2,5)"; $("dPeso").inputMode = u === "un" ? "numeric" : "decimal";
+  $("dPeso").placeholder = u === "un" ? "unidades (ex.: 3)" : "kg (ex.: 2,5)"; $("dPeso").toggleAttribute("data-np-int", u === "un");
   if (save && dSel) { const m = store.get(UK, {}); m[norm(dSel)] = u; store.set(UK, m); } }
 let dUnit = "kg"; $("uKg").onclick = () => setUnit("kg", true); $("uUn").onclick = () => setUnit("un", true);
 const QK = "validamais-atalhos";
@@ -984,5 +1014,58 @@ g("navAcessos").onclick=function(){var s=g("side"),b=g("sideBg");if(s)s.classLis
     function(){drawLocal();g("acNote").textContent="O Firebase não permite ler/gravar a coleção «acessos» (veja as regras). Mostrando só as entradas deste aparelho."})};
 g("acClose").onclick=function(){stopAc();g("acModal").classList.add("hidden")};
 })();</script>
+<script>
+/* Teclado numerico integrado: campos [data-np] ficam readonly e usam o painel inferior */
+(function () {
+  var pad = document.getElementById("np"), val = document.getElementById("npVal"), ttl = document.getElementById("npTitle"), okb = document.getElementById("npOk"), comma = pad.querySelector('[data-k=","]');
+  var act = null, fresh = false, root = document.documentElement;
+  var isInt = function (el) { return el.hasAttribute("data-np-int"); };
+  function title(el) {
+    if (el.id === "dPeso") { var n = document.getElementById("dNome"), u = document.getElementById("uUn").classList.contains("sel") ? "un" : "kg"; return ((n && n.textContent) || "Peso") + " (" + u + ")"; }
+    var l = el.id && document.querySelector('label[for="' + el.id + '"]'); return l ? l.textContent.replace("*", "").trim() : "Quantidade";
+  }
+  function paint() { val.textContent = act ? (act.value || "0") : ""; }
+  function measure() { root.style.setProperty("--np-h", pad.offsetHeight + "px"); }
+  function open(el) {
+    if (act !== el) { if (act) act.classList.remove("np-on"); act = el; fresh = true; }
+    el.classList.add("np-on"); ttl.textContent = title(el); okb.textContent = el.dataset.npLabel || "OK"; comma.disabled = isInt(el); paint();
+    pad.classList.add("show"); document.body.classList.add("np-open"); measure();
+    try { el.scrollIntoView({ block: "nearest" }); } catch (e) {}
+  }
+  function close() {
+    if (act) act.classList.remove("np-on"); act = null; pad.classList.remove("show"); document.body.classList.remove("np-open"); root.style.removeProperty("--np-h");
+  }
+  function put(v) { act.value = v; act.dispatchEvent(new Event("input", { bubbles: true })); act.dispatchEvent(new Event("change", { bubbles: true })); paint(); }
+  function press(k) {
+    if (!act) return; var v = act.value || "";
+    if (navigator.vibrate) navigator.vibrate(8);
+    if (k === "del") { put(fresh ? "" : v.slice(0, -1)); fresh = false; return; }
+    if (k === "ok") {
+      var sel = act.dataset.npSubmit, b = sel && document.querySelector(sel);
+      if (b) { b.click(); fresh = true; setTimeout(function () { if (act) { if (!act.getClientRects().length) close(); else { paint(); title(act); ttl.textContent = title(act); } } }, 0); }
+      else close();
+      return;
+    }
+    if (fresh) { v = ""; fresh = false; }
+    if (k === ",") { if (isInt(act) || v.indexOf(",") >= 0) return; v = v === "" ? "0," : v + ","; }
+    else { if (v === "0") v = ""; if (v.length >= 7) return; v += k; }
+    put(v);
+  }
+  pad.addEventListener("pointerdown", function (e) { e.preventDefault(); });
+  pad.addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; if (b.id === "npClose") return close(); if (!b.disabled) press(b.dataset.k); });
+  document.addEventListener("focusin", function (e) {
+    var t = e.target; if (t.matches && t.matches("[data-np]")) { t.setAttribute("readonly", ""); open(t); }
+    else if (t.matches && t.matches("input,textarea,select")) close();
+  });
+  document.addEventListener("pointerdown", function (e) {
+    var t = e.target; if (t.closest && t.closest("[data-np]")) { if (document.activeElement === t) open(t); return; }
+    if (!act || t.closest("#np")) return;
+    if (!t.closest("button,input,select,textarea,a,summary,label,[data-q],[data-pick],[data-sel]")) close();
+  });
+  /* fecha se o campo sumiu (modal fechado, outra aba, etc.) */
+  document.addEventListener("click", function () { setTimeout(function () { if (act && !act.getClientRects().length) close(); else if (act) { paint(); ttl.textContent = title(act); } }, 30); });
+  window.addEventListener("resize", function () { if (act) measure(); });
+})();
+</script>
 </body></html>
 
