@@ -397,11 +397,12 @@ ap(document.documentElement.dataset.tema||"dark")});
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
 <div id="topAlert" class="alert hidden" role="status"></div>
-<section class="stats"><div class="stat"><b id="countAll">0</b><span>Produtos</span></div><div class="stat"><b id="countSoon">0</b><span>Vencem em breve</span></div><div class="stat"><b id="countExpired">0</b><span>Vencidos</span></div></section>
+<section class="stats"><div class="stat"><b id="countAll">0</b><span>Cadastrados</span></div><div class="stat"><b id="countSoon">0</b><span>Vencem em breve</span></div><div class="stat"><b id="countExpired">0</b><span>Vencidos</span></div></section>
 <section class="panel">
 <div class="toolbar"><button class="secondary big" id="manualOpen">＋ Cadastro manual</button></div>
 <input id="search" type="search" placeholder="Buscar por nome ou código" aria-label="Buscar produto" style="margin-top:12px">
 <div class="filters"><select id="categoryFilter" class="hidden" aria-label="Categoria"></select><select id="statusFilter" aria-label="Status"><option value="">Todos os status</option><option value="expired">Vencidos</option><option value="soon">Vencem em breve</option><option value="ok">Dentro do prazo</option></select></div>
+<button type="button" class="secondary" id="verTodos" style="width:100%;margin-bottom:6px"></button>
 <div id="list"></div>
 </section>
 <div class="hidden"><details id="scansBox"><div id="scanList"></div></details></div>
@@ -587,7 +588,8 @@ function fillCategories() {
 function render() {
   const q = $("search").value.trim().toLowerCase(), cat = $("categoryFilter").value, st = $("statusFilter").value;
   const base = products.filter(p => !cat || p.category === cat), ex = base.filter(p => status(p) === "expired").length, so = base.filter(p => status(p) === "soon").length;
-  $("countAll").textContent = base.filter(p => !(cat === "FLV" && daysLeft(p.expiry) === null)).length; $("countSoon").textContent = so; $("countExpired").textContent = ex;
+  $("countAll").textContent = products.length;
+  { const vt = $("verTodos"); if (vt) vt.textContent = cat ? `Ver todos os ${products.length} produtos cadastrados` : "Ver só o FLV"; } $("countSoon").textContent = so; $("countExpired").textContent = ex;
   $("topAlert").classList.toggle("hidden", !(ex || so));
   $("topAlert").textContent = `Atenção: ${ex} vencido(s) e ${so} vencendo em breve.`;
   const cnt = {}; products.forEach(p => { if (p.barcode) cnt[p.barcode] = (cnt[p.barcode] || 0) + 1; });
@@ -822,6 +824,7 @@ $("scansBox").ontoggle = () => {
 
 // ---------- setor, menu lateral, voz e foto da validade ----------
 const SETOR = "FLV"; $("categoryFilter").value = SETOR; store.set(LC, SETOR); render();
+$("verTodos").onclick = () => { $("categoryFilter").value = $("categoryFilter").value ? "" : "FLV"; render(); };
 document.addEventListener("pointerdown", () => { audio(); render(); }, { once: true }); // libera o som do alerta no primeiro toque
 const side = o => { $("side").classList.toggle("open", o); $("sideBg").classList.toggle("hidden", !o); };
 $("sideBg").onclick = () => side(false); $("sideClose").onclick = () => side(false);
