@@ -115,8 +115,9 @@ summary{font-weight:700;cursor:pointer;min-height:40px;display:flex;align-items:
 .crw{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .tbadge{display:inline-block;margin-left:6px;background:var(--g);color:#fff;border-radius:99px;font-size:11px;font-weight:800;padding:1px 7px;vertical-align:middle}
 .lm-note{font-size:12px}
-.updbox{background:#fff;border:1px solid var(--ln);border-left:4px solid var(--g2);border-radius:10px;padding:0 12px;margin:10px 0 0}
-.updbox summary{min-height:38px;font-size:13px;color:var(--g);font-weight:700}.updbox ul{margin:0 0 8px;padding-left:18px;font-size:12.5px;line-height:1.45;color:var(--ink)}.updbox h4{margin:8px 0 2px;font-size:12px;color:var(--mut)}
+.updbox{margin:2px auto 6px;max-width:420px;text-align:center}
+.updbox summary{display:block;min-height:0;font-size:10px;font-weight:500;color:#9aa5b0;cursor:pointer;list-style:none;padding:4px 0}.updbox summary::-webkit-details-marker{display:none}
+.updbox ul{margin:2px 0 6px;padding-left:16px;font-size:10.5px;line-height:1.4;color:#8a96a3;text-align:left}.updbox h4{margin:6px 0 2px;font-size:10px;color:#9aa5b0;text-align:left}
 .acrow{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--ln);font-size:13px}.acrow b{color:var(--g)}.acrow span{color:var(--mut);white-space:nowrap;font-variant-numeric:tabular-nums}
 /* FAB */
 .fabwrap{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
@@ -135,7 +136,6 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
-<details class="updbox" id="updBox"><summary id="updSum"></summary><div id="updBody"></div></details>
 <div id="topAlert" class="alert hidden" role="status"></div>
 <section class="stats"><div class="stat"><b id="countAll">0</b><span>Produtos</span></div><div class="stat"><b id="countSoon">0</b><span>Vencem em breve</span></div><div class="stat"><b id="countExpired">0</b><span>Vencidos</span></div></section>
 <section class="panel">
@@ -144,7 +144,7 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <div class="filters"><select id="categoryFilter" aria-label="Categoria"></select><select id="statusFilter" aria-label="Status"><option value="">Todos os status</option><option value="expired">Vencidos</option><option value="soon">Vencem em breve</option><option value="ok">Dentro do prazo</option></select></div>
 <div id="list"></div>
 </section>
-<section class="panel"><details id="scansBox"><summary>▦ Histórico de leituras (últimas 30)</summary><div id="scanList" class="rows"></div></details></section>
+<div class="hidden"><details id="scansBox"><div id="scanList"></div></details></div>
 <p class="muted" style="font-size:12px;text-align:center">Sincronização: <span id="syncState">iniciando…</span></p>
 </div>
 <div id="tabDoacao" class="hidden">
@@ -178,6 +178,7 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <div class="csum"><div><span>PRODUTOS</span><b id="eSumP">0</b></div><div><span>QUANTIDADE TOTAL</span><b id="eSumQ">0</b></div></div><div id="eLista" class="clist"></div>
 </div>
 <footer class="foot"><span><i class="dot v"></i>VISITAS <b id="nVisitas">–</b></span><span><i class="dot" id="dotO"></i>ONLINE <b id="nOnline">–</b></span></footer>
+<details class="updbox" id="updBox"><summary id="updSum"></summary><div id="updBody"></div></details>
 </main>
 <div id="sideBg" class="bg hidden"></div>
 <aside id="side" class="side" aria-label="Menu"><div class="sheethead"><h2>Menu</h2><button class="secondary" id="sideClose" aria-label="Fechar menu">✕</button></div>
@@ -938,7 +939,7 @@ function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n
 return p(d.getDate())+"/"+p(d.getMonth()+1)+"/"+d.getFullYear()+(full?" "+p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds()):" às "+p(d.getHours())+":"+p(d.getMinutes()))}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 // ---- atualizações ----
-function renderUpd(){var u=UPDATES[0];if(!u)return;g("updSum").textContent="🆕 Últimas atualizações · "+fmt(u.t);
+function renderUpd(){var u=UPDATES[0];if(!u)return;g("updSum").textContent="Atualizado em "+fmt(u.t)+" · ver novidades";
 g("updBody").innerHTML=UPDATES.slice(0,5).map(function(x,i){return(i?'<h4>'+fmt(x.t)+'</h4>':'')+'<ul>'+x.itens.map(function(t){return'<li>'+esc(t)+'</li>'}).join("")+'</ul>'}).join("")}
 renderUpd();
 if(location.hash.indexOf("#conf=")===0)return;      // tela de conferência (link): sem identificação
