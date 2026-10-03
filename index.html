@@ -339,6 +339,56 @@ body.np-open .toast{bottom:auto;top:calc(var(--top-h) + 8px + env(safe-area-inse
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 <title>Valida+ | Controle de validade</title>
+<style id="tema-escuro">
+html[data-tema=dark]{color-scheme:dark;--g:#5fd08e;--g-d:#a6e8c1;--g2:#2f9a63;--g3:#46c283;--bg:#090d0b;--card:#111814;--ink:#e3eae5;--mut:#9aa8a0;--ln:#232e28;--lt:#16241c;--lt2:#121c17;--red:#ff7b72;--amb:#f0b429;--sh1:0 1px 2px rgba(0,0,0,.5);--sh2:0 6px 18px rgba(0,0,0,.5)}
+html[data-tema=dark] .top{background:linear-gradient(135deg,#0f2418,#15321f);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+html[data-tema=dark] .tabbar button{background:rgba(255,255,255,.08);color:rgba(255,255,255,.75)}
+html[data-tema=dark] .tabbar .active{background:#2a8f5d;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.4)}
+html[data-tema=dark] .alert,html[data-tema=dark] .qbar{background:#2e260b;border-color:#6b5a1a;color:#f2d479}
+html[data-tema=dark] .today{background:linear-gradient(135deg,#a8281c,#8a1f16)}
+html[data-tema=dark] .danger{background:#2c1516;color:#ff8f8f}
+@media(hover:hover){html[data-tema=dark] .secondary:hover{background:#1d3226}html[data-tema=dark] .danger:hover{background:#3a1b1c}}
+html[data-tema=dark] input,html[data-tema=dark] select,html[data-tema=dark] textarea{background-color:#0d1310;border-color:#2c3a32;color:var(--ink)}
+html[data-tema=dark] input::placeholder,html[data-tema=dark] textarea::placeholder{color:#6f7d75}
+html[data-tema=dark] .keypad button,html[data-tema=dark] .ltam button,html[data-tema=dark] .crr .ltam button,html[data-tema=dark] .qbtn.qadd,html[data-tema=dark] #npGrid button,html[data-tema=dark] #npClose{background:#0d1310;border-color:#2c3a32;color:var(--ink)}
+html[data-tema=dark] .crr .ltam .cdel{background:transparent;border:0;color:#d98a8a}
+html[data-tema=dark] #npGrid .del{background:#2c1516;color:#ff8f8f;border-color:#4a2325}
+html[data-tema=dark] .primary,html[data-tema=dark] .grid .sel,html[data-tema=dark] .grid3 .sel,html[data-tema=dark] .qbtn.sel,html[data-tema=dark] .ltam .sel,html[data-tema=dark] .crr .ltam .sel,html[data-tema=dark] .keypad .add,html[data-tema=dark] .rom th,html[data-tema=dark] .fabscan,html[data-tema=dark] .menu .active,html[data-tema=dark] .utog .sel,html[data-tema=dark] #npGrid .ok{background:linear-gradient(180deg,#228456,#1a6a45);color:#fff;border-color:#1a6a45}
+html[data-tema=dark] .tbadge,html[data-tema=dark] .plus{background:#1f7a49;color:#fff}
+html[data-tema=dark] .panel,html[data-tema=dark] .stat,html[data-tema=dark] .product,html[data-tema=dark] .tam,html[data-tema=dark] .side,html[data-tema=dark] .crow,html[data-tema=dark] .csum,html[data-tema=dark] .clist,html[data-tema=dark] .nowbar,html[data-tema=dark] .fabmain,html[data-tema=dark] .fabitem,html[data-tema=dark] .impl{background:#111814;border-color:var(--ln)}
+html[data-tema=dark] .crow.done{background:var(--lt2)}
+html[data-tema=dark] .product.expired{background:linear-gradient(90deg,#2a1415,#111814 45%);border-left-color:#ff6b6b}
+html[data-tema=dark] .product.soon{background:linear-gradient(90deg,#2a2410,#111814 45%);border-left-color:#f0b429}
+html[data-tema=dark] .product.none{border-left-color:#4a5650}
+html[data-tema=dark] .pill,html[data-tema=dark] .hbadge{background:#17402a;color:#8ee6ae}
+html[data-tema=dark] .expired .pill{background:#4a1c1c;color:#ffa3a3}
+html[data-tema=dark] .soon .pill{background:#4a3a0a;color:#ffd666}
+html[data-tema=dark] .none .pill{background:#26302b;color:#b6c2bb}
+html[data-tema=dark] .sheet{background:#0f1512}
+html[data-tema=dark] .sheet::before{background:#33443a}
+html[data-tema=dark] .modal,html[data-tema=dark] .bg{background:rgba(0,0,0,.7)}
+html[data-tema=dark] .fabscrim{background:rgba(0,0,0,.6)}
+html[data-tema=dark] .toast{background:#1d2822;color:#e3eae5;border:1px solid #33443a}
+html[data-tema=dark] .toast button{background:#1f7a49;color:#fff}
+html[data-tema=dark] .qbtn{border-color:#24402f}
+html[data-tema=dark] .bad{color:#ff8f8f}
+html[data-tema=dark] .foot b{color:#8a978f}
+html[data-tema=dark] .dot{background:#3a4640}
+html[data-tema=dark] #np{background:rgba(15,21,18,.97);border-top-color:#2c3a32}
+@keyframes vm-flash{0%{background:#1d4a31;border-color:#46c283}100%{background:#111814}}
+</style>
+<script>try{document.documentElement.dataset.tema=localStorage.getItem("validamais-tema")||"dark"}catch(e){document.documentElement.dataset.tema="dark"}</script>
+<script>(function(){
+var K="validamais-tema",m=document.querySelector('meta[name=theme-color]'),claro=m?m.content:"#0e4a30";
+function ap(t){document.documentElement.dataset.tema=t;if(m)m.content=t==="dark"?"#0f2418":claro;
+var b=document.getElementById("temaBtn");if(b){b.textContent=t==="dark"?"\u2600\uFE0F":"\uD83C\uDF19";b.setAttribute("aria-label",t==="dark"?"Modo claro":"Modo escuro")}}
+document.addEventListener("DOMContentLoaded",function(){var h=document.querySelector("header");if(!h)return;
+var b=document.createElement("button");b.id="temaBtn";b.type="button";
+b.style.cssText="background:rgba(255,255,255,.14);color:#fff;font-size:20px;min-width:44px;padding:0;line-height:1;border-radius:12px";
+h.appendChild(b);
+b.onclick=function(){var t=document.documentElement.dataset.tema==="dark"?"light":"dark";try{localStorage.setItem(K,t)}catch(e){}ap(t)};
+ap(document.documentElement.dataset.tema||"dark")});
+})();</script>
 </head>
 <body data-tab="Loja">
 <main class="app">
