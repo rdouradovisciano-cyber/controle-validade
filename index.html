@@ -115,6 +115,9 @@ summary{font-weight:700;cursor:pointer;min-height:40px;display:flex;align-items:
 .crw{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .tbadge{display:inline-block;margin-left:6px;background:var(--g);color:#fff;border-radius:99px;font-size:11px;font-weight:800;padding:1px 7px;vertical-align:middle}
 .lm-note{font-size:12px}
+.updbox{background:#fff;border:1px solid var(--ln);border-left:4px solid var(--g2);border-radius:10px;padding:0 12px;margin:10px 0 0}
+.updbox summary{min-height:38px;font-size:13px;color:var(--g);font-weight:700}.updbox ul{margin:0 0 8px;padding-left:18px;font-size:12.5px;line-height:1.45;color:var(--ink)}.updbox h4{margin:8px 0 2px;font-size:12px;color:var(--mut)}
+.acrow{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--ln);font-size:13px}.acrow b{color:var(--g)}.acrow span{color:var(--mut);white-space:nowrap;font-variant-numeric:tabular-nums}
 /* FAB */
 .fabwrap{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .fabmain{width:56px;height:56px;border-radius:50%;padding:0;background:var(--g);color:#fff;font-size:30px;line-height:1;box-shadow:0 4px 12px #1e53384d;transition:transform .2s}
@@ -132,6 +135,7 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
+<details class="updbox" id="updBox"><summary id="updSum"></summary><div id="updBody"></div></details>
 <div id="topAlert" class="alert hidden" role="status"></div>
 <section class="stats"><div class="stat"><b id="countAll">0</b><span>Produtos</span></div><div class="stat"><b id="countSoon">0</b><span>Vencem em breve</span></div><div class="stat"><b id="countExpired">0</b><span>Vencidos</span></div></section>
 <section class="panel">
@@ -177,7 +181,7 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 </main>
 <div id="sideBg" class="bg hidden"></div>
 <aside id="side" class="side" aria-label="Menu"><div class="sheethead"><h2>Menu</h2><button class="secondary" id="sideClose" aria-label="Fechar menu">✕</button></div>
-<nav class="menu"><button id="navLoja" class="active">🏪 Loja<small>Controle de validades</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
+<nav class="menu"><button id="navLoja" class="active">🏪 Loja<small>Controle de validades</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button><button id="navAcessos" style="background:#fff;border:1px solid #cfe0d3">🕒 Últimos acessos<small>Quem entrou e quando</small></button></nav>
 <section class="panel"><h2 style="font-size:17px;margin:0 0 10px">Exportar</h2>
 <label for="exportScope">O que exportar</label><select id="exportScope"><option value="all">Todos os produtos</option><option value="soon">Vencem em breve</option><option value="expired">Vencidos</option><option value="category">Uma categoria</option></select>
 <select id="exportCategory" class="hidden" aria-label="Categoria para exportar" style="margin-top:8px"></select>
@@ -200,6 +204,11 @@ body:not([data-tab="Loja"]) .loja-only{display:none}
 <p class="note" id="lmCod"></p><label>Tamanho da etiqueta</label><div class="utog" id="lmTam"><button type="button" data-t="P">P</button><button type="button" data-t="M">M</button><button type="button" data-t="G">G</button></div>
 <label>Quantidade</label><div class="stepper"><button type="button" class="secondary" id="lmMenos" aria-label="Diminuir">−</button><input id="lmQtd" type="number" inputmode="numeric" min="1" value="1"><button type="button" class="secondary" id="lmMais" aria-label="Aumentar">＋</button></div>
 <div class="toolbar" style="margin-top:14px"><button class="primary big" id="lmOk">Pronto</button></div></section></div>
+<div id="opModal" class="modal hidden" style="z-index:100;align-items:center"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="opTitle"><h2 id="opTitle" class="h2" style="font-size:18px">Nome do Operador</h2>
+<p class="note">Digite o seu nome para começar. <b>Atenção: depois de salvo, o nome não poderá ser alterado neste aparelho.</b></p>
+<input id="opNome" maxlength="40" autocomplete="off" placeholder="Ex.: Rodrigo Dourado"><div class="toolbar" style="margin-top:12px"><button class="primary big" id="opOk">Entrar</button></div></section></div>
+<div id="acModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="acTitle"><div class="sheethead"><h2 id="acTitle">Últimos acessos</h2><button class="secondary" id="acClose" aria-label="Fechar">✕</button></div>
+<p class="note" id="acInfo"></p><div id="acList" class="impl" style="max-height:60vh"></div></section></div>
 <div id="confView" class="app hidden"></div>
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="modal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -513,7 +522,7 @@ if (cloud && V.initializeApp) {
 
 // ---------- aparelho, contadores (visitas/online) e histórico de leituras ----------
 const myId = store.get("validamais-device", null) || (() => { const i = uid().slice(0, 8); store.set("validamais-device", i); return i; })();
-const myName = () => "Aparelho " + myId.slice(0, 4);
+const myName = () => { try { return JSON.parse(localStorage.getItem("validamais-operador")) || ("Aparelho " + myId.slice(0, 4)); } catch { return "Aparelho " + myId.slice(0, 4); } };
 const ms = t => t && t.toMillis ? t.toMillis() : (t ? Number(t) : Date.now());
 const ONLINE_MS = 5 * 60 * 1000;
 let scans = [], unsubScan = null;
@@ -919,5 +928,41 @@ document.addEventListener("touchstart",function(e){if(e.touches.length!==1){ok=f
 document.addEventListener("touchend",function(e){if(!ok)return;ok=false;var t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;
 if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*2)return;var cur=T.indexOf(document.body.dataset.tab||"Loja"),n=cur+(dx<0?1:-1);
 if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:true});})();</script>
+<script>/* operador, acessos e atualizações */(function(){
+var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
+// >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
+var UPDATES=[{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
+function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
+return p(d.getDate())+"/"+p(d.getMonth()+1)+"/"+d.getFullYear()+(full?" "+p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds()):" às "+p(d.getHours())+":"+p(d.getMinutes()))}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+// ---- atualizações ----
+function renderUpd(){var u=UPDATES[0];if(!u)return;g("updSum").textContent="🆕 Últimas atualizações · "+fmt(u.t);
+g("updBody").innerHTML=UPDATES.slice(0,5).map(function(x,i){return(i?'<h4>'+fmt(x.t)+'</h4>':'')+'<ul>'+x.itens.map(function(t){return'<li>'+esc(t)+'</li>'}).join("")+'</ul>'}).join("")}
+renderUpd();
+if(location.hash.indexOf("#conf=")===0)return;      // tela de conferência (link): sem identificação
+// ---- acessos ----
+function logAccess(){var n=rd(OPK,"");if(!n)return;var l=rd(ACK,[]);l.unshift({n:n,t:new Date().toISOString()});wr(ACK,l.slice(0,200));if(!rd(FIRSTK,""))wr(FIRSTK,new Date().toISOString())}
+function start(){logAccess()}
+var nome=rd(OPK,"");
+if(nome){start()}else{
+  g("opModal").classList.remove("hidden");setTimeout(function(){g("opNome").focus()},100);
+  var ok=function(){var v=g("opNome").value.replace(/[\u0000-\u001f]/g," ").replace(/\s+/g," ").trim().slice(0,40);
+    if(v.length<2){g("opNome").focus();return alert("Digite o seu nome (mínimo 2 letras).")}
+    if(!confirm("Confirmar o nome «"+v+"»?\nDepois de salvo, ele não poderá ser alterado neste aparelho."))return;
+    if(rd(OPK,""))return;                       // já existe: nunca sobrescreve
+    wr(OPK,v);g("opModal").classList.add("hidden");start();};
+  g("opOk").onclick=ok;g("opNome").onkeydown=function(e){if(e.key==="Enter")ok()};}
+// volta ao app depois de 30 min parado conta como novo acesso
+var hiddenAt=0;document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")hiddenAt=Date.now();else if(hiddenAt&&Date.now()-hiddenAt>30*60*1000&&rd(OPK,""))logAccess()});
+// ---- painel Últimos acessos ----
+g("navAcessos").onclick=function(){var s=g("side"),b=g("sideBg");if(s)s.classList.remove("open");if(b)b.classList.add("hidden");
+  var l=rd(ACK,[]),n=rd(OPK,""),f=rd(FIRSTK,"");
+  g("acInfo").innerHTML="Operador deste aparelho: <b>"+esc(n||"—")+"</b>"+(f?"<br>Primeiro acesso: "+fmt(f,true):"")+"<br>"+l.length+" acesso(s) registrado(s) (mostrando os últimos 50).";
+  g("acList").innerHTML=l.length?l.slice(0,50).map(function(x){return'<div class="acrow"><b>'+esc(x.n)+'</b><span>'+fmt(x.t,true)+'</span></div>'}).join(""):'<p class="muted">Nenhum acesso registrado.</p>';
+  g("acModal").classList.remove("hidden")};
+g("acClose").onclick=function(){g("acModal").classList.add("hidden")};
+})();</script>
 </body></html>
 
