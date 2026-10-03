@@ -495,7 +495,7 @@ ap(document.documentElement.dataset.tema||"dark")});
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="modal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 <div class="sheethead"><h2 id="modalTitle">Cadastrar produto</h2><button id="closeModal" class="secondary" aria-label="Fechar">✕</button></div>
-<div id="scannerArea" class="hidden"><div id="reader"></div><p id="scanMsg" class="note"></p>
+<div id="scannerArea" class="hidden"><div id="reader"></div><p id="scanMsg" class="note"></p><div class="wrow" id="manualRow" style="margin:6px 0 10px"><input id="manualCode" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="20" enterkeyhint="go" autocomplete="off" placeholder="Digite o código de barras"><button type="button" class="primary" id="manualGo" style="min-width:76px">OK</button></div>
 <div class="toolbar"><button class="secondary hidden" id="torchBtn">🔦 Lanterna</button><button class="primary hidden" id="retryScan">Tentar novamente</button><button class="secondary" id="scanManual">Digitar código</button></div></div>
 <form id="productForm"><input type="hidden" id="docId"><p class="note hidden" id="loteInfo"></p><button type="button" class="secondary hidden" id="loteEdit" style="width:100%;margin-bottom:6px">Editar dados do produto</button><div class="formgrid">
 <div class="wide hide-lote"><label for="barcode">Código de barras</label><input id="barcode" inputmode="numeric" placeholder="Bipe ou digite o código" maxlength="32"></div>
@@ -720,12 +720,19 @@ async function onCode(code) {
   $("barcode").value = code; fillKnown(code); loteMode(known); (known ? $("expiry") : $("name")).focus();
 }
 let scanMode = "loja";
+function manualCodeGo() {            // código digitado: segue o mesmo caminho da leitura pela câmera
+  const v = $("manualCode").value.replace(/\D/g, "");
+  if (!/^\d{6,14}$/.test(v)) { toast("Digite o código de barras só com números (6 a 14 dígitos)."); return $("manualCode").focus(); }
+  $("manualCode").value = ""; $("manualCode").blur(); onCode(v);
+}
+$("manualGo").onclick = manualCodeGo;
+$("manualCode").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); manualCodeGo(); } };
 async function openScan(mode = "loja") {
   scanMode = ["doacao", "etiqueta"].includes(mode) ? mode : "loja";
   resetForm(); show({ doacao: "Bipar itens da doação", etiqueta: "Bipar para etiqueta" }[scanMode] || "Ler código de barras", true);
   $("scanManual").textContent = scanMode === "loja" ? "Digitar código" : "Cancelar";
   ["retryScan", "torchBtn"].forEach(i => $(i).classList.add("hidden"));
-  $("scanMsg").textContent = "Aponte a câmera traseira para o código de barras.";
+  $("scanMsg").textContent = "Aponte a câmera traseira para o código de barras. Se não ler, digite o código abaixo."; $("manualCode").value = "";
   await stopScanner();
   const F = V.Html5QrcodeSupportedFormats, s = new V.Html5Qrcode("reader", { verbose: false,
     formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E, F.CODE_128, F.CODE_39, F.ITF] });
@@ -1300,7 +1307,7 @@ if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
-var UPDATES=[{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+var UPDATES=[{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
