@@ -289,6 +289,10 @@ body.mao1 .fabitem{min-height:56px;font-size:16px}
 .dupr+.dupr{border-top:1px dashed var(--ln)}
 .dupr span{min-width:0;overflow-wrap:anywhere}.dupr small{color:var(--mut)}
 .dupr button{flex:none;min-height:44px;padding:0 14px;border-radius:12px;border:0;background:var(--g);color:#fff;font-weight:800}
+.qfreq{margin-bottom:6px}
+.qlbl{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--mut);margin:2px 2px 6px;text-transform:uppercase}
+.qbtn.fav{background:var(--lt);border-color:var(--g3)}
+.qbtn.fav.sel{background:linear-gradient(180deg,var(--g2),var(--g));border-color:var(--g)}
 .redit{display:flex;flex-direction:column;gap:8px;margin:8px 0}
 .rerow{display:flex;align-items:center;gap:8px;background:var(--lt2);border:1px solid var(--ln);border-radius:14px;padding:8px 10px}
 .rerow .ren{flex:1;min-width:0}.rerow .ren b{display:block;overflow-wrap:anywhere}.rerow .ren small{color:var(--mut);font-size:12px}
@@ -491,7 +495,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 <div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></section>
 <section class="panel"><h2 class="h2 qh">⚖️ Escolha o produto <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
 <div id="qBar" class="qbar hidden"><span>Toque num atalho para editar</span><button type="button" class="secondary" id="qReset">Restaurar padrão</button><button type="button" class="primary" id="qDone">Concluir</button></div>
-<div id="qgrid" class="qgrid"></div>
+<div id="qFreq" class="qfreq hidden"></div><div id="qgrid" class="qgrid"></div>
 <input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off"><div id="dSug" class="rows sug"></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
 <section class="panel dlistp" id="dListaBox"><h2 class="h2" style="margin:8px 0 0">Itens coletados</h2><div id="dLista"></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
@@ -1167,7 +1171,7 @@ function renderDon() {
   renderKey();
 }
 function addDon(nome, unidade, qtd, cod = "", bar = "") {
-  qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0; buzz();
+  qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0; buzz(); usoLearn(nome, unidade, cod);
   const key = norm(nome) + "|" + unidade; let it = don.itens.find(i => i.key === key);
   if (it) { it.qtd = Math.round((it.qtd + qtd) * 1000) / 1000; it.lanc++; } else { it = { key, nome: nome.trim().slice(0, 60), unidade, qtd, lanc: 1 }; don.itens.push(it); }
   if (bar && !it.bar) it.bar = bar;
@@ -1234,7 +1238,30 @@ const sortQ = () => shortcuts.sort((a, b) => a.n.localeCompare(b.n, "pt-BR", { s
 const saveQ = () => { sortQ(); store.set(QK, shortcuts); };
 sortQ();
 const prodFor = l => { const q = norm(l); return products.find(p => norm(p.name || "").startsWith(q)) || products.find(p => norm(p.name || "").includes(q)); };
+// ----- mais usados: aprende com os últimos lançamentos (os mais recentes pesam mais) -----
+const UK2 = "validamais-uso", USO_MAX = 120, FREQ_N = 8;
+function usoLearn(nome, unidade, cod) {
+  const l = store.get(UK2, []); l.push({ n: String(nome).trim().slice(0, 60), u: unidade, c: cod || "" });
+  store.set(UK2, l.slice(-USO_MAX));
+}
+function topUsados() {
+  const l = store.get(UK2, []), m = new Map();
+  l.forEach((x, i) => { const k = norm(x.n) + "|" + x.u, o = m.get(k) || { n: x.n, u: x.u, c: x.c, s: 0, q: 0 };
+    o.s += 0.5 + i / Math.max(1, l.length); o.q++; if (x.c) o.c = x.c; o.n = x.n; m.set(k, o); });
+  return [...m.values()].filter(o => o.q >= 2).sort((a, b) => b.s - a.s).slice(0, FREQ_N);
+}
+let freqList = [];
+function renderFreq() {
+  freqList = qEdit ? [] : topUsados(); const box = $("qFreq");
+  box.classList.toggle("hidden", freqList.length < 3);
+  if (freqList.length < 3) { box.innerHTML = ""; return; }
+  box.innerHTML = `<div class="qlbl">⭐ Mais usados</div><div class="qgrid">` + freqList.map((o, i) => {
+    const p = prodFor(o.n), nm = p ? p.name : o.n, code = o.c || (p && p.codigo_doacao) || "", on = dSel && norm(dSel) === norm(nm);
+    return `<button type="button" class="qbtn fav${on ? " sel" : ""}" data-f="${i}">${esc(o.n)}<small>${esc(code)}${code ? " · " : ""}${o.u}</small></button>`; }).join("") + `</div>`;
+}
+$("qFreq").onclick = e => { const b = e.target.closest("[data-f]"); if (!b) return; const o = freqList[Number(b.dataset.f)]; if (!o) return; buzz(); const p = prodFor(o.n); selectProd(p ? p.name : o.n, o.c, o.u); };
 function renderQuick() {
+  renderFreq();
   $("qBar").classList.toggle("hidden", !qEdit); $("qEditBtn").classList.toggle("on", qEdit);
   $("qgrid").innerHTML = shortcuts.map((s, i) => { const p = prodFor(s.n), nm = p ? p.name : s.n, code = s.c || (p && p.codigo_doacao) || "", on = !qEdit && dSel && norm(dSel) === norm(nm);
     return `<button type="button" class="qbtn${on ? " sel" : ""}${qEdit ? " ed" : ""}" data-q="${i}">${esc(s.n)}<small>${esc(code)}${code ? " · " : ""}${s.u}</small></button>`; }).join("") + (qEdit ? '<button type="button" class="qbtn qadd" data-q="new">＋ Novo</button>' : "");
@@ -1551,7 +1578,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.04-8";
+const APP_VERSION = "2026.10.04-9";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
