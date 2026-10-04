@@ -256,6 +256,34 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
   transition:box-shadow .2s,border-color .2s}
 #dBusca::placeholder{color:var(--g-d,var(--g,#22a06b));opacity:.9;font-weight:700}
 #dBusca:focus{box-shadow:0 0 0 5px color-mix(in srgb,var(--g,#22a06b) 38%,transparent),0 8px 22px color-mix(in srgb,var(--g,#22a06b) 40%,transparent)}
+/* ===== modo mão única: abas e campo de lançamento embaixo, botões maiores ===== */
+body.mao1{--top-h:64px}
+body.mao1 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:linear-gradient(135deg,var(--g-d),var(--g));border-radius:20px 20px 0 0;box-shadow:0 -8px 24px rgba(0,0,0,.3)}
+body.mao1 .tabbar button{min-height:58px;font-size:15px;border-radius:16px}
+body.mao1 .app{padding-bottom:calc(var(--tb-h,72px) + 130px + env(safe-area-inset-bottom))}
+body.mao1[data-tab="Doacao"] .app{padding-bottom:calc(var(--tb-h,72px) + var(--nb-h,150px) + 130px + env(safe-area-inset-bottom))}
+body.mao1.np-open .tabbar{display:none}
+body.mao1.np-open .app{padding-bottom:calc(var(--np-h,0px) + var(--nb-h,150px) + 24px)}
+body.mao1[data-tab="Doacao"] .nowbar{position:fixed;left:10px;right:10px;top:auto;bottom:calc(var(--tb-h,72px) + 8px);margin:0;z-index:35;padding:12px 12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+body.mao1[data-tab="Doacao"].np-open .nowbar{bottom:calc(var(--np-h,0px) + 8px)}
+body.mao1 .nowrow{gap:10px}
+body.mao1 .nowrow .utog{width:124px}
+body.mao1 .nowrow .utog button{min-height:56px;font-size:19px}
+body.mao1 #dPeso{font-size:26px;min-height:60px}
+body.mao1 .nowrow #dAdd{min-height:60px;font-size:18px;padding:0 20px}
+body.mao1 #dNome{font-size:22px}
+body.mao1 .qgrid{gap:9px}
+body.mao1 .qbtn{min-height:70px;font-size:14.5px}
+body.mao1 #dBusca{min-height:64px;font-size:18px}
+body.mao1 .ditem .cdel{min-width:54px;min-height:54px;font-size:22px}
+body.mao1 .dq{font-size:27px}
+body.mao1 .primary.big,body.mao1 .secondary.big,body.mao1 .toolbar button{min-height:60px;font-size:17px}
+body.mao1 .hrow button{min-height:54px;min-width:54px}
+body.mao1 .fabwrap{bottom:calc(var(--tb-h,72px) + 14px)}
+body.mao1[data-tab="Doacao"] .fabwrap{bottom:calc(var(--tb-h,72px) + var(--nb-h,150px) + 24px)}
+body.mao1 .fabscan{height:64px;font-size:18px;padding:0 28px}
+body.mao1 .fabmain{width:64px;height:64px}
+body.mao1 .fabitem{min-height:56px;font-size:16px}
 .redit{display:flex;flex-direction:column;gap:8px;margin:8px 0}
 .rerow{display:flex;align-items:center;gap:8px;background:var(--lt2);border:1px solid var(--ln);border-radius:14px;padding:8px 10px}
 .rerow .ren{flex:1;min-width:0}.rerow .ren b{display:block;overflow-wrap:anywhere}.rerow .ren small{color:var(--mut);font-size:12px}
@@ -1477,8 +1505,27 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.04-5";
+const APP_VERSION = "2026.10.04-6";
 $("appVer").textContent = "v" + APP_VERSION;
+// ---------- modo mão única ----------
+(function () {
+  const K = "validamais-mao1", root = document.documentElement;
+  function med() { const tb = document.querySelector(".tabbar"), nb = $("dNow");
+    root.style.setProperty("--tb-h", (tb ? tb.offsetHeight : 72) + "px"); root.style.setProperty("--nb-h", (nb && nb.offsetHeight ? nb.offsetHeight : 150) + "px"); }
+  function build() {
+    const h = document.querySelector("header"); if (!h || $("maoBtn")) return;
+    const b = document.createElement("button"); b.id = "maoBtn"; b.type = "button"; b.textContent = "🖐️";
+    b.style.cssText = "color:#fff;font-size:20px;min-width:44px;padding:0;line-height:1;border-radius:12px";
+    const t = $("temaBtn"); t ? h.insertBefore(b, t) : h.appendChild(b);
+    const ap = on => { document.body.classList.toggle("mao1", on); b.setAttribute("aria-pressed", on); b.setAttribute("aria-label", on ? "Desligar modo mão única" : "Ligar modo mão única"); b.style.background = on ? "rgba(255,255,255,.4)" : "rgba(255,255,255,.14)"; med(); setTimeout(med, 60); };
+    let on = false; try { on = localStorage.getItem(K) === "1"; } catch (e) {}
+    ap(on);
+    b.onclick = () => { on = !on; try { localStorage.setItem(K, on ? "1" : "0"); } catch (e) {} ap(on); toast(on ? "Modo mão única ligado: abas e lançamento ficam embaixo." : "Modo mão única desligado."); };
+    if (window.ResizeObserver) { const ro = new ResizeObserver(med); [document.querySelector(".tabbar"), $("dNow")].forEach(el => el && ro.observe(el)); }
+    window.addEventListener("resize", med);
+  }
+  document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", build) : build();
+})();
 (function () {
   let shown = false;
   function banner(nova) {
