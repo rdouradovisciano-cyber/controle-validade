@@ -294,6 +294,8 @@ body.mao1 .fabitem{min-height:56px;font-size:16px}
 .fotobtn{display:inline-flex;align-items:center;min-height:48px;padding:0 16px;border-radius:14px;background:var(--lt);color:var(--g-d);font-weight:800;cursor:pointer;border:1px solid var(--ln)}
 .pth{width:40px;height:40px;border-radius:10px;object-fit:cover;vertical-align:middle;margin-right:8px;border:1px solid var(--ln)}
 .qth{display:block;width:38px;height:38px;border-radius:50%;object-fit:cover;margin:0 auto 3px}
+.onchip{font-size:11px;font-weight:700;padding:3px 9px;min-height:0;border-radius:99px;background:rgba(255,255,255,.16);color:#fff;border:0;margin-left:6px;white-space:nowrap}
+.onchip.on{color:#b9f6ca}
 .qfreq{margin-bottom:6px}
 .qlbl{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--mut);margin:2px 2px 6px;text-transform:uppercase}
 .qbtn.fav{background:var(--lt);border-color:var(--g3)}
@@ -476,7 +478,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 </head>
 <body data-tab="Loja">
 <main class="app">
-<div class="top"><header><h1>Valida+ <small id="appVer" style="font-size:11px;font-weight:600;opacity:.65;letter-spacing:.3px"></small></h1></header><nav class="tabbar"><button id="tbDoacao">📋 Doação</button><button id="tbEtiquetas">🏷️ Etiquetas</button><button id="tbLoja">⏱️ Validades</button></nav></div>
+<div class="top"><header><h1>Valida+ <small id="appVer" style="font-size:11px;font-weight:600;opacity:.65;letter-spacing:.3px"></small><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1></header><nav class="tabbar"><button id="tbDoacao">📋 Doação</button><button id="tbEtiquetas">🏷️ Etiquetas</button><button id="tbLoja">⏱️ Validades</button></nav></div>
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
@@ -1009,9 +1011,23 @@ async function pollStats() {          // contagem agregada: 1 leitura por consul
   try { const col = V.collection(db, "devices");
     const on = await V.getAggregateFromServer(V.query(col, V.where("lastSeen", ">", V.Timestamp.fromMillis(Date.now() - ONLINE_MS))), { n: V.count() });
     const all = await V.getAggregateFromServer(col, { v: V.sum("visitas") });
-    $("nOnline").textContent = on.data().n; $("nVisitas").textContent = all.data().v || 0; $("dotO").classList.toggle("on", on.data().n > 0);
+    $("nOnline").textContent = on.data().n; $("nVisitas").textContent = all.data().v || 0; $("dotO").classList.toggle("on", on.data().n > 0); chipOnline(on.data().n);
   } catch (e) { console.warn(e); }
 }
+function chipOnline(n) { const c = $("onChip"); c.classList.remove("hidden"); c.textContent = "● " + n + " online"; c.classList.toggle("on", n > 0); }
+$("onChip").onclick = () => {
+  if (!db) return toast("Modo local: só este aparelho está em uso.");
+  const bg = document.createElement("div"); bg.className = "askbg"; document.body.appendChild(bg);
+  const pinta = lista => { bg.innerHTML = `<div class="ask" style="text-align:left;max-height:80dvh;overflow:auto"><div class="ai" style="text-align:center">🟢</div><h3 style="text-align:center">${lista ? lista.length + " online agora" : "Verificando…"}</h3>` +
+    (lista ? (lista.length ? lista.map(d => `<div class="dupr"><span><b>${esc(d.nome || "Aparelho")}</b>${d.id === myId ? " <small>(você)</small>" : ""}</span><small>${d.min < 1 ? "agora" : "há " + d.min + " min"} · ${esc(d.ua || "")}</small></div>`).join("") : '<p style="text-align:center">Ninguém online.</p>') : "") +
+    `<p style="text-align:center;font-size:12px">Online = ativo nos últimos 5 minutos.</p><div class="arow"><button type="button" class="ok" data-x="1">Fechar</button></div></div>`; };
+  pinta(null); bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) { try { un && un(); } catch (x) {} bg.remove(); } };
+  let un = null; try {
+    un = V.onSnapshot(V.query(V.collection(db, "devices"), V.where("lastSeen", ">", V.Timestamp.fromMillis(Date.now() - ONLINE_MS))), s => {
+      const l = s.docs.map(d => ({ id: d.id, ...d.data() })).map(d => ({ ...d, min: Math.floor((Date.now() - ms(d.lastSeen)) / 60000) })).sort((a, b) => a.min - b.min);
+      pinta(l); }, () => { bg.remove(); toast("Não foi possível ver quem está online."); });
+  } catch (e) { bg.remove(); toast("Não foi possível ver quem está online."); }
+};
 function startPresence() {
   const ref = V.doc(db, "devices", myId), ua = navigator.userAgent;
   const first = store.get("validamais-first", null) || (() => { const f = new Date().toISOString(); store.set("validamais-first", f); return f; })();
@@ -1020,7 +1036,7 @@ function startPresence() {
     .catch(console.error).finally(() => setTimeout(pollStats, 1500));
   setInterval(beat, 120000); setInterval(pollStats, 60000); document.addEventListener("visibilitychange", beat);
 }
-function localStats() { const v = store.get("validamais-visitas", 0) + 1; store.set("validamais-visitas", v); $("nVisitas").textContent = v; $("nOnline").textContent = 1; $("dotO").classList.add("on"); }
+function localStats() { const v = store.get("validamais-visitas", 0) + 1; store.set("validamais-visitas", v); $("nVisitas").textContent = v; $("nOnline").textContent = 1; $("dotO").classList.add("on"); chipOnline(1); }
 $("scansBox").ontoggle = () => {
   if ($("scansBox").open) { if (db) { if (!unsubScan) unsubScan = V.onSnapshot(V.query(V.collection(db, "scans"), V.orderBy("em", "desc"), V.limit(30)), s => { scans = s.docs.map(d => d.data()); renderScans(); }); }
     else { scans = store.get("validamais-scans", []).slice(0, 30); renderScans(); } }
@@ -1600,7 +1616,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.04-10";
+const APP_VERSION = "2026.10.04-11";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
