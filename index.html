@@ -1163,9 +1163,24 @@ $("navDoacao").addEventListener("click", renderQuick); $("dBusca").addEventListe
 function selectProd(n, code, unit) { dSel = n; dCodSel = code || ""; setUnit(unit || unitOf(n), false); renderQuick(); $("dCod").value = code || (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderDon(); $("dPeso").focus({ preventScroll: true }); }
 $("dCodSave").onclick = () => { if (!dSel) return toast("Escolha o produto primeiro."); const pr = products.find(x => norm(x.name) === norm(dSel)) || { name: dSel };
   const v = saveCode(pr, "codigo_doacao", $("dCod").value); if (v !== null) $("dCod").value = v; };
+// aviso de quantidade fora do normal: aprende o usual de cada produto (por lançamento)
+const DSTAT = "valida_dstat";
+const dStatKey = (n, u) => norm(n) + "|" + u;
+function dStatLearn(n, u, q) { const s = store.get(DSTAT, {}), k = dStatKey(n, u), o = s[k] || { n: 0, sum: 0, max: 0 };
+  o.n++; o.sum += q; o.max = Math.max(o.max, q); s[k] = o; store.set(DSTAT, s); }
+function dOddOk(n, u, q) {
+  const o = store.get(DSTAT, {})[dStatKey(n, u)], piso = u === "un" ? 24 : 10;   // abaixo do piso nunca avisa
+  let lim = u === "un" ? 100 : 30;                                                 // sem histórico: teto fixo
+  if (o && o.n >= 3) lim = Math.max(piso, (o.sum / o.n) * 3, o.max * 1.5);
+  if (q <= lim) return true;
+  const usual = o && o.n >= 3 ? `\nO usual é ~${fq(o.sum / o.n)} ${u} por lançamento.` : "";
+  return confirm(`Confirma ${fq(q)} ${u} de ${n}?${usual}`);
+}
 function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",", "."));
   if (!dSel) return toast("Escolha o produto."); if (!(q > 0)) return toast(dUnit === "un" ? "Digite a quantidade." : "Digite o peso em kg.");
   if (dUnit === "un") q = Math.round(q); if (!(q > 0)) return toast("Digite a quantidade.");
+  if (!dOddOk(dSel, dUnit, q)) return;
+  dStatLearn(dSel, dUnit, q);
   lastAdd = { k: norm(dSel) + "|" + dUnit, q, t: Date.now() }; addDon(dSel, dUnit, q, dCodSel); flashNow(); $("dPeso").value = ""; $("dPeso").blur(); if (window.npClose) window.npClose(); }
 $("dAdd").onclick = dPesoAdd; $("dPeso").onkeydown = e => { if (e.key === "Enter") dPesoAdd(); };
 // editar a quantidade de um item já coletado (toque no "5 kg")
@@ -1181,7 +1196,7 @@ function dEditSave() {
   const inp = $("dLista").querySelector(".dedit"), it = don.itens[dEditing]; dEditing = -1;
   if (inp && it) {
     const v = Math.round(parseFloat(String(inp.value).replace(",", ".")) * 1000) / 1000;
-    if (v > 0 && v !== it.qtd) { it.qtd = v; store.set(DK, don); toast("Quantidade corrigida."); }
+    if (v > 0 && v !== it.qtd && dOddOk(it.nome, it.unidade, v)) { it.qtd = v; store.set(DK, don); toast("Quantidade corrigida."); }
   }
   if (window.npClose) window.npClose(); renderDon();
 }
@@ -1389,7 +1404,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.04-1";
+const APP_VERSION = "2026.10.04-2";
 $("appVer").textContent = "v" + APP_VERSION;
 (function () {
   let shown = false;
