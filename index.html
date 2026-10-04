@@ -529,7 +529,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 <textarea id="impText" rows="8" placeholder="Mamão Papaya;123;45&#10;Banana Prata;124;46&#10;Pão Francês;200;B1;;Padaria"></textarea>
 <div class="toolbar" style="margin-top:8px"><button class="secondary" id="impFileBtn">📎 Escolher arquivo</button><button class="secondary" id="impModel">Baixar modelo</button></div><input type="file" id="impFile" accept=".csv,.txt,.tsv,text/plain,text/csv" hidden>
 <div class="toolbar" style="margin-top:10px"><button class="secondary big" id="impCheck">Conferir lista</button><button class="primary big" id="impGo" disabled>Cadastrar</button></div><div id="impPrev" class="rows"></div></section></div>
-<div id="fabScrim" class="fabscrim hidden"></div><div class="fabwrap" id="fabWrap"><div class="fabmenu"><button class="fabitem doacao-only" id="fabEan">⌨️ Lançar por EAN</button><button class="fabitem loja-only" id="fabManual">＋ Cadastro manual</button><button class="fabitem loja-only" id="fabZap">💬 Enviar por WhatsApp</button><button class="fabitem" id="fabExport">📤 Exportar (Excel/PDF)</button><button class="fabitem" id="fabImport">📥 Importar lista</button><button class="fabitem" id="fabDup">🔍 Revisar duplicados</button><button class="fabitem" id="fabInstall">📲 Instalar app</button></div><div class="fabrow"><button class="fabscan" id="fab">▦ Bipar</button><button class="fabmain" id="fabMain" aria-label="Mais ações">＋</button></div></div>
+<div id="fabScrim" class="fabscrim hidden"></div><div class="fabwrap" id="fabWrap"><div class="fabmenu"><button class="fabitem doacao-only" id="fabEan">⌨️ Lançar por EAN</button><button class="fabitem loja-only" id="fabManual">＋ Cadastro manual</button><button class="fabitem loja-only" id="fabZap">💬 Enviar por WhatsApp</button><button class="fabitem" id="fabExport">📤 Exportar (Excel/PDF)</button><button class="fabitem" id="fabImport">📥 Importar lista</button><button class="fabitem" id="fabBkp">💾 Fazer backup</button><button class="fabitem" id="fabRest">♻️ Restaurar backup</button><button class="fabitem" id="fabDup">🔍 Revisar duplicados</button><button class="fabitem" id="fabInstall">📲 Instalar app</button></div><div class="fabrow"><button class="fabscan" id="fab">▦ Bipar</button><button class="fabmain" id="fabMain" aria-label="Mais ações">＋</button></div></div>
 <div id="qModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="qTitle"><div class="sheethead"><h2 id="qTitle">Atalho</h2><button class="secondary" id="qClose" aria-label="Fechar">✕</button></div>
 <label for="qNome">Nome do produto</label><input id="qNome" maxlength="40" autocomplete="off" placeholder="Ex.: Chuchu">
 <label for="qCod">Código de doação (49xx ou PLU)</label><input id="qCod" maxlength="12" autocomplete="off" placeholder="Ex.: 4912">
@@ -1551,8 +1551,52 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.04-7";
+const APP_VERSION = "2026.10.04-8";
 $("appVer").textContent = "v" + APP_VERSION;
+// ---------- backup (arquivo .json) + lembrete semanal ----------
+(function () {
+  const BK = "validamais-bkp", BI = "validamais-bkp-ini", BS = "validamais-bkp-soneca", DIA = 864e5, SEMANA = 7 * DIA;
+  const rd = k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, wr = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const skip = k => k === "validamais-device" || k.indexOf("validamais-bkp") === 0;
+  if (!rd(BI)) wr(BI, String(Date.now()));
+  function pack() {
+    const dados = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (/^valida/.test(k) && !skip(k)) dados[k] = localStorage.getItem(k); } } catch (e) {}
+    return { app: "Valida+", versao: APP_VERSION, em: new Date().toISOString(), dados, produtosNuvem: db ? products.map(({ id, ...p }) => p) : undefined };
+  }
+  async function fazer() {
+    const b = pack(), blob = new Blob([JSON.stringify(b)], { type: "application/json" }), nome = `valida-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    try {
+      const file = new File([blob], nome, { type: "application/json" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Backup Valida+", files: [file] }); else download(blob, nome);
+      wr(BK, String(Date.now())); document.querySelectorAll(".bkpbanner").forEach(x => x.remove()); toast("Backup feito. Guarde o arquivo no Drive ou no WhatsApp.");
+    } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Não foi possível gerar o backup."); } }
+  }
+  function restaurar() {
+    const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".json,application/json";
+    inp.onchange = async () => { const f = inp.files[0]; if (!f) return; let b;
+      try { b = JSON.parse(await f.text()); if (b.app !== "Valida+" || !b.dados) throw 0; } catch (e) { return toast("Arquivo de backup inválido."); }
+      const n = Object.keys(b.dados).length, quando = b.em ? new Date(b.em).toLocaleString("pt-BR") : "data desconhecida";
+      const ok = await askConfirm({ icon: "♻️", title: "Restaurar backup?", text: quando, sub: `${n} grupos de dados serão restaurados neste aparelho. Os dados atuais serão substituídos.`, ok: "Restaurar", cancel: "Cancelar" });
+      if (!ok) return;
+      Object.keys(b.dados).forEach(k => { if (/^valida/.test(k) && !skip(k)) wr(k, b.dados[k]); });
+      toast("Backup restaurado. Recarregando…"); setTimeout(() => location.reload(), 900);
+    };
+    inp.click();
+  }
+  function lembrar() {
+    if (document.querySelector(".bkpbanner") || location.hash.indexOf("#conf=") === 0) return;
+    const ult = Number(rd(BK)) || Number(rd(BI)) || Date.now(), ate = Number(rd(BS)) || 0;
+    if (Date.now() - ult < SEMANA || Date.now() < ate) return;
+    const dias = Math.floor((Date.now() - ult) / DIA), b = document.createElement("div"); b.className = "bkpbanner"; b.setAttribute("role", "alert");
+    b.style.cssText = "position:fixed;left:12px;right:12px;bottom:calc(96px + var(--tb-h,0px) + env(safe-area-inset-bottom));z-index:99990;background:#7a5200;color:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,.45);font:600 15px system-ui,sans-serif";
+    b.innerHTML = `<div style="margin-bottom:10px">💾 ${rd(BK) ? `Faz ${dias} dias do último backup.` : `Você ainda não fez backup (${dias} dias de uso).`} Seus dados ficam só neste aparelho.</div><div style="display:flex;gap:8px"><button data-a="later" style="flex:1;min-height:46px;border:0;border-radius:12px;background:rgba(255,255,255,.2);color:#fff;font-weight:700;font-size:15px">Depois</button><button data-a="now" style="flex:1.4;min-height:46px;border:0;border-radius:12px;background:#fff;color:#7a5200;font-weight:800;font-size:15px">Fazer backup</button></div>`;
+    b.onclick = e => { const a = e.target.closest("[data-a]"); if (!a) return; if (a.dataset.a === "later") { wr(BS, String(Date.now() + DIA)); b.remove(); } else fazer(); };
+    document.body.appendChild(b);
+  }
+  window.vmBackup = fazer; window.vmRestaurar = restaurar;
+  window.addEventListener("load", () => setTimeout(lembrar, 4000));
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") setTimeout(lembrar, 1500); });
+})();
 // ---------- modo mão única ----------
 (function () {
   const K = "validamais-mao1", root = document.documentElement;
@@ -1717,6 +1761,8 @@ if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)g("fab
 g("fabExport").onclick=function(){fecha();g("side").classList.add("open");g("sideBg").classList.remove("hidden");
 setTimeout(function(){var x=g("exportScope");if(x)x.scrollIntoView({block:"center"})},280)};
 g("fabImport").onclick=function(){fecha();g("navImport").click()};
+g("fabBkp").onclick=function(){fecha();if(window.vmBackup)window.vmBackup()};
+g("fabRest").onclick=function(){fecha();if(window.vmRestaurar)window.vmRestaurar()};
 g("fabDup").onclick=function(){fecha();if(window.dupReview)window.dupReview()};
 g("fabInstall").onclick=function(){fecha();var b=g("installBtn");
 if(b&&!b.hidden){b.click();return}
