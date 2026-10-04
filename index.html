@@ -1146,7 +1146,7 @@ $("dCodSave").onclick = () => { if (!dSel) return toast("Escolha o produto prime
 function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",", "."));
   if (!dSel) return toast("Escolha o produto."); if (!(q > 0)) return toast(dUnit === "un" ? "Digite a quantidade." : "Digite o peso em kg.");
   if (dUnit === "un") q = Math.round(q); if (!(q > 0)) return toast("Digite a quantidade.");
-  lastAdd = { k: norm(dSel) + "|" + dUnit, q, t: Date.now() }; addDon(dSel, dUnit, q, dCodSel); flashNow(); $("dPeso").value = ""; $("dPeso").focus({ preventScroll: true }); }
+  lastAdd = { k: norm(dSel) + "|" + dUnit, q, t: Date.now() }; addDon(dSel, dUnit, q, dCodSel); flashNow(); $("dPeso").value = ""; $("dPeso").blur(); if (window.npClose) window.npClose(); }
 $("dAdd").onclick = dPesoAdd; $("dPeso").onkeydown = e => { if (e.key === "Enter") dPesoAdd(); };
 $("dLista").onclick = e => { const b = e.target.closest("[data-drop]"); if (!b) return; const x = Number(b.dataset.drop), it = don.itens.splice(x, 1)[0];
   store.set(DK, don); renderDon(); toast(`${it.nome} removido.`, "Desfazer", () => { don.itens.splice(x, 0, it); store.set(DK, don); renderDon(); }); };
@@ -1423,6 +1423,7 @@ var hiddenAt=0;document.addEventListener("visibilitychange",function(){if(docume
   function close() {
     if (act) act.classList.remove("np-on"); act = null; pad.classList.remove("show"); document.body.classList.remove("np-open"); root.style.removeProperty("--np-h");
   }
+  window.npClose = close;
   function put(v) { act.value = v; act.dispatchEvent(new Event("input", { bubbles: true })); act.dispatchEvent(new Event("change", { bubbles: true })); paint(); }
   function press(k) {
     if (!act) return; var v = act.value || "";
@@ -1430,7 +1431,7 @@ var hiddenAt=0;document.addEventListener("visibilitychange",function(){if(docume
     if (k === "del") { put(fresh ? "" : v.slice(0, -1)); fresh = false; return; }
     if (k === "ok") {
       var sel = act.dataset.npSubmit, b = sel && document.querySelector(sel);
-      if (b) { b.click(); fresh = true; setTimeout(function () { if (act) { if (!act.getClientRects().length) close(); else { paint(); title(act); ttl.textContent = title(act); } } }, 0); }
+      if (b) { b.click(); fresh = true; if (!act) return; setTimeout(function () { if (act) { if (!act.getClientRects().length) close(); else { paint(); title(act); ttl.textContent = title(act); } } }, 0); }
       else close();
       return;
     }
