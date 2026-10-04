@@ -240,6 +240,16 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .dcod{display:block;font-size:13px;font-weight:700;color:var(--g);letter-spacing:.3px;font-variant-numeric:tabular-nums;margin-top:1px}
 .dq{font-size:23px;font-weight:700;white-space:nowrap;color:var(--g-d)}
 .dq span{font-size:13px;color:var(--mut);font-weight:600}
+.askbg{position:fixed;inset:0;z-index:100000;background:rgba(5,14,10,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:18px}
+.ask{background:var(--card);color:var(--ink);border:1px solid var(--ln);border-radius:22px;padding:20px 18px 16px;width:min(100%,420px);box-shadow:0 18px 50px rgba(0,0,0,.5);text-align:center}
+.ask .ai{font-size:34px;line-height:1}
+.ask h3{margin:8px 0 4px;font-size:19px}
+.ask .big{font-size:34px;font-weight:800;color:var(--g-d);margin:6px 0 2px;font-variant-numeric:tabular-nums}
+.ask .big small{font-size:17px;color:var(--mut);font-weight:700}
+.ask p{margin:2px 0;color:var(--mut);font-size:15px}
+.ask .arow{display:flex;gap:10px;margin-top:16px}
+.ask .arow button{flex:1;min-height:50px;border-radius:14px;font-size:16px;font-weight:800;border:1px solid var(--ln);background:var(--lt);color:var(--ink);cursor:pointer}
+.ask .arow button.ok{background:var(--g,#166534);color:#fff;border-color:transparent}
 .dq[data-edit]{cursor:pointer;border-bottom:2px dashed var(--mut);padding:2px 2px 0}
 .dq.editing{border-bottom:0}
 .dedit{width:92px;font-size:22px;font-weight:700;text-align:right;padding:4px 8px;border-radius:10px}
@@ -1168,18 +1178,33 @@ const DSTAT = "valida_dstat";
 const dStatKey = (n, u) => norm(n) + "|" + u;
 function dStatLearn(n, u, q) { const s = store.get(DSTAT, {}), k = dStatKey(n, u), o = s[k] || { n: 0, sum: 0, max: 0 };
   o.n++; o.sum += q; o.max = Math.max(o.max, q); s[k] = o; store.set(DSTAT, s); }
-function dOddOk(n, u, q) {
+// diálogo no tema do app (substitui o confirm() do navegador)
+function askConfirm({ icon = "⚠️", title, big, bigUnit, text, sub, ok = "Confirmar", cancel = "Cancelar" }) {
+  return new Promise(res => {
+    if (window.npClose) window.npClose();
+    const bg = document.createElement("div"); bg.className = "askbg";
+    bg.innerHTML = `<div class="ask" role="alertdialog" aria-modal="true"><div class="ai">${icon}</div><h3>${esc(title)}</h3>` +
+      (big ? `<div class="big">${esc(big)} <small>${esc(bigUnit || "")}</small></div>` : "") +
+      (text ? `<p><b>${esc(text)}</b></p>` : "") + (sub ? `<p>${esc(sub)}</p>` : "") +
+      `<div class="arow"><button type="button" data-a="0">${esc(cancel)}</button><button type="button" class="ok" data-a="1">${esc(ok)}</button></div></div>`;
+    const done = v => { bg.remove(); res(v); };
+    bg.onclick = e => { const b = e.target.closest("[data-a]"); if (b) done(b.dataset.a === "1"); else if (e.target === bg) done(false); };
+    document.body.appendChild(bg); bg.querySelector(".ok").focus({ preventScroll: true });
+  });
+}
+async function dOddOk(n, u, q) {
   const o = store.get(DSTAT, {})[dStatKey(n, u)], piso = u === "un" ? 24 : 10;   // abaixo do piso nunca avisa
   let lim = u === "un" ? 100 : 30;                                                 // sem histórico: teto fixo
   if (o && o.n >= 3) lim = Math.max(piso, (o.sum / o.n) * 3, o.max * 1.5);
   if (q <= lim) return true;
-  const usual = o && o.n >= 3 ? `\nO usual é ~${fq(o.sum / o.n)} ${u} por lançamento.` : "";
-  return confirm(`Confirma ${fq(q)} ${u} de ${n}?${usual}`);
+  return askConfirm({ title: "Quantidade acima do normal", big: fq(q), bigUnit: u, text: n,
+    sub: o && o.n >= 3 ? `O usual é cerca de ${fq(o.sum / o.n)} ${u} por lançamento.` : "Confira se não faltou uma vírgula.",
+    ok: "Está certo", cancel: "Corrigir" });
 }
-function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",", "."));
+async function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",", "."));
   if (!dSel) return toast("Escolha o produto."); if (!(q > 0)) return toast(dUnit === "un" ? "Digite a quantidade." : "Digite o peso em kg.");
   if (dUnit === "un") q = Math.round(q); if (!(q > 0)) return toast("Digite a quantidade.");
-  if (!dOddOk(dSel, dUnit, q)) return;
+  if (!(await dOddOk(dSel, dUnit, q))) return;
   dStatLearn(dSel, dUnit, q);
   lastAdd = { k: norm(dSel) + "|" + dUnit, q, t: Date.now() }; addDon(dSel, dUnit, q, dCodSel); flashNow(); $("dPeso").value = ""; $("dPeso").blur(); if (window.npClose) window.npClose(); }
 $("dAdd").onclick = dPesoAdd; $("dPeso").onkeydown = e => { if (e.key === "Enter") dPesoAdd(); };
@@ -1192,11 +1217,11 @@ function dEditOpen(q) {
   q.innerHTML = `<input class="dedit" type="text" readonly inputmode="none" data-np${it.unidade === "un" ? " data-np-int" : ""} data-np-submit="#dEditOk" data-np-label="Salvar" value="${fq(it.qtd)}" aria-label="Quantidade de ${esc(it.nome)}"> <span>${esc(it.unidade)}</span>`;
   q.querySelector("input").focus({ preventScroll: true });
 }
-function dEditSave() {
+async function dEditSave() {
   const inp = $("dLista").querySelector(".dedit"), it = don.itens[dEditing]; dEditing = -1;
   if (inp && it) {
     const v = Math.round(parseFloat(String(inp.value).replace(",", ".")) * 1000) / 1000;
-    if (v > 0 && v !== it.qtd && dOddOk(it.nome, it.unidade, v)) { it.qtd = v; store.set(DK, don); toast("Quantidade corrigida."); }
+    if (v > 0 && v !== it.qtd && (await dOddOk(it.nome, it.unidade, v))) { it.qtd = v; store.set(DK, don); toast("Quantidade corrigida."); }
   }
   if (window.npClose) window.npClose(); renderDon();
 }
@@ -1404,7 +1429,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.04-2";
+const APP_VERSION = "2026.10.04-3";
 $("appVer").textContent = "v" + APP_VERSION;
 (function () {
   let shown = false;
