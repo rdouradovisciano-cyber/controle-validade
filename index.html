@@ -296,7 +296,7 @@ body.mao1 .fabitem{min-height:56px;font-size:16px}
 .qth{display:block;width:38px;height:38px;border-radius:50%;object-fit:cover;margin:0 auto 3px}
 .onchip{font-size:11px;font-weight:700;padding:3px 9px;min-height:0;border-radius:99px;background:rgba(255,255,255,.16);color:#fff;border:0;margin-left:6px;white-space:nowrap}
 .onchip.on{color:#b9f6ca}
-.topdo{display:flex;align-items:center;gap:6px;overflow-x:auto;white-space:nowrap;margin:8px 0;padding:6px 10px;border:1px solid var(--ln);border-radius:12px;background:var(--lt2);font-size:12.5px;scrollbar-width:none}
+.topdo{touch-action:pan-x;overscroll-behavior-x:contain;display:flex;align-items:center;gap:6px;overflow-x:auto;white-space:nowrap;margin:8px 0;padding:6px 10px;border:1px solid var(--ln);border-radius:12px;background:var(--lt2);font-size:12.5px;scrollbar-width:none}
 .topdo::-webkit-scrollbar{display:none}
 .tdl{flex:none;font-weight:800;color:var(--mut);letter-spacing:.02em}
 .tdc{flex:none;color:var(--ink)}.tdc em{font-style:normal;font-weight:800;color:var(--g-d)}
@@ -1633,7 +1633,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.04-12";
+const APP_VERSION = "2026.10.04-13";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -1741,7 +1741,7 @@ $("fabManual").onclick=function(){set(false);$("manualOpen").click()};
 $("fabZap").onclick=function(){set(false);$("shareBtn").click()};
 ["Loja","Doacao","Etiquetas"].forEach(function(n){$("tb"+n).onclick=function(){set(false);$("nav"+n).click()}});})();</script>
 <script>(function(){var T=["Doacao","Etiquetas","Loja"],x0=0,y0=0,ok=false,g=function(i){return document.getElementById(i)};
-function blocked(t){if(t.closest&&t.closest("input,textarea,select,.rwrap,#reader,.side,.modal,#confView,.fabwrap"))return true;
+function blocked(t){if(t.closest&&t.closest("input,textarea,select,.rwrap,#reader,.side,.modal,#confView,.fabwrap,.topdo,.askbg,.redit"))return true;
 var m=document.querySelectorAll(".modal,#confView,.side.open");for(var i=0;i<m.length;i++){if(!m[i].classList.contains("hidden")&&getComputedStyle(m[i]).display!=="none")return true}return false}
 document.addEventListener("touchstart",function(e){if(e.touches.length!==1){ok=false;return}var t=e.touches[0];x0=t.clientX;y0=t.clientY;ok=!blocked(e.target)},{passive:true});
 document.addEventListener("touchend",function(e){if(!ok)return;ok=false;var t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;
