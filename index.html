@@ -296,6 +296,10 @@ body.mao1 .fabitem{min-height:56px;font-size:16px}
 .qth{display:block;width:38px;height:38px;border-radius:50%;object-fit:cover;margin:0 auto 3px}
 .onchip{font-size:11px;font-weight:700;padding:3px 9px;min-height:0;border-radius:99px;background:rgba(255,255,255,.16);color:#fff;border:0;margin-left:6px;white-space:nowrap}
 .onchip.on{color:#b9f6ca}
+.topdo{display:flex;align-items:center;gap:6px;overflow-x:auto;white-space:nowrap;margin:8px 0;padding:6px 10px;border:1px solid var(--ln);border-radius:12px;background:var(--lt2);font-size:12.5px;scrollbar-width:none}
+.topdo::-webkit-scrollbar{display:none}
+.tdl{flex:none;font-weight:800;color:var(--mut);letter-spacing:.02em}
+.tdc{flex:none;color:var(--ink)}.tdc em{font-style:normal;font-weight:800;color:var(--g-d)}
 .qfreq{margin-bottom:6px}
 .qlbl{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--mut);margin:2px 2px 6px;text-transform:uppercase}
 .qbtn.fav{background:var(--lt);border-color:var(--g3)}
@@ -508,6 +512,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 <section class="panel dlistp" id="dListaBox"><h2 class="h2" style="margin:8px 0 0">Itens coletados</h2><div id="dLista"></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
 <div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
 <small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
+<div id="topDoados" class="topdo hidden" aria-live="polite"></div>
 <section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
 </div>
 <div id="donaRomaneio" class="hidden"><section class="panel"><div id="romHead"></div><div id="romBody"></div>
@@ -1449,13 +1454,13 @@ $("romBody").addEventListener("click", async e => { if (!romEdit) return; const 
       if (db && curRom._id) await V.updateDoc(V.doc(db, "doacoes", curRom._id), campos);
       else { const l = store.get(HK, []), y = l.find(z => String(z.em) === hid(curRom)); if (y) { Object.assign(y, campos); store.set(HK, l); } }
     } catch (err) { console.error(err); return toast("Não foi possível salvar na nuvem (confira as regras). Nada foi alterado."); }
-    Object.assign(curRom, campos); toast("Doação atualizada."); romEditEnd(); if (!db) reloadLocalHist(); } });
+    Object.assign(curRom, campos); toast("Doação atualizada."); romEditEnd(); if (!db) reloadLocalHist(); renderTop(); } });
 function finalizeDon() {
   const rec = { data: iso(new Date()), por: myName().slice(0, 40), totalKg: Math.round(sumU("kg") * 1000) / 1000, totalUn: Math.round(sumU("un") * 1000) / 1000,
     itens: don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc, cod: cod || "" })) };
   if (db) V.addDoc(V.collection(db, "doacoes"), { ...rec, em: V.serverTimestamp() }).then(r => { rec._id = r.id; }).catch(e => { console.error(e); toast("Erro ao salvar na nuvem (confira as regras). O romaneio foi gerado."); });
   else { const hh = store.get(HK, []), em = Date.now(); rec.em = em; hh.unshift({ ...rec }); store.set(HK, hh.slice(0, 50)); }
-  don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); showRomaneio(rec);
+  don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); showRomaneio(rec); renderTop();
 }
 $("dFinalizar").onclick = () => { if (!don.itens.length) return toast("A lista está vazia."); finalizeDon(); };
 const ENV = "validamais-denv", hid = x => x._id || (x.em && typeof x.em === "number" ? String(x.em) : ""), isSent = x => !!(x.enviada || store.get(ENV, {})[hid(x)]);
@@ -1474,14 +1479,26 @@ $("dHist").onclick = e => { const b = e.target.closest("[data-hist],[data-sent],
   if (b.dataset.sent !== undefined) { markSent(x, !isSent(x)); if (!db) reloadLocalHist(); else renderHist(histList); toast(isSent(x) ? "Marcada como enviada." : "Marca de enviada removida."); return; }
   if (!confirm(`Excluir a doação de ${dataBR(x.data)}?`)) return;
   const id = hid(x), hd = store.get(HID, {}); hd[id] = 1; store.set(HID, hd);          // some já neste aparelho, mesmo que a nuvem recuse
-  store.set(HK, store.get(HK, []).filter(y => String(y.em) !== id)); renderHist(histList);
+  store.set(HK, store.get(HK, []).filter(y => String(y.em) !== id)); renderHist(histList); renderTop();
   if (db && x._id) V.deleteDoc(V.doc(db, "doacoes", x._id)).then(() => toast("Doação excluída.")).catch(err => { console.error(err); toast("Removida só deste aparelho: o Firebase não permite apagar na nuvem (veja as regras)."); });
   else toast("Doação excluída."); };
 $("histBox").ontoggle = () => {
   if ($("histBox").open) { if (db) { if (!unsubHist) unsubHist = V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(HLIM)), s => renderHist(s.docs.map(d => ({ ...d.data(), _id: d.id })))); } else reloadLocalHist(); }
   else if (unsubHist) { unsubHist(); unsubHist = null; } };
 const go = t => { tab(t); side(false); }; $("navLoja").onclick = () => go("Loja"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("dScan").onclick = () => openScan("doacao");
-renderDon(); renderKey(); renderQuick();
+// ----- top 3 mais doados (últimos 30 dias, compacto) -----
+let topDb = [];
+function renderTop() {
+  const box = $("topDoados"), hd = store.get("validamais-doculto", {}), lim = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
+  const recs = (db ? topDb : store.get(HK, [])).filter(r => r && r.data >= lim && !hd[r._id || (typeof r.em === "number" ? String(r.em) : "")]);
+  const m = new Map(); recs.forEach(r => (r.itens || []).forEach(i => { const k = norm(i.nome) + "|" + i.unidade, o = m.get(k) || { n: i.nome, u: i.unidade, q: 0 }; o.q += Number(i.qtd) || 0; m.set(k, o); }));
+  const all = [...m.values()], kg = all.filter(o => o.u === "kg"), pick = (kg.length ? kg : all).sort((a, b) => b.q - a.q).slice(0, 3);
+  if (!pick.length) { box.classList.add("hidden"); box.innerHTML = ""; return; }
+  box.classList.remove("hidden");
+  box.innerHTML = `<span class="tdl">🏆 Mais doados · 30 dias</span>` + pick.map((o, i) => `<span class="tdc"><b>${["🥇", "🥈", "🥉"][i]}</b> ${esc(o.n.replace(/\s+(kg|un)$/i, ""))} <em>${fq(o.q)} ${o.u}</em></span>`).join("");
+}
+if (db) V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(40)), s => { topDb = s.docs.map(d => ({ ...d.data(), _id: d.id })); renderTop(); }, console.error);
+renderDon(); renderKey(); renderQuick(); renderTop();
 tab("Doacao");
 
 // ---------- aba Etiquetas ----------
@@ -1616,7 +1633,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.04-11";
+const APP_VERSION = "2026.10.04-12";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
