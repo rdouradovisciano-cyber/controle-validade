@@ -395,6 +395,14 @@ ap(document.documentElement.dataset.tema||"dark")});
 #tabLoja .stats .stat{cursor:pointer}.stat.on{outline:2px solid var(--g2);outline-offset:-2px}
 #productForm.lote .hide-lote{display:none}
 #productForm.lote .formgrid>div:not(.hide-lote){grid-column:1/-1}
+body:not([data-tab="Doacao"]) .doacao-only{display:none}
+.codbox{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--lt2);border:1px solid var(--ln);border-radius:14px;padding:10px 14px;margin:10px 0}
+.codbox small{display:block;font-size:10.5px;color:var(--mut);font-weight:800;letter-spacing:.06em}
+.codbox span{display:block;font-size:15px;font-weight:700;color:var(--ink);line-height:1.2}
+.codbox .r{text-align:right;flex:none}
+.codbox b{font-size:26px;font-weight:800;color:var(--g-d);letter-spacing:.5px;font-variant-numeric:tabular-nums;line-height:1.1}
+.codbox.none span{color:var(--mut)}
+body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .toast{top:calc(var(--top-h) + 8px + env(safe-area-inset-top))!important;bottom:auto!important}
 </style>
 </head>
 <body data-tab="Loja">
@@ -461,7 +469,7 @@ ap(document.documentElement.dataset.tema||"dark")});
 <textarea id="impText" rows="8" placeholder="Mamão Papaya;123;45&#10;Banana Prata;124;46&#10;Pão Francês;200;B1;;Padaria"></textarea>
 <div class="toolbar" style="margin-top:8px"><button class="secondary" id="impFileBtn">📎 Escolher arquivo</button><button class="secondary" id="impModel">Baixar modelo</button></div><input type="file" id="impFile" accept=".csv,.txt,.tsv,text/plain,text/csv" hidden>
 <div class="toolbar" style="margin-top:10px"><button class="secondary big" id="impCheck">Conferir lista</button><button class="primary big" id="impGo" disabled>Cadastrar</button></div><div id="impPrev" class="rows"></div></section></div>
-<div id="fabScrim" class="fabscrim hidden"></div><div class="fabwrap" id="fabWrap"><div class="fabmenu"><button class="fabitem loja-only" id="fabManual">＋ Cadastro manual</button><button class="fabitem loja-only" id="fabZap">💬 Enviar por WhatsApp</button><button class="fabitem" id="fabExport">📤 Exportar (Excel/PDF)</button><button class="fabitem" id="fabImport">📥 Importar lista</button><button class="fabitem" id="fabInstall">📲 Instalar app</button></div><div class="fabrow"><button class="fabscan" id="fab">▦ Bipar</button><button class="fabmain" id="fabMain" aria-label="Mais ações">＋</button></div></div>
+<div id="fabScrim" class="fabscrim hidden"></div><div class="fabwrap" id="fabWrap"><div class="fabmenu"><button class="fabitem doacao-only" id="fabEan">⌨️ Lançar por EAN</button><button class="fabitem loja-only" id="fabManual">＋ Cadastro manual</button><button class="fabitem loja-only" id="fabZap">💬 Enviar por WhatsApp</button><button class="fabitem" id="fabExport">📤 Exportar (Excel/PDF)</button><button class="fabitem" id="fabImport">📥 Importar lista</button><button class="fabitem" id="fabInstall">📲 Instalar app</button></div><div class="fabrow"><button class="fabscan" id="fab">▦ Bipar</button><button class="fabmain" id="fabMain" aria-label="Mais ações">＋</button></div></div>
 <div id="qModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="qTitle"><div class="sheethead"><h2 id="qTitle">Atalho</h2><button class="secondary" id="qClose" aria-label="Fechar">✕</button></div>
 <label for="qNome">Nome do produto</label><input id="qNome" maxlength="40" autocomplete="off" placeholder="Ex.: Chuchu">
 <label for="qCod">Código de doação (49xx ou PLU)</label><input id="qCod" maxlength="12" autocomplete="off" placeholder="Ex.: 4912">
@@ -480,15 +488,22 @@ ap(document.documentElement.dataset.tema||"dark")});
 <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button><button type="button" class="ok" data-k="ok" id="npOk">Adicionar</button>
 <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
 <button type="button" data-k=",">,</button><button type="button" class="z" data-k="0">0</button></div></div>
+<div id="eanModal" class="modal hidden" style="z-index:34"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="eanTitle">
+<div class="sheethead"><h2 id="eanTitle">Lançar por EAN</h2><button class="secondary" id="eanClose" aria-label="Fechar">✕</button></div>
+<label for="eanCode">Código de barras (EAN)</label>
+<input id="eanCode" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="20" enterkeyhint="go" autocomplete="off" placeholder="Digite o código de barras">
+<div id="eanPrev" class="codbox hidden"></div>
+<div class="toolbar" style="margin-top:14px"><button class="primary big" id="eanGo">Continuar</button><button class="secondary big" id="eanCancel">Cancelar</button></div>
+<small class="note">Produto novo é cadastrado a seguir. Depois você informa a quantidade.</small></section></div>
 <div id="nrModal" class="modal hidden" style="z-index:35"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="nrTitle">
 <div class="sheethead"><h2 id="nrTitle">Produto não cadastrado</h2><button class="secondary" id="nrClose" aria-label="Fechar">✕</button></div>
 <p class="note" id="nrCod"></p>
-<label for="nrNome">Nome do produto *</label><input id="nrNome" maxlength="120" autocomplete="off" placeholder="Ex.: Mamão papaya">
+<label for="nrNome">Nome do produto *</label><input id="nrNome" maxlength="120" autocomplete="off" placeholder="Ex.: Mamão papaya"><div id="nrDonBox" class="hidden"><label for="nrDon">Código de doação (opcional)</label><input id="nrDon" maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="Ex.: B1 ou 4912" style="text-transform:uppercase"></div>
 <div class="toolbar" style="margin-top:14px"><button class="primary big" id="nrSave">Cadastrar e continuar</button><button class="secondary big" id="nrCancel">Cancelar</button></div>
 <small class="note">O cadastro fica salvo para todos os usuários.</small></section></div>
 <div id="qtModal" class="modal hidden" style="z-index:36"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="qtNome">
 <div class="sheethead"><h2 id="qtNome">Produto</h2><button class="secondary" id="qtClose" aria-label="Fechar">✕</button></div>
-<p class="note" id="qtInfo"></p>
+<p class="note" id="qtInfo"></p><label for="qtCod">Código de doação</label><input id="qtCod" maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="Sem código: digite para cadastrar" style="font-size:20px;font-weight:800;letter-spacing:.5px;text-transform:uppercase">
 <label for="qtQtd">Quantas unidades?</label>
 <div class="stepper"><button type="button" class="secondary" id="qtMenos" aria-label="Diminuir">−</button><input id="qtQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-submit="#qtOk" data-np-label="Adicionar" value="1"><button type="button" class="secondary" id="qtMais" aria-label="Aumentar">＋</button></div>
 <div class="toolbar" style="margin-top:14px"><button class="primary big" id="qtOk">Adicionar</button><button class="secondary big" id="qtCancel">Cancelar</button></div></section></div>
@@ -922,51 +937,90 @@ function saveCode(p, field, raw) {                 // grava o código em todos o
 
 // ---------- cadastro rápido ao bipar produto não cadastrado (vale para qualquer usuário) ----------
 let nrResolve = null, qtResolve = null; const adopted = new Set();
-function askQty(nome) {                              // "Quantas unidades?" -> número inteiro, ou null se cancelar
+let qtProd = null, qtCode = "", qtOrig = "";
+function askQty(nome, prod, code) {                  // devolve { q, cod } (quantidade e código de doação), ou null se cancelar
   return new Promise(res => {
     if (qtResolve) return res(null);
-    qtResolve = res;
+    qtResolve = res; qtProd = prod || null; qtCode = code || ""; qtOrig = (prod && prod.codigo_doacao) || "";
     const it = don.itens.find(i => i.key === norm(nome) + "|un");
-    $("qtNome").textContent = nome;
+    $("qtNome").textContent = nome; $("qtCod").value = qtOrig;
     $("qtInfo").textContent = it ? `Já coletado: ${fq(it.qtd)} un em ${it.lanc} lançamento${it.lanc > 1 ? "s" : ""}.` : "Ainda não coletado nesta doação.";
     $("qtQtd").value = "1"; $("qtModal").classList.remove("hidden"); setTimeout(() => $("qtQtd").focus(), 80);   // o foco abre o teclado numérico
   });
 }
 function qtDone(v) { $("qtModal").classList.add("hidden"); const r = qtResolve; qtResolve = null; if (r) r(v); }
-$("qtOk").onclick = () => { const q = Math.round(Number($("qtQtd").value)); if (!(q > 0)) return toast("Digite a quantidade."); qtDone(q); };
+$("qtOk").onclick = () => {
+  const q = Math.round(Number($("qtQtd").value)); if (!(q > 0)) return toast("Digite a quantidade.");
+  const cod = $("qtCod").value.replace(/\s+/g, "").toUpperCase();
+  if (cod !== qtOrig) { const v = saveCode(qtProd || { name: $("qtNome").textContent, barcode: qtCode }, "codigo_doacao", cod); if (v === null) return; }   // grava no cadastro compartilhado
+  qtDone({ q, cod });
+};
 $("qtCancel").onclick = $("qtClose").onclick = () => qtDone(null);
 $("qtMenos").onclick = () => { $("qtQtd").value = Math.max(1, (Number($("qtQtd").value) || 1) - 1); };
 $("qtMais").onclick = () => { $("qtQtd").value = (Number($("qtQtd").value) || 0) + 1; };
 document.addEventListener("keydown", e => { if (e.key === "Escape" && qtResolve) qtDone(null); });
-function askNewProduct(code, scale, item) {          // abre a janela e devolve {nome} ou null se cancelar
+function askNewProduct(code, scale, item, withDon) {          // abre a janela e devolve {nome} ou null se cancelar
   return new Promise(res => {
     if (nrResolve) return res(null);
     nrResolve = res;
     $("nrCod").textContent = (scale ? `Etiqueta de balança, item ${item}` : `Código de barras ${code}`) + " ainda não está cadastrado. Informe o nome para cadastrar.";
-    $("nrNome").value = ""; $("nrModal").classList.remove("hidden"); setTimeout(() => $("nrNome").focus(), 60);
+    $("nrNome").value = ""; $("nrDon").value = ""; $("nrDonBox").classList.toggle("hidden", !withDon); $("nrModal").classList.remove("hidden"); setTimeout(() => $("nrNome").focus(), 60);
   });
 }
 function nrDone(v) { $("nrModal").classList.add("hidden"); const r = nrResolve; nrResolve = null; if (r) r(v); }
 $("nrClose").onclick = $("nrCancel").onclick = () => nrDone(null);
 $("nrSave").onclick = () => { const nome = $("nrNome").value.replace(/\s+/g, " ").trim().slice(0, 120);
   if (!nome) { toast("Digite o nome do produto."); return $("nrNome").focus(); }
-  nrDone({ nome }); };
+  const don = $("nrDon").value.replace(/\s+/g, "").toUpperCase();
+  if (don) {
+    if (!/^[A-Z0-9]{1,12}$/.test(don)) { toast("Código de doação: só letras e números (até 12)."); return $("nrDon").focus(); }
+    const dup = products.find(x => String(x.codigo_doacao || "").toUpperCase() === don && norm(x.name || "") !== norm(nome));
+    if (dup) { toast(`Esse código já pertence a «${dup.name}».`); return $("nrDon").focus(); } }
+  nrDone({ nome, don }); };
 $("nrNome").onkeydown = e => { if (e.key === "Enter") $("nrSave").click(); };
 document.addEventListener("keydown", e => { if (e.key === "Escape" && nrResolve) nrDone(null); });
-function registerProduct({ name, category = "FLV", barcode = "", codigo_balanca = "" }) {   // grava no cadastro compartilhado
+function registerProduct({ name, category = "FLV", barcode = "", codigo_balanca = "", codigo_doacao = "" }) {   // grava no cadastro compartilhado
   const fail = e => { console.error(e); toast("Não salvou no cadastro compartilhado (confira as regras do Firebase). Por isso o app pede o cadastro de novo."); }, f = {}, field = barcode ? "barcode" : "codigo_balanca";
-  if (barcode) f.barcode = barcode; if (codigo_balanca) f.codigo_balanca = codigo_balanca;
+  if (barcode) f.barcode = barcode; if (codigo_balanca) f.codigo_balanca = codigo_balanca; if (codigo_doacao) f.codigo_doacao = codigo_doacao;
   const free = products.filter(x => norm(x.name || "") === norm(name) && !x[field]);   // mesmo nome ainda sem esse código: só acrescenta o código
   if (free.length) {
     if (db) { const ts = V.serverTimestamp(); free.forEach(x => V.updateDoc(V.doc(db, "products", x.id), { ...f, updatedAt: ts }).catch(fail)); }
     else { free.forEach(x => Object.assign(x, f)); persist(); render(); }
     toast("Código acrescentado a «" + name + "»."); return { ...free[0], ...f };
   }
-  const rec = { name, barcode, category, expiry: "", quantity: 1, por: myName(), codigo_balanca, codigo_doacao: "" };
+  const rec = { name, barcode, category, expiry: "", quantity: 1, por: myName(), codigo_balanca, codigo_doacao };
   if (db) { const ts = V.serverTimestamp(); V.addDoc(V.collection(db, "products"), { ...rec, createdAt: ts, updatedAt: ts }).catch(fail); }
   else { products.push({ ...rec, id: uid(), updatedAt: Date.now() }); persist(); render(); }
   toast("«" + name + "» cadastrado."); return rec;
 }
+
+// ---------- Doação: lançar por EAN digitado (botão +) ----------
+function eanFind(v) {
+  if (/^2\d{12}$/.test(v)) { const it = Number(parseScale(v).item); return products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === it); }
+  return products.find(p => p.barcode === v);
+}
+function eanPreview() {                              // assim que o código é digitado, mostra o produto e o código de doação
+  const v = $("eanCode").value.replace(/\D/g, ""), box = $("eanPrev");
+  if (v.length < 6) { box.classList.add("hidden"); return; }
+  const p = eanFind(v); box.classList.remove("hidden"); box.classList.toggle("none", !p);
+  box.innerHTML = p ? `<div><small>PRODUTO</small><span>${esc(p.name)}</span></div><div class="r"><small>CÓDIGO DE DOAÇÃO</small><b>${esc(p.codigo_doacao || "—")}</b></div>`
+                    : '<div><small>NÃO CADASTRADO</small><span>Será cadastrado a seguir</span></div>';
+}
+const eanClose = () => $("eanModal").classList.add("hidden");
+$("fabEan").onclick = () => {
+  $("fabWrap").classList.remove("open"); $("fabScrim").classList.add("hidden");
+  $("eanCode").value = ""; eanPreview(); $("eanModal").classList.remove("hidden"); setTimeout(() => $("eanCode").focus(), 80);
+};
+$("eanClose").onclick = $("eanCancel").onclick = eanClose;
+$("eanCode").oninput = eanPreview;
+function eanGo() {
+  const v = $("eanCode").value.replace(/\D/g, "");
+  if (!/^\d{6,14}$/.test(v)) { toast("Digite o código de barras só com números (6 a 14 dígitos)."); return $("eanCode").focus(); }
+  eanClose(); lastScan = { c: "", t: 0 }; donationScan(v);        // mesmo caminho da leitura pela câmera: cadastro (se novo) e quantidade
+}
+$("eanGo").onclick = eanGo;
+$("eanCode").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); eanGo(); } };
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("eanModal").classList.contains("hidden")) eanClose(); });
 
 // ---------- aba Doação ----------
 const UK = "validamais-dunid", DK = "validamais-doacao", HK = "validamais-doacoes", NK = "validamais-dnomes";
@@ -1004,7 +1058,7 @@ async function donationScan(code) {
   lastScan = { c: code, t: now };
   if (nrResolve || qtResolve) return;                // há um cadastro ou uma pergunta de quantidade aberta
   buzz(); beep();
-  const names = store.get(NK, {}); let key, unidade, qtd;
+  const names = store.get(NK, {}); let key, unidade, qtd, regd = null, donCod = "";
   if (/^2\d{12}$/.test(code)) { const s = parseScale(code); key = "B" + s.item; unidade = "kg"; qtd = s.kg;
     if (!(qtd > 0)) { toast("Etiqueta de balança sem peso legível. Ajuste a configuração 'balanca' no config.js."); return; } }
   else { key = code; unidade = "un"; qtd = 1; }
@@ -1012,14 +1066,16 @@ async function donationScan(code) {
   if (nome && products.length && !adopted.has(key)) { adopted.add(key);       // nome que só existia neste aparelho passa para o cadastro compartilhado
     const inBase = unidade === "kg" ? products.some(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(key.slice(1))) : products.some(p => p.barcode === code);
     if (!inBase) registerProduct({ name: nome, barcode: unidade === "kg" ? "" : code, codigo_balanca: unidade === "kg" ? String(Number(key.slice(1))) : "" }); }
-  if (!nome) { const sc = unidade === "kg", plu = sc ? String(Number(key.slice(1))) : "", r = await askNewProduct(code, sc, plu);
+  if (!nome) { const sc = unidade === "kg", plu = sc ? String(Number(key.slice(1))) : "", r = await askNewProduct(code, sc, plu, true);
     if (!r) { lastScan.t = Date.now(); return; }
-    registerProduct({ name: r.nome, barcode: sc ? "" : code, codigo_balanca: plu });
+    regd = registerProduct({ name: r.nome, barcode: sc ? "" : code, codigo_balanca: plu, codigo_doacao: r.don || "" });
     nome = r.nome; names[key] = nome; store.set(NK, names); }
   const scaleLbl = /^2\d{12}$/.test(code); if (unidade === "kg" && unitOf(nome) === "un") { unidade = "un"; qtd = 1; }
-  if (unidade === "un" && !scaleLbl) { const q = await askQty(nome); if (!q) { lastScan.t = Date.now(); return; } qtd = q; }   // item por unidade: informa a quantidade em vez de bipar várias vezes
-  const total = addDon(nome, unidade, qtd, (!scaleLbl && unidade === "un") ? code : "");
-  toast(`${nome}: +${fq(qtd)} ${unidade} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
+  if (unidade === "un" && !scaleLbl) {
+    const prod = regd || products.find(p => p.barcode === code) || products.find(p => norm(p.name || "") === norm(nome));
+    const r = await askQty(nome, prod, code); if (!r) { lastScan.t = Date.now(); return; } qtd = r.q; donCod = r.cod; }   // item por unidade: informa a quantidade em vez de bipar várias vezes
+  const total = addDon(nome, unidade, qtd, (!scaleLbl && unidade === "un") ? (donCod || code) : "");
+  toast(`${nome}${donCod ? " (cód. " + donCod + ")" : ""}: +${fq(qtd)} ${unidade} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
 }
 // pesagem manual
 function renderKey() {
@@ -1307,7 +1363,7 @@ if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
-var UPDATES=[{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+var UPDATES=[{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
