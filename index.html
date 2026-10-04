@@ -240,6 +240,9 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .dcod{display:block;font-size:13px;font-weight:700;color:var(--g);letter-spacing:.3px;font-variant-numeric:tabular-nums;margin-top:1px}
 .dq{font-size:23px;font-weight:700;white-space:nowrap;color:var(--g-d)}
 .dq span{font-size:13px;color:var(--mut);font-weight:600}
+.dq[data-edit]{cursor:pointer;border-bottom:2px dashed var(--mut);padding:2px 2px 0}
+.dq.editing{border-bottom:0}
+.dedit{width:92px;font-size:22px;font-weight:700;text-align:right;padding:4px 8px;border-radius:10px}
 .wrow{display:flex;gap:8px;margin-top:8px}
 .wrow input{flex:1}
 .wrow button{min-width:110px}
@@ -435,7 +438,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 <div id="qgrid" class="qgrid"></div>
 <input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off"><div id="dSug" class="rows sug"></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
-<section class="panel dlistp" id="dListaBox"><h2 class="h2" style="margin:8px 0 0">Itens coletados</h2><div id="dLista"></div>
+<section class="panel dlistp" id="dListaBox"><h2 class="h2" style="margin:8px 0 0">Itens coletados</h2><div id="dLista"></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
 <div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
 <small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
 <section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
@@ -1063,7 +1066,7 @@ function dCodTxt(i) {   // kg: código de doação · un: código de barras
 }
 function renderDon() {
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dKg").parentElement.style.display = sumU("kg") > 0 ? "" : "none"; $("dUn").parentElement.style.display = sumU("un") > 0 ? "" : "none"; $("dItens").textContent = don.itens.length;
-  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)</small></div><div class="dq">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Bipe um item para começar.</p>';
+  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Bipe um item para começar.</p>';
   renderKey();
 }
 function addDon(nome, unidade, qtd, cod = "", bar = "") {
@@ -1165,7 +1168,27 @@ function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",", "."))
   if (dUnit === "un") q = Math.round(q); if (!(q > 0)) return toast("Digite a quantidade.");
   lastAdd = { k: norm(dSel) + "|" + dUnit, q, t: Date.now() }; addDon(dSel, dUnit, q, dCodSel); flashNow(); $("dPeso").value = ""; $("dPeso").blur(); if (window.npClose) window.npClose(); }
 $("dAdd").onclick = dPesoAdd; $("dPeso").onkeydown = e => { if (e.key === "Enter") dPesoAdd(); };
-$("dLista").onclick = e => { const b = e.target.closest("[data-drop]"); if (!b) return; const x = Number(b.dataset.drop), it = don.itens.splice(x, 1)[0];
+// editar a quantidade de um item já coletado (toque no "5 kg")
+let dEditing = -1;
+function dEditOpen(q) {
+  const x = Number(q.dataset.edit), it = don.itens[x]; if (!it || q.classList.contains("editing")) return;
+  if (dEditing >= 0) { dEditing = -1; renderDon(); q = $("dLista").querySelector(`[data-edit="${x}"]`); if (!q) return; }
+  dEditing = x; q.classList.add("editing");
+  q.innerHTML = `<input class="dedit" type="text" readonly inputmode="none" data-np${it.unidade === "un" ? " data-np-int" : ""} data-np-submit="#dEditOk" data-np-label="Salvar" value="${fq(it.qtd)}" aria-label="Quantidade de ${esc(it.nome)}"> <span>${esc(it.unidade)}</span>`;
+  q.querySelector("input").focus({ preventScroll: true });
+}
+function dEditSave() {
+  const inp = $("dLista").querySelector(".dedit"), it = don.itens[dEditing]; dEditing = -1;
+  if (inp && it) {
+    const v = Math.round(parseFloat(String(inp.value).replace(",", ".")) * 1000) / 1000;
+    if (v > 0 && v !== it.qtd) { it.qtd = v; store.set(DK, don); toast("Quantidade corrigida."); }
+  }
+  if (window.npClose) window.npClose(); renderDon();
+}
+$("dEditOk").onclick = dEditSave;
+document.addEventListener("pointerdown", e => { if (dEditing >= 0 && !e.target.closest(".dq, #np")) { dEditing = -1; renderDon(); } }, true);
+$("dLista").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("[data-edit]")) { e.preventDefault(); dEditOpen(e.target); } });
+$("dLista").onclick = e => { const q = e.target.closest("[data-edit]"); if (q) return dEditOpen(q); const b = e.target.closest("[data-drop]"); if (!b) return; const x = Number(b.dataset.drop), it = don.itens.splice(x, 1)[0];
   store.set(DK, don); renderDon(); toast(`${it.nome} removido.`, "Desfazer", () => { don.itens.splice(x, 0, it); store.set(DK, don); renderDon(); }); };
 $("dLimpar").onclick = () => { if (don.itens.length && confirm("Apagar toda a lista da doação atual?")) { don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); } };
 // romaneio
