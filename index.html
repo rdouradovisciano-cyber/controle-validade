@@ -289,6 +289,11 @@ body.mao1 .fabitem{min-height:56px;font-size:16px}
 .dupr+.dupr{border-top:1px dashed var(--ln)}
 .dupr span{min-width:0;overflow-wrap:anywhere}.dupr small{color:var(--mut)}
 .dupr button{flex:none;min-height:44px;padding:0 14px;border-radius:12px;border:0;background:var(--g);color:#fff;font-weight:800}
+.foto{width:72px;height:72px;border-radius:14px;object-fit:cover;border:1px solid var(--ln);flex:none}
+.fotorow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fotobtn{display:inline-flex;align-items:center;min-height:48px;padding:0 16px;border-radius:14px;background:var(--lt);color:var(--g-d);font-weight:800;cursor:pointer;border:1px solid var(--ln)}
+.pth{width:40px;height:40px;border-radius:10px;object-fit:cover;vertical-align:middle;margin-right:8px;border:1px solid var(--ln)}
+.qth{display:block;width:38px;height:38px;border-radius:50%;object-fit:cover;margin:0 auto 3px}
 .qfreq{margin-bottom:6px}
 .qlbl{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--mut);margin:2px 2px 6px;text-transform:uppercase}
 .qbtn.fav{background:var(--lt);border-color:var(--g3)}
@@ -579,7 +584,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 <form id="productForm"><input type="hidden" id="docId"><p class="note hidden" id="loteInfo"></p><button type="button" class="secondary hidden" id="loteEdit" style="width:100%;margin-bottom:6px">Editar dados do produto</button><div class="formgrid">
 <div class="wide hide-lote"><label for="barcode">Código de barras</label><input id="barcode" inputmode="numeric" placeholder="Bipe ou digite o código" maxlength="32"></div>
 <div class="wide hidden hide-lote" id="semCodigo"><small class="note">Sem código de barras: informe os códigos internos do produto.</small><div class="formgrid"><div><label for="cBalanca">Código de balança (etiquetas)</label><input id="cBalanca" inputmode="numeric" maxlength="12"></div><div><label for="cDoacao">Código de doação</label><input id="cDoacao" inputmode="numeric" maxlength="12"></div></div></div>
-<div class="wide hide-lote"><label for="name">Nome do produto *</label><div class="stepper"><input id="name" required maxlength="120" placeholder="Ex.: Leite integral 1 L" autocomplete="off"><button type="button" class="secondary" id="micBtn" aria-label="Ditar nome">🎤</button></div></div>
+<div class="wide hide-lote"><label for="name">Nome do produto *</label><div class="stepper"><input id="name" required maxlength="120" placeholder="Ex.: Leite integral 1 L" autocomplete="off"><button type="button" class="secondary" id="micBtn" aria-label="Ditar nome">🎤</button></div></div><div class="wide hide-lote"><label>Foto do produto (opcional)</label><div class="fotorow"><img id="fotoPrev" class="foto hidden" alt="Foto do produto"><label for="fotoIn" id="fotoBtn" class="fotobtn">📷 Tirar foto</label><input id="fotoIn" type="file" accept="image/*" hidden><button type="button" class="secondary hidden" id="fotoDel">Remover</button></div></div>
 <div class="hidden"><label for="category">Categoria *</label><select id="category" required></select></div>
 <div class="wide"><label for="quantity">Quantidade *</label><div class="stepper"><button type="button" class="secondary" id="qMinus" aria-label="Diminuir">−</button><input id="quantity" type="text" readonly inputmode="none" data-np data-np-label="OK" value="1"><button type="button" class="secondary" id="qPlus" aria-label="Aumentar">＋</button></div></div>
 <div class="wide"><label for="expiry" id="expLabel">Data de validade *</label><input id="expiry" type="date" required>
@@ -695,6 +700,7 @@ function render() {
   document.querySelectorAll("#tabLoja .stats .stat").forEach((e, i) => e.classList.toggle("on", (i === 1 && st === "soon") || (i === 2 && st === "expired"))); $("countSoon").textContent = so; $("countExpired").textContent = ex;
   $("topAlert").classList.toggle("hidden", !(ex || so));
   $("topAlert").textContent = `Atenção: ${ex} vencido(s) e ${so} vencendo em breve.`;
+  FM = fotoMap();
   const cnt = {}; products.forEach(p => { if (p.barcode) cnt[p.barcode] = (cnt[p.barcode] || 0) + 1; });
   const hoje = products.filter(p => daysLeft(p.expiry) === 0 && (!cat || p.category === cat));
   $("todayBanner").classList.toggle("hidden", !hoje.length);
@@ -705,7 +711,7 @@ function render() {
     .sort((a, b) => cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
-    return `<article class="product ${cls}"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><p class="meta">Validade: <b>${fmt(p.expiry)}</b>${cnt[p.barcode] > 1 ? ` · ${cnt[p.barcode]} lotes` : ""}</p><div class="pills"><span class="pill">${when(dl)}</span></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
+    return `<article class="product ${cls}"><div class="ctop"><h3>${(p.foto || FM.get(norm(p.name || ""))) ? `<img class="pth" alt="" src="${p.foto || FM.get(norm(p.name || ""))}">` : ""}${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><p class="meta">Validade: <b>${fmt(p.expiry)}</b>${cnt[p.barcode] > 1 ? ` · ${cnt[p.barcode]} lotes` : ""}</p><div class="pills"><span class="pill">${when(dl)}</span></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
   }).join("") : (cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
 }
 
@@ -714,10 +720,23 @@ function show(title, scan) {
   $("modalTitle").textContent = title; $("modal").classList.remove("hidden");
   $("scannerArea").classList.toggle("hidden", !scan); $("productForm").classList.toggle("hidden", !!scan);
 }
+// ----- foto do produto (miniatura 160 px, guardada no próprio cadastro) -----
+let curFoto = "", FM = new Map();
+const fotoMap = () => { const m = new Map(); products.forEach(p => { if (p.foto) m.set(norm(p.name || ""), p.foto); }); return m; };
+function fotoSet(d) { curFoto = d || ""; const im = $("fotoPrev"); im.src = curFoto; im.classList.toggle("hidden", !curFoto); $("fotoDel").classList.toggle("hidden", !curFoto); $("fotoBtn").textContent = curFoto ? "📷 Trocar foto" : "📷 Tirar foto"; }
+$("fotoDel").onclick = () => fotoSet("");
+$("fotoIn").onchange = async () => {
+  const f = $("fotoIn").files[0]; $("fotoIn").value = ""; if (!f) return;
+  try {
+    let bmp; try { bmp = await createImageBitmap(f, { imageOrientation: "from-image" }); } catch (e) { bmp = await createImageBitmap(f); }
+    const S = 160, c = document.createElement("canvas"); c.width = c.height = S; const k = Math.min(bmp.width, bmp.height), x = (bmp.width - k) / 2, y = (bmp.height - k) / 2;
+    c.getContext("2d").drawImage(bmp, x, y, k, k, 0, 0, S, S); fotoSet(c.toDataURL("image/jpeg", 0.65));
+  } catch (e) { console.error(e); toast("Não foi possível ler a foto."); }
+};
 function resetForm() {
   $("productForm").reset(); $("docId").value = ""; $("quantity").value = 1;
   $("category").value = "FLV"; $("saveNext").classList.remove("hidden"); toggleCodes();
-  $("productForm").classList.remove("lote"); $("loteInfo").classList.add("hidden"); $("loteEdit").classList.add("hidden");
+  $("productForm").classList.remove("lote"); $("loteInfo").classList.add("hidden"); $("loteEdit").classList.add("hidden"); fotoSet("");
 }
 function toggleCodes() {
   const flv = $("category").value === "FLV"; $("expiry").required = !flv; $("expLabel").textContent = flv ? "Data de validade (opcional)" : "Data de validade *"; $("semCodigo").classList.toggle("hidden", !!$("barcode").value.trim() && !["FLV", "Padaria"].includes($("category").value)); }
@@ -739,7 +758,7 @@ function edit(id) {
   resetForm(); show("Editar produto"); $("saveNext").classList.add("hidden");
   $("docId").value = id; $("barcode").value = p.barcode || ""; $("name").value = p.name || "";
   $("category").value = p.category || ""; $("quantity").value = p.quantity; $("expiry").value = p.expiry || "";
-  $("cBalanca").value = p.codigo_balanca || ""; $("cDoacao").value = p.codigo_doacao || ""; toggleCodes();
+  $("cBalanca").value = p.codigo_balanca || ""; $("cDoacao").value = p.codigo_doacao || ""; toggleCodes(); fotoSet(p.foto || fotoMap().get(norm(p.name || "")) || "");
 }
 // ----- nomes parecidos / duplicados -----
 const nameKey = n => norm(n || "").replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(w => w && !/^(kg|un|und|unid|unidade|unidades|g|gr|grs|kilo|quilo)$/.test(w)).map(w => w.length > 3 && w.endsWith("s") ? w.slice(0, -1) : w).sort().join(" ");
@@ -787,6 +806,9 @@ async function save(next) {
       if (r === false) { data.name = sim[0].slice(0, 120); $("name").value = data.name; }
     }
   }
+  { const outros = products.filter(x => x.id !== id && norm(x.name || "") === norm(data.name)), antes2 = (outros.find(x => x.foto) || {}).foto || "";
+    data.foto = (!id && !curFoto) ? antes2 : curFoto;
+    if ((id || curFoto) && curFoto !== antes2) outros.forEach(x => { if ((x.foto || "") !== curFoto) { if (db) V.updateDoc(V.doc(db, "products", x.id), { foto: curFoto }).catch(() => {}); else x.foto = curFoto; } }); }
   store.set(LC, data.category);
   if (db) {
     const ts = V.serverTimestamp();
@@ -1257,14 +1279,14 @@ function renderFreq() {
   if (freqList.length < 3) { box.innerHTML = ""; return; }
   box.innerHTML = `<div class="qlbl">⭐ Mais usados</div><div class="qgrid">` + freqList.map((o, i) => {
     const p = prodFor(o.n), nm = p ? p.name : o.n, code = o.c || (p && p.codigo_doacao) || "", on = dSel && norm(dSel) === norm(nm);
-    return `<button type="button" class="qbtn fav${on ? " sel" : ""}" data-f="${i}">${esc(o.n)}<small>${esc(code)}${code ? " · " : ""}${o.u}</small></button>`; }).join("") + `</div>`;
+    const ft = fotoMap().get(norm(nm)); return `<button type="button" class="qbtn fav${on ? " sel" : ""}" data-f="${i}">${ft ? `<img class="qth" alt="" src="${ft}">` : ""}${esc(o.n)}<small>${esc(code)}${code ? " · " : ""}${o.u}</small></button>`; }).join("") + `</div>`;
 }
 $("qFreq").onclick = e => { const b = e.target.closest("[data-f]"); if (!b) return; const o = freqList[Number(b.dataset.f)]; if (!o) return; buzz(); const p = prodFor(o.n); selectProd(p ? p.name : o.n, o.c, o.u); };
 function renderQuick() {
   renderFreq();
   $("qBar").classList.toggle("hidden", !qEdit); $("qEditBtn").classList.toggle("on", qEdit);
   $("qgrid").innerHTML = shortcuts.map((s, i) => { const p = prodFor(s.n), nm = p ? p.name : s.n, code = s.c || (p && p.codigo_doacao) || "", on = !qEdit && dSel && norm(dSel) === norm(nm);
-    return `<button type="button" class="qbtn${on ? " sel" : ""}${qEdit ? " ed" : ""}" data-q="${i}">${esc(s.n)}<small>${esc(code)}${code ? " · " : ""}${s.u}</small></button>`; }).join("") + (qEdit ? '<button type="button" class="qbtn qadd" data-q="new">＋ Novo</button>' : "");
+    const ft = fotoMap().get(norm(nm)); return `<button type="button" class="qbtn${on ? " sel" : ""}${qEdit ? " ed" : ""}" data-q="${i}">${ft ? `<img class="qth" alt="" src="${ft}">` : ""}${esc(s.n)}<small>${esc(code)}${code ? " · " : ""}${s.u}</small></button>`; }).join("") + (qEdit ? '<button type="button" class="qbtn qadd" data-q="new">＋ Novo</button>' : "");
 }
 function qOpen(i) { qIdx = i; const s = i === "new" ? { n: "", c: "", u: "kg" } : shortcuts[i];
   $("qTitle").textContent = i === "new" ? "Novo atalho" : "Editar atalho"; $("qNome").value = s.n; $("qCod").value = s.c; qSetU(s.u); $("qDel").classList.toggle("hidden", i === "new");
@@ -1578,7 +1600,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.04-9";
+const APP_VERSION = "2026.10.04-10";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
