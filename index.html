@@ -237,6 +237,7 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .dn{flex:1;min-width:0}
 .dn b{display:block;font-size:15.5px;text-transform:uppercase;line-height:1.2}
 .dn small{color:var(--mut);font-size:12px}
+.dcod{display:block;font-size:13px;font-weight:700;color:var(--g);letter-spacing:.3px;font-variant-numeric:tabular-nums;margin-top:1px}
 .dq{font-size:23px;font-weight:700;white-space:nowrap;color:var(--g-d)}
 .dq span{font-size:13px;color:var(--mut);font-weight:600}
 .wrow{display:flex;gap:8px;margin-top:8px}
@@ -1037,16 +1038,23 @@ function tab(t) {
   ["Loja", "Doacao", "Etiquetas"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); $("tb" + n).classList.toggle("active", n === t); });
   document.body.dataset.tab = t;
 }
+function dCodTxt(i) {   // kg: código de doação · un: código de barras
+  const pr = products.find(x => norm(x.name || "") === norm(i.nome)) || {};
+  return i.unidade === "un"
+    ? (pr.barcode ? "Cód. barras: " + esc(pr.barcode) : i.bar ? "Cód. barras: " + esc(i.bar) : i.cod ? "Cód.: " + esc(i.cod) : "")
+    : ((pr.codigo_doacao || i.cod) ? "Cód. doação: " + esc(pr.codigo_doacao || i.cod) : "");
+}
 function renderDon() {
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dKg").parentElement.style.display = sumU("kg") > 0 ? "" : "none"; $("dUn").parentElement.style.display = sumU("un") > 0 ? "" : "none"; $("dItens").textContent = don.itens.length;
-  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b><small>${i.lanc} lançamento(s)</small></div><div class="dq">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Bipe um item para começar.</p>';
+  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)</small></div><div class="dq">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Bipe um item para começar.</p>';
   renderKey();
 }
-function addDon(nome, unidade, qtd, cod = "") {
+function addDon(nome, unidade, qtd, cod = "", bar = "") {
   qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0; buzz();
   const key = norm(nome) + "|" + unidade; let it = don.itens.find(i => i.key === key);
   if (it) { it.qtd = Math.round((it.qtd + qtd) * 1000) / 1000; it.lanc++; } else { it = { key, nome: nome.trim().slice(0, 60), unidade, qtd, lanc: 1 }; don.itens.push(it); }
-  const pr = products.find(x => norm(x.name) === norm(nome)); it.cod = it.cod || cod || (pr && (pr.codigo_doacao || pr.barcode || pr.codigo_balanca)) || "";
+  if (bar && !it.bar) it.bar = bar;
+  const pr = products.find(x => norm(x.name) === norm(nome)); it.cod =it.cod || cod || (pr && (pr.codigo_doacao || pr.barcode || pr.codigo_balanca)) || "";
   store.set(DK, don); renderDon(); return it.qtd;
 }
 function parseScale(code) {                       // EAN-13 de balança: 2 + código do item + peso (g) + dígito verificador
@@ -1074,7 +1082,7 @@ async function donationScan(code) {
   if (unidade === "un" && !scaleLbl) {
     const prod = regd || products.find(p => p.barcode === code) || products.find(p => norm(p.name || "") === norm(nome));
     const r = await askQty(nome, prod, code); if (!r) { lastScan.t = Date.now(); return; } qtd = r.q; donCod = r.cod; }   // item por unidade: informa a quantidade em vez de bipar várias vezes
-  const total = addDon(nome, unidade, qtd, (!scaleLbl && unidade === "un") ? (donCod || code) : "");
+  const total = addDon(nome, unidade, qtd, (!scaleLbl && unidade === "un") ? (donCod || code) : "", (!scaleLbl && unidade === "un") ? code : "");
   toast(`${nome}${donCod ? " (cód. " + donCod + ")" : ""}: +${fq(qtd)} ${unidade} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
 }
 // pesagem manual
