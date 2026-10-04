@@ -250,6 +250,12 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .ask .arow{display:flex;gap:10px;margin-top:16px}
 .ask .arow button{flex:1;min-height:50px;border-radius:14px;font-size:16px;font-weight:800;border:1px solid var(--ln);background:var(--lt);color:var(--ink);cursor:pointer}
 .ask .arow button.ok{background:var(--g,#166534);color:#fff;border-color:transparent}
+#dBusca{border:2px solid var(--g,#22a06b)!important;border-radius:16px;min-height:56px;font-size:17px;font-weight:600;
+  background-color:color-mix(in srgb,var(--g,#22a06b) 12%,var(--card))!important;
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--g,#22a06b) 22%,transparent),0 6px 18px color-mix(in srgb,var(--g,#22a06b) 30%,transparent);
+  transition:box-shadow .2s,border-color .2s}
+#dBusca::placeholder{color:var(--g-d,var(--g,#22a06b));opacity:.9;font-weight:700}
+#dBusca:focus{box-shadow:0 0 0 5px color-mix(in srgb,var(--g,#22a06b) 38%,transparent),0 8px 22px color-mix(in srgb,var(--g,#22a06b) 40%,transparent)}
 .redit{display:flex;flex-direction:column;gap:8px;margin:8px 0}
 .rerow{display:flex;align-items:center;gap:8px;background:var(--lt2);border:1px solid var(--ln);border-radius:14px;padding:8px 10px}
 .rerow .ren{flex:1;min-width:0}.rerow .ren b{display:block;overflow-wrap:anywhere}.rerow .ren small{color:var(--mut);font-size:12px}
@@ -1471,7 +1477,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.04-4";
+const APP_VERSION = "2026.10.04-5";
 $("appVer").textContent = "v" + APP_VERSION;
 (function () {
   let shown = false;
