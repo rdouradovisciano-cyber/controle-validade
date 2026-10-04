@@ -411,7 +411,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 </head>
 <body data-tab="Loja">
 <main class="app">
-<div class="top"><header><h1>Valida+</h1></header><nav class="tabbar"><button id="tbDoacao">📋 Doação</button><button id="tbEtiquetas">🏷️ Etiquetas</button><button id="tbLoja">⏱️ Validades</button></nav></div>
+<div class="top"><header><h1>Valida+ <small id="appVer" style="font-size:11px;font-weight:600;opacity:.65;letter-spacing:.3px"></small></h1></header><nav class="tabbar"><button id="tbDoacao">📋 Doação</button><button id="tbEtiquetas">🏷️ Etiquetas</button><button id="tbLoja">⏱️ Validades</button></nav></div>
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
@@ -1385,7 +1385,39 @@ $("impModel").onclick = () => download(new Blob(["\ufeffnome;codigo_balanca;codi
 if (db) startPresence(); else localStats();
 
 // ---------- PWA ----------
-if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(console.error));
+if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").then(r => r.update()).catch(console.error));
+
+// ---------- versão do app + aviso de atualização ----------
+// >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
+const APP_VERSION = "2026.10.04-1";
+$("appVer").textContent = "v" + APP_VERSION;
+(function () {
+  let shown = false;
+  function banner(nova) {
+    if (shown) return; shown = true;
+    const b = document.createElement("div");
+    b.setAttribute("role", "alert");
+    b.style.cssText = "position:fixed;left:12px;right:12px;top:12px;z-index:99999;background:#166534;color:#fff;border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.45);font:600 15px system-ui,sans-serif";
+    b.innerHTML = `<span style="flex:1">Nova versão disponível${nova ? " (v" + esc(nova) + ")" : ""}</span><button style="background:#fff;color:#166534;border:0;border-radius:10px;padding:9px 14px;font-weight:800;font-size:15px">Atualizar</button>`;
+    b.querySelector("button").onclick = async () => {
+      b.firstChild.textContent = "Atualizando…";
+      try { const rs = await navigator.serviceWorker.getRegistrations(); await Promise.all(rs.map(r => r.unregister())); } catch (e) {}
+      try { const ks = await caches.keys(); await Promise.all(ks.map(k => caches.delete(k))); } catch (e) {}
+      location.reload();
+    };
+    document.body.appendChild(b);
+  }
+  async function check() {
+    try {
+      const t = await (await fetch("./index.html?chk=" + Date.now(), { cache: "no-store" })).text();
+      const m = t.match(/const APP_VERSION = "([^"]+)"/);
+      if (m && m[1] !== APP_VERSION) banner(m[1]);
+    } catch (e) {}
+  }
+  window.addEventListener("load", () => setTimeout(check, 1500));
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") check(); });
+  $("appVer").onclick = () => { toast("Versão " + APP_VERSION + " · verificando…"); check(); };
+})();
 let deferred; const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; $("installBtn").hidden = false; });
 window.addEventListener("appinstalled", () => { $("installBtn").hidden = true; });
