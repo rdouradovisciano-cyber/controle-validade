@@ -460,7 +460,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 <aside id="side" class="side" aria-label="Menu"><div class="sheethead"><h2>Menu</h2><button class="secondary" id="sideClose" aria-label="Fechar menu">✕</button></div>
 <nav class="menu"><button id="navLoja">⏱️ Validades<small>Ovos e refrigerados</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
 <section class="panel"><h2 style="font-size:17px;margin:0 0 10px">Exportar</h2>
-<label for="exportScope">O que exportar</label><select id="exportScope"><option value="all">Todos os produtos</option><option value="soon">Vencem em breve</option><option value="expired">Vencidos</option><option value="category">Uma categoria</option></select>
+<label for="exportScope">O que exportar</label><select id="exportScope"><option value="all">Todos os produtos</option><option value="soon">Vencem em breve</option><option value="expired">Vencidos</option><option value="category">Uma categoria</option><option value="products">Produtos cadastrados (com códigos)</option></select>
 <select id="exportCategory" class="hidden" aria-label="Categoria para exportar" style="margin-top:8px"></select>
 <div class="toolbar" style="margin-top:10px"><button class="secondary" id="csvBtn">Excel (.csv)</button><button class="secondary" id="pdfBtn">Gerar PDF</button><button class="primary" id="shareBtn">Compartilhar</button></div>
 <small class="note">O compartilhamento usa a janela nativa do celular quando disponível; se não houver, o PDF é baixado.</small></section>
@@ -773,6 +773,14 @@ async function openScan(mode = "loja") {
 // ---------- exportação ----------
 function exportRows() {
   const s = $("exportScope").value, c = $("exportCategory").value; let r = [...products];
+  if (s === "products") {                 // um registro por produto, com todos os códigos (mesmo formato da importação)
+    const m = new Map();
+    products.forEach(p => { const k = p.barcode || norm(p.name || ""); if (!k) return; const o = m.get(k) || { n: "", b: "", d: "", e: "", c: "" };
+      o.n = o.n || p.name || ""; o.b = o.b || p.codigo_balanca || ""; o.d = o.d || p.codigo_doacao || ""; o.e = o.e || p.barcode || ""; o.c = o.c || p.category || ""; m.set(k, o); });
+    if (!m.size) { toast("Nenhum produto cadastrado."); return null; }
+    return [...m.values()].sort((a, b) => a.n.localeCompare(b.n, "pt-BR", { sensitivity: "base" }))
+      .map(o => ({ "Nome": o.n, "Código de balança": String(o.b), "Código de doação": String(o.d), "EAN": o.e, "Categoria": o.c }));
+  }
   if (s === "soon" || s === "expired") r = r.filter(p => status(p) === s);
   if (s === "category") { if (!c) { toast("Escolha a categoria para exportar."); return null; } r = r.filter(p => p.category === c); }
   if (!r.length) { toast("Nenhum produto neste filtro."); return null; }
@@ -782,7 +790,7 @@ function exportRows() {
 }
 function csvCell(k, v) {
   v = String(v ?? "");
-  if (k === "Código de barras" && /^\d+$/.test(v)) return `="${v}"`;      // evita notação científica no Excel
+  if ((k === "Código de barras" || k === "EAN") && /^\d+$/.test(v)) return `="${v}"`;      // evita notação científica no Excel
   if (/^[=+\-@\t\r]/.test(v)) v = "'" + v;                                // evita injeção de fórmula
   return '"' + v.replace(/"/g, '""') + '"';
 }
@@ -796,6 +804,14 @@ function download(blob, name) {
 }
 function makePdf(rows) {
   const pdf = new V.jsPDF();
+  if (rows[0] && "Nome" in rows[0]) {
+    pdf.setFontSize(16); pdf.text("Produtos cadastrados", 14, 16);
+    pdf.setFontSize(9); pdf.text(`${LOJA} · Gerado em ${new Date().toLocaleString("pt-BR")} · ${rows.length} produto(s)`, 14, 22);
+    V.autoTable(pdf, { startY: 27, styles: { fontSize: 8 }, headStyles: { fillColor: [22, 101, 52] },
+      head: [["Nome", "Balança", "Doação", "EAN", "Categoria"]], body: rows.map(r => [r["Nome"], r["Código de balança"], r["Código de doação"], r["EAN"], r["Categoria"]]),
+      didDrawPage: () => { pdf.setFontSize(8); pdf.text(`Página ${pdf.internal.getCurrentPageInfo().pageNumber}`, 196, 290, { align: "right" }); } });
+    return pdf.output("blob");
+  }
   pdf.setFontSize(16); pdf.text("Relatório de validade", 14, 16);
   pdf.setFontSize(9); pdf.text(`${LOJA} · Gerado em ${new Date().toLocaleString("pt-BR")} · ${rows.length} produto(s)`, 14, 22);
   const col = t => t === "Vencido" ? [185, 28, 28] : t === "A vencer" ? [161, 98, 7] : [22, 101, 52];
@@ -807,6 +823,7 @@ function makePdf(rows) {
   return pdf.output("blob");
 }
 const stamp = () => iso(new Date());
+const fname = () => ($("exportScope").value === "products" ? "produtos-cadastrados-" : "controle-validade-") + stamp();
 
 // ---------- eventos ----------
 fillCategories();
@@ -823,13 +840,13 @@ $("barcode").oninput = toggleCodes; $("category").onchange = toggleCodes; $("bar
 $("qMinus").onclick = () => { const q = Number(String($("quantity").value).replace(",", ".")) || 1; $("quantity").value = Math.max(1, Math.round(q) - 1); };
 $("qPlus").onclick = () => { $("quantity").value = Math.round(Number(String($("quantity").value).replace(",", ".")) || 0) + 1; };
 $("exportScope").onchange = () => $("exportCategory").classList.toggle("hidden", $("exportScope").value !== "category");
-$("csvBtn").onclick = () => { const r = exportRows(); if (r) download(new Blob([csvContent(r)], { type: "text/csv;charset=utf-8" }), `controle-validade-${stamp()}.csv`); };
-$("pdfBtn").onclick = () => { const r = exportRows(); if (!r) return; try { download(makePdf(r), `controle-validade-${stamp()}.pdf`); } catch (e) { console.error(e); toast("Não foi possível gerar o PDF."); } };
+$("csvBtn").onclick = () => { const r = exportRows(); if (r) download(new Blob([csvContent(r)], { type: "text/csv;charset=utf-8" }), `${fname()}.csv`); };
+$("pdfBtn").onclick = () => { const r = exportRows(); if (!r) return; try { download(makePdf(r), `${fname()}.pdf`); } catch (e) { console.error(e); toast("Não foi possível gerar o PDF."); } };
 $("shareBtn").onclick = async () => {
   const r = exportRows(); if (!r) return;
   try {
-    const blob = makePdf(r), file = new File([blob], `controle-validade-${stamp()}.pdf`, { type: "application/pdf" });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Relatório de validade", files: [file] });
+    const blob = makePdf(r), file = new File([blob], `${fname()}.pdf`, { type: "application/pdf" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: $("exportScope").value === "products" ? "Produtos cadastrados" : "Relatório de validade", files: [file] });
     else { download(blob, file.name); toast("Compartilhamento indisponível neste navegador. O PDF foi baixado."); }
   } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Não foi possível compartilhar."); } }
 };
@@ -1283,7 +1300,7 @@ $("lmOk").onclick = $("lmClose").onclick = () => $("lModal").classList.add("hidd
 // ---------- importar lista de produtos (nome + códigos) ----------
 const HDR = { nome: /^(nome|produto|descri)/, bal: /(balan|plu)/, doa: /doa/, ean: /(ean|barra|gtin)/, cat: /(categ|setor)/ };
 const catOf = s => { const n = norm(s); return CATS.find(c => norm(c) === n) || (/^(hortifruti|fruta|legume|verdura)/.test(n) ? "FLV" : null); };
-const cleanNum = s => String(s || "").trim().replace(/\.0+$/, "");
+const cleanNum = s => String(s || "").trim().replace(/^=/, "").replace(/"/g, "").replace(/\.0+$/, "");
 function parseRows(text) {
   const lines = String(text).replace(/\r/g, "").split("\n").map(l => l.trim()).filter(Boolean); if (!lines.length) return [];
   const sample = lines.slice(0, 5).join("\n"), d = ["\t", ";", "|"].find(c => sample.includes(c)) || ",";
