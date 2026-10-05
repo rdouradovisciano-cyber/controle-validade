@@ -1512,11 +1512,8 @@ const codeText = c => c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.cod
 const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.category) || !p.barcode)) ? { code: String(p.codigo_balanca), kg: true } : { code: p.barcode || "", kg: false };
 function renderLabels() {
   $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
-  const row = (l, i) => `<div class="crw"><div class="crl"><div class="ccode">${l.code ? esc(l.code) : "SEM CÓDIGO"}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`;
-  $("eLista").innerHTML = labels.length ? ["P", "M", "G"].map(t => {
-    const it = labels.map((l, i) => ({ l, i })).filter(x => (x.l.tam || "M") === t); if (!it.length) return "";
-    return `<div class="tgh"><b>Etiqueta ${t}</b><small>${it.length} ${it.length === 1 ? "item" : "itens"} · ${it.reduce((s, x) => s + (Number(x.l.qtd) || 0), 0)} etiquetas</small></div>` + it.map(x => row(x.l, x.i)).join("");
-  }).join("") : '<p class="empty">Nenhum item na lista.</p>';
+  const ord = { P: 0, M: 1, G: 2 };   // lista única: primeiro os P, depois M, depois G (mantém a ordem de inclusão dentro de cada tamanho)
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crw"><div class="crl"><div class="ccode">${l.code ? esc(l.code) : "SEM CÓDIGO"}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 function labelPick(p) {
   buzz();
@@ -1639,7 +1636,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.05-16";
+const APP_VERSION = "2026.10.05-17";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
