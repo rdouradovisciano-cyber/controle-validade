@@ -595,7 +595,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 <form id="productForm"><input type="hidden" id="docId"><p class="note hidden" id="loteInfo"></p><button type="button" class="secondary hidden" id="loteEdit" style="width:100%;margin-bottom:6px">Editar dados do produto</button><div class="formgrid">
 <div class="wide hide-lote"><label for="barcode">Código de barras</label><input id="barcode" inputmode="numeric" placeholder="Bipe ou digite o código" maxlength="32"></div>
 <div class="wide hidden hide-lote" id="semCodigo"><small class="note">Sem código de barras: informe os códigos internos do produto.</small><div class="formgrid"><div><label for="cBalanca">Código de balança (etiquetas)</label><input id="cBalanca" inputmode="numeric" maxlength="12"></div><div><label for="cDoacao">Código de doação</label><input id="cDoacao" inputmode="numeric" maxlength="12"></div></div></div>
-<div class="wide hide-lote"><label for="name">Nome do produto *</label><div class="stepper"><input id="name" required maxlength="120" placeholder="Ex.: Leite integral 1 L" autocomplete="off"><button type="button" class="secondary" id="micBtn" aria-label="Ditar nome">🎤</button></div></div><div class="wide hide-lote"><label>Foto do produto (opcional)</label><div class="fotorow"><img id="fotoPrev" class="foto hidden" alt="Foto do produto"><label for="fotoIn" id="fotoBtn" class="fotobtn">📷 Tirar foto</label><input id="fotoIn" type="file" accept="image/*" hidden><button type="button" class="secondary hidden" id="fotoDel">Remover</button></div></div>
+<div class="wide hide-lote"><label for="name">Nome do produto *</label><div class="stepper"><input id="name" required maxlength="120" placeholder="Ex.: Leite integral 1 L" autocomplete="off"><button type="button" class="secondary" id="micBtn" aria-label="Ditar nome">🎤</button></div></div><div class="wide hide-lote"><label>Foto do produto (opcional)</label><div class="fotorow"><img id="fotoPrev" class="foto hidden" alt="Foto do produto"><label for="fotoIn" id="fotoBtn" class="fotobtn">📷 Tirar foto</label><input id="fotoIn" type="file" accept="image/*" capture="environment" hidden><button type="button" class="secondary hidden" id="fotoDel">Remover</button></div></div>
 <div class="hidden"><label for="category">Categoria *</label><select id="category" required></select></div>
 <div class="wide"><label for="quantity">Quantidade *</label><div class="stepper"><button type="button" class="secondary" id="qMinus" aria-label="Diminuir">−</button><input id="quantity" type="text" readonly inputmode="none" data-np data-np-label="OK" value="1"><button type="button" class="secondary" id="qPlus" aria-label="Aumentar">＋</button></div></div>
 <div class="wide"><label for="expiry" id="expLabel">Data de validade *</label><input id="expiry" type="date" required>
@@ -1676,7 +1676,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.06-24";
+const APP_VERSION = "2026.10.06-25";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
