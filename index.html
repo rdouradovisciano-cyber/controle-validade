@@ -243,6 +243,7 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .dq span{font-size:13px;color:var(--mut);font-weight:600}
 .setbg{position:fixed;inset:0;z-index:90;background:rgba(5,14,10,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:18px}
 .setgrid{display:grid;gap:10px;margin-top:14px}.setgrid button{min-height:56px;border-radius:16px;border:1.5px solid var(--ln);background:var(--lt);color:var(--g-d);font-size:18px;font-weight:800}.setgrid button.sel{background:var(--g);color:#fff;border-color:var(--g)}
+.etqinfo{background:var(--lt);border:1px solid var(--ln);border-radius:16px;padding:12px 14px;margin:0 0 12px;color:var(--g-d);font-size:13.5px;line-height:1.45}.etqinfo b{font-weight:800}.etqinfo>b:first-child{display:block;font-size:15px;margin-bottom:4px}.etqinfo span{display:block;color:var(--ink)}.etqinfo ol{margin:8px 0 0;padding-left:20px;color:var(--ink)}.etqinfo li{margin:2px 0}
 .askbg{position:fixed;inset:0;z-index:100000;background:rgba(5,14,10,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:18px}
 .ask{background:var(--card);color:var(--ink);border:1px solid var(--ln);border-radius:22px;padding:20px 18px 16px;width:min(100%,420px);box-shadow:0 18px 50px rgba(0,0,0,.5);text-align:center}
 .ask .ai{font-size:34px;line-height:1}
@@ -525,6 +526,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 <div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
 </div>
 <div id="tabEtiquetas" class="hidden">
+<div class="etqinfo"><b>🏷️ Lista de etiquetas para impressão</b><span>Aqui você <b>só coleta os códigos de barras</b> dos produtos que precisam de etiqueta. A impressão é feita depois, em outro lugar.</span><ol><li>Bipe o código ou pesquise o produto pelo nome.</li><li>Segure o item para escolher o tamanho (P, M ou G) e a quantidade.</li><li>Depois de imprimir, use <b>Remover todos</b> para limpar a lista.</li></ol></div>
 <section class="panel"><div class="toolbar"><button class="primary big" id="eScan">▦ Bipar EAN</button></div>
 <input id="eBusca" type="search" placeholder="Ou pesquise o produto pelo nome" style="margin-top:12px"><div id="eRes" class="rows"></div></section>
 <section class="panel hidden" id="ePend"><h2 class="h2" id="eNome"></h2><p class="note" id="eCod"></p>
@@ -1700,7 +1702,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.06-27";
+const APP_VERSION = "2026.10.06-28";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
