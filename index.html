@@ -218,6 +218,7 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .crw:last-child{border-bottom:0}
 .crw:active{background:var(--lt2)}
 .crl{min-width:0;flex:1}
+.ccode.long{font-size:17px;letter-spacing:0}
 .ccode{font-size:24px;font-weight:700;letter-spacing:.2px;color:var(--g-d);font-variant-numeric:tabular-nums;line-height:1.1;word-break:break-all}
 .cname{font-size:13px;text-transform:uppercase;color:var(--mut);margin-top:3px;line-height:1.25;font-weight:600}
 .crr{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;flex:none}
@@ -1426,7 +1427,8 @@ $("rPdf").onclick = async () => { try { const blob = romPdf(curRom), file = new 
 $("rConf").onclick = () => { location.hash = confUrl(curRom).split("#")[1]; location.reload(); };
 $("rNova").onclick = () => { $("donaRomaneio").classList.add("hidden"); $("donaEntrada").classList.remove("hidden"); };
 // ----- editar doação já finalizada: corrigir quantidades, remover e acrescentar itens -----
-let romEdit = null;
+let romEdit = null; const EDK = "validamais-dedit";
+const withEdits = x => { const o = x && x._id && store.get(EDK, {})[x._id]; return o ? { ...x, ...o } : x; };
 const parseQ = (v, u) => { let q = Number(String(v).replace(",", ".")); if (!(q > 0)) return 0; q = Math.round(q * 1000) / 1000; return u === "un" ? Math.round(q) : q; };
 function romEditPaint() {
   const names = [...new Set(products.map(p => p.name).filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR"));
@@ -1458,7 +1460,9 @@ $("romBody").addEventListener("click", async e => { if (!romEdit) return; const 
     try {
       if (db && curRom._id) await V.updateDoc(V.doc(db, "doacoes", curRom._id), campos);
       else { const l = store.get(HK, []), y = l.find(z => String(z.em) === hid(curRom)); if (y) { Object.assign(y, campos); store.set(HK, l); } }
-    } catch (err) { console.error(err); return toast("Não foi possível salvar na nuvem (confira as regras). Nada foi alterado."); }
+    } catch (err) {   // o Firebase recusou a alteração (regras só permitem criar): guarda a edição neste aparelho
+      console.error(err); const m = store.get(EDK, {}); m[curRom._id] = campos; store.set(EDK, m); Object.assign(curRom, campos);
+      toast("Salvo só neste aparelho: o Firebase não permite alterar doações na nuvem."); romEditEnd(); renderTop(); return; }
     Object.assign(curRom, campos); toast("Doação atualizada."); romEditEnd(); if (!db) reloadLocalHist(); renderTop(); } });
 function finalizeDon() {
   const rec = { data: iso(new Date()), por: myName().slice(0, 40), totalKg: Math.round(sumU("kg") * 1000) / 1000, totalUn: Math.round(sumU("un") * 1000) / 1000,
@@ -1488,7 +1492,7 @@ $("dHist").onclick = e => { const b = e.target.closest("[data-hist],[data-sent],
   if (db && x._id) V.deleteDoc(V.doc(db, "doacoes", x._id)).then(() => toast("Doação excluída.")).catch(err => { console.error(err); toast("Removida só deste aparelho: o Firebase não permite apagar na nuvem (veja as regras)."); });
   else toast("Doação excluída."); };
 $("histBox").ontoggle = () => {
-  if ($("histBox").open) { if (db) { if (!unsubHist) unsubHist = V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(HLIM)), s => renderHist(s.docs.map(d => ({ ...d.data(), _id: d.id })))); } else reloadLocalHist(); }
+  if ($("histBox").open) { if (db) { if (!unsubHist) unsubHist = V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(HLIM)), s => renderHist(s.docs.map(d => withEdits({ ...d.data(), _id: d.id })))); } else reloadLocalHist(); }
   else if (unsubHist) { unsubHist(); unsubHist = null; } };
 const go = t => { tab(t); side(false); }; $("navLoja").onclick = () => go("Loja"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("dScan").onclick = () => openScan("doacao");
 // ----- top 3 mais doados (últimos 30 dias, compacto) -----
@@ -1502,7 +1506,7 @@ function renderTop() {
   box.classList.remove("hidden");
   box.innerHTML = `<span class="tdl">🏆 Mais doados · 30 dias</span>` + pick.map((o, i) => `<span class="tdc"><b>${["🥇", "🥈", "🥉"][i]}</b> ${esc(o.n.replace(/\s+(kg|un)$/i, ""))} <em>${fq(o.q)} ${o.u}</em></span>`).join("");
 }
-if (db) V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(40)), s => { topDb = s.docs.map(d => ({ ...d.data(), _id: d.id })); renderTop(); }, console.error);
+if (db) V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(40)), s => { topDb = s.docs.map(d => withEdits({ ...d.data(), _id: d.id })); renderTop(); }, console.error);
 renderDon(); renderKey(); renderQuick(); renderTop();
 tab("Doacao");
 
@@ -1517,7 +1521,7 @@ const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.categ
 function renderLabels() {
   $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
   const ord = { P: 0, M: 1, G: 2 };   // lista única: primeiro os P, depois M, depois G (mantém a ordem de inclusão dentro de cada tamanho)
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crw" data-li="${i}"><div class="crl"><div class="ccode">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crw" data-li="${i}"><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 function labelPick(p) {
   buzz();
@@ -1559,14 +1563,14 @@ function labelUnify(i) {
   const l = labels[i]; if (!l) return; if (navigator.vibrate) navigator.vibrate(40);
   const orig = l.orig || l.code || "", bg = document.createElement("div"); bg.className = "askbg";
   bg.innerHTML = `<div class="ask" style="text-align:left;max-height:88dvh;overflow:auto"><div class="ai" style="text-align:center">🔗</div><h3 style="text-align:center">Unificar código</h3><p style="text-align:center"><b>${esc(l.nome)}</b></p><p style="text-align:center">Código bipado: <b>${esc(orig || "—")}</b></p>` +
-    `<label style="display:block;margin-top:8px;font-weight:700">Código do sistema da loja</label><input id="unCod" maxlength="14" autocomplete="off" value="${esc(l.code || "")}" style="width:100%;font-size:22px;font-weight:700;text-align:center">` +
+    `<label style="display:block;margin-top:8px;font-weight:700">Código do sistema da loja</label><input id="unCod" maxlength="25" autocomplete="off" value="${esc(l.code || "")}" style="width:100%;font-size:22px;font-weight:700;text-align:center">` +
     `<label style="display:block;margin-top:12px;font-weight:700">Ou buscar o produto no sistema</label><input id="unBusca" type="search" autocomplete="off" placeholder="Nome ou código" style="width:100%"><div id="unRes" class="lkres"></div>` +
     `<div class="arow" style="flex-wrap:wrap"><button type="button" data-a="0">Cancelar</button>${orig && l.code !== orig ? '<button type="button" data-a="r">Voltar ao original</button>' : ""}<button type="button" class="ok" data-a="1">Unificar</button></div></div>`;
   let hits = []; const cod = () => bg.querySelector("#unCod");
   bg.onclick = e => { const k = e.target.closest("[data-k]"); if (k) { const c = labelCode(hits[Number(k.dataset.k)]).code; if (c) cod().value = c; return; }
     const b = e.target.closest("[data-a]"); if (!b) { if (e.target === bg) bg.remove(); return; } if (b.dataset.a === "0") return bg.remove();
     const m = store.get(EUK, {}), v = b.dataset.a === "r" ? "" : cod().value.replace(/\s+/g, "").toUpperCase();
-    if (v && !/^[A-Z0-9]{1,14}$/.test(v)) return toast("Use só letras e números (até 14).");
+    if (v && !/^[A-Z0-9]{1,25}$/.test(v)) return toast("Use só letras e números (até 25).");
     if (v && v !== orig) m[orig] = v; else delete m[orig]; store.set(EUK, m);
     labels.forEach(x => { if ((x.orig || x.code) === orig) { x.orig = orig; x.code = m[orig] || orig; } }); store.set(EK, labels); renderLabels(); bg.remove();
     toast(m[orig] ? `Unificado: ${orig} → ${m[orig]}` : "Código original restaurado."); };
@@ -1662,7 +1666,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.06-20";
+const APP_VERSION = "2026.10.06-22";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
