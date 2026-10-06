@@ -1448,9 +1448,16 @@ $("romBody").addEventListener("click", async e => { if (!romEdit) return; const 
   if (b.id === "reCancel") return romEditEnd();
   if (b.id === "reAdd") { const nome = $("reNome").value.trim(), u = $("reUn").value, q = parseQ($("reQtd").value, u);
     if (!nome) return toast("Digite o produto."); if (!(q > 0)) return toast("Digite a quantidade.");
-    const pr = products.find(x => norm(x.name || "") === norm(nome)), nm = (pr ? pr.name : nome).slice(0, 60), ex = romEdit.find(i => norm(i.nome) === norm(nm) && i.unidade === u);
-    if (ex) { ex.qtd = Math.round((ex.qtd + q) * 1000) / 1000; ex.lanc = (ex.lanc || 1) + 1; }
-    else romEdit.push({ nome: nm, unidade: u, qtd: q, lanc: 1, cod: (pr && (pr.codigo_doacao || pr.barcode || pr.codigo_balanca)) || "" });
+    let pr = products.find(x => norm(x.name || "") === norm(nome));
+    if (!pr && /^[0-9A-Za-z]{3,14}$/.test(nome) && /\d/.test(nome)) {   // digitou um código: acha o produto pelo EAN, código de balança ou de doação
+      const c = nome.toUpperCase(), sc = /^2\d{12}$/.test(nome) ? Number(parseScale(nome).item) : null;
+      pr = products.find(x => x.barcode === nome || String(x.codigo_doacao || "").toUpperCase() === c || String(x.codigo_balanca || "") === nome || (sc !== null && x.codigo_balanca && Number(x.codigo_balanca) === sc));
+      if (!pr) return toast("Código " + nome + " não está cadastrado. Digite o nome do produto.");
+      if (u === "kg" && unitOf(pr.name) === "un") $("reUn").value = "un"; }
+    const u2 = $("reUn").value, q2 = parseQ($("reQtd").value, u2); if (!(q2 > 0)) return toast("Digite a quantidade.");
+    const nm = (pr ? pr.name : nome).slice(0, 60), ex = romEdit.find(i => norm(i.nome) === norm(nm) && i.unidade === u2);
+    if (ex) { ex.qtd = Math.round((ex.qtd + q2) * 1000) / 1000; ex.lanc = (ex.lanc || 1) + 1; }
+    else romEdit.push({ nome: nm, unidade: u2, qtd: q2, lanc: 1, cod: (pr && (pr.codigo_doacao || pr.barcode || pr.codigo_balanca)) || "" });
     romEditPaint(); return toast(`${nm} acrescentado.`); }
   if (b.id === "reSave") {
     const itens = romEdit.filter(i => i.qtd > 0);
@@ -1666,7 +1673,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.06-22";
+const APP_VERSION = "2026.10.06-23";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
