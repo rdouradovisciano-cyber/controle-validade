@@ -302,6 +302,7 @@ body.mao1 .fabitem{min-height:56px;font-size:16px}
 .tgh b{font-size:15px;font-weight:800;letter-spacing:.02em}.tgh small{font-size:12px;font-weight:600;color:var(--mut)}
 .unib{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;background:var(--lt);color:var(--g-d);font-size:11px;font-weight:800;vertical-align:middle;letter-spacing:0}
 .lkres{margin-top:8px}.lkres .pick{padding:10px;border:1px solid var(--ln);border-radius:12px;margin-top:6px;background:var(--lt2);cursor:pointer}
+.lmuni{display:block;margin:8px auto 0;background:none;border:0;color:var(--mut);font-size:13px;font-weight:600;text-decoration:underline;min-height:36px;padding:0 12px}
 .qfreq{margin-bottom:6px}
 .qlbl{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--mut);margin:2px 2px 6px;text-transform:uppercase}
 .qbtn.fav{background:var(--lt);border-color:var(--g3)}
@@ -556,7 +557,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 <div id="lModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="lmNome"><div class="sheethead"><h2 id="lmNome"></h2><button class="secondary" id="lmClose" aria-label="Fechar">✕</button></div>
 <p class="note" id="lmCod"></p><label>Tamanho da etiqueta</label><div class="utog" id="lmTam"><button type="button" data-t="P">P</button><button type="button" data-t="M">M</button><button type="button" data-t="G">G</button></div>
 <label>Quantidade</label><div class="stepper"><button type="button" class="secondary" id="lmMenos" aria-label="Diminuir">−</button><input id="lmQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-label="OK" value="1"><button type="button" class="secondary" id="lmMais" aria-label="Aumentar">＋</button></div>
-<div class="toolbar" style="margin-top:14px"><button class="primary big" id="lmOk">Pronto</button></div></section></div>
+<div class="toolbar" style="margin-top:14px"><button class="primary big" id="lmOk">Pronto</button></div><button type="button" id="lmUni" class="lmuni">Unificar código</button></section></div>
 <div id="opModal" class="modal hidden" style="z-index:100;align-items:center"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="opTitle"><h2 id="opTitle" class="h2" style="font-size:18px">Nome do Operador</h2>
 <p class="note">Digite o seu nome para começar. <b>Atenção: depois de salvo, o nome não poderá ser alterado neste aparelho.</b></p>
 <input id="opNome" maxlength="40" autocomplete="off" placeholder="Ex.: Rodrigo Dourado"><div class="toolbar" style="margin-top:12px"><button class="primary big" id="opOk">Entrar</button></div></section></div>
@@ -1516,7 +1517,7 @@ const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.categ
 function renderLabels() {
   $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
   const ord = { P: 0, M: 1, G: 2 };   // lista única: primeiro os P, depois M, depois G (mantém a ordem de inclusão dentro de cada tamanho)
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crw" data-li="${i}"><div class="crl"><div class="ccode" title="Segure para unificar com o código do sistema">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crw" data-li="${i}"><div class="crl"><div class="ccode">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 function labelPick(p) {
   buzz();
@@ -1583,10 +1584,11 @@ $("lmTam").onclick = e => { const b = e.target.closest("button"); const l = labe
 const lmQ = n => { const l = labels[lmI]; if (!l) return; l.qtd = Math.max(1, Math.round(n) || 1); lmSave(); lmDraw(); };
 $("lmMenos").onclick = () => lmQ((labels[lmI] || {}).qtd - 1); $("lmMais").onclick = () => lmQ((labels[lmI] || {}).qtd + 1); $("lmQtd").onchange = () => lmQ(Number($("lmQtd").value));
 $("lmOk").onclick = $("lmClose").onclick = () => $("lModal").classList.add("hidden");
+$("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden"); labelUnify(i); };
 (function () { const box = $("eLista"); let t = null, x0 = 0, y0 = 0;
   const stop = () => { clearTimeout(t); t = null; };
   box.addEventListener("pointerdown", e => { const r = e.target.closest(".crw"); if (!r || e.target.closest("[data-ldrop]")) return; x0 = e.clientX; y0 = e.clientY;
-    const i = Number(r.dataset.li), onCode = !!e.target.closest(".ccode"); t = setTimeout(() => { t = null; onCode ? labelUnify(i) : lmOpen(i); }, 500); });
+    const i = Number(r.dataset.li); t = setTimeout(() => { t = null; lmOpen(i); }, 500); });
   box.addEventListener("pointermove", e => { if (t && (Math.abs(e.clientX - x0) > 10 || Math.abs(e.clientY - y0) > 10)) stop(); });
   ["pointerup", "pointercancel", "pointerleave"].forEach(n => box.addEventListener(n, stop));
   box.addEventListener("contextmenu", e => { if (e.target.closest(".crw")) e.preventDefault(); }); })();
@@ -1660,7 +1662,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.06-19";
+const APP_VERSION = "2026.10.06-20";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
