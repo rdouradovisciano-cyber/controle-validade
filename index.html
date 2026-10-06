@@ -243,7 +243,8 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .dq span{font-size:13px;color:var(--mut);font-weight:600}
 .setbg{position:fixed;inset:0;z-index:90;background:rgba(5,14,10,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:18px}
 .setgrid{display:grid;gap:10px;margin-top:14px}.setgrid button{min-height:56px;border-radius:16px;border:1.5px solid var(--ln);background:var(--lt);color:var(--g-d);font-size:18px;font-weight:800}.setgrid button.sel{background:var(--g);color:#fff;border-color:var(--g)}
-.etqinfo{background:var(--lt);border:1px solid var(--ln);border-radius:16px;padding:12px 14px;margin:0 0 12px;color:var(--g-d);font-size:13.5px;line-height:1.45}.etqinfo b{font-weight:800}.etqinfo>b:first-child{display:block;font-size:15px;margin-bottom:4px}.etqinfo span{display:block;color:var(--ink)}.etqinfo ol{margin:8px 0 0;padding-left:20px;color:var(--ink)}.etqinfo li{margin:2px 0}
+.etqinfo{background:var(--lt);border:1px solid var(--ln);border-radius:16px;padding:12px 14px;margin:0 0 12px;color:var(--g-d);font-size:13.5px;line-height:1.45}.etqinfo b{font-weight:800}.etqinfo>b:first-child{display:block;font-size:15px;margin-bottom:4px}.etqinfo span{display:block;color:var(--ink)}.etqinfo ol{margin:8px 0 0;padding-left:20px;color:var(--ink)}.etqinfo li{margin:2px 0}.etqnote{margin-top:8px;font-size:12.5px;color:var(--mut)!important}
+.lchk{flex:none;width:34px;height:34px;align-self:center;margin-right:2px;border-radius:10px;border:2px solid var(--ln);background:var(--card);color:#fff;font-size:20px;font-weight:900;line-height:1;padding:0}.crw.done .lchk{background:var(--g);border-color:var(--g)}.crw.done .crl{opacity:.55}.crw.done .cname{text-decoration:line-through}.emarc{margin:8px 2px 0;font-size:13px;font-weight:700;color:var(--g-d)}
 .askbg{position:fixed;inset:0;z-index:100000;background:rgba(5,14,10,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:18px}
 .ask{background:var(--card);color:var(--ink);border:1px solid var(--ln);border-radius:22px;padding:20px 18px 16px;width:min(100%,420px);box-shadow:0 18px 50px rgba(0,0,0,.5);text-align:center}
 .ask .ai{font-size:34px;line-height:1}
@@ -526,7 +527,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 <div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
 </div>
 <div id="tabEtiquetas" class="hidden">
-<div class="etqinfo"><b>🏷️ Lista de etiquetas para impressão</b><span>Aqui você <b>só coleta os códigos de barras</b> dos produtos que precisam de etiqueta. A impressão é feita depois, em outro lugar.</span><ol><li>Bipe o código ou pesquise o produto pelo nome.</li><li>Segure o item para escolher o tamanho (P, M ou G) e a quantidade.</li><li>Depois de imprimir, use <b>Remover todos</b> para limpar a lista.</li></ol></div>
+<div class="etqinfo"><b>🏷️ Etiquetas</b><span>Use esta aba para <b>coletar os códigos de barras dos produtos que precisam de etiquetas na loja</b>.</span><ol><li>Bipe o código ou pesquise o produto pelo nome.</li><li>Segure o item para escolher o tamanho (P, M ou G) e a quantidade.</li><li>Toque no quadrado ao lado do item para marcar as que <b>já foram colocadas para impressão</b>.</li><li>Quando terminar, use <b>Remover todos</b> para limpar a lista.</li></ol><span class="etqnote">O cadastro de produtos pode ser feito por qualquer usuário: se o código ainda não existir, o app pede o nome e cadastra na hora.</span></div>
 <section class="panel"><div class="toolbar"><button class="primary big" id="eScan">▦ Bipar EAN</button></div>
 <input id="eBusca" type="search" placeholder="Ou pesquise o produto pelo nome" style="margin-top:12px"><div id="eRes" class="rows"></div></section>
 <section class="panel hidden" id="ePend"><h2 class="h2" id="eNome"></h2><p class="note" id="eCod"></p>
@@ -534,7 +535,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 <label>Tamanho da etiqueta</label><div class="grid3" id="eTam"><button type="button" data-t="P">P<small>Pequena</small></button><button type="button" data-t="M">M<small>Média</small></button><button type="button" data-t="G">G<small>Grande</small></button></div>
 <label for="eQtd">Cópias</label><div class="stepper"><button type="button" class="secondary" id="eMenos" aria-label="Diminuir">−</button><input id="eQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-submit="#eAdd" data-np-label="Adicionar" value="1"><button type="button" class="secondary" id="eMais" aria-label="Aumentar">＋</button></div>
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="eAdd">Adicionar à lista</button><button class="secondary" id="eCancela">Cancelar</button></div></section>
-<div class="csum"><div><span>PRODUTOS</span><b id="eSumP">0</b></div><div><span>QUANTIDADE TOTAL</span><b id="eSumQ">0</b></div></div><div id="eLista" class="clist"></div><button type="button" id="eLimpa" class="secondary hidden" style="width:100%;margin-top:10px">🗑 Remover todos (já imprimi)</button>
+<div class="csum"><div><span>PRODUTOS</span><b id="eSumP">0</b></div><div><span>QUANTIDADE TOTAL</span><b id="eSumQ">0</b></div></div><div id="eLista" class="clist"></div><p class="emarc" id="eMarc"></p><button type="button" id="eLimpa" class="secondary hidden" style="width:100%;margin-top:10px">🗑 Remover todos (já imprimi)</button>
 </div>
 <footer class="foot hidden"><span><i class="dot v"></i>VISITAS <b id="nVisitas">–</b></span><span><i class="dot" id="dotO"></i>ONLINE <b id="nOnline">–</b></span></footer>
 <details class="updbox hidden" id="updBox"><summary id="updSum"></summary><div id="updBody"></div></details>
@@ -1552,14 +1553,14 @@ let labels = store.get(EK, []), pend = null, eHits = [];
 const codeText = c => c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.code}` : "⚠ Sem código cadastrado para este produto.";
 const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.category) || !p.barcode)) ? { code: String(p.codigo_balanca), kg: true } : { code: p.barcode || "", kg: false };
 function renderLabels() {
-  $("eLimpa").classList.toggle("hidden", !labels.length); $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
+  $("eLimpa").classList.toggle("hidden", !labels.length); { const n = labels.filter(l => l.ok).length; $("eMarc").textContent = labels.length ? `✓ ${n} de ${labels.length} já colocadas para impressão` : ""; } $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
   const ord = { P: 0, M: 1, G: 2 };   // lista única: primeiro os P, depois M, depois G (mantém a ordem de inclusão dentro de cada tamanho)
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crw" data-li="${i}"><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crw${l.ok ? " done" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 function labelPick(p) {
   buzz();
   const c = labelCode(p), key = pkey(p), ex = labels.find(l => l.key === key && (l.orig || l.code) === c.code);
-  if (ex) ex.qtd = (Number(ex.qtd) || 1) + 1; else labels.push({ nome: p.name, code: uniCode(c.code), orig: c.code, kg: c.kg, tam: tamOf(p), key, qtd: 1 });
+  if (ex) { ex.qtd = (Number(ex.qtd) || 1) + 1; ex.ok = false; } else labels.push({ nome: p.name, code: uniCode(c.code), orig: c.code, kg: c.kg, tam: tamOf(p), key, qtd: 1 });
   store.set(EK, labels); pend = null; $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels();
   toast((c.code ? c.code + " · " : "") + p.name + " adicionado.");
 }
@@ -1573,7 +1574,7 @@ async function labelScan(code) {
 }
 $("eScan").onclick = () => openScan("etiqueta");
 $("eLimpa").onclick = async () => { if (!labels.length) return;
-  const ok = await askConfirm({ icon: "🗑", title: "Remover todas as etiquetas?", text: labels.length + " produtos · " + labels.reduce((t, l) => t + (Number(l.qtd) || 0), 0) + " etiquetas", sub: "Use depois de imprimir. A lista ficará vazia.", ok: "Remover todos", cancel: "Cancelar" });
+  const ok = await askConfirm({ icon: "🗑", title: "Remover todas as etiquetas?", text: labels.length + " produtos · " + labels.reduce((t, l) => t + (Number(l.qtd) || 0), 0) + " etiquetas", sub: (labels.filter(l => l.ok).length ? labels.filter(l => l.ok).length + " já marcadas. " : "") + "Use depois de imprimir. A lista ficará vazia.", ok: "Remover todos", cancel: "Cancelar" });
   if (!ok) return; labels = []; store.set(EK, labels); pend = null; renderLabels(); toast("Lista de etiquetas limpa."); };
 $("eBusca").oninput = () => { const q = norm($("eBusca").value); if (q.length < 2) { $("eRes").innerHTML = ""; return; }
   const seen = new Set();
@@ -1590,7 +1591,8 @@ $("eAdd").onclick = () => {
   labels.push({ nome: pend.nome, code: uniCode(pend.code), orig: pend.code, kg: pend.kg, tam: pend.tam || "M", key: pkey(pend.src), qtd: Math.max(1, Math.round(Number($("eQtd").value) || 1)) }); store.set(EK, labels);
   pend = null; $("ePend").classList.add("hidden"); $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels(); toast("Item adicionado à lista.");
 };
-$("eLista").onclick = e => { const b = e.target.closest("[data-ldrop]"); if (!b) return; const x = Number(b.dataset.ldrop), it = labels.splice(x, 1)[0];
+$("eLista").onclick = e => { const k = e.target.closest("[data-lchk]"); if (k) { const l = labels[Number(k.dataset.lchk)]; if (l) { l.ok = !l.ok; store.set(EK, labels); renderLabels(); } return; }
+  const b = e.target.closest("[data-ldrop]"); if (!b) return; const x = Number(b.dataset.ldrop), it = labels.splice(x, 1)[0];
   store.set(EK, labels); renderLabels(); toast("Etiqueta removida.", "Desfazer", () => { labels.splice(x, 0, it); store.set(EK, labels); renderLabels(); }); };
 renderLabels();
 
@@ -1627,7 +1629,7 @@ $("lmOk").onclick = $("lmClose").onclick = () => $("lModal").classList.add("hidd
 $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden"); labelUnify(i); };
 (function () { const box = $("eLista"); let t = null, x0 = 0, y0 = 0;
   const stop = () => { clearTimeout(t); t = null; };
-  box.addEventListener("pointerdown", e => { const r = e.target.closest(".crw"); if (!r || e.target.closest("[data-ldrop]")) return; x0 = e.clientX; y0 = e.clientY;
+  box.addEventListener("pointerdown", e => { const r = e.target.closest(".crw"); if (!r || e.target.closest("[data-ldrop],[data-lchk]")) return; x0 = e.clientX; y0 = e.clientY;
     const i = Number(r.dataset.li); t = setTimeout(() => { t = null; lmOpen(i); }, 500); });
   box.addEventListener("pointermove", e => { if (t && (Math.abs(e.clientX - x0) > 10 || Math.abs(e.clientY - y0) > 10)) stop(); });
   ["pointerup", "pointercancel", "pointerleave"].forEach(n => box.addEventListener(n, stop));
@@ -1702,7 +1704,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.06-28";
+const APP_VERSION = "2026.10.06-29";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
