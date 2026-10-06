@@ -241,6 +241,8 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .dcod{display:block;font-size:13px;font-weight:700;color:var(--g);letter-spacing:.3px;font-variant-numeric:tabular-nums;margin-top:1px}
 .dq{font-size:23px;font-weight:700;white-space:nowrap;color:var(--g-d)}
 .dq span{font-size:13px;color:var(--mut);font-weight:600}
+.setbg{position:fixed;inset:0;z-index:90;background:rgba(5,14,10,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:18px}
+.setgrid{display:grid;gap:10px;margin-top:14px}.setgrid button{min-height:56px;border-radius:16px;border:1.5px solid var(--ln);background:var(--lt);color:var(--g-d);font-size:18px;font-weight:800}.setgrid button.sel{background:var(--g);color:#fff;border-color:var(--g)}
 .askbg{position:fixed;inset:0;z-index:100000;background:rgba(5,14,10,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:18px}
 .ask{background:var(--card);color:var(--ink);border:1px solid var(--ln);border-radius:22px;padding:20px 18px 16px;width:min(100%,420px);box-shadow:0 18px 50px rgba(0,0,0,.5);text-align:center}
 .ask .ai{font-size:34px;line-height:1}
@@ -486,7 +488,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 </head>
 <body data-tab="Loja">
 <main class="app">
-<div class="top"><header><h1>Valida+ <small id="appVer" style="font-size:11px;font-weight:600;opacity:.65;letter-spacing:.3px"></small><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1></header><nav class="tabbar"><button id="tbDoacao">📋 Doação</button><button id="tbEtiquetas">🏷️ Etiquetas</button><button id="tbLoja">⏱️ Validades</button></nav></div>
+<div class="top"><header><h1>Valida+ <small id="appVer" style="font-size:11px;font-weight:600;opacity:.65;letter-spacing:.3px"></small><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1></header><nav class="tabbar"><button id="tbLoja">⏱️ Validades</button><button id="tbEtiquetas">🏷️ Etiquetas</button><button id="tbDoacao">📋 Doação</button></nav></div>
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
@@ -537,7 +539,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 </main>
 <div id="sideBg" class="bg hidden"></div>
 <aside id="side" class="side" aria-label="Menu"><div class="sheethead"><h2>Menu</h2><button class="secondary" id="sideClose" aria-label="Fechar menu">✕</button></div>
-<nav class="menu"><button id="navLoja">⏱️ Validades<small>Ovos e refrigerados</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
+<nav class="menu"><button id="navLoja">⏱️ Validades<small>Ovos e refrigerados</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navSetor" style="background:#fff;border:1px solid #cfe0d3">🏬 Trocar setor<small>Setor atual</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
 <section class="panel"><h2 style="font-size:17px;margin:0 0 10px">Exportar</h2>
 <label for="exportScope">O que exportar</label><select id="exportScope"><option value="all">Todos os produtos</option><option value="soon">Vencem em breve</option><option value="expired">Vencidos</option><option value="category">Uma categoria</option><option value="products">Produtos cadastrados (com códigos)</option></select>
 <select id="exportCategory" class="hidden" aria-label="Categoria para exportar" style="margin-top:8px"></select>
@@ -629,7 +631,12 @@ window.VALIDA_CONFIG = {
 (() => {
 "use strict";
 const C = window.VALIDA_CONFIG || {}, V = window.V || {}, fb = C.firebase || {};
-const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros"];
+const CATS = ["Açougue","Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros"];
+// setores (ordem alfabética) e as categorias de cada um
+const SECT = { "Açougue": ["Açougue"], "FLV": ["FLV"], "Mercearia": ["Mercearia", "Bebidas", "Higiene e limpeza", "Outros"], "Padaria": ["Padaria"], "Perecíveis": ["Laticínios", "Ovos", "Congelados"] };
+const SEC_ICO = { "Açougue": "🥩", "FLV": "🥬", "Mercearia": "🛒", "Padaria": "🥖", "Perecíveis": "🧀" }, SETK = "validamais-setor";
+const setorAtual = () => { const v = (() => { try { return JSON.parse(localStorage.getItem(SETK)); } catch { return ""; } })(); return SECT[v] ? v : "FLV"; };
+const defCat = () => SECT[setorAtual()][0], inSec = (p, c) => !c || (SECT[c] || [c]).includes(p.category);
 const $ = id => document.getElementById(id);
 const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria", TK = "validamais-tam";
 let curTab = "Loja";
@@ -700,12 +707,10 @@ function fillCategories() {
   opt("category", "Selecione"); opt("categoryFilter", "Todas as categorias"); opt("exportCategory", "Selecione a categoria");
 }
 function render() {
-  { const cf = $("categoryFilter"), oth = [...new Set(products.map(p => p.category).filter(c => c && c !== "FLV"))].sort(), sig = oth.join("|");
-    if (cf.dataset.sig !== sig) { const cur = cf.value; cf.innerHTML = ""; cf.add(new Option("Todos os setores", "")); ["FLV", ...oth].forEach(c => cf.add(new Option(c, c)));
-      cf.value = [...cf.options].some(o => o.value === cur) ? cur : "FLV"; cf.dataset.sig = sig; }
-    cf.classList.toggle("hidden", !oth.length); document.querySelector("#tabLoja .filters").classList.toggle("hidden", !oth.length); $("verTodos").classList.toggle("hidden", !!oth.length); }
+  { const cf = $("categoryFilter"); if (!cf.dataset.sig) { cf.innerHTML = ""; cf.add(new Option("Todos os setores", "")); Object.keys(SECT).forEach(c => cf.add(new Option(c, c))); cf.value = setorAtual(); cf.dataset.sig = "1"; }
+    cf.classList.remove("hidden"); document.querySelector("#tabLoja .filters").classList.remove("hidden"); $("verTodos").classList.add("hidden"); }
   const q = $("search").value.trim().toLowerCase(), cat = $("categoryFilter").value, st = $("statusFilter").value;
-  const base = products.filter(p => !cat || p.category === cat), ex = base.filter(p => status(p) === "expired").length, so = base.filter(p => status(p) === "soon").length;
+  const base = products.filter(p => inSec(p, cat)), ex = base.filter(p => status(p) === "expired").length, so = base.filter(p => status(p) === "soon").length;
   $("countAll").textContent = products.length;
   { const vt = $("verTodos"); if (vt) vt.textContent = cat ? `Ver todos os ${products.length} cadastrados` : "Voltar ao FLV"; }
   document.querySelectorAll("#tabLoja .stats .stat").forEach((e, i) => e.classList.toggle("on", (i === 1 && st === "soon") || (i === 2 && st === "expired"))); $("countSoon").textContent = so; $("countExpired").textContent = ex;
@@ -713,11 +718,11 @@ function render() {
   $("topAlert").textContent = `Atenção: ${ex} vencido(s) e ${so} vencendo em breve.`;
   FM = fotoMap();
   const cnt = {}; products.forEach(p => { if (p.barcode) cnt[p.barcode] = (cnt[p.barcode] || 0) + 1; });
-  const hoje = products.filter(p => daysLeft(p.expiry) === 0 && (!cat || p.category === cat));
+  const hoje = products.filter(p => daysLeft(p.expiry) === 0 && inSec(p, cat));
   $("todayBanner").classList.toggle("hidden", !hoje.length);
   $("todayBanner").textContent = `⚠ VENCEM HOJE (${hoje.length}): ` + hoje.slice(0, 5).map(p => p.name).join(", ") + (hoje.length > 5 ? "…" : "");
   if (!hoje.length) alarmed = false; else if (!alarmed && actx) { alarmed = true; alarm(); }
-  const rows = products.filter(p => (!cat || p.category === cat) && !(cat === "FLV" && daysLeft(p.expiry) === null) && (!st || status(p) === st) &&
+  const rows = products.filter(p => inSec(p, cat) && !(cat === "FLV" && daysLeft(p.expiry) === null) && (!st || status(p) === st) &&
     (!q || (p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q)))
     .sort((a, b) => cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
@@ -747,7 +752,7 @@ $("fotoIn").onchange = async () => {
 };
 function resetForm() {
   $("productForm").reset(); $("docId").value = ""; $("quantity").value = 1;
-  $("category").value = "FLV"; $("saveNext").classList.remove("hidden"); toggleCodes();
+  $("category").value = defCat(); $("saveNext").classList.remove("hidden"); toggleCodes();
   $("productForm").classList.remove("lote"); $("loteInfo").classList.add("hidden"); $("loteEdit").classList.add("hidden"); fotoSet("");
 }
 function toggleCodes() {
@@ -872,7 +877,7 @@ async function onCode(code) {
   if (/^2\d{12}$/.test(code)) {                                   // etiqueta de balança: o código de balança identifica o produto
     const plu = String(Number(parseScale(code).item)), k = products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(plu));
     logScan(code, k); show(k ? `Novo lote de «${k.name}»` : "Produto novo: cadastre agora");
-    $("barcode").value = (k && k.barcode) || ""; $("name").value = (k && k.name) || ""; $("category").value = (k && k.category) || "FLV";
+    $("barcode").value = (k && k.barcode) || ""; $("name").value = (k && k.name) || ""; $("category").value = (k && k.category) || defCat();
     $("cBalanca").value = plu; $("cDoacao").value = (k && k.codigo_doacao) || ""; toggleCodes(); loteMode(k); (k ? $("expiry") : $("name")).focus(); return;
   }
   const known = products.find(p => p.barcode === code); logScan(code, known);
@@ -1060,7 +1065,19 @@ $("scansBox").ontoggle = () => {
 };
 
 // ---------- setor, menu lateral, voz e foto da validade ----------
-const SETOR = "FLV"; $("categoryFilter").value = SETOR; store.set(LC, SETOR); render();
+store.set(LC, defCat()); render();
+function setorAsk() {   // menu de entrada: escolha do setor (filtra as Validades e define a categoria padrão dos cadastros)
+  const cur = setorAtual(), bg = document.createElement("div"); bg.className = "setbg";
+  bg.innerHTML = `<div class="ask" role="dialog" aria-modal="true"><div class="ai">🏬</div><h3>Qual é o seu setor?</h3><p>Escolha para abrir já no seu setor.</p><div class="setgrid">` +
+    Object.keys(SECT).map(c => `<button type="button" data-s="${c}" class="${c === cur ? "sel" : ""}">${SEC_ICO[c]} ${c}</button>`).join("") + `</div></div>`;
+  document.body.appendChild(bg);
+  bg.onclick = e => { const b = e.target.closest("[data-s]"); if (!b) return; const c = b.dataset.s;
+    try { localStorage.setItem(SETK, JSON.stringify(c)); } catch (x) {}
+    store.set(LC, defCat()); $("categoryFilter").value = c; $("statusFilter").value = ""; $("search").value = ""; bg.remove(); setorLbl(); render(); tab("Loja"); };
+}
+const setorLbl = () => { const sm = $("navSetor").querySelector("small"); if (sm) sm.textContent = "Setor atual: " + setorAtual(); };
+$("navSetor").onclick = () => { side(false); setorAsk(); }; setorLbl();
+if (location.hash.indexOf("#conf=") !== 0) setorAsk();
 { const sf = $("statusFilter"), stt = document.querySelectorAll("#tabLoja .stats .stat");
   stt[0].onclick = () => { sf.value = ""; render(); }; stt[1].onclick = () => { sf.value = sf.value === "soon" ? "" : "soon"; render(); }; stt[2].onclick = () => { sf.value = sf.value === "expired" ? "" : "expired"; render(); }; }
 $("verTodos").onclick = () => { $("categoryFilter").value = $("categoryFilter").value ? "" : "FLV"; render(); };
@@ -1155,7 +1172,7 @@ $("nrSave").onclick = () => { const nome = $("nrNome").value.replace(/\s+/g, " "
   nrDone({ nome, don }); };
 $("nrNome").onkeydown = e => { if (e.key === "Enter") $("nrSave").click(); };
 document.addEventListener("keydown", e => { if (e.key === "Escape" && nrResolve) nrDone(null); });
-function registerProduct({ name, category = "FLV", barcode = "", codigo_balanca = "", codigo_doacao = "" }) {   // grava no cadastro compartilhado
+function registerProduct({ name, category = defCat(), barcode = "", codigo_balanca = "", codigo_doacao = "" }) {   // grava no cadastro compartilhado
   const fail = e => { console.error(e); toast("Não salvou no cadastro compartilhado (confira as regras do Firebase). Por isso o app pede o cadastro de novo."); }, f = {}, field = barcode ? "barcode" : "codigo_balanca";
   if (barcode) f.barcode = barcode; if (codigo_balanca) f.codigo_balanca = codigo_balanca; if (codigo_doacao) f.codigo_doacao = codigo_doacao;
   const free = products.filter(x => norm(x.name || "") === norm(name) && !x[field]);   // mesmo nome ainda sem esse código: só acrescenta o código
@@ -1522,7 +1539,7 @@ function renderTop() {
 }
 if (db) V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(40)), s => { topDb = s.docs.map(d => withEdits({ ...d.data(), _id: d.id })); renderTop(); }, console.error);
 renderDon(); renderKey(); renderQuick(); renderTop();
-tab("Doacao");
+tab("Loja");
 
 // ---------- aba Etiquetas ----------
 const EK = "validamais-etiquetas", EUK = "validamais-etq-uni";   // EUK: código original -> código do sistema (só para a lista de etiquetas)
@@ -1683,7 +1700,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.06-26";
+const APP_VERSION = "2026.10.06-27";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -1790,8 +1807,8 @@ $("fab").addEventListener("click",function(){set(false)});
 $("fabManual").onclick=function(){set(false);$("manualOpen").click()};
 $("fabZap").onclick=function(){set(false);$("shareBtn").click()};
 ["Loja","Doacao","Etiquetas"].forEach(function(n){$("tb"+n).onclick=function(){set(false);$("nav"+n).click()}});})();</script>
-<script>(function(){var T=["Doacao","Etiquetas","Loja"],x0=0,y0=0,ok=false,g=function(i){return document.getElementById(i)};
-function blocked(t){if(t.closest&&t.closest("input,textarea,select,.rwrap,#reader,.side,.modal,#confView,.fabwrap,.topdo,.askbg,.redit"))return true;
+<script>(function(){var T=["Loja","Etiquetas","Doacao"],x0=0,y0=0,ok=false,g=function(i){return document.getElementById(i)};
+function blocked(t){if(t.closest&&t.closest("input,textarea,select,.rwrap,#reader,.side,.modal,#confView,.fabwrap,.topdo,.askbg,.setbg,.redit"))return true;
 var m=document.querySelectorAll(".modal,#confView,.side.open");for(var i=0;i<m.length;i++){if(!m[i].classList.contains("hidden")&&getComputedStyle(m[i]).display!=="none")return true}return false}
 document.addEventListener("touchstart",function(e){if(e.touches.length!==1){ok=false;return}var t=e.touches[0];x0=t.clientX;y0=t.clientY;ok=!blocked(e.target)},{passive:true});
 document.addEventListener("touchend",function(e){if(!ok)return;ok=false;var t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;
