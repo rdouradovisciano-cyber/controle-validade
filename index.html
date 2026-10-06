@@ -300,6 +300,9 @@ body.mao1 .fabitem{min-height:56px;font-size:16px}
 .tgh{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:14px 0 4px;padding:6px 10px;border-radius:10px;background:var(--lt);color:var(--g-d)}
 .tgh:first-child{margin-top:4px}
 .tgh b{font-size:15px;font-weight:800;letter-spacing:.02em}.tgh small{font-size:12px;font-weight:600;color:var(--mut)}
+.ced{font-size:14px;opacity:.55;margin-left:4px}
+.ccode[data-lcode]{cursor:pointer}
+.lkres{margin-top:8px}.lkres .pick{padding:10px;border:1px solid var(--ln);border-radius:12px;margin-top:6px;background:var(--lt2);cursor:pointer}
 .qfreq{margin-bottom:6px}
 .qlbl{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--mut);margin:2px 2px 6px;text-transform:uppercase}
 .qbtn.fav{background:var(--lt);border-color:var(--g3)}
@@ -591,7 +594,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 <form id="productForm"><input type="hidden" id="docId"><p class="note hidden" id="loteInfo"></p><button type="button" class="secondary hidden" id="loteEdit" style="width:100%;margin-bottom:6px">Editar dados do produto</button><div class="formgrid">
 <div class="wide hide-lote"><label for="barcode">Código de barras</label><input id="barcode" inputmode="numeric" placeholder="Bipe ou digite o código" maxlength="32"></div>
 <div class="wide hidden hide-lote" id="semCodigo"><small class="note">Sem código de barras: informe os códigos internos do produto.</small><div class="formgrid"><div><label for="cBalanca">Código de balança (etiquetas)</label><input id="cBalanca" inputmode="numeric" maxlength="12"></div><div><label for="cDoacao">Código de doação</label><input id="cDoacao" inputmode="numeric" maxlength="12"></div></div></div>
-<div class="wide hide-lote"><label for="name">Nome do produto *</label><div class="stepper"><input id="name" required maxlength="120" placeholder="Ex.: Leite integral 1 L" autocomplete="off"><button type="button" class="secondary" id="micBtn" aria-label="Ditar nome">🎤</button></div></div><div class="wide hide-lote"><label>Foto do produto (opcional)</label><div class="fotorow"><img id="fotoPrev" class="foto hidden" alt="Foto do produto"><label for="fotoIn" id="fotoBtn" class="fotobtn">📷 Tirar foto</label><input id="fotoIn" type="file" accept="image/*" hidden><button type="button" class="secondary hidden" id="fotoDel">Remover</button></div></div>
+<div class="wide hide-lote"><label for="name">Nome do produto *</label><div class="stepper"><input id="name" required maxlength="120" placeholder="Ex.: Leite integral 1 L" autocomplete="off"><button type="button" class="secondary" id="micBtn" aria-label="Ditar nome">🎤</button></div></div><div class="wide hide-lote"><label>Foto do produto (opcional)</label><div class="fotorow"><img id="fotoPrev" class="foto hidden" alt="Foto do produto"><label for="fotoIn" id="fotoBtn" class="fotobtn">📷 Tirar foto</label><input id="fotoIn" type="file" accept="image/*" hidden><button type="button" class="secondary hidden" id="fotoDel">Remover</button></div></div><div class="wide hide-lote"><label for="cSistema">Código no sistema da loja (sai na etiqueta)</label><input id="cSistema" maxlength="14" autocomplete="off" placeholder="Ex.: código que está no sistema"></div>
 <div class="hidden"><label for="category">Categoria *</label><select id="category" required></select></div>
 <div class="wide"><label for="quantity">Quantidade *</label><div class="stepper"><button type="button" class="secondary" id="qMinus" aria-label="Diminuir">−</button><input id="quantity" type="text" readonly inputmode="none" data-np data-np-label="OK" value="1"><button type="button" class="secondary" id="qPlus" aria-label="Aumentar">＋</button></div></div>
 <div class="wide"><label for="expiry" id="expLabel">Data de validade *</label><input id="expiry" type="date" required>
@@ -765,7 +768,7 @@ function edit(id) {
   resetForm(); show("Editar produto"); $("saveNext").classList.add("hidden");
   $("docId").value = id; $("barcode").value = p.barcode || ""; $("name").value = p.name || "";
   $("category").value = p.category || ""; $("quantity").value = p.quantity; $("expiry").value = p.expiry || "";
-  $("cBalanca").value = p.codigo_balanca || ""; $("cDoacao").value = p.codigo_doacao || ""; toggleCodes(); fotoSet(p.foto || fotoMap().get(norm(p.name || "")) || "");
+  $("cBalanca").value = p.codigo_balanca || ""; $("cDoacao").value = p.codigo_doacao || ""; toggleCodes(); $("cSistema").value = p.codigo_sistema || ""; fotoSet(p.foto || fotoMap().get(norm(p.name || "")) || "");
 }
 // ----- nomes parecidos / duplicados -----
 const nameKey = n => norm(n || "").replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(w => w && !/^(kg|un|und|unid|unidade|unidades|g|gr|grs|kilo|quilo)$/.test(w)).map(w => w.length > 3 && w.endsWith("s") ? w.slice(0, -1) : w).sort().join(" ");
@@ -802,7 +805,7 @@ window.dupReview = dupReview;
 async function save(next) {
   const id = $("docId").value, q = Number(String($("quantity").value).replace(",", "."));
   const data = { barcode: $("barcode").value.trim().slice(0, 32), name: $("name").value.trim().slice(0, 120),
-    category: $("category").value, expiry: $("expiry").value, quantity: q, por: myName(), codigo_balanca: $("cBalanca").value.trim().slice(0, 12), codigo_doacao: $("cDoacao").value.trim().slice(0, 12) };
+    category: $("category").value, expiry: $("expiry").value, quantity: q, por: myName(), codigo_balanca: $("cBalanca").value.trim().slice(0, 12), codigo_doacao: $("cDoacao").value.trim().slice(0, 12), codigo_sistema: $("cSistema").value.replace(/\s+/g, "").toUpperCase().slice(0, 14) };
   if (!data.name || !CATS.includes(data.category) || (!data.expiry && data.category !== "FLV") || !(q > 0)) { toast(data.category === "FLV" ? "Preencha nome e categoria." : "Preencha nome, categoria, validade e quantidade."); return; }
   const antes = id ? ((products.find(x => x.id === id) || {}).name || "") : "";
   if (!id || norm(antes) !== norm(data.name)) {
@@ -815,6 +818,9 @@ async function save(next) {
   }
   { const outros = products.filter(x => x.id !== id && norm(x.name || "") === norm(data.name)), antes2 = (outros.find(x => x.foto) || {}).foto || "";
     data.foto = (!id && !curFoto) ? antes2 : curFoto;
+    { const sis0 = (outros.find(x => x.codigo_sistema) || {}).codigo_sistema || "";
+      if (!id && !data.codigo_sistema) data.codigo_sistema = sis0;
+      else if (id || data.codigo_sistema) outros.forEach(x => { if ((x.codigo_sistema || "") !== data.codigo_sistema) { if (db) V.updateDoc(V.doc(db, "products", x.id), { codigo_sistema: data.codigo_sistema }).catch(() => {}); else x.codigo_sistema = data.codigo_sistema; } }); }
     if ((id || curFoto) && curFoto !== antes2) outros.forEach(x => { if ((x.foto || "") !== curFoto) { if (db) V.updateDoc(V.doc(db, "products", x.id), { foto: curFoto }).catch(() => {}); else x.foto = curFoto; } }); }
   store.set(LC, data.category);
   if (db) {
@@ -908,11 +914,11 @@ function exportRows() {
   const s = $("exportScope").value, c = $("exportCategory").value; let r = [...products];
   if (s === "products") {                 // um registro por produto, com todos os códigos (mesmo formato da importação)
     const m = new Map();
-    products.forEach(p => { const k = p.barcode || norm(p.name || ""); if (!k) return; const o = m.get(k) || { n: "", b: "", d: "", e: "", c: "" };
-      o.n = o.n || p.name || ""; o.b = o.b || p.codigo_balanca || ""; o.d = o.d || p.codigo_doacao || ""; o.e = o.e || p.barcode || ""; o.c = o.c || p.category || ""; m.set(k, o); });
+    products.forEach(p => { const k = p.barcode || norm(p.name || ""); if (!k) return; const o = m.get(k) || { n: "", b: "", d: "", e: "", c: "", s: "" };
+      o.n = o.n || p.name || ""; o.b = o.b || p.codigo_balanca || ""; o.d = o.d || p.codigo_doacao || ""; o.e = o.e || p.barcode || ""; o.c = o.c || p.category || ""; o.s = o.s || p.codigo_sistema || ""; m.set(k, o); });
     if (!m.size) { toast("Nenhum produto cadastrado."); return null; }
     return [...m.values()].sort((a, b) => a.n.localeCompare(b.n, "pt-BR", { sensitivity: "base" }))
-      .map(o => ({ "Nome": o.n, "Código de balança": String(o.b), "Código de doação": String(o.d), "EAN": o.e, "Categoria": o.c }));
+      .map(o => ({ "Nome": o.n, "Código de balança": String(o.b), "Código de doação": String(o.d), "EAN": o.e, "Categoria": o.c, "Código do sistema": String(o.s) }));
   }
   if (s === "soon" || s === "expired") r = r.filter(p => status(p) === s);
   if (s === "category") { if (!c) { toast("Escolha a categoria para exportar."); return null; } r = r.filter(p => p.category === c); }
@@ -941,7 +947,7 @@ function makePdf(rows) {
     pdf.setFontSize(16); pdf.text("Produtos cadastrados", 14, 16);
     pdf.setFontSize(9); pdf.text(`${LOJA} · Gerado em ${new Date().toLocaleString("pt-BR")} · ${rows.length} produto(s)`, 14, 22);
     V.autoTable(pdf, { startY: 27, styles: { fontSize: 8 }, headStyles: { fillColor: [22, 101, 52] },
-      head: [["Nome", "Balança", "Doação", "EAN", "Categoria"]], body: rows.map(r => [r["Nome"], r["Código de balança"], r["Código de doação"], r["EAN"], r["Categoria"]]),
+      head: [["Nome", "Balança", "Doação", "EAN", "Categoria", "Sistema"]], body: rows.map(r => [r["Nome"], r["Código de balança"], r["Código de doação"], r["EAN"], r["Categoria"], r["Código do sistema"]]),
       didDrawPage: () => { pdf.setFontSize(8); pdf.text(`Página ${pdf.internal.getCurrentPageInfo().pageNumber}`, 196, 290, { align: "right" }); } });
     return pdf.output("blob");
   }
@@ -1089,7 +1095,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") side(false);
 const sameProd = (a, b) => (b.barcode && a.barcode === b.barcode) || (!b.barcode && !a.barcode && norm(a.name) === norm(b.name));
 const newRec = (p, field, v, ts) => ({ name: p.name, barcode: p.barcode || "", category: p.category || "FLV", expiry: "", quantity: 1, por: myName(), codigo_balanca: "", codigo_doacao: "", [field]: v, ...(ts ? { createdAt: ts, updatedAt: ts } : {}) });
 function saveCode(p, field, raw) {                 // grava o código em todos os lotes do produto (ou cria um item FLV sem validade)
-  const v = String(raw || "").trim().toUpperCase(), re = field === "codigo_balanca" ? /^\d{1,6}$/ : /^[A-Z0-9]{1,12}$/;
+  const v = String(raw || "").trim().toUpperCase(), re = field === "codigo_balanca" ? /^\d{1,6}$/ : field === "codigo_sistema" ? /^[A-Z0-9]{1,14}$/ : /^[A-Z0-9]{1,12}$/;
   if (v && !re.test(v)) { toast(field === "codigo_balanca" ? "O código de balança deve ter só números (até 6)." : "Use só letras e números (até 12)."); return null; }
   const dup = v && products.find(x => x[field] === v && !sameProd(x, p)); if (dup) { toast(`Esse código já pertence a «${dup.name}».`); return null; }
   const mine = products.filter(x => sameProd(x, p)), fail = e => { console.error(e); toast("Erro ao salvar na nuvem."); };
@@ -1508,12 +1514,12 @@ const EK = "validamais-etiquetas";
 const SZ = { P: { w: 63, h: 30, cols: 3, rows: 9, nome: 8, preco: 15, cod: 6, bar: 6 }, M: { w: 95, h: 50, cols: 2, rows: 5, nome: 12, preco: 26, cod: 8, bar: 12 }, G: { w: 190, h: 90, cols: 1, rows: 3, nome: 20, preco: 52, cod: 11, bar: 24 } };
 let labels = store.get(EK, []), pend = null, eHits = [];
 // itens pesados (FLV/Padaria) usam o código de balança; os demais usam o EAN
-const codeText = c => c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.code}` : "⚠ Sem código cadastrado para este produto.";
-const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.category) || !p.barcode)) ? { code: String(p.codigo_balanca), kg: true } : { code: p.barcode || "", kg: false };
+const codeText = c => c.code ? `${c.sys ? "Código do sistema" : c.kg ? "Código de balança" : "EAN"}: ${c.code}` : "⚠ Sem código cadastrado para este produto.";
+const labelCode = p => p.codigo_sistema ? { code: String(p.codigo_sistema), kg: false, sys: true } : (p.codigo_balanca && (["FLV", "Padaria"].includes(p.category) || !p.barcode)) ? { code: String(p.codigo_balanca), kg: true } : { code: p.barcode || "", kg: false };
 function renderLabels() {
   $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
   const ord = { P: 0, M: 1, G: 2 };   // lista única: primeiro os P, depois M, depois G (mantém a ordem de inclusão dentro de cada tamanho)
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crw"><div class="crl"><div class="ccode">${l.code ? esc(l.code) : "SEM CÓDIGO"}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crw" data-li="${i}"><div class="crl"><div class="ccode" data-lcode="${i}" title="Tocar para trocar pelo código do sistema">${l.code ? esc(l.code) : "SEM CÓDIGO"} <span class="ced">✎</span></div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 function labelPick(p) {
   buzz();
@@ -1522,10 +1528,43 @@ function labelPick(p) {
   store.set(EK, labels); pend = null; $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels();
   toast((c.code ? c.code + " · " : "") + p.name + " adicionado.");
 }
+// ----- unificar códigos: o código bipado vira "apelido" do produto cadastrado e a etiqueta usa o código do sistema -----
+function addAlias(p, code) {
+  const mine = products.filter(x => sameProd(x, p)), alt = [...new Set([...(p.codigos_alt || []), code])].slice(0, 20), fail = e => { console.error(e); toast("Erro ao salvar na nuvem."); };
+  if (db) { const ts = V.serverTimestamp(); mine.forEach(x => V.updateDoc(V.doc(db, "products", x.id), { codigos_alt: alt, updatedAt: ts }).catch(fail)); }
+  else { mine.forEach(x => { x.codigos_alt = alt; }); persist(); render(); }
+  p.codigos_alt = alt; const c = labelCode(p); toast(`Vinculado a «${p.name}». Etiqueta: ${c.code || "sem código"}`);
+}
+function askLink(code) {   // devolve o produto escolhido, "new" (produto novo) ou null (cancelar)
+  return new Promise(res => {
+    const bg = document.createElement("div"); bg.className = "askbg";
+    bg.innerHTML = `<div class="ask" style="text-align:left;max-height:88dvh;overflow:auto"><div class="ai" style="text-align:center">🔗</div><h3 style="text-align:center">Código não cadastrado</h3><p style="text-align:center"><b>${esc(code)}</b></p><p style="text-align:center">Esse produto já existe no sistema com outro código? Busque e vincule: a etiqueta usará o código do sistema.</p><input id="lkBusca" type="search" autocomplete="off" placeholder="Buscar produto ou código" style="width:100%;margin-top:8px"><div id="lkRes" class="lkres"></div><div class="arow"><button type="button" data-a="x">Cancelar</button><button type="button" class="ok" data-a="new">É produto novo</button></div></div>`;
+    const done = v => { bg.remove(); res(v); }; let hits = [];
+    bg.onclick = e => { const b = e.target.closest("[data-a]"), k = e.target.closest("[data-k]");
+      if (k) return done(hits[Number(k.dataset.k)]); if (b) return done(b.dataset.a === "new" ? "new" : null); if (e.target === bg) done(null); };
+    document.body.appendChild(bg); const inp = bg.querySelector("#lkBusca");
+    inp.oninput = () => { const q = norm(inp.value), seen = new Set(); if (q.length < 2) { bg.querySelector("#lkRes").innerHTML = ""; hits = []; return; }
+      hits = products.filter(p => norm(p.name || "").includes(q) || (p.barcode || "").includes(q) || String(p.codigo_sistema || "").toLowerCase().includes(q)).filter(p => { const k = pkey(p); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 8);
+      bg.querySelector("#lkRes").innerHTML = hits.length ? hits.map((p, i) => `<div class="pick" data-k="${i}"><b>${esc(p.name)}</b> <small class="muted">${esc(labelCode(p).code || "sem código")}</small></div>`).join("") : '<p class="muted">Nada encontrado.</p>'; };
+    setTimeout(() => inp.focus(), 80);
+  });
+}
+function labelEditSys(i) {   // trocar o código da etiqueta pelo código do sistema da loja
+  const l = labels[i]; if (!l) return; const prod = products.find(x => pkey(x) === l.key);
+  const bg = document.createElement("div"); bg.className = "askbg";
+  bg.innerHTML = `<div class="ask"><div class="ai">🏷️</div><h3>Código do sistema</h3><p><b>${esc(l.nome)}</b></p><input id="lsCod" maxlength="14" autocomplete="off" value="${esc(l.code || "")}" style="width:100%;margin-top:10px;font-size:22px;font-weight:700;text-align:center"><p style="font-size:13px">Digite o código que está no sistema da loja. Deixe vazio para voltar ao código original.</p><div class="arow"><button type="button" data-a="0">Cancelar</button><button type="button" class="ok" data-a="1">Salvar</button></div></div>`;
+  bg.onclick = e => { const b = e.target.closest("[data-a]"); if (!b) { if (e.target === bg) bg.remove(); return; } if (b.dataset.a === "0") return bg.remove();
+    const v = bg.querySelector("#lsCod").value.replace(/\s+/g, "").toUpperCase();
+    if (prod) { const r = saveCode(prod, "codigo_sistema", v); if (r === null) return; prod.codigo_sistema = r; }
+    const c = labelCode({ ...(prod || {}), codigo_sistema: v }); labels.forEach(x => { if (x.key === l.key) { x.code = v || c.code; x.kg = c.kg; } }); if (!prod) l.code = v;
+    store.set(EK, labels); renderLabels(); bg.remove(); };
+  document.body.appendChild(bg); const inp = bg.querySelector("#lsCod"); setTimeout(() => { inp.focus(); inp.select(); }, 80);
+}
 async function labelScan(code) {
   buzz(); beep(); await stopScanner(); closeModal();
   const scale = /^2\d{12}$/.test(code), item = scale ? Number(parseScale(code).item) : 0;
-  let p = scale ? products.find(x => x.codigo_balanca && Number(x.codigo_balanca) === item) : products.find(x => x.barcode === code);
+  let p = scale ? products.find(x => x.codigo_balanca && Number(x.codigo_balanca) === item) : products.find(x => x.barcode === code || (x.codigos_alt || []).includes(code) || (x.codigo_sistema && String(x.codigo_sistema) === code));
+  if (!p && !scale) { const r = await askLink(code); if (r === null) return; if (r !== "new") { addAlias(r, code); p = r; } }
   if (!p) { const r = await askNewProduct(code, scale, scale ? String(item) : ""); if (!r) return;
     p = registerProduct({ name: r.nome, barcode: scale ? "" : code, codigo_balanca: scale ? String(item) : "" }); }
   labelPick(p);
@@ -1533,7 +1572,7 @@ async function labelScan(code) {
 $("eScan").onclick = () => openScan("etiqueta");
 $("eBusca").oninput = () => { const q = norm($("eBusca").value); if (q.length < 2) { $("eRes").innerHTML = ""; return; }
   const seen = new Set();
-  eHits = products.filter(p => norm(p.name || "").includes(q) || (p.barcode || "").includes(q)).filter(p => { const k = p.barcode || p.codigo_balanca || norm(p.name); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 8);
+  eHits = products.filter(p => norm(p.name || "").includes(q) || (p.barcode || "").includes(q) || String(p.codigo_sistema || "").toLowerCase().includes(q) || (p.codigos_alt || []).some(c => c.includes(q))).filter(p => { const k = p.barcode || p.codigo_balanca || norm(p.name); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 8);
   $("eRes").innerHTML = eHits.length ? eHits.map((p, i) => `<div class="pick" data-pick="${i}"><b>${esc(p.name)}</b> <small class="muted">${esc(p.category || "")}</small></div>`).join("") : '<p class="muted">Nada encontrado.</p>'; };
 $("eRes").onclick = e => { const b = e.target.closest("[data-pick]"); if (b) labelPick(eHits[Number(b.dataset.pick)]); };
 $("eTam").onclick = e => { const b = e.target.closest("button"); if (!b || !pend) return; pend.tam = b.dataset.t; { const m = store.get(TK, {}); m[pkey(pend.src)] = pend.tam; store.set(TK, m); } document.querySelectorAll("#eTam button").forEach(x => x.classList.toggle("sel", x === b)); };
@@ -1546,7 +1585,7 @@ $("eAdd").onclick = () => {
   labels.push({ nome: pend.nome, code: pend.code, kg: pend.kg, tam: pend.tam || "M", key: pkey(pend.src), qtd: Math.max(1, Math.round(Number($("eQtd").value) || 1)) }); store.set(EK, labels);
   pend = null; $("ePend").classList.add("hidden"); $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels(); toast("Item adicionado à lista.");
 };
-$("eLista").onclick = e => { const b = e.target.closest("[data-ldrop]"); if (!b) return; const x = Number(b.dataset.ldrop), it = labels.splice(x, 1)[0];
+$("eLista").onclick = e => { const cc = e.target.closest("[data-lcode]"); if (cc) return labelEditSys(Number(cc.dataset.lcode)); const b = e.target.closest("[data-ldrop]"); if (!b) return; const x = Number(b.dataset.ldrop), it = labels.splice(x, 1)[0];
   store.set(EK, labels); renderLabels(); toast("Etiqueta removida.", "Desfazer", () => { labels.splice(x, 0, it); store.set(EK, labels); renderLabels(); }); };
 renderLabels();
 
@@ -1561,14 +1600,14 @@ $("lmMenos").onclick = () => lmQ((labels[lmI] || {}).qtd - 1); $("lmMais").oncli
 $("lmOk").onclick = $("lmClose").onclick = () => $("lModal").classList.add("hidden");
 (function () { const box = $("eLista"); let t = null, x0 = 0, y0 = 0;
   const stop = () => { clearTimeout(t); t = null; };
-  box.addEventListener("pointerdown", e => { const r = e.target.closest(".crw"); if (!r || e.target.closest("[data-ldrop]")) return; x0 = e.clientX; y0 = e.clientY;
-    const i = Array.prototype.indexOf.call(box.children, r); t = setTimeout(() => { t = null; lmOpen(i); }, 500); });
+  box.addEventListener("pointerdown", e => { const r = e.target.closest(".crw"); if (!r || e.target.closest("[data-ldrop],[data-lcode]")) return; x0 = e.clientX; y0 = e.clientY;
+    const i = Number(r.dataset.li); t = setTimeout(() => { t = null; lmOpen(i); }, 500); });
   box.addEventListener("pointermove", e => { if (t && (Math.abs(e.clientX - x0) > 10 || Math.abs(e.clientY - y0) > 10)) stop(); });
   ["pointerup", "pointercancel", "pointerleave"].forEach(n => box.addEventListener(n, stop));
   box.addEventListener("contextmenu", e => { if (e.target.closest(".crw")) e.preventDefault(); }); })();
 
 // ---------- importar lista de produtos (nome + códigos) ----------
-const HDR = { nome: /^(nome|produto|descri)/, bal: /(balan|plu)/, doa: /doa/, ean: /(ean|barra|gtin)/, cat: /(categ|setor)/ };
+const HDR = { nome: /^(nome|produto|descri)/, bal: /(balan|plu)/, doa: /doa/, ean: /(ean|barra|gtin)/, cat: /(categ|setor)/, sis: /(sistema|interno)/ };
 const catOf = s => { const n = norm(s); return CATS.find(c => norm(c) === n) || (/^(hortifruti|fruta|legume|verdura)/.test(n) ? "FLV" : null); };
 const cleanNum = s => String(s || "").trim().replace(/^=/, "").replace(/"/g, "").replace(/\.0+$/, "");
 function parseRows(text) {
@@ -1578,22 +1617,23 @@ function parseRows(text) {
   const head = lines[0].split(d).map(c => norm(c));
   if (head.some(c => HDR.nome.test(c))) { cols = {}; head.forEach((c, i) => { for (const k in HDR) if (!(k in cols) && HDR[k].test(c)) { cols[k] = i; break; } }); start = 1; }
   return lines.slice(start).map((l, i) => { const c = l.split(d).map(x => x.trim().replace(/^"|"$/g, "").trim()), g = k => cols[k] === undefined ? "" : (c[cols[k]] || "");
-    return { linha: start + i + 1, nome: g("nome").slice(0, 120), bal: cleanNum(g("bal")), doa: g("doa").replace(/\s+/g, "").toUpperCase(), ean: cleanNum(g("ean")), cat: g("cat") }; });
+    return { linha: start + i + 1, nome: g("nome").slice(0, 120), bal: cleanNum(g("bal")), doa: g("doa").replace(/\s+/g, "").toUpperCase(), ean: cleanNum(g("ean")), cat: g("cat"), sis: cleanNum(g("sis")).replace(/\s+/g, "").toUpperCase() }; });
 }
 function analyzeList(text) {
-  const out = [], seen = new Set(), claims = { codigo_balanca: {}, codigo_doacao: {} };
-  products.forEach(x => { const k = x.barcode || norm(x.name); ["codigo_balanca", "codigo_doacao"].forEach(f => { if (x[f]) claims[f][String(x[f]).toUpperCase()] = { k, nome: x.name }; }); });
+  const out = [], seen = new Set(), claims = { codigo_balanca: {}, codigo_doacao: {}, codigo_sistema: {} };
+  products.forEach(x => { const k = x.barcode || norm(x.name); ["codigo_balanca", "codigo_doacao", "codigo_sistema"].forEach(f => { if (x[f]) claims[f][String(x[f]).toUpperCase()] = { k, nome: x.name }; }); });
   for (const r of parseRows(text).slice(0, 500)) {
     const bad = msg => out.push({ ...r, st: "erro", msg });
     if (!r.nome) { bad("sem nome"); continue; }
     if (r.bal && !/^\d{1,6}$/.test(r.bal)) { bad("código de balança inválido (só números, até 6)"); continue; }
     if (r.doa && !/^[A-Z0-9]{1,12}$/.test(r.doa)) { bad("código de doação inválido (letras/números, até 12)"); continue; }
+    if (r.sis && !/^[A-Z0-9]{1,14}$/.test(r.sis)) { bad("código do sistema inválido (letras/números, até 14)"); continue; }
     if (r.ean && !/^\d{6,14}$/.test(r.ean)) { bad("EAN inválido"); continue; }
     let cat = ""; if (r.cat) { cat = catOf(r.cat); if (!cat) { bad("categoria desconhecida: " + r.cat); continue; } }
     const matched = products.filter(x => r.ean ? (x.barcode === r.ean || (!x.barcode && norm(x.name) === norm(r.nome))) : norm(x.name) === norm(r.nome));
     const key = matched.length ? (matched[0].barcode || norm(matched[0].name)) : (r.ean || norm(r.nome));
     if (seen.has(key)) { bad("produto repetido na lista"); continue; }
-    const pairs = [["codigo_balanca", r.bal], ["codigo_doacao", r.doa]].filter(([, v]) => v);
+    const pairs = [["codigo_balanca", r.bal], ["codigo_doacao", r.doa], ["codigo_sistema", r.sis]].filter(([, v]) => v);
     const clash = pairs.map(([f, v]) => ({ v, c: claims[f][v] })).find(x => x.c && x.c.k !== key);
     if (clash) { bad(`código ${clash.v} já pertence a «${clash.c.nome}»`); continue; }
     seen.add(key); pairs.forEach(([f, v]) => { claims[f][v] = { k: key, nome: r.nome }; });
@@ -1604,7 +1644,7 @@ function analyzeList(text) {
 function applyImport(rows) {
   const ts = db ? V.serverTimestamp() : null, fail = e => { console.error(e); toast("Erro ao salvar na nuvem."); }; let n = 0, u = 0;
   for (const r of rows.filter(x => x.st !== "erro")) {
-    const f = {}; if (r.bal) f.codigo_balanca = r.bal; if (r.doa) f.codigo_doacao = r.doa; if (r.ean) f.barcode = r.ean; if (r.cat) f.category = r.cat;
+    const f = {}; if (r.bal) f.codigo_balanca = r.bal; if (r.doa) f.codigo_doacao = r.doa; if (r.sis) f.codigo_sistema = r.sis; if (r.ean) f.barcode = r.ean; if (r.cat) f.category = r.cat;
     if (r.matched.length) { u++; r.matched.forEach(x => db ? V.updateDoc(V.doc(db, "products", x.id), { ...f, updatedAt: ts }).catch(fail) : Object.assign(x, f)); }
     else { n++; const rec = { name: r.nome, barcode: "", category: "FLV", expiry: "", quantity: 1, por: myName(), codigo_balanca: "", codigo_doacao: "", ...f };
       if (db) V.addDoc(V.collection(db, "products"), { ...rec, createdAt: ts, updatedAt: ts }).catch(fail); else products.push({ ...rec, id: uid() }); }
@@ -1616,7 +1656,7 @@ function impCheck() {
   impRows = analyzeList($("impText").value); const ok = impRows.filter(r => r.st !== "erro").length, er = impRows.length - ok;
   $("impGo").disabled = !ok; $("impGo").textContent = ok ? `Cadastrar ${ok} produto(s)` : "Cadastrar";
   $("impPrev").innerHTML = impRows.length ? `<p><b>${impRows.filter(r => r.st === "novo").length} novos · ${impRows.filter(r => r.st === "atualiza").length} atualizações · ${er} com erro</b></p><div class="impl">` +
-    impRows.map(r => r.st === "erro" ? `<p class="bad">✖ Linha ${r.linha}: ${esc(r.msg)}</p>` : `<p>${r.st === "novo" ? "＋" : "↻"} <b>${esc(r.nome)}</b> <span class="muted">${[r.bal && "Balança " + r.bal, r.doa && "Doação " + r.doa, r.ean && "EAN " + r.ean, r.cat && esc(r.cat)].filter(Boolean).join(" · ") || "sem códigos"}</span></p>`).join("") + "</div>" : '<p class="muted">Nenhuma linha encontrada.</p>';
+    impRows.map(r => r.st === "erro" ? `<p class="bad">✖ Linha ${r.linha}: ${esc(r.msg)}</p>` : `<p>${r.st === "novo" ? "＋" : "↻"} <b>${esc(r.nome)}</b> <span class="muted">${[r.bal && "Balança " + r.bal, r.doa && "Doação " + r.doa, r.sis && "Sistema " + r.sis, r.ean && "EAN " + r.ean, r.cat && esc(r.cat)].filter(Boolean).join(" · ") || "sem códigos"}</span></p>`).join("") + "</div>" : '<p class="muted">Nenhuma linha encontrada.</p>';
 }
 const impOpen = o => $("impModal").classList.toggle("hidden", !o);
 $("navImport").onclick = () => { side(false); impOpen(true); };
@@ -1627,7 +1667,7 @@ $("impFileBtn").onclick = () => $("impFile").click();
 $("impFile").onchange = async () => { const f = $("impFile").files[0]; if (!f) return; const buf = await f.arrayBuffer();
   let t; try { t = new TextDecoder("utf-8", { fatal: true }).decode(buf); } catch { t = new TextDecoder("windows-1252").decode(buf); }
   $("impText").value = t.replace(/^\ufeff/, ""); $("impFile").value = ""; impCheck(); };
-$("impModel").onclick = () => download(new Blob(["\ufeffnome;codigo_balanca;codigo_doacao;ean;categoria\r\nMamão Papaya;123;45;;FLV\r\nBanana Prata;124;46;;FLV\r\nPão Francês;200;B1;;Padaria\r\n"], { type: "text/csv;charset=utf-8" }), "modelo-importacao-valida.csv");
+$("impModel").onclick = () => download(new Blob(["\ufeffnome;codigo_balanca;codigo_doacao;ean;categoria;codigo_sistema\r\nMamão Papaya;123;45;;FLV;1001\r\nBanana Prata;124;46;;FLV;1002\r\nPão Francês;200;B1;;Padaria;2001\r\n"], { type: "text/csv;charset=utf-8" }), "modelo-importacao-valida.csv");
 
 if (db) startPresence(); else localStats();
 
@@ -1636,7 +1676,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.05-17";
+const APP_VERSION = "2026.10.06-18";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
