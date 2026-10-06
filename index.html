@@ -733,7 +733,8 @@ function show(title, scan) {
 }
 // ----- foto do produto (miniatura 160 px, guardada no próprio cadastro) -----
 let curFoto = "", FM = new Map();
-const fotoMap = () => { const m = new Map(); products.forEach(p => { if (p.foto) m.set(norm(p.name || ""), p.foto); }); return m; };
+const FOK = "validamais-fotos";   // cópia das fotos neste aparelho (vale mesmo se o Firebase recusar o campo foto)
+const fotoMap = () => { const m = new Map(Object.entries(store.get(FOK, {}))); products.forEach(p => { if (p.foto) m.set(norm(p.name || ""), p.foto); }); return m; };
 function fotoSet(d) { curFoto = d || ""; const im = $("fotoPrev"); im.src = curFoto; im.classList.toggle("hidden", !curFoto); $("fotoDel").classList.toggle("hidden", !curFoto); $("fotoBtn").textContent = curFoto ? "📷 Trocar foto" : "📷 Tirar foto"; }
 $("fotoDel").onclick = () => fotoSet("");
 $("fotoIn").onchange = async () => {
@@ -821,11 +822,17 @@ async function save(next) {
     data.foto = (!id && !curFoto) ? antes2 : curFoto;
     if ((id || curFoto) && curFoto !== antes2) outros.forEach(x => { if ((x.foto || "") !== curFoto) { if (db) V.updateDoc(V.doc(db, "products", x.id), { foto: curFoto }).catch(() => {}); else x.foto = curFoto; } }); }
   store.set(LC, data.category);
+  { const fm = store.get(FOK, {}), fk = norm(data.name); if (data.foto) fm[fk] = data.foto; else if (id) delete fm[fk]; try { store.set(FOK, fm); } catch (e) { console.error(e); } }
   if (db) {
     const ts = V.serverTimestamp();
     const p = id ? V.updateDoc(V.doc(db, "products", id), { ...data, updatedAt: ts })
                  : V.addDoc(V.collection(db, "products"), { ...data, createdAt: ts, updatedAt: ts });
-    p.catch(e => { console.error(e); toast("Erro ao salvar na nuvem. Confira as regras do Firestore."); });
+    p.catch(e => { console.error(e);
+      if (!data.foto) { toast("Erro ao salvar na nuvem. Confira as regras do Firestore."); return; }
+      const { foto, ...semFoto } = data;   // as regras podem recusar o campo foto: grava o cadastro sem ela e mantém a foto neste aparelho
+      (id ? V.updateDoc(V.doc(db, "products", id), { ...semFoto, updatedAt: ts }) : V.addDoc(V.collection(db, "products"), { ...semFoto, createdAt: ts, updatedAt: ts }))
+        .then(() => toast("Cadastro salvo. A foto ficou só neste aparelho (o Firebase recusou a foto)."))
+        .catch(e2 => { console.error(e2); toast("Erro ao salvar na nuvem. Confira as regras do Firestore."); }); });
   } else {
     if (id) products = products.map(x => x.id === id ? { ...x, ...data, updatedAt: Date.now() } : x); else products.push({ ...data, id: uid(), updatedAt: Date.now() });
     persist(); render();
@@ -1676,7 +1683,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.06-25";
+const APP_VERSION = "2026.10.06-26";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
