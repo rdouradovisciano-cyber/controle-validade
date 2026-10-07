@@ -251,6 +251,7 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .dcod{display:block;font-size:13px;font-weight:700;color:var(--g);letter-spacing:.3px;font-variant-numeric:tabular-nums;margin-top:1px}
 .dq{font-size:23px;font-weight:700;white-space:nowrap;color:var(--g-d)}
 .dq span{font-size:13px;color:var(--mut);font-weight:600}
+body.semdoa #tbDoacao,body.semdoa #navDoacao{display:none!important}
 .setbg{position:fixed;inset:0;z-index:90;background:rgba(5,14,10,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:18px}
 .setgrid{display:grid;gap:10px;margin-top:14px}.setgrid button{min-height:56px;border-radius:16px;border:1.5px solid var(--ln);background:var(--lt);color:var(--g-d);font-size:18px;font-weight:800}.setgrid button.sel{background:var(--g);color:#fff;border-color:var(--g)}
 .etqinfo{margin:0 2px 8px;color:var(--mut);font-size:12.5px;line-height:1.45}.etqinfo summary{cursor:pointer;list-style:none;font-size:12px;font-weight:600;color:var(--mut);opacity:.8;padding:4px 2px;min-height:28px}.etqinfo summary::-webkit-details-marker{display:none}.etqinfo[open] summary{margin-bottom:4px}.etqinfo span{display:block}.etqinfo ol{margin:6px 0 0;padding-left:18px}.etqinfo li{margin:2px 0}.etqnote{margin-top:6px;font-style:italic}
@@ -1078,7 +1079,8 @@ $("scansBox").ontoggle = () => {
 };
 
 // ---------- setor, menu lateral, voz e foto da validade ----------
-store.set(LC, defCat()); render();
+const setorAplica = () => { document.body.classList.toggle("semdoa", setorAtual() !== "FLV"); if (curTab === "Doacao" && setorAtual() !== "FLV") tab("Loja"); };   // só o FLV usa a aba Doação
+setorAplica(); store.set(LC, defCat()); render();
 function setorAsk() {   // menu de entrada: escolha do setor (filtra as Validades e define a categoria padrão dos cadastros)
   const cur = setorAtual(), bg = document.createElement("div"); bg.className = "setbg";
   bg.innerHTML = `<div class="ask" role="dialog" aria-modal="true"><div class="ai">🏬</div><h3>Qual é o seu setor?</h3><p>Escolha para abrir já no seu setor.</p><div class="setgrid">` +
@@ -1086,7 +1088,7 @@ function setorAsk() {   // menu de entrada: escolha do setor (filtra as Validade
   document.body.appendChild(bg);
   bg.onclick = e => { const b = e.target.closest("[data-s]"); if (!b) return; const c = b.dataset.s;
     try { localStorage.setItem(SETK, JSON.stringify(c)); } catch (x) {}
-    store.set(LC, defCat()); $("categoryFilter").value = c; $("statusFilter").value = ""; $("search").value = ""; bg.remove(); setorLbl(); render(); tab("Loja"); };
+    setorAplica(); store.set(LC, defCat()); $("categoryFilter").value = c; $("statusFilter").value = ""; $("search").value = ""; bg.remove(); setorLbl(); render(); tab("Loja"); };
 }
 const setorLbl = () => { const sm = $("navSetor").querySelector("small"); if (sm) sm.textContent = "Setor atual: " + setorAtual(); };
 $("navSetor").onclick = () => { side(false); setorAsk(); }; setorLbl();
@@ -1715,7 +1717,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.06-32";
+const APP_VERSION = "2026.10.06-33";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -1827,8 +1829,8 @@ function blocked(t){if(t.closest&&t.closest("input,textarea,select,.rwrap,#reade
 var m=document.querySelectorAll(".modal,#confView,.side.open");for(var i=0;i<m.length;i++){if(!m[i].classList.contains("hidden")&&getComputedStyle(m[i]).display!=="none")return true}return false}
 document.addEventListener("touchstart",function(e){if(e.touches.length!==1){ok=false;return}var t=e.touches[0];x0=t.clientX;y0=t.clientY;ok=!blocked(e.target)},{passive:true});
 document.addEventListener("touchend",function(e){if(!ok)return;ok=false;var t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;
-if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*2)return;var cur=T.indexOf(document.body.dataset.tab||"Loja"),n=cur+(dx<0?1:-1);
-if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:true});})();</script>
+if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*2)return;var L=document.body.classList.contains("semdoa")?T.slice(0,2):T,cur=L.indexOf(document.body.dataset.tab||"Loja"),n=cur+(dx<0?1:-1);
+if(n<0||n>=L.length)return;g("nav"+L[n]).click();window.scrollTo(0,0)},{passive:true});})();</script>
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
