@@ -510,6 +510,10 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 .tabbar button{padding:0 2px;font-size:12px;white-space:nowrap}
 body[data-tab="Inventario"] .fabwrap,body[data-tab="Inventario"] .fabscrim{display:none}
 .ivcode{font-size:32px;font-weight:800;color:var(--g-d);text-align:center;letter-spacing:.5px;font-variant-numeric:tabular-nums;line-height:1.15;word-break:break-all;margin-top:6px}
+.ivcodes{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.ivcodes span{text-align:center}
+.ivcodes small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--mut)}
+.ivcodes b{font-size:30px;font-weight:800;color:var(--g-d);font-variant-numeric:tabular-nums;line-height:1.15;word-break:break-all}
 .ivname{text-align:center;font-size:17px;font-weight:700;text-transform:uppercase;color:var(--ink);margin:2px 0 6px;line-height:1.25}
 .ivcard .qh{margin-bottom:8px}
 .ivli{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--ln);cursor:pointer}
@@ -585,7 +589,7 @@ html[data-tema=dark] .ivtbl th{background:#1a6a45}
 <section class="panel"><div class="qh"><h2 class="h2" id="ivCName" style="margin:0"></h2><span class="hbadge" id="ivCPct">0%</span></div>
 <div class="prog"><div id="ivCBar" style="width:0%"></div></div><small class="note" id="ivCInfo" style="margin:0"></small></section>
 <section class="panel" id="ivCur"><small class="note" id="ivCNum" style="text-align:center;margin:0"></small>
-<div class="ivcode" id="ivCCode"></div><div class="ivname" id="ivCItem"></div>
+<div class="ivcodes" id="ivCCode"></div><div class="ivname" id="ivCItem"></div>
 <label for="ivPeso" id="ivPesoL">Quantidade</label>
 <input id="ivPeso" type="text" readonly inputmode="none" data-np data-np-submit="#ivOk" data-np-label="Confirmar" placeholder="kg (ex.: 2,5)" autocomplete="off">
 <div class="toolbar" style="margin-top:12px"><button type="button" class="primary big" id="ivOk">Confirmar</button><button type="button" class="secondary big" id="ivZero">Não tem</button></div>
@@ -700,6 +704,7 @@ let curTab = "Loja";
 const LOJA = C.loja || "Sam's Club Radial Leste";
 const EMPTY_FLV = '<div class="empty"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="#9db8a4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 28h44l-5 22a4 4 0 0 1-4 3H19a4 4 0 0 1-4-3z"/><path d="M22 28c0-9 4-16 10-16s10 7 10 16"/><path d="M32 12c0-4 3-7 8-7 0 5-3 8-8 7z"/></svg><p>Nenhum produto do FLV com validade para vencer no momento.</p></div>';
 let products = [], db = null, scanner = null, toastTimer;
+window.vmProducts = () => products;
 const cloud = !!fb.apiKey && !/COLE_|SEU_/.test(fb.apiKey + fb.projectId);
 const store = {
   get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
@@ -1777,7 +1782,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.07-36";
+const APP_VERSION = "2026.10.07-37";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -1894,7 +1899,7 @@ if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
-var UPDATES=[{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+var UPDATES=[{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código de doação ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
@@ -2008,6 +2013,7 @@ var S=rd(KEY,null);if(!S||!Array.isArray(S.bancas))S={bancas:[]};
 function save(){wr(KEY,S)}
 function me(){var n=rd("validamais-operador","");return typeof n==="string"&&n?n:"Aparelho"}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function normS(s){return String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim()}
 function fmt(n){return(Math.round(n*10)/10).toLocaleString("pt-BR",{maximumFractionDigits:1})}
 function num(s){var n=parseFloat(String(s).replace(",","."));return isNaN(n)?null:n}
 function uid(){return Math.random().toString(36).slice(2,8)}
@@ -2030,7 +2036,7 @@ function totals(){
   var rows=S.bancas.map(function(b){
     var s=stats(b);kg+=s.kg;un+=s.un;n+=s.n;m+=s.m;
     b.itens.forEach(function(it){var v=s.e.cont[it.c];if(typeof v!=="number")return;
-      var p=prod[it.c]||(prod[it.c]={c:it.c,n:it.n,u:it.u,v:0});p.v+=v});
+      var p=prod[it.c]||(prod[it.c]={c:it.c,n:it.n,u:it.u,b:it.b,d:it.d,e:it.e,v:0});p.v+=v});
     return{b:b,s:s};
   });
   var arr=Object.keys(prod).map(function(k){return prod[k]}).sort(function(a,b){return b.v-a.v});
@@ -2038,27 +2044,90 @@ function totals(){
 }
 function pctOf(a,b){return b?Math.round(a/b*100):0}
 
-/* ---- produtos ---- */
+/* ---- cadastro de produtos do app (busca por código de balança, de doação, EAN ou nome) ---- */
+function catalog(){try{return typeof window.vmProducts==="function"?(window.vmProducts()||[]):[]}catch(e){return[]}}
+function unitFor(name){var m=rd("validamais-dunid",{});return m[normS(name)]||(/^abacaxi/.test(normS(name))?"un":"kg")}
+function merged(){
+  var map={},list=[];
+  catalog().forEach(function(p){
+    var n=String(p.name||"").trim();if(!n)return;
+    var k=normS(n),m=map[k];
+    if(!m){m=map[k]={n:n,b:"",d:"",e:"",cat:p.category||""};list.push(m)}
+    if(!m.b&&p.codigo_balanca)m.b=String(p.codigo_balanca).slice(0,12);
+    if(!m.d&&p.codigo_doacao)m.d=String(p.codigo_doacao).slice(0,12);
+    if(!m.e&&p.barcode)m.e=String(p.barcode).slice(0,20);
+  });
+  return list;
+}
+function isNum(s){return/^\d+$/.test(s)}
+function codeEq(q,code){
+  if(!code)return false;var c=String(code).toLowerCase();
+  return c===q||(isNum(q)&&isNum(c)&&Number(c)===Number(q));
+}
+function search(q){
+  q=normS(q);if(!q)return[];
+  var toks=q.split(/\s+/),out=[];
+  merged().forEach(function(h){
+    var n=normS(h.n),sc=0;
+    if(codeEq(q,h.b)||codeEq(q,h.d)||codeEq(q,h.e))sc=100;
+    else if((h.b&&String(h.b).toLowerCase().indexOf(q)===0)||(h.d&&String(h.d).toLowerCase().indexOf(q)===0)||(h.e&&String(h.e).indexOf(q)===0))sc=60;
+    else if(n.indexOf(q)===0)sc=40;
+    else if(toks.every(function(t){return n.indexOf(t)>=0}))sc=20;
+    if(sc){var x={};for(var k in h)x[k]=h[k];x.sc=sc;out.push(x)}
+  });
+  out.sort(function(a,b){return b.sc-a.sc||(a.cat==="FLV"?0:1)-(b.cat==="FLV"?0:1)||a.n.localeCompare(b.n)});
+  return out.slice(0,8);
+}
+function keyOf(h){return h.b?"b"+h.b:h.d?"d"+h.d:h.e?"e"+h.e:"n"+normS(h.n).slice(0,38)}
+function toItem(h){return{c:keyOf(h),n:h.n,u:unitFor(h.n),b:h.b||"",d:h.d||"",e:h.e||""}}
+function codesTxt(it){
+  var p=[];
+  if(it.b)p.push("Balança "+it.b);
+  if(it.d)p.push("Doação "+it.d);
+  if(!p.length&&it.e)p.push("EAN "+it.e);
+  if(!p.length&&it.c&&normS(it.c)!==normS(it.n))p.push("Cód. "+it.c);
+  return esc(p.join(" · "));
+}
+function codesBig(it){
+  var p=[];
+  if(it.b)p.push("<span><small>BALANÇA</small><b>"+esc(it.b)+"</b></span>");
+  if(it.d)p.push("<span><small>DOAÇÃO</small><b>"+esc(it.d)+"</b></span>");
+  if(!p.length&&it.e)p.push("<span><small>EAN</small><b>"+esc(it.e)+"</b></span>");
+  if(!p.length&&it.c&&normS(it.c)!==normS(it.n))p.push("<span><small>CÓDIGO</small><b>"+esc(it.c)+"</b></span>");
+  return p.join("");
+}
+
+/* ---- lista colada (código;nome;un) ---- */
 function parseItens(txt){
-  var out=[],seen={};
+  var out=[],seen={},cat=merged();
   txt.split(/\n/).forEach(function(line){
     line=line.trim();if(!line)return;
     var p;
     if(/[;\t]/.test(line))p=line.split(/[;\t]/).map(function(x){return x.trim()});
     else{var m=line.match(/^(\S+)\s+(.+)$/);p=m?[m[1],m[2]]:[line,line]}
-    var c=p[0],n=p[1]||p[0],u=/^un/i.test(p[2]||"")?"un":"kg";
-    if(!c||seen[c])return;seen[c]=1;out.push({c:c.slice(0,24),n:n.slice(0,60),u:u});
+    var c=p[0],n=p[1]||p[0],un=/^un/i.test(p[2]||"");
+    if(!c)return;
+    var q=c.toLowerCase(),hit=null;
+    for(var i=0;i<cat.length&&!hit;i++){if(codeEq(q,cat[i].b)||codeEq(q,cat[i].d)||codeEq(q,cat[i].e))hit=cat[i]}
+    var it=hit?toItem(hit):{c:c.slice(0,24),n:n.slice(0,60),u:"kg",b:"",d:"",e:""};
+    if(un)it.u="un";
+    if(seen[it.c])return;seen[it.c]=1;out.push(it);
   });
   return out;
 }
-function itensTxt(a){return a.map(function(x){return x.u==="un"?x.c+";"+x.n+";un":x.c+";"+x.n}).join("\n")}
 
 /* ---- compartilhar / importar ---- */
 function enc(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
 function dec(s){s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";return JSON.parse(decodeURIComponent(escape(atob(s))))}
 function link(o){return location.href.split("#")[0]+"#inv="+enc(o)}
-function pack(a){return a.map(function(x){return x.u==="un"?[x.c,x.n,"un"]:[x.c,x.n]})}
-function unpack(a){if(!Array.isArray(a))throw 0;return a.slice(0,500).map(function(r){if(!Array.isArray(r)||!r[0])throw 0;return{c:String(r[0]).slice(0,24),n:String(r[1]||r[0]).slice(0,60),u:r[2]==="un"?"un":"kg"}})}
+function pack(a){return a.map(function(x){return[x.c,x.n,x.u,x.b||"",x.d||"",x.e||""]})}
+function unpack(a){
+  if(!Array.isArray(a))throw 0;
+  return a.slice(0,500).map(function(r){
+    if(!Array.isArray(r)||!r[0])throw 0;
+    return{c:String(r[0]).slice(0,40),n:String(r[1]||r[0]).slice(0,60),u:r[2]==="un"?"un":"kg",b:String(r[3]||"").slice(0,12),d:String(r[4]||"").slice(0,12),e:String(r[5]||"").slice(0,20)};
+  });
+}
 function cfgLink(l){return link({k:"cfg",b:l.map(function(b){return{id:b.id,n:b.nome,i:pack(b.itens)}})})}
 function resLink(b){var e=eff(b);return link({k:"res",id:b.id,n:b.nome,i:pack(b.itens),c:e.cont,por:e.por||me(),t:e.t||Date.now()})}
 function share(msg){
@@ -2097,18 +2166,19 @@ function importText(txt){
 /* ---- telas (lista) ---- */
 var V={v:"home"};
 function btn(cls,act,txt,id){return'<button type="button" class="'+cls+'" data-iv="'+act+'"'+(id?' data-id="'+id+'"':'')+'>'+txt+'</button>'}
+function full(h){return h.replace(/class="(secondary|danger)"/,'class="$1" style="width:100%"')}
 function barHtml(p,ok){return'<div class="prog"><div style="width:'+p+'%'+(ok?';background:linear-gradient(90deg,var(--g3),var(--g2))':'')+'"></div></div>'}
 function vHome(){
   var T=totals(),h='';
   if(S.bancas.length)h+='<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">Avanço geral</h2><span class="hbadge">'+T.pct+'%</span></div>'+barHtml(T.pct)+'<small class="note" style="margin:0">'+T.n+' de '+T.m+' produtos · '+fmt(T.kg)+' kg</small></section>';
-  else h+='<section class="panel"><h2 class="h2">Nenhuma banca ainda</h2><p class="note">Cadastre as bancas e os produtos de cada uma, ou importe o link que alguém enviou.</p>'+btn("primary big","new","＋ Nova banca")+'</section>';
+  else h+='<section class="panel"><h2 class="h2">Nenhuma banca ainda</h2><p class="note">Monte as bancas buscando os produtos pelo código, ou importe o link que alguém enviou.</p>'+btn("primary big","new","＋ Nova banca")+'</section>';
   T.rows.forEach(function(r){
     var b=r.b,s=r.s,ok=s.pct===100;
     h+='<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">'+esc(b.nome)+'</h2><span class="hbadge">'+(ok?"concluída":s.pct+"%")+'</span></div>'+barHtml(s.pct)
       +'<small class="note" style="margin:0 0 10px">'+s.n+' de '+s.m+' produtos'+(s.por?' · '+esc(s.por):'')+(s.kg?' · '+fmt(s.kg)+' kg':'')+'</small>'
       +'<div class="toolbar">'+btn("primary big","count",s.n===0?"Começar":ok?"Revisar":"Continuar",b.id)+btn("secondary big","sendres","Enviar",b.id)+'</div></section>';
   });
-  h+='<div class="toolbar">'+btn("secondary","cfg","⚙️ Bancas")+btn("secondary","sum","📊 Resumo")+'</div><div class="ivsp"></div>'+btn("secondary","imp","📥 Importar link ou código").replace('class="secondary"','class="secondary" style="width:100%"');
+  h+='<div class="toolbar">'+btn("secondary","cfg","⚙️ Bancas")+btn("secondary","sum","📊 Resumo")+'</div><div class="ivsp"></div>'+full(btn("secondary","imp","📥 Importar link ou código"));
   return h;
 }
 function vCfg(){
@@ -2116,19 +2186,50 @@ function vCfg(){
   S.bancas.forEach(function(b){
     h+='<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">'+esc(b.nome)+'</h2><span class="hbadge">'+b.itens.length+' produtos</span></div><div class="toolbar" style="margin-top:10px">'+btn("secondary","edit","Editar",b.id)+btn("secondary","sendcfg","Enviar p/ contador",b.id)+'</div></section>';
   });
-  if(S.bancas.length>1)h+=btn("secondary","sendall","Enviar todas as bancas").replace('class="secondary"','class="secondary" style="width:100%"')+'<div class="ivsp"></div>';
-  if(S.bancas.length)h+=btn("danger","reset","Zerar contagens (manter bancas)").replace('class="danger"','class="danger" style="width:100%"');
+  if(S.bancas.length>1)h+=full(btn("secondary","sendall","Enviar todas as bancas"))+'<div class="ivsp"></div>';
+  if(S.bancas.length)h+=full(btn("danger","reset","Zerar contagens (manter bancas)"));
   return h;
 }
 function vEdit(){
   var b=V.id?S.bancas.filter(function(x){return x.id===V.id})[0]:null;
   return'<section class="panel"><h2 class="h2">'+(b?"Editar banca":"Nova banca")+'</h2>'
-    +'<label for="ivNome">Nome da banca</label><input id="ivNome" placeholder="Ex.: Banca das Frutas" maxlength="40" value="'+(b?esc(b.nome):'')+'">'
-    +'<label for="ivItens">Produtos: um por linha (código;nome). Por unidade: código;nome;un</label>'
-    +'<textarea id="ivItens" placeholder="1001;Banana prata&#10;1002;Tomate&#10;1003;Alface;un">'+(b?esc(itensTxt(b.itens)):'')+'</textarea>'
-    +'<small class="note">Também vale separar por espaço: <b>1001 Banana prata</b></small>'
-    +'<div class="toolbar" style="margin-top:10px">'+btn("secondary big","cfg","Cancelar")+btn("primary big","saveb","Salvar")+'</div>'
-    +(b?'<div class="ivsp"></div>'+btn("danger","delb","Excluir banca").replace('class="danger"','class="danger" style="width:100%"'):'')+'</section>';
+    +'<label for="ivNome">Nome da banca</label><input id="ivNome" placeholder="Ex.: Banca das Frutas" maxlength="40" value="'+esc(V.nome||"")+'">'
+    +'<label for="ivBusca">Buscar produto: código de balança, código de doação ou nome</label>'
+    +'<input id="ivBusca" type="search" placeholder="Ex.: 123, B1 ou banana" autocomplete="off">'
+    +'<div id="ivRes" class="rows"></div></section>'
+    +'<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">Produtos da banca</h2><span class="hbadge" id="ivECount">0</span></div><div id="ivEList" style="margin-top:6px"></div>'
+    +'<details style="margin-top:10px"><summary>Colar lista de códigos</summary>'
+    +'<textarea id="ivItens" placeholder="123&#10;B1&#10;1003;Abacaxi;un"></textarea>'
+    +'<small class="note">Um por linha. Códigos que existem no cadastro entram com nome e os dois códigos. Para item por unidade, termine com ;un</small>'
+    +'<div class="ivsp"></div>'+full(btn("secondary","addpaste","Adicionar à banca"))+'</details></section>'
+    +'<div class="toolbar">'+btn("secondary big","cfg","Cancelar")+btn("primary big","saveb","Salvar")+'</div>'
+    +(b?'<div class="ivsp"></div>'+full(btn("danger","delb","Excluir banca")):'');
+}
+function renderEList(){
+  var el=g("ivEList");if(!el)return;
+  g("ivECount").textContent=V.items.length+" produtos";
+  el.innerHTML=V.items.length?V.items.map(function(it,i){
+    return'<div class="ivli" style="cursor:default"><span>'+esc(it.n)+'<small>'+codesTxt(it)+'</small></span><span class="ivrow" style="flex:none"><button type="button" class="secondary" style="min-height:36px;padding:0 12px" data-iv="unit" data-i="'+i+'" aria-label="Trocar unidade">'+it.u+'</button><button type="button" class="danger" style="min-height:36px;padding:0 12px" data-iv="rm" data-i="'+i+'" aria-label="Remover">✕</button></span></div>';
+  }).join(""):'<small class="note">Busque um produto acima para adicioná-lo.</small>';
+}
+function renderRes(){
+  var el=g("ivRes");if(!el)return;
+  var q=g("ivBusca").value;V.hits=[];
+  if(!q.trim()){el.innerHTML="";return}
+  if(!merged().length){el.innerHTML='<small class="note">O cadastro de produtos ainda não carregou. Aguarde um instante ou use «Colar lista de códigos».</small>';return}
+  V.hits=search(q);
+  if(!V.hits.length){el.innerHTML='<small class="note">Nenhum produto encontrado para «'+esc(q)+'».</small>';return}
+  el.innerHTML=V.hits.map(function(h,i){
+    var it=toItem(h),has=V.items.some(function(x){return x.c===it.c});
+    return'<div class="pick" data-iv="add" data-i="'+i+'"><b>'+esc(h.n)+'</b>'+(has?' <span class="hbadge">✓ na banca</span>':'')+'<br><small class="muted">'+(codesTxt(it)||"sem código")+'</small></div>';
+  }).join("");
+}
+function addHit(i){
+  var h=V.hits&&V.hits[i];if(!h)return;
+  var it=toItem(h);
+  if(V.items.some(function(x){return x.c===it.c})){toast("Já está na banca");return}
+  V.items.push(it);renderEList();
+  var b=g("ivBusca");b.value="";renderRes();b.focus();toast("Adicionado: "+it.n);
 }
 function sumText(){
   var T=totals(),t="INVENTÁRIO FLV — "+new Date().toLocaleDateString("pt-BR")+"\n";
@@ -2144,7 +2245,7 @@ function vSum(){
   h+='</tbody><tfoot><tr><td>Total</td><td>'+T.pct+'%</td><td>'+fmt(T.kg)+'</td><td>100%</td></tr></tfoot></table></div>'+(T.un?'<small class="note">Itens por unidade: '+fmt(T.un)+' un</small>':'')+'</section>';
   if(T.prod.length){
     h+='<section class="panel"><h2 class="h2">Por produto</h2><div class="rwrap"><table class="ivtbl"><tbody>';
-    T.prod.forEach(function(p){h+='<tr><td>'+esc(p.c)+' · '+esc(p.n)+'</td><td>'+fmt(p.v)+' '+p.u+'</td><td>'+(p.u==="kg"?pctOf(p.v,T.kg)+"%":"")+'</td></tr>'});
+    T.prod.forEach(function(p){h+='<tr><td>'+esc(p.n)+'<small>'+codesTxt(p)+'</small></td><td>'+fmt(p.v)+' '+p.u+'</td><td>'+(p.u==="kg"?pctOf(p.v,T.kg)+"%":"")+'</td></tr>'});
     h+='</tbody></table></div></section>';
   }
   return h+'<div class="toolbar">'+btn("primary big","sharesum","Enviar resumo")+btn("secondary big","copysum","Copiar")+'</div>';
@@ -2172,7 +2273,7 @@ function renderCount(){
   else{
     var it=b.itens[V.i],cv=c[it.c],p=g("ivPeso");
     g("ivCNum").textContent="Produto "+(V.i+1)+" de "+s.m;
-    g("ivCCode").textContent=it.c;g("ivCItem").textContent=it.n;
+    g("ivCCode").innerHTML=codesBig(it);g("ivCItem").textContent=it.n;
     g("ivPesoL").textContent=it.n+" ("+it.u+")";
     p.value=typeof cv==="number"?String(cv).replace(".",","):"";
     p.placeholder=it.u==="un"?"unidades (ex.: 3)":"kg (ex.: 2,5)";
@@ -2180,7 +2281,7 @@ function renderCount(){
   }
   g("ivList").innerHTML=b.itens.map(function(it,i){
     var v=c[it.c],ok=typeof v==="number";
-    return'<div class="ivli'+(ok?' ok':'')+(i===V.i?' cur':'')+'" data-i="'+i+'"><span>'+esc(it.n)+'<small>'+esc(it.c)+'</small></span><b>'+(ok?fmt(v)+' '+it.u:'—')+'</b></div>';
+    return'<div class="ivli'+(ok?' ok':'')+(i===V.i?' cur':'')+'" data-i="'+i+'"><span>'+esc(it.n)+'<small>'+codesTxt(it)+'</small></span><b>'+(ok?fmt(v)+' '+it.u:'—')+'</b></div>';
   }).join("");
 }
 function setv(v){
@@ -2197,6 +2298,7 @@ function render(){
   if(c){renderCount();return}
   var f={home:vHome,cfg:vCfg,edit:vEdit,sum:vSum,imp:vImp}[V.v]||vHome;
   g("ivMain").innerHTML=f();
+  if(V.v==="edit")renderEList();
 }
 
 g("tabInventario").addEventListener("click",function(e){
@@ -2209,15 +2311,23 @@ g("tabInventario").addEventListener("click",function(e){
     case"cfg":V={v:"cfg"};break;
     case"sum":V={v:"sum"};break;
     case"imp":V={v:"imp"};break;
-    case"new":V={v:"edit",id:null};break;
-    case"edit":V={v:"edit",id:id};break;
+    case"new":V={v:"edit",id:null,nome:"",items:[],hits:[]};break;
+    case"edit":V={v:"edit",id:id,nome:b.nome,items:b.itens.map(function(x){var y={};for(var k in x)y[k]=x[k];return y}),hits:[]};break;
+    case"add":addHit(+el.dataset.i);return;
+    case"rm":V.items.splice(+el.dataset.i,1);renderEList();renderRes();return;
+    case"unit":{var it=V.items[+el.dataset.i];it.u=it.u==="un"?"kg":"un";renderEList();return}
+    case"addpaste":{
+      var novos=parseItens(g("ivItens").value),n=0;
+      novos.forEach(function(x){if(!V.items.some(function(y){return y.c===x.c})){V.items.push(x);n++}});
+      g("ivItens").value="";renderEList();toast(n?n+" produto(s) adicionado(s)":"Nada novo para adicionar");return;
+    }
     case"count":b.cont=b.cont||{};V={v:"count",id:id,i:nextPending(b,0)};break;
     case"saveb":{
-      var nome=g("ivNome").value.trim(),itens=parseItens(g("ivItens").value);
-      if(!nome){toast("Dê um nome à banca");return}
-      if(!itens.length){toast("Informe ao menos um produto");return}
-      if(V.id){var x=S.bancas.filter(function(y){return y.id===V.id})[0];x.nome=nome;x.itens=itens}
-      else S.bancas.push({id:uid(),nome:nome,itens:itens,cont:{}});
+      var nome=g("ivNome").value.trim();
+      if(!nome){toast("Dê um nome à banca");g("ivNome").focus();return}
+      if(!V.items.length){toast("Adicione ao menos um produto");return}
+      if(V.id){var x=S.bancas.filter(function(y){return y.id===V.id})[0];x.nome=nome;x.itens=V.items}
+      else S.bancas.push({id:uid(),nome:nome,itens:V.items,cont:{}});
       save();V={v:"cfg"};toast("Banca salva");break;
     }
     case"delb":if(!confirm("Excluir esta banca?"))return;S.bancas=S.bancas.filter(function(y){return y.id!==V.id});save();V={v:"cfg"};break;
@@ -2232,6 +2342,8 @@ g("tabInventario").addEventListener("click",function(e){
   }
   render();window.scrollTo(0,0);
 });
+g("tabInventario").addEventListener("input",function(e){if(e.target.id==="ivBusca")renderRes();if(e.target.id==="ivNome")V.nome=e.target.value});
+g("tabInventario").addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="ivBusca"){e.preventDefault();if(V.hits&&V.hits.length)addHit(0)}});
 g("ivOk").onclick=function(){var v=num(g("ivPeso").value);if(v===null||v<0){toast("Digite a quantidade");return}setv(v)};
 g("ivZero").onclick=function(){setv(0)};
 g("ivPrev").onclick=function(){var b=bcur();if(!b)return;V.i=Math.max(0,(V.i<0?b.itens.length:V.i)-1);renderCount()};
