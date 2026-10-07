@@ -1782,7 +1782,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.07-37";
+const APP_VERSION = "2026.10.07-38";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -1899,7 +1899,7 @@ if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
-var UPDATES=[{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código de doação ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+var UPDATES=[{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código interno ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
@@ -2044,7 +2044,7 @@ function totals(){
 }
 function pctOf(a,b){return b?Math.round(a/b*100):0}
 
-/* ---- cadastro de produtos do app (busca por código de balança, de doação, EAN ou nome) ---- */
+/* ---- cadastro de produtos do app (busca por código de balança, código interno, EAN ou nome) ---- */
 function catalog(){try{return typeof window.vmProducts==="function"?(window.vmProducts()||[]):[]}catch(e){return[]}}
 function unitFor(name){var m=rd("validamais-dunid",{});return m[normS(name)]||(/^abacaxi/.test(normS(name))?"un":"kg")}
 function merged(){
@@ -2083,7 +2083,7 @@ function toItem(h){return{c:keyOf(h),n:h.n,u:unitFor(h.n),b:h.b||"",d:h.d||"",e:
 function codesTxt(it){
   var p=[];
   if(it.b)p.push("Balança "+it.b);
-  if(it.d)p.push("Doação "+it.d);
+  if(it.d)p.push("Cód. interno "+it.d);
   if(!p.length&&it.e)p.push("EAN "+it.e);
   if(!p.length&&it.c&&normS(it.c)!==normS(it.n))p.push("Cód. "+it.c);
   return esc(p.join(" · "));
@@ -2091,7 +2091,7 @@ function codesTxt(it){
 function codesBig(it){
   var p=[];
   if(it.b)p.push("<span><small>BALANÇA</small><b>"+esc(it.b)+"</b></span>");
-  if(it.d)p.push("<span><small>DOAÇÃO</small><b>"+esc(it.d)+"</b></span>");
+  if(it.d)p.push("<span><small>CÓD. INTERNO</small><b>"+esc(it.d)+"</b></span>");
   if(!p.length&&it.e)p.push("<span><small>EAN</small><b>"+esc(it.e)+"</b></span>");
   if(!p.length&&it.c&&normS(it.c)!==normS(it.n))p.push("<span><small>CÓDIGO</small><b>"+esc(it.c)+"</b></span>");
   return p.join("");
@@ -2194,7 +2194,7 @@ function vEdit(){
   var b=V.id?S.bancas.filter(function(x){return x.id===V.id})[0]:null;
   return'<section class="panel"><h2 class="h2">'+(b?"Editar banca":"Nova banca")+'</h2>'
     +'<label for="ivNome">Nome da banca</label><input id="ivNome" placeholder="Ex.: Banca das Frutas" maxlength="40" value="'+esc(V.nome||"")+'">'
-    +'<label for="ivBusca">Buscar produto: código de balança, código de doação ou nome</label>'
+    +'<label for="ivBusca">Buscar produto: código de balança, código interno ou nome</label>'
     +'<input id="ivBusca" type="search" placeholder="Ex.: 123, B1 ou banana" autocomplete="off">'
     +'<div id="ivRes" class="rows"></div></section>'
     +'<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">Produtos da banca</h2><span class="hbadge" id="ivECount">0</span></div><div id="ivEList" style="margin-top:6px"></div>'
