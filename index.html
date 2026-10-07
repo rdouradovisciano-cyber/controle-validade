@@ -110,6 +110,16 @@ label{display:block;font-size:12px;font-weight:700;color:var(--mut);margin:12px 
 .product p.meta b{color:var(--ink)}
 .ctop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .upd{font-size:10px;color:#8a96a3;text-align:right;line-height:1.3;max-width:104px;flex:none}
+.vbox{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;padding:8px 12px;border-radius:12px;background:#eef6f0;border:1px solid #cfe6d6}
+.vd small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--mut)}.vd b{display:block;font-size:24px;font-weight:900;line-height:1.1;color:#14633d;letter-spacing:.01em}
+.vr{display:flex;flex-direction:column;align-items:flex-end;gap:4px}.vr small{font-size:11px;color:var(--mut)}
+.product.soon .vbox{background:#fff3cf;border-color:#f0d98a}.product.soon .vd b{color:#8a6100}
+.product.expired .vbox{background:#fde6e4;border-color:#f3b9b4}.product.expired .vd b{color:#b32d22}
+.product.none .vbox{background:#f0f2f4;border-color:var(--ln)}.product.none .vd b{color:var(--mut);font-size:18px}
+html[data-tema=dark] .vbox{background:#14281c;border-color:#24493a}html[data-tema=dark] .vd b{color:#8ee6ae}
+html[data-tema=dark] .product.soon .vbox{background:#2a2410;border-color:#5a4a14}html[data-tema=dark] .product.soon .vd b{color:#ffd666}
+html[data-tema=dark] .product.expired .vbox{background:#2a1415;border-color:#5a2a2a}html[data-tema=dark] .product.expired .vd b{color:#ff9a9a}
+html[data-tema=dark] .product.none .vbox{background:#1b231f}html[data-tema=dark] .product.none .vd b{color:#b6c2bb}
 .pills{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px}
 .pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:4px 11px;font-size:12px;font-weight:800;background:#dcf3e4;color:#14633d}
 .pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
@@ -730,7 +740,7 @@ function render() {
     .sort((a, b) => cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
-    return `<article class="product ${cls}"><div class="ctop"><h3>${(p.foto || FM.get(norm(p.name || ""))) ? `<img class="pth" alt="" src="${p.foto || FM.get(norm(p.name || ""))}">` : ""}${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><p class="meta">Validade: <b>${fmt(p.expiry)}</b>${cnt[p.barcode] > 1 ? ` · ${cnt[p.barcode]} lotes` : ""}</p><div class="pills"><span class="pill">${when(dl)}</span></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
+    return `<article class="product ${cls}"><div class="ctop"><h3>${(p.foto || FM.get(norm(p.name || ""))) ? `<img class="pth" alt="" src="${p.foto || FM.get(norm(p.name || ""))}">` : ""}${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
   }).join("") : (cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
 }
 
@@ -1705,7 +1715,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.06-31";
+const APP_VERSION = "2026.10.06-32";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
