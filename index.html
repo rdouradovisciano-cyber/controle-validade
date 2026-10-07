@@ -243,7 +243,7 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .dq span{font-size:13px;color:var(--mut);font-weight:600}
 .setbg{position:fixed;inset:0;z-index:90;background:rgba(5,14,10,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:18px}
 .setgrid{display:grid;gap:10px;margin-top:14px}.setgrid button{min-height:56px;border-radius:16px;border:1.5px solid var(--ln);background:var(--lt);color:var(--g-d);font-size:18px;font-weight:800}.setgrid button.sel{background:var(--g);color:#fff;border-color:var(--g)}
-.etqinfo{background:var(--lt);border:1px solid var(--ln);border-radius:16px;padding:12px 14px;margin:0 0 12px;color:var(--g-d);font-size:13.5px;line-height:1.45}.etqinfo b{font-weight:800}.etqinfo>b:first-child{display:block;font-size:15px;margin-bottom:4px}.etqinfo span{display:block;color:var(--ink)}.etqinfo ol{margin:8px 0 0;padding-left:20px;color:var(--ink)}.etqinfo li{margin:2px 0}.etqnote{margin-top:8px;font-size:12.5px;color:var(--mut)!important}
+.etqinfo{margin:0 2px 8px;color:var(--mut);font-size:12.5px;line-height:1.45}.etqinfo summary{cursor:pointer;list-style:none;font-size:12px;font-weight:600;color:var(--mut);opacity:.8;padding:4px 2px;min-height:28px}.etqinfo summary::-webkit-details-marker{display:none}.etqinfo[open] summary{margin-bottom:4px}.etqinfo span{display:block}.etqinfo ol{margin:6px 0 0;padding-left:18px}.etqinfo li{margin:2px 0}.etqnote{margin-top:6px;font-style:italic}
 .lchk{flex:none;width:34px;height:34px;align-self:center;margin-right:2px;border-radius:10px;border:2px solid var(--ln);background:var(--card);color:#fff;font-size:20px;font-weight:900;line-height:1;padding:0}.crw.done .lchk{background:var(--g);border-color:var(--g)}.crw.done .crl{opacity:.55}.crw.done .cname{text-decoration:line-through}.emarc{margin:8px 2px 0;font-size:13px;font-weight:700;color:var(--g-d)}
 .askbg{position:fixed;inset:0;z-index:100000;background:rgba(5,14,10,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:18px}
 .ask{background:var(--card);color:var(--ink);border:1px solid var(--ln);border-radius:22px;padding:20px 18px 16px;width:min(100%,420px);box-shadow:0 18px 50px rgba(0,0,0,.5);text-align:center}
@@ -527,7 +527,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 <div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
 </div>
 <div id="tabEtiquetas" class="hidden">
-<div class="etqinfo"><b>🏷️ Etiquetas</b><span>Use esta aba para <b>coletar os códigos de barras dos produtos que precisam de etiquetas na loja</b>.</span><ol><li>Bipe o código ou pesquise o produto pelo nome.</li><li>Segure o item para escolher o tamanho (P, M ou G) e a quantidade.</li><li>Toque no quadrado ao lado do item para marcar as que <b>já foram colocadas para impressão</b>.</li><li>Quando terminar, use <b>Remover todos</b> para limpar a lista.</li></ol><span class="etqnote">O cadastro de produtos pode ser feito por qualquer usuário: se o código ainda não existir, o app pede o nome e cadastra na hora.</span></div>
+<details class="etqinfo"><summary>ℹ️ Como usar esta aba</summary><span>Use esta aba para <b>coletar os códigos de barras dos produtos que precisam de etiquetas na loja</b>.</span><ol><li>Bipe o código ou pesquise o produto pelo nome.</li><li>Segure o item para escolher o tamanho (P, M ou G) e a quantidade.</li><li>Toque no quadrado ao lado do item para marcar as que <b>já foram colocadas para impressão</b>.</li><li>Quando terminar, use <b>Remover todos</b> para limpar a lista.</li></ol><span class="etqnote">O cadastro de produtos pode ser feito por qualquer usuário: se o código ainda não existir, o app pede o nome e cadastra na hora.</span></details>
 <section class="panel"><div class="toolbar"><button class="primary big" id="eScan">▦ Bipar EAN</button></div>
 <input id="eBusca" type="search" placeholder="Ou pesquise o produto pelo nome" style="margin-top:12px"><div id="eRes" class="rows"></div></section>
 <section class="panel hidden" id="ePend"><h2 class="h2" id="eNome"></h2><p class="note" id="eCod"></p>
@@ -1704,7 +1704,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.06-29";
+const APP_VERSION = "2026.10.06-30";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
