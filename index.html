@@ -506,10 +506,33 @@ body:not([data-tab="Doacao"]) .doacao-only{display:none}
 .codbox.none span{color:var(--mut)}
 body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .toast{top:calc(var(--top-h) + 8px + env(safe-area-inset-top))!important;bottom:auto!important}
 </style>
+<style id="inv-css">
+.tabbar button{padding:0 2px;font-size:12px;white-space:nowrap}
+body[data-tab="Inventario"] .fabwrap,body[data-tab="Inventario"] .fabscrim{display:none}
+.ivcode{font-size:32px;font-weight:800;color:var(--g-d);text-align:center;letter-spacing:.5px;font-variant-numeric:tabular-nums;line-height:1.15;word-break:break-all;margin-top:6px}
+.ivname{text-align:center;font-size:17px;font-weight:700;text-transform:uppercase;color:var(--ink);margin:2px 0 6px;line-height:1.25}
+.ivcard .qh{margin-bottom:8px}
+.ivli{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--ln);cursor:pointer}
+.ivli:last-child{border-bottom:0}
+.ivli small{display:block;color:var(--mut);font-size:12px}
+.ivli b{white-space:nowrap}
+.ivli.ok b{color:var(--g)}
+.ivli.cur{background:var(--lt2);margin:0 -6px;padding-left:10px;padding-right:10px;border-radius:10px}
+.ivrow{display:flex;gap:8px}.ivrow>*{flex:1}
+.ivtbl{width:100%;border-collapse:collapse;font-size:14px}
+.ivtbl th{background:var(--g);color:#fff;padding:9px 8px;text-align:right;font-size:11px;letter-spacing:.05em}
+.ivtbl th:first-child,.ivtbl td:first-child{text-align:left}
+.ivtbl td{padding:10px 8px;border-bottom:1px solid var(--ln);text-align:right;font-variant-numeric:tabular-nums}
+.ivtbl tfoot td{font-weight:800;color:var(--g-d);border-bottom:0}
+.ivtbl td small{display:block;color:var(--mut);font-size:11.5px}
+html[data-tema=dark] .ivtbl th{background:#1a6a45}
+#ivMain textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;min-height:190px}
+.ivsp{height:8px}
+</style>
 </head>
 <body data-tab="Loja">
 <main class="app">
-<div class="top"><header><h1>Valida+ <small id="appVer" style="font-size:11px;font-weight:600;opacity:.65;letter-spacing:.3px"></small><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1></header><nav class="tabbar"><button id="tbDoacao">📋 Doação</button><button id="tbEtiquetas">🏷️ Etiquetas</button><button id="tbLoja">⏱️ Validades</button></nav></div>
+<div class="top"><header><h1>Valida+ <small id="appVer" style="font-size:11px;font-weight:600;opacity:.65;letter-spacing:.3px"></small><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1></header><nav class="tabbar"><button id="tbDoacao">📋 Doação</button><button id="tbEtiquetas">🏷️ Etiquetas</button><button id="tbLoja">⏱️ Validades</button><button id="tbInventario">📦 Inventário</button></nav></div>
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
@@ -556,12 +579,29 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="eAdd">Adicionar à lista</button><button class="secondary" id="eCancela">Cancelar</button></div></section>
 <div class="csum"><div><span>PRODUTOS</span><b id="eSumP">0</b></div><div><span>QUANTIDADE TOTAL</span><b id="eSumQ">0</b></div></div><div id="eLista" class="clist"></div><p class="emarc" id="eMarc"></p><button type="button" id="eLimpa" class="secondary hidden" style="width:100%;margin-top:10px">🗑 Remover todos (já imprimi)</button>
 </div>
+<div id="tabInventario" class="hidden">
+<div id="ivMain"></div>
+<div id="ivCount" class="hidden">
+<section class="panel"><div class="qh"><h2 class="h2" id="ivCName" style="margin:0"></h2><span class="hbadge" id="ivCPct">0%</span></div>
+<div class="prog"><div id="ivCBar" style="width:0%"></div></div><small class="note" id="ivCInfo" style="margin:0"></small></section>
+<section class="panel" id="ivCur"><small class="note" id="ivCNum" style="text-align:center;margin:0"></small>
+<div class="ivcode" id="ivCCode"></div><div class="ivname" id="ivCItem"></div>
+<label for="ivPeso" id="ivPesoL">Quantidade</label>
+<input id="ivPeso" type="text" readonly inputmode="none" data-np data-np-submit="#ivOk" data-np-label="Confirmar" placeholder="kg (ex.: 2,5)" autocomplete="off">
+<div class="toolbar" style="margin-top:12px"><button type="button" class="primary big" id="ivOk">Confirmar</button><button type="button" class="secondary big" id="ivZero">Não tem</button></div>
+<div class="toolbar" style="margin-top:8px"><button type="button" class="secondary" id="ivPrev">← Anterior</button><button type="button" class="secondary" id="ivBack">Voltar às bancas</button></div></section>
+<section class="panel hidden" id="ivDone" style="text-align:center"><div class="ivcode">100%</div><p id="ivDoneTxt" style="margin:4px 0 12px"></p>
+<div class="toolbar"><button type="button" class="primary big" id="ivDoneSend">Enviar resultado</button><button type="button" class="secondary big" id="ivDoneCopy">Copiar link</button></div>
+<div class="toolbar" style="margin-top:8px"><button type="button" class="secondary" id="ivDoneBack">Voltar às bancas</button></div></section>
+<section class="panel"><h2 class="h2">Produtos da banca</h2><div id="ivList"></div></section>
+</div>
+</div>
 <footer class="foot hidden"><span><i class="dot v"></i>VISITAS <b id="nVisitas">–</b></span><span><i class="dot" id="dotO"></i>ONLINE <b id="nOnline">–</b></span></footer>
 <details class="updbox hidden" id="updBox"><summary id="updSum"></summary><div id="updBody"></div></details>
 </main>
 <div id="sideBg" class="bg hidden"></div>
 <aside id="side" class="side" aria-label="Menu"><div class="sheethead"><h2>Menu</h2><button class="secondary" id="sideClose" aria-label="Fechar menu">✕</button></div>
-<nav class="menu"><button id="navLoja">⏱️ Validades<small>Ovos e refrigerados</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
+<nav class="menu"><button id="navLoja">⏱️ Validades<small>Ovos e refrigerados</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navInventario">📦 Inventário<small>Contagem de FLV por banca</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
 <section class="panel"><h2 style="font-size:17px;margin:0 0 10px">Exportar</h2>
 <label for="exportScope">O que exportar</label><select id="exportScope"><option value="all">Todos os produtos</option><option value="soon">Vencem em breve</option><option value="expired">Vencidos</option><option value="category">Uma categoria</option><option value="products">Produtos cadastrados (com códigos)</option></select>
 <select id="exportCategory" class="hidden" aria-label="Categoria para exportar" style="margin-top:8px"></select>
@@ -1262,7 +1302,7 @@ const sumU = u => don.itens.filter(i => i.unidade === u).reduce((a, i) => a + i.
 const dataBR = d => new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 function tab(t) {
   curTab = t;
-  ["Loja", "Doacao", "Etiquetas"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); $("tb" + n).classList.toggle("active", n === t); });
+  ["Loja", "Doacao", "Etiquetas", "Inventario"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); $("tb" + n).classList.toggle("active", n === t); });
   document.body.dataset.tab = t;
 }
 function dCodTxt(i) {   // kg: código de doação · un: código de barras
@@ -1561,7 +1601,7 @@ $("dHist").onclick = e => { const b = e.target.closest("[data-hist],[data-sent],
 $("histBox").ontoggle = () => {
   if ($("histBox").open) { if (db) { if (!unsubHist) unsubHist = V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(HLIM)), s => renderHist(s.docs.map(d => withEdits({ ...d.data(), _id: d.id })))); } else reloadLocalHist(); }
   else if (unsubHist) { unsubHist(); unsubHist = null; } };
-const go = t => { tab(t); side(false); }; $("navLoja").onclick = () => go("Loja"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("dScan").onclick = () => openScan("doacao");
+const go = t => { tab(t); side(false); }; $("navLoja").onclick = () => go("Loja"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("navInventario").onclick = () => go("Inventario"); $("dScan").onclick = () => openScan("doacao");
 // ----- top 3 mais doados (últimos 30 dias, compacto) -----
 let topDb = [];
 function renderTop() {
@@ -1737,7 +1777,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.07-35";
+const APP_VERSION = "2026.10.07-36";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -1843,8 +1883,8 @@ $("fabMain").onclick=function(){set(!w.classList.contains("open"))};s.onclick=fu
 $("fab").addEventListener("click",function(){set(false)});
 $("fabManual").onclick=function(){set(false);$("manualOpen").click()};
 $("fabZap").onclick=function(){set(false);$("shareBtn").click()};
-["Loja","Doacao","Etiquetas"].forEach(function(n){$("tb"+n).onclick=function(){set(false);$("nav"+n).click()}});})();</script>
-<script>(function(){var T=["Doacao","Etiquetas","Loja"],x0=0,y0=0,ok=false,g=function(i){return document.getElementById(i)};
+["Loja","Doacao","Etiquetas","Inventario"].forEach(function(n){$("tb"+n).onclick=function(){set(false);$("nav"+n).click()}});})();</script>
+<script>(function(){var T=["Doacao","Etiquetas","Loja","Inventario"],x0=0,y0=0,ok=false,g=function(i){return document.getElementById(i)};
 function blocked(t){if(t.closest&&t.closest("input,textarea,select,.rwrap,#reader,.side,.modal,#confView,.fabwrap,.topdo,.askbg,.cropbg,.redit"))return true;
 var m=document.querySelectorAll(".modal,#confView,.side.open");for(var i=0;i<m.length;i++){if(!m[i].classList.contains("hidden")&&getComputedStyle(m[i]).display!=="none")return true}return false}
 document.addEventListener("touchstart",function(e){if(e.touches.length!==1){ok=false;return}var t=e.touches[0];x0=t.clientX;y0=t.clientY;ok=!blocked(e.target)},{passive:true});
@@ -1854,7 +1894,7 @@ if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
-var UPDATES=[{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+var UPDATES=[{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
@@ -1958,5 +1998,255 @@ msg("Para instalar: menu do navegador (⋮) e depois Instalar app ou Adicionar �
 <script>/* ponto de status da sincronização */(function(){var s=document.getElementById("syncState"),d=document.getElementById("syncDot");if(!s||!d)return;
 function u(){var t=s.textContent||"";d.title=t;d.className="sdot "+(/^sincronizado/.test(t)?"ok":/erro|falha/.test(t)?"err":/conectando|aguardando|offline|iniciando/.test(t)?"wait":"")}
 new MutationObserver(u).observe(s,{childList:true,characterData:true,subtree:true});u()})();</script>
-</body></html>
+<script>/* aba Inventário: contagem de FLV por banca (sem banco; troca de dados por link) */(function(){
+"use strict";
+var g=function(i){return document.getElementById(i)};
+var KEY="validamais-inventario-v1";
+function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
+function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var S=rd(KEY,null);if(!S||!Array.isArray(S.bancas))S={bancas:[]};
+function save(){wr(KEY,S)}
+function me(){var n=rd("validamais-operador","");return typeof n==="string"&&n?n:"Aparelho"}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function fmt(n){return(Math.round(n*10)/10).toLocaleString("pt-BR",{maximumFractionDigits:1})}
+function num(s){var n=parseFloat(String(s).replace(",","."));return isNaN(n)?null:n}
+function uid(){return Math.random().toString(36).slice(2,8)}
+var tmo;function toast(t){var e=g("toast");if(!e)return;e.textContent=t;e.classList.remove("hidden");clearTimeout(tmo);tmo=setTimeout(function(){e.classList.add("hidden")},3500)}
 
+/* ---- cálculo ---- */
+function eff(b){
+  var loc={por:me(),cont:b.cont||{},t:b.t||0},e=b.ext;
+  if(e&&e.cont&&(e.t>loc.t||(e.t===loc.t&&Object.keys(e.cont).length>Object.keys(loc.cont).length)))return e;
+  return loc;
+}
+function stats(b){
+  var e=eff(b),kg=0,un=0,n=0;
+  b.itens.forEach(function(it){var v=e.cont[it.c];if(typeof v==="number"){n++;if(it.u==="un")un+=v;else kg+=v}});
+  var m=b.itens.length;
+  return{kg:kg,un:un,n:n,m:m,pct:m?Math.round(n/m*100):0,por:n>0?e.por:"",e:e};
+}
+function totals(){
+  var kg=0,un=0,n=0,m=0,prod={};
+  var rows=S.bancas.map(function(b){
+    var s=stats(b);kg+=s.kg;un+=s.un;n+=s.n;m+=s.m;
+    b.itens.forEach(function(it){var v=s.e.cont[it.c];if(typeof v!=="number")return;
+      var p=prod[it.c]||(prod[it.c]={c:it.c,n:it.n,u:it.u,v:0});p.v+=v});
+    return{b:b,s:s};
+  });
+  var arr=Object.keys(prod).map(function(k){return prod[k]}).sort(function(a,b){return b.v-a.v});
+  return{rows:rows,kg:kg,un:un,n:n,m:m,pct:m?Math.round(n/m*100):0,prod:arr};
+}
+function pctOf(a,b){return b?Math.round(a/b*100):0}
+
+/* ---- produtos ---- */
+function parseItens(txt){
+  var out=[],seen={};
+  txt.split(/\n/).forEach(function(line){
+    line=line.trim();if(!line)return;
+    var p;
+    if(/[;\t]/.test(line))p=line.split(/[;\t]/).map(function(x){return x.trim()});
+    else{var m=line.match(/^(\S+)\s+(.+)$/);p=m?[m[1],m[2]]:[line,line]}
+    var c=p[0],n=p[1]||p[0],u=/^un/i.test(p[2]||"")?"un":"kg";
+    if(!c||seen[c])return;seen[c]=1;out.push({c:c.slice(0,24),n:n.slice(0,60),u:u});
+  });
+  return out;
+}
+function itensTxt(a){return a.map(function(x){return x.u==="un"?x.c+";"+x.n+";un":x.c+";"+x.n}).join("\n")}
+
+/* ---- compartilhar / importar ---- */
+function enc(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+function dec(s){s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";return JSON.parse(decodeURIComponent(escape(atob(s))))}
+function link(o){return location.href.split("#")[0]+"#inv="+enc(o)}
+function pack(a){return a.map(function(x){return x.u==="un"?[x.c,x.n,"un"]:[x.c,x.n]})}
+function unpack(a){if(!Array.isArray(a))throw 0;return a.slice(0,500).map(function(r){if(!Array.isArray(r)||!r[0])throw 0;return{c:String(r[0]).slice(0,24),n:String(r[1]||r[0]).slice(0,60),u:r[2]==="un"?"un":"kg"}})}
+function cfgLink(l){return link({k:"cfg",b:l.map(function(b){return{id:b.id,n:b.nome,i:pack(b.itens)}})})}
+function resLink(b){var e=eff(b);return link({k:"res",id:b.id,n:b.nome,i:pack(b.itens),c:e.cont,por:e.por||me(),t:e.t||Date.now()})}
+function share(msg){
+  if(navigator.share){navigator.share({text:msg}).catch(function(e){if(e&&e.name==="AbortError")return;window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank")});return}
+  window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
+}
+function copy(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){toast("Copiado")},function(){prompt("Copie o texto:",t)});
+  else prompt("Copie o texto:",t);
+}
+function imp(o){
+  if(o.k==="cfg"&&Array.isArray(o.b)){
+    var a=0,u=0;
+    o.b.slice(0,30).forEach(function(x){
+      var items=unpack(x.i),b=S.bancas.filter(function(y){return y.id===x.id})[0];
+      if(b){b.nome=String(x.n).slice(0,40);b.itens=items;u++}
+      else{S.bancas.push({id:String(x.id).slice(0,12),nome:String(x.n).slice(0,40),itens:items,cont:{}});a++}
+    });
+    save();return a+" banca(s) nova(s), "+u+" atualizada(s)";
+  }
+  if(o.k==="res"&&o.c&&typeof o.c==="object"){
+    var b2=S.bancas.filter(function(y){return y.id===o.id})[0];
+    if(!b2){b2={id:String(o.id).slice(0,12),nome:String(o.n).slice(0,40),itens:unpack(o.i),cont:{}};S.bancas.push(b2)}
+    var cont={};Object.keys(o.c).forEach(function(k){if(typeof o.c[k]==="number"&&isFinite(o.c[k]))cont[k]=o.c[k]});
+    b2.ext={por:String(o.por||"").slice(0,40),t:Number(o.t)||0,cont:cont};save();
+    return b2.nome+": resultado de "+(b2.ext.por||"?")+" importado";
+  }
+  throw 0;
+}
+function importText(txt){
+  var m=txt.match(/[#&?]inv=([A-Za-z0-9_-]+)/)||txt.match(/^\s*([A-Za-z0-9_-]{20,})\s*$/);
+  if(!m)throw 0;
+  return imp(dec(m[1]));
+}
+
+/* ---- telas (lista) ---- */
+var V={v:"home"};
+function btn(cls,act,txt,id){return'<button type="button" class="'+cls+'" data-iv="'+act+'"'+(id?' data-id="'+id+'"':'')+'>'+txt+'</button>'}
+function barHtml(p,ok){return'<div class="prog"><div style="width:'+p+'%'+(ok?';background:linear-gradient(90deg,var(--g3),var(--g2))':'')+'"></div></div>'}
+function vHome(){
+  var T=totals(),h='';
+  if(S.bancas.length)h+='<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">Avanço geral</h2><span class="hbadge">'+T.pct+'%</span></div>'+barHtml(T.pct)+'<small class="note" style="margin:0">'+T.n+' de '+T.m+' produtos · '+fmt(T.kg)+' kg</small></section>';
+  else h+='<section class="panel"><h2 class="h2">Nenhuma banca ainda</h2><p class="note">Cadastre as bancas e os produtos de cada uma, ou importe o link que alguém enviou.</p>'+btn("primary big","new","＋ Nova banca")+'</section>';
+  T.rows.forEach(function(r){
+    var b=r.b,s=r.s,ok=s.pct===100;
+    h+='<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">'+esc(b.nome)+'</h2><span class="hbadge">'+(ok?"concluída":s.pct+"%")+'</span></div>'+barHtml(s.pct)
+      +'<small class="note" style="margin:0 0 10px">'+s.n+' de '+s.m+' produtos'+(s.por?' · '+esc(s.por):'')+(s.kg?' · '+fmt(s.kg)+' kg':'')+'</small>'
+      +'<div class="toolbar">'+btn("primary big","count",s.n===0?"Começar":ok?"Revisar":"Continuar",b.id)+btn("secondary big","sendres","Enviar",b.id)+'</div></section>';
+  });
+  h+='<div class="toolbar">'+btn("secondary","cfg","⚙️ Bancas")+btn("secondary","sum","📊 Resumo")+'</div><div class="ivsp"></div>'+btn("secondary","imp","📥 Importar link ou código").replace('class="secondary"','class="secondary" style="width:100%"');
+  return h;
+}
+function vCfg(){
+  var h='<section class="panel"><div class="toolbar">'+btn("secondary","home","← Voltar")+btn("primary","new","＋ Nova banca")+'</div></section>';
+  S.bancas.forEach(function(b){
+    h+='<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">'+esc(b.nome)+'</h2><span class="hbadge">'+b.itens.length+' produtos</span></div><div class="toolbar" style="margin-top:10px">'+btn("secondary","edit","Editar",b.id)+btn("secondary","sendcfg","Enviar p/ contador",b.id)+'</div></section>';
+  });
+  if(S.bancas.length>1)h+=btn("secondary","sendall","Enviar todas as bancas").replace('class="secondary"','class="secondary" style="width:100%"')+'<div class="ivsp"></div>';
+  if(S.bancas.length)h+=btn("danger","reset","Zerar contagens (manter bancas)").replace('class="danger"','class="danger" style="width:100%"');
+  return h;
+}
+function vEdit(){
+  var b=V.id?S.bancas.filter(function(x){return x.id===V.id})[0]:null;
+  return'<section class="panel"><h2 class="h2">'+(b?"Editar banca":"Nova banca")+'</h2>'
+    +'<label for="ivNome">Nome da banca</label><input id="ivNome" placeholder="Ex.: Banca das Frutas" maxlength="40" value="'+(b?esc(b.nome):'')+'">'
+    +'<label for="ivItens">Produtos: um por linha (código;nome). Por unidade: código;nome;un</label>'
+    +'<textarea id="ivItens" placeholder="1001;Banana prata&#10;1002;Tomate&#10;1003;Alface;un">'+(b?esc(itensTxt(b.itens)):'')+'</textarea>'
+    +'<small class="note">Também vale separar por espaço: <b>1001 Banana prata</b></small>'
+    +'<div class="toolbar" style="margin-top:10px">'+btn("secondary big","cfg","Cancelar")+btn("primary big","saveb","Salvar")+'</div>'
+    +(b?'<div class="ivsp"></div>'+btn("danger","delb","Excluir banca").replace('class="danger"','class="danger" style="width:100%"'):'')+'</section>';
+}
+function sumText(){
+  var T=totals(),t="INVENTÁRIO FLV — "+new Date().toLocaleDateString("pt-BR")+"\n";
+  T.rows.forEach(function(r){t+=r.b.nome+": "+fmt(r.s.kg)+" kg ("+pctOf(r.s.kg,T.kg)+"%) · "+r.s.pct+"% contado"+(r.s.por?" · "+r.s.por:"")+"\n"});
+  return t+"TOTAL: "+fmt(T.kg)+" kg"+(T.un?" + "+fmt(T.un)+" un":"")+" · avanço "+T.pct+"%";
+}
+function vSum(){
+  var T=totals(),h='<section class="panel"><div class="toolbar">'+btn("secondary","home","← Voltar")+'</div></section>';
+  if(!S.bancas.length)return h+'<section class="panel"><p class="note">Nada para mostrar ainda.</p></section>';
+  h+='<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">Avanço geral</h2><span class="hbadge">'+T.pct+'%</span></div>'+barHtml(T.pct)+'</section>';
+  h+='<section class="panel"><div class="rwrap"><table class="ivtbl"><thead><tr><th>Banca</th><th>Avanço</th><th>kg</th><th>% total</th></tr></thead><tbody>';
+  T.rows.forEach(function(r){h+='<tr><td>'+esc(r.b.nome)+(r.s.por?'<small>'+esc(r.s.por)+'</small>':'')+'</td><td>'+r.s.pct+'%</td><td>'+fmt(r.s.kg)+'</td><td>'+pctOf(r.s.kg,T.kg)+'%</td></tr>'});
+  h+='</tbody><tfoot><tr><td>Total</td><td>'+T.pct+'%</td><td>'+fmt(T.kg)+'</td><td>100%</td></tr></tfoot></table></div>'+(T.un?'<small class="note">Itens por unidade: '+fmt(T.un)+' un</small>':'')+'</section>';
+  if(T.prod.length){
+    h+='<section class="panel"><h2 class="h2">Por produto</h2><div class="rwrap"><table class="ivtbl"><tbody>';
+    T.prod.forEach(function(p){h+='<tr><td>'+esc(p.c)+' · '+esc(p.n)+'</td><td>'+fmt(p.v)+' '+p.u+'</td><td>'+(p.u==="kg"?pctOf(p.v,T.kg)+"%":"")+'</td></tr>'});
+    h+='</tbody></table></div></section>';
+  }
+  return h+'<div class="toolbar">'+btn("primary big","sharesum","Enviar resumo")+btn("secondary big","copysum","Copiar")+'</div>';
+}
+function vImp(){
+  return'<section class="panel"><h2 class="h2">Importar</h2><p class="note">Cole o link (ou código) recebido: pode ser uma banca para contar ou o resultado de outra pessoa.</p>'
+    +'<textarea id="ivImpTxt" style="min-height:120px" placeholder="Cole aqui"></textarea>'
+    +'<div class="toolbar" style="margin-top:10px">'+btn("secondary big","home","Cancelar")+btn("primary big","doimp","Importar")+'</div></section>';
+}
+
+/* ---- contagem ---- */
+function bcur(){return S.bancas.filter(function(b){return b.id===V.id})[0]}
+function nextPending(b,from){
+  var c=eff(b).cont||{},n=b.itens.length;
+  for(var k=0;k<n;k++){var i=(from+k)%n;if(typeof c[b.itens[i].c]!=="number")return i}
+  return -1;
+}
+function renderCount(){
+  var b=bcur();if(!b){V={v:"home"};render();return}
+  var s=stats(b),done=V.i<0,c=eff(b).cont||{};
+  g("ivCName").textContent=b.nome;g("ivCPct").textContent=s.pct+"%";g("ivCBar").style.width=s.pct+"%";
+  g("ivCInfo").textContent=s.n+" de "+s.m+" produtos"+(s.kg?" · "+fmt(s.kg)+" kg":"")+(s.un?" · "+fmt(s.un)+" un":"");
+  g("ivCur").classList.toggle("hidden",done);g("ivDone").classList.toggle("hidden",!done);
+  if(done){g("ivDoneTxt").textContent="Banca concluída"+(s.kg?": "+fmt(s.kg)+" kg":"")+(s.un?" · "+fmt(s.un)+" un":"")}
+  else{
+    var it=b.itens[V.i],cv=c[it.c],p=g("ivPeso");
+    g("ivCNum").textContent="Produto "+(V.i+1)+" de "+s.m;
+    g("ivCCode").textContent=it.c;g("ivCItem").textContent=it.n;
+    g("ivPesoL").textContent=it.n+" ("+it.u+")";
+    p.value=typeof cv==="number"?String(cv).replace(".",","):"";
+    p.placeholder=it.u==="un"?"unidades (ex.: 3)":"kg (ex.: 2,5)";
+    p.toggleAttribute("data-np-int",it.u==="un");
+  }
+  g("ivList").innerHTML=b.itens.map(function(it,i){
+    var v=c[it.c],ok=typeof v==="number";
+    return'<div class="ivli'+(ok?' ok':'')+(i===V.i?' cur':'')+'" data-i="'+i+'"><span>'+esc(it.n)+'<small>'+esc(it.c)+'</small></span><b>'+(ok?fmt(v)+' '+it.u:'—')+'</b></div>';
+  }).join("");
+}
+function setv(v){
+  var b=bcur(),it=b.itens[V.i];
+  b.cont=b.cont||{};b.cont[it.c]=Math.round(v*100)/100;b.t=Date.now();save();
+  V.i=nextPending(b,V.i+1);renderCount();
+  if(V.i<0&&typeof window.npClose==="function")window.npClose();
+}
+
+/* ---- render ---- */
+function render(){
+  var c=V.v==="count";
+  g("ivMain").classList.toggle("hidden",c);g("ivCount").classList.toggle("hidden",!c);
+  if(c){renderCount();return}
+  var f={home:vHome,cfg:vCfg,edit:vEdit,sum:vSum,imp:vImp}[V.v]||vHome;
+  g("ivMain").innerHTML=f();
+}
+
+g("tabInventario").addEventListener("click",function(e){
+  var li=e.target.closest(".ivli");
+  if(li&&V.v==="count"){V.i=+li.dataset.i;renderCount();return}
+  var el=e.target.closest("[data-iv]");if(!el)return;
+  var a=el.dataset.iv,id=el.dataset.id,b=S.bancas.filter(function(x){return x.id===id})[0];
+  switch(a){
+    case"home":V={v:"home"};break;
+    case"cfg":V={v:"cfg"};break;
+    case"sum":V={v:"sum"};break;
+    case"imp":V={v:"imp"};break;
+    case"new":V={v:"edit",id:null};break;
+    case"edit":V={v:"edit",id:id};break;
+    case"count":b.cont=b.cont||{};V={v:"count",id:id,i:nextPending(b,0)};break;
+    case"saveb":{
+      var nome=g("ivNome").value.trim(),itens=parseItens(g("ivItens").value);
+      if(!nome){toast("Dê um nome à banca");return}
+      if(!itens.length){toast("Informe ao menos um produto");return}
+      if(V.id){var x=S.bancas.filter(function(y){return y.id===V.id})[0];x.nome=nome;x.itens=itens}
+      else S.bancas.push({id:uid(),nome:nome,itens:itens,cont:{}});
+      save();V={v:"cfg"};toast("Banca salva");break;
+    }
+    case"delb":if(!confirm("Excluir esta banca?"))return;S.bancas=S.bancas.filter(function(y){return y.id!==V.id});save();V={v:"cfg"};break;
+    case"reset":if(!confirm("Zerar todas as contagens?"))return;S.bancas.forEach(function(y){y.cont={};y.ext=null;y.t=0});save();toast("Contagens zeradas");break;
+    case"sendcfg":share("Inventário FLV — "+b.nome+"\nAbra o link e comece a contar:\n"+cfgLink([b]));return;
+    case"sendall":share("Inventário FLV — todas as bancas\nAbra o link para carregar as bancas:\n"+cfgLink(S.bancas));return;
+    case"sendres":if(!stats(b).n){toast("Conte ao menos um produto");return}share("Inventário FLV — "+b.nome+" ("+stats(b).pct+"%)\nAbra o link no app para importar o resultado:\n"+resLink(b));return;
+    case"sharesum":share(sumText());return;
+    case"copysum":copy(sumText());return;
+    case"doimp":try{toast(importText(g("ivImpTxt").value));V={v:"home"}}catch(err){toast("Código ou link inválido");return}break;
+    default:return;
+  }
+  render();window.scrollTo(0,0);
+});
+g("ivOk").onclick=function(){var v=num(g("ivPeso").value);if(v===null||v<0){toast("Digite a quantidade");return}setv(v)};
+g("ivZero").onclick=function(){setv(0)};
+g("ivPrev").onclick=function(){var b=bcur();if(!b)return;V.i=Math.max(0,(V.i<0?b.itens.length:V.i)-1);renderCount()};
+function backHome(){if(typeof window.npClose==="function")window.npClose();V={v:"home"};render();window.scrollTo(0,0)}
+g("ivBack").onclick=backHome;g("ivDoneBack").onclick=backHome;
+g("ivDoneSend").onclick=function(){var b=bcur();share("Inventário FLV — "+b.nome+" ("+stats(b).pct+"%)\nAbra o link no app para importar o resultado:\n"+resLink(b))};
+g("ivDoneCopy").onclick=function(){copy(resLink(bcur()))};
+
+function checkHash(){
+  if(location.hash.indexOf("#inv=")!==0)return;
+  try{var msg=imp(dec(location.hash.slice(5)));V={v:"home"};render();var n=g("navInventario");if(n)n.click();toast(msg)}
+  catch(e){toast("Link inválido")}
+  try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}
+}
+window.addEventListener("hashchange",checkHash);
+render();checkHash();
+})();</script>
+</body></html>
