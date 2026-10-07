@@ -259,6 +259,11 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .cropv::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 33%,rgba(255,255,255,.45) 33%,rgba(255,255,255,.45) calc(33% + 1px),transparent calc(33% + 1px),transparent 66%,rgba(255,255,255,.45) 66%,rgba(255,255,255,.45) calc(66% + 1px),transparent calc(66% + 1px)),linear-gradient(0deg,transparent 33%,rgba(255,255,255,.45) 33%,rgba(255,255,255,.45) calc(33% + 1px),transparent calc(33% + 1px),transparent 66%,rgba(255,255,255,.45) 66%,rgba(255,255,255,.45) calc(66% + 1px),transparent calc(66% + 1px))}
 .cropz{width:100%;margin:14px 0 4px;accent-color:var(--g)}
 .crop .arow{display:flex;gap:10px;margin-top:10px}.crop .arow button{flex:1;min-height:50px;border-radius:14px;border:1px solid var(--ln);background:var(--lt);color:var(--g-d);font-weight:800;font-size:16px}.crop .arow .ok{background:var(--g);color:#fff;border-color:var(--g)}
+.crw .lchk{flex:none;width:34px;min-width:34px;max-width:34px;height:34px;min-height:34px;align-self:center;margin-right:2px;border-radius:10px;border:2px solid var(--ln);background:var(--card);color:#fff;font-size:20px;font-weight:900;line-height:1;padding:0}
+.crw.done .lchk{background:var(--g);border-color:var(--g)}
+.crw.done .crl{opacity:.7}
+.crw.done .ccode,.crw.done .cname{text-decoration:line-through;text-decoration-color:#e03131;text-decoration-thickness:3px}
+.emarc{margin:8px 2px 0;font-size:13px;font-weight:700;color:var(--g-d)}
 .askbg{position:fixed;inset:0;z-index:100000;background:rgba(5,14,10,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:18px}
 .ask{background:var(--card);color:var(--ink);border:1px solid var(--ln);border-radius:22px;padding:20px 18px 16px;width:min(100%,420px);box-shadow:0 18px 50px rgba(0,0,0,.5);text-align:center}
 .ask .ai{font-size:34px;line-height:1}
@@ -1732,7 +1737,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.07-34";
+const APP_VERSION = "2026.10.07-35";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
