@@ -1,53 +1,32 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <title>Dourados</title>
+  <title>Valida+</title>
   <defs>
-    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#C9A227"/>
-      <stop offset=".35" stop-color="#F6E7A0"/>
-      <stop offset=".6" stop-color="#D4AF37"/>
-      <stop offset=".85" stop-color="#A97F12"/>
-      <stop offset="1" stop-color="#7F5C0A"/>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF5C0"/><stop offset="30%" stop-color="#E5C158"/>
+      <stop offset="70%" stop-color="#9E7A1C"/><stop offset="100%" stop-color="#F3D87A"/>
     </linearGradient>
-    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#FFF3A0"/>
-      <stop offset=".55" stop-color="#FFD700"/>
-      <stop offset="1" stop-color="#D9A800"/>
-    </linearGradient>
-    <linearGradient id="txt" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#E8C65A"/>
-      <stop offset=".5" stop-color="#FFF3A0"/>
-      <stop offset="1" stop-color="#C9A227"/>
-    </linearGradient>
-    <radialGradient id="bg" cx=".5" cy=".5" r=".6">
-      <stop offset="0" stop-color="#1F1A0F"/>
-      <stop offset="1" stop-color="#121212"/>
+    <radialGradient id="bg" cx="50%" cy="50%" r="65%">
+      <stop offset="0%" stop-color="#1A1E29"/><stop offset="100%" stop-color="#08090C"/>
     </radialGradient>
-    <path id="arc" d="M168 160Q256 108 344 160"/>
-    <path id="star" d="M0-1L.29-.4.95-.31.47.15.59.81 0 .5-.59.81-.47.15-.95-.31-.29-.4Z"/>
   </defs>
-  <rect width="512" height="512" rx="115" fill="url(#bg)"/>
-  <circle cx="256" cy="256" r="233" fill="none" stroke="#D4AF37" stroke-width="2" opacity=".35"/>
-  <path d="M256 75L380 124V250C380 340 320 400 256 437C192 400 132 340 132 250V124Z" fill="url(#frame)"/>
-  <path d="M256 96L360 135V250C360 330 308 383 256 414C204 383 152 330 152 250V135Z" fill="#121212"/>
-  <text font-family="Georgia,'Times New Roman',serif" font-size="23" font-weight="700" letter-spacing="2.5" fill="url(#txt)" text-anchor="middle">
-    <textPath href="#arc" startOffset="50%">DOURADOS</textPath>
-  </text>
-  <g fill="#D4AF37">
-    <use href="#star" transform="translate(184 200) scale(9)"/>
-    <use href="#star" transform="translate(328 200) scale(9)"/>
-    <use href="#star" transform="translate(166 243) scale(6)"/>
-    <use href="#star" transform="translate(346 243) scale(6)"/>
-    <use href="#star" transform="translate(178 292) scale(4.5)"/>
-    <use href="#star" transform="translate(334 292) scale(4.5)"/>
-    <circle cx="205" cy="168" r="1.5"/><circle cx="307" cy="170" r="1.5"/>
-    <circle cx="160" cy="205" r="1.3"/><circle cx="352" cy="210" r="1.3"/>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <g transform="translate(256 256) scale(1) translate(-256 -256)">
+  <path d="M120 170 V130 H160 M352 130 H392 V170 M392 290 V330 H352 M160 330 H120 V290" fill="none" stroke="url(#gold)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="url(#gold)">
+    <rect x="155" y="150" width="8" height="160" rx="4"/>
+    <rect x="173" y="150" width="16" height="160" rx="4"/>
+    <rect x="201" y="150" width="6" height="160" rx="3"/>
+    <rect x="217" y="150" width="22" height="160" rx="4"/>
+    <rect x="251" y="150" width="10" height="160" rx="4"/>
+    <rect x="271" y="150" width="18" height="160" rx="4"/>
+    <rect x="301" y="150" width="6" height="160" rx="3"/>
+    <rect x="317" y="150" width="24" height="160" rx="4"/>
+    <rect x="349" y="150" width="8" height="160" rx="4"/>
   </g>
-  <path d="M256 180C300 225 318 300 300 335C288 360 270 372 256 374C242 372 224 360 212 335C194 300 212 225 256 180Z" fill="url(#leaf)"/>
-  <g fill="none" stroke="#5A4308" stroke-width="2" stroke-linecap="round" opacity=".8">
-    <path d="M256 195V372"/>
-    <path d="M256 238Q232 242 218 262M256 238Q280 242 294 262"/>
-    <path d="M256 280Q228 284 210 306M256 280Q284 284 302 306"/>
-    <path d="M256 322Q236 326 222 342M256 322Q276 326 290 342"/>
+  <line x1="100" y1="230" x2="412" y2="230" stroke="#FF3B30" stroke-width="6" stroke-linecap="round" opacity="0.95"/>
+  <line x1="100" y1="230" x2="412" y2="230" stroke="#FFA09B" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="370" cy="310" r="32" fill="#08090C" stroke="url(#gold)" stroke-width="4"/>
+  <path d="M356 310 L366 320 L386 300" fill="none" stroke="url(#gold)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="256" y="420" font-family="'Montserrat','Arial',sans-serif" font-weight="900" font-size="34" letter-spacing="8" fill="url(#gold)" text-anchor="middle">VALIDA+</text>
   </g>
-  <path d="M256 372Q259 392 250 406" fill="none" stroke="#FFD700" stroke-width="4" stroke-linecap="round"/>
 </svg>
