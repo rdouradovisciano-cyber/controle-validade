@@ -1326,7 +1326,8 @@ function topUsados() {
 }
 let freqList = [];
 function renderFreq() {
-  freqList = qEdit ? [] : topUsados(); const box = $("qFreq");
+  freqList = []; const box = $("qFreq"); box.classList.add("hidden"); box.innerHTML = ""; return;   // «Mais usados» removido da Doação
+  freqList = qEdit ? [] : topUsados();
   box.classList.toggle("hidden", freqList.length < 3);
   if (freqList.length < 3) { box.innerHTML = ""; return; }
   box.innerHTML = `<div class="qlbl">⭐ Mais usados</div><div class="qgrid">` + freqList.map((o, i) => {
@@ -1704,7 +1705,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.06-30";
+const APP_VERSION = "2026.10.06-31";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
