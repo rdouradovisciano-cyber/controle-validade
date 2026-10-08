@@ -532,10 +532,10 @@ body[data-tab="Inventario"] .fabwrap,body[data-tab="Inventario"] .fabscrim{displ
 html[data-tema=dark] .ivtbl th{background:#1a6a45}
 #ivMain textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;min-height:190px}
 .ivsp{height:8px}
-.ivtag{display:inline-block;padding:3px 11px;border-radius:9px;font-weight:800;line-height:1.3;max-width:100%;overflow-wrap:anywhere}
-.ivtag.big{font-size:19px;padding:7px 14px;border-radius:12px}
-.ivbanner{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-radius:16px;font-size:22px;font-weight:800;margin:12px 0 0;box-shadow:var(--sh1);line-height:1.2}
-.ivbanner span{font-size:15px;font-weight:800;background:rgba(0,0,0,.2);border-radius:99px;padding:2px 11px;flex:none}
+.ivtag{display:inline-block;padding:3px 11px;border-radius:9px;font-weight:700;line-height:1.3;max-width:100%;overflow-wrap:anywhere}
+.ivtag.big{font-size:17px;padding:5px 12px;border-radius:10px}
+.ivbanner{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;font-size:19px;font-weight:700;margin:12px 0 0;box-shadow:none;line-height:1.2}
+.ivbanner span{font-size:14px;font-weight:700;background:rgba(255,255,255,.18);border-radius:99px;padding:2px 11px;flex:none}
 .ivdot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:7px;vertical-align:middle}
 .ivchips{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 4px}
 .ivchip{width:42px;height:42px;min-height:0;padding:0;border-radius:50%;border:3px solid transparent}
@@ -552,7 +552,7 @@ html[data-tema=dark] .ivtbl th{background:#1a6a45}
 .ivrel td{padding:8px;border-bottom:1px solid #e3e9e6;vertical-align:top;text-align:left;font-variant-numeric:tabular-nums}
 .ivrel td:last-child,.ivrel th:last-child{text-align:right}
 .ivrel td small{display:block;color:#64727f;font-size:11.5px}
-.ivrel .ivrb{border-left:8px solid #ccc;border-radius:6px;padding:0 0 4px 10px;margin:14px 0;break-inside:avoid-page}
+.ivrel .ivrb{border-left:5px solid #ccc;border-radius:6px;padding:0 0 4px 10px;margin:14px 0;break-inside:avoid-page}
 .ivrel .ivrbh{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
 .ivrel .ivrbh>span{font-size:13px;color:#64727f}
 .ivrel .tot{font-weight:800}
@@ -572,6 +572,9 @@ html[data-tema=dark] .ivtbl th{background:#1a6a45}
   #ivMain .ivrel{position:absolute;left:0;top:0;width:100%;border:0;margin:0;padding:0}
   .noprint{display:none!important}
 }
+.ivsw{position:relative;height:44px;border-radius:22px;background:rgba(127,127,127,.16);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;min-width:0}
+.ivswt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:34px;font-size:14px;font-weight:600;color:var(--muted,#8a9a90);letter-spacing:.3px;pointer-events:none}
+.ivswh{position:absolute;left:2px;top:2px;width:40px;height:40px;border-radius:50%;background:#4f8a68;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;touch-action:none;cursor:grab;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 </style>
 </head>
 <body data-tab="Loja">
@@ -1824,7 +1827,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.07-41";
+const APP_VERSION = "2026.10.07-42";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -1941,7 +1944,7 @@ if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
-var UPDATES=[{t:"2026-10-08T05:20:00-03:00",itens:["Inventário: nova lista para conferir quais produtos ainda não estão em nenhuma banca, com opção de incluir direto"]},{t:"2026-10-08T05:00:00-03:00",itens:["Inventário: cada banca com sua cor, lançamentos por pesagem, relatório e código de barras único por produto"]},{t:"2026-10-07T21:10:00-03:00",itens:["Inventário: cada produto pertence a uma única banca (o app avisa e pergunta antes de mover) e o botão Novo inventário zera as contagens mantendo as bancas"]},{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código interno ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+var UPDATES=[{t:"2026-10-08T05:40:00-03:00",itens:["Inventário: botão Começar agora é deslizante, com vibração e menor; cores das bancas mais suaves"]},{t:"2026-10-08T05:20:00-03:00",itens:["Inventário: nova lista para conferir quais produtos ainda não estão em nenhuma banca, com opção de incluir direto"]},{t:"2026-10-08T05:00:00-03:00",itens:["Inventário: cada banca com sua cor, lançamentos por pesagem, relatório e código de barras único por produto"]},{t:"2026-10-07T21:10:00-03:00",itens:["Inventário: cada produto pertence a uma única banca (o app avisa e pergunta antes de mover) e o botão Novo inventário zera as contagens mantendo as bancas"]},{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código interno ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
@@ -2064,9 +2067,10 @@ function hhmm(t){return t?new Date(t).toLocaleTimeString("pt-BR",{hour:"2-digit"
 var tmo;function toast(t){var e=g("toast");if(!e)return;e.textContent=t;e.classList.remove("hidden");clearTimeout(tmo);tmo=setTimeout(function(){e.classList.add("hidden")},3500)}
 
 /* ---- cores das bancas ---- */
-var PAL=["#2f80ed","#f2994a","#9b51e0","#e0559b","#17a2b8","#d9a400","#eb5757","#43a047"];
+var PAL=["#4f79a8","#b5804d","#7b6aa6","#a86b88","#4f8a8d","#a38d4a","#b56a64","#5f8a68"];
+var LEG={"#2f80ed":0,"#f2994a":1,"#9b51e0":2,"#e0559b":3,"#17a2b8":4,"#d9a400":5,"#eb5757":6,"#43a047":7};
 function okCor(c){return/^#[0-9a-f]{6}$/i.test(c||"")}
-function corOf(b){return okCor(b.cor)?b.cor:PAL[Math.max(0,S.bancas.indexOf(b))%PAL.length]}
+function corOf(b){var c=okCor(b.cor)?String(b.cor).toLowerCase():"";if(c&&LEG[c]!==undefined)return PAL[LEG[c]];return c||PAL[Math.max(0,S.bancas.indexOf(b))%PAL.length]}
 function inkOn(hex){var n=parseInt(hex.slice(1),16),r=n>>16,gg=(n>>8)&255,bb=n&255;return(r*299+gg*587+bb*114)/1000>150?"#1a1405":"#fff"}
 function tag(b,big){var c=corOf(b);return'<span class="ivtag'+(big?' big':'')+'" style="background:'+c+';color:'+inkOn(c)+'">'+esc(b.nome)+'</span>'}
 function firstUnused(){var used=S.bancas.map(corOf);return PAL.filter(function(c){return used.indexOf(c)<0})[0]||PAL[S.bancas.length%PAL.length]}
@@ -2302,7 +2306,24 @@ var V={v:"home"};
 function btn(cls,act,txt,id){return'<button type="button" class="'+cls+'" data-iv="'+act+'"'+(id?' data-id="'+id+'"':'')+'>'+txt+'</button>'}
 function full(h){return h.replace(/class="(primary|secondary|danger)"/,'class="$1" style="width:100%"')}
 function barHtml(p,col){return'<div class="prog"><div style="width:'+p+'%'+(col?';background:'+col:'')+'"></div></div>'}
-function card(b,inner){return'<section class="panel" style="border-left:8px solid '+corOf(b)+'">'+inner+'</section>'}
+function card(b,inner){return'<section class="panel" style="border-left:5px solid '+corOf(b)+'">'+inner+'</section>'}
+
+function swipeBtn(id,txt){return'<div class="ivsw" data-id="'+id+'" style="flex:1"><div class="ivswt">'+esc(txt)+' ›››</div><div class="ivswh" role="button" tabindex="0" aria-label="'+esc(txt)+'">›</div></div>'}
+function vib(n){try{if(navigator.vibrate)navigator.vibrate(n)}catch(e){}}
+function initSwipe(){
+  var els=document.querySelectorAll("#ivMain .ivsw");
+  Array.prototype.forEach.call(els,function(el){
+    var h=el.querySelector(".ivswh"),t=el.querySelector(".ivswt"),x0=0,mx=0,on=false,tick=0,go=false;
+    function lim(){return el.clientWidth-h.offsetWidth-4}
+    function set(x){x=Math.max(0,Math.min(lim(),x));h.style.transform="translateX("+x+"px)";t.style.opacity=String(1-x/Math.max(1,lim())*1.3);return x}
+    function start(){if(go)return;go=true;vib([30,40,30]);var b=S.bancas.filter(function(y){return y.id===el.dataset.id})[0];if(!b)return;b.cont=b.cont||{};V={v:"count",id:b.id,i:nextPending(b,0)};render();window.scrollTo(0,0)}
+    h.addEventListener("pointerdown",function(e){on=true;x0=e.clientX;try{h.setPointerCapture(e.pointerId)}catch(_){}h.style.transition="none";vib(8)});
+    h.addEventListener("pointermove",function(e){if(!on)return;var x=set(e.clientX-x0);mx=x;var k=Math.floor(x/lim()*6);if(k!==tick){tick=k;vib(6)}});
+    function end(){if(!on)return;on=false;h.style.transition="transform .2s";t.style.opacity="1";if(mx>=lim()*.85){set(lim());start()}else set(0);mx=0;tick=0}
+    h.addEventListener("pointerup",end);h.addEventListener("pointercancel",end);
+    h.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();start()}});
+  });
+}
 function vHome(){
   var T=totals(),h='';
   if(S.bancas.length)h+='<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">Avanço geral</h2><span class="hbadge">'+T.pct+'%</span></div>'+barHtml(T.pct)+'<small class="note" style="margin:0">'+T.n+' de '+T.m+' produtos · '+fmt(T.kg)+' kg</small></section>';
@@ -2311,7 +2332,7 @@ function vHome(){
     var b=r.b,s=r.s,ok=s.pct===100;
     h+=card(b,'<div class="qh" style="margin-bottom:8px">'+tag(b,true)+'<span class="hbadge">'+(ok?"concluída":s.pct+"%")+'</span></div>'+barHtml(s.pct,corOf(b))
       +'<small class="note" style="margin:0 0 10px">'+s.n+' de '+s.m+' produtos'+(s.por?' · '+esc(s.por):'')+(s.kg?' · '+fmt(s.kg)+' kg':'')+'</small>'
-      +'<div class="toolbar">'+btn("primary big","count",s.n===0?"Começar":ok?"Revisar":"Continuar",b.id)+btn("secondary big","sendres","Enviar",b.id)+'</div>');
+      +'<div class="toolbar">'+swipeBtn(b.id,s.n===0?"Começar":ok?"Revisar":"Continuar")+btn("secondary","sendres","Enviar",b.id)+'</div>');
   });
   h+='<div class="toolbar">'+btn("secondary","cfg","⚙️ Bancas")+btn("secondary","sum","📊 Resumo")+'</div><div class="ivsp"></div>'+full(btn("secondary","chk","✅ Conferir se todos estão em banca"))+'<div class="ivsp"></div>'
     +(S.bancas.length?full(btn("primary","rel","📄 Relatório e códigos de barras"))+'<div class="ivsp"></div>':'')
@@ -2626,6 +2647,7 @@ function render(){
   var f={home:vHome,cfg:vCfg,edit:vEdit,sum:vSum,imp:vImp,rel:vRel,chk:vChk}[V.v]||vHome;
   g("ivMain").innerHTML=f();
   if(V.v==="edit"){renderEList();renderPrevTag()}
+  if(V.v==="home")initSwipe();
 }
 
 g("tabInventario").addEventListener("click",function(e){
