@@ -1824,7 +1824,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.07-40";
+const APP_VERSION = "2026.10.07-41";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -1941,7 +1941,7 @@ if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
-var UPDATES=[{t:"2026-10-08T05:00:00-03:00",itens:["Inventário: cada banca com sua cor, lançamentos por pesagem, relatório e código de barras único por produto"]},{t:"2026-10-07T21:10:00-03:00",itens:["Inventário: cada produto pertence a uma única banca (o app avisa e pergunta antes de mover) e o botão Novo inventário zera as contagens mantendo as bancas"]},{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código interno ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+var UPDATES=[{t:"2026-10-08T05:20:00-03:00",itens:["Inventário: nova lista para conferir quais produtos ainda não estão em nenhuma banca, com opção de incluir direto"]},{t:"2026-10-08T05:00:00-03:00",itens:["Inventário: cada banca com sua cor, lançamentos por pesagem, relatório e código de barras único por produto"]},{t:"2026-10-07T21:10:00-03:00",itens:["Inventário: cada produto pertence a uma única banca (o app avisa e pergunta antes de mover) e o botão Novo inventário zera as contagens mantendo as bancas"]},{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código interno ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
@@ -2313,9 +2313,59 @@ function vHome(){
       +'<small class="note" style="margin:0 0 10px">'+s.n+' de '+s.m+' produtos'+(s.por?' · '+esc(s.por):'')+(s.kg?' · '+fmt(s.kg)+' kg':'')+'</small>'
       +'<div class="toolbar">'+btn("primary big","count",s.n===0?"Começar":ok?"Revisar":"Continuar",b.id)+btn("secondary big","sendres","Enviar",b.id)+'</div>');
   });
-  h+='<div class="toolbar">'+btn("secondary","cfg","⚙️ Bancas")+btn("secondary","sum","📊 Resumo")+'</div><div class="ivsp"></div>'
+  h+='<div class="toolbar">'+btn("secondary","cfg","⚙️ Bancas")+btn("secondary","sum","📊 Resumo")+'</div><div class="ivsp"></div>'+full(btn("secondary","chk","✅ Conferir se todos estão em banca"))+'<div class="ivsp"></div>'
     +(S.bancas.length?full(btn("primary","rel","📄 Relatório e códigos de barras"))+'<div class="ivsp"></div>':'')
     +full(btn("secondary","imp","📥 Importar link ou código"));
+  return h;
+}
+
+function ownerBy(m){
+  var nm=normS(m.n),k=toItem(m).c;
+  for(var i=0;i<S.bancas.length;i++){var b=S.bancas[i];
+    for(var j=0;j<b.itens.length;j++){var x=b.itens[j];if(x.c===k||normS(x.n)===nm)return b}}
+  return null;
+}
+function chkData(){
+  var all=merged(),cats={};
+  all.forEach(function(m){var c=m.cat||"Sem categoria";cats[c]=(cats[c]||0)+1});
+  var names=Object.keys(cats).sort();
+  if(V.cat===undefined)V.cat=cats.FLV?"FLV":"";
+  var rows=all.filter(function(m){return!V.cat||(m.cat||"Sem categoria")===V.cat}).map(function(m){return{m:m,b:ownerBy(m)}});
+  rows.sort(function(a,b){return normS(a.m.n)<normS(b.m.n)?-1:1});
+  return{rows:rows,names:names,cats:cats,falta:rows.filter(function(r){return!r.b}),ok:rows.filter(function(r){return r.b})};
+}
+function codesTxt(m){var a=[];if(m.b)a.push("Balança "+m.b);if(m.d)a.push("Cód. interno "+m.d);return a.join(" · ")||"sem código"}
+function chkText(){
+  var D=chkData();
+  var t="Conferência do inventário"+(V.cat?" — "+V.cat:"")+"\n"+D.ok.length+" de "+D.rows.length+" produtos já estão em uma banca.\n";
+  if(D.falta.length){t+="\nFALTAM em alguma banca ("+D.falta.length+"):\n";D.falta.forEach(function(r){t+="• "+r.m.n+" ("+codesTxt(r.m)+")\n"})}
+  else t+="\nTodos os produtos estão em alguma banca.\n";
+  return t;
+}
+function vChk(){
+  var D=chkData(),tot=D.rows.length,p=tot?Math.round(D.ok.length*100/tot):0;
+  var h='<section class="panel"><div class="toolbar">'+btn("secondary","home","← Voltar")+btn("secondary","cfg","⚙️ Bancas")+'</div></section>';
+  if(!tot)return h+'<section class="panel"><p class="note">Nenhum produto no catálogo do app ainda. Abra a aba de produtos para carregá-lo.</p></section>';
+  h+='<section class="panel"><h2 class="h2">Todos estão em uma banca?</h2><div class="ivchips" style="gap:8px">';
+  D.names.forEach(function(c){h+='<button type="button" class="secondary'+((V.cat||"")===c?' primary':'')+'" data-iv="chkcat" data-c="'+esc(c)+'" style="min-height:40px;padding:0 12px">'+esc(c)+' ('+D.cats[c]+')</button>'});
+  h+='<button type="button" class="secondary'+(!V.cat?' primary':'')+'" data-iv="chkcat" data-c="" style="min-height:40px;padding:0 12px">Todas</button></div>'
+    +'<div class="qh" style="margin-top:12px"><b>'+D.ok.length+' de '+tot+' produtos em banca</b><span class="hbadge">'+p+'%</span></div>'+barHtml(p)+'</section>';
+  if(D.falta.length){
+    h+='<section class="panel"><h2 class="h2" style="color:#e0a000">⚠ Faltam ('+D.falta.length+')</h2><small class="note">Escolha a banca na caixa ao lado de cada produto para incluí-lo.</small>';
+    D.falta.forEach(function(r){
+      var i=D.rows.indexOf(r);
+      h+='<div class="ivli" style="display:block;cursor:default"><b>'+esc(r.m.n)+'</b><small class="note" style="margin:0">'+esc(codesTxt(r.m))+'</small>'
+        +'<select data-chk="'+i+'" style="width:100%;margin-top:6px;min-height:44px"><option value="">Incluir em…</option>'+S.bancas.map(function(b){return'<option value="'+b.id+'">'+esc(b.nome)+'</option>'}).join("")+'</select></div>';
+    });
+    h+='</section>';
+  }else h+='<section class="panel ivok">✔ Todos os produtos estão em alguma banca.</section>';
+  h+='<section class="panel"><h2 class="h2">Já nas bancas ('+D.ok.length+')</h2>';
+  S.bancas.forEach(function(b){
+    var l=D.ok.filter(function(r){return r.b===b});if(!l.length)return;
+    h+='<div style="margin:10px 0 4px">'+tag(b)+' <small class="note" style="display:inline">'+l.length+'</small></div>';
+    l.forEach(function(r){h+='<div class="ivli" style="cursor:default;border-left:5px solid '+corOf(b)+'"><span><b>'+esc(r.m.n)+'</b><br><small class="note" style="margin:0">'+esc(codesTxt(r.m))+'</small></span></div>'});
+  });
+  h+='</section><div class="toolbar"><button type="button" class="primary big" data-iv="chkshare">Enviar lista</button><button type="button" class="secondary big" data-iv="chkcopy">Copiar</button></div>';
   return h;
 }
 function vCfg(){
@@ -2573,7 +2623,7 @@ function render(){
   var c=V.v==="count";
   g("ivMain").classList.toggle("hidden",c);g("ivCount").classList.toggle("hidden",!c);
   if(c){renderCount();return}
-  var f={home:vHome,cfg:vCfg,edit:vEdit,sum:vSum,imp:vImp,rel:vRel}[V.v]||vHome;
+  var f={home:vHome,cfg:vCfg,edit:vEdit,sum:vSum,imp:vImp,rel:vRel,chk:vChk}[V.v]||vHome;
   g("ivMain").innerHTML=f();
   if(V.v==="edit"){renderEList();renderPrevTag()}
 }
@@ -2587,6 +2637,10 @@ g("tabInventario").addEventListener("click",function(e){
   var a=el.dataset.iv,id=el.dataset.id,b=S.bancas.filter(function(x){return x.id===id})[0];
   switch(a){
     case"home":V={v:"home"};break;
+    case"chk":V={v:"chk"};break;
+    case"chkcat":V.cat=el.dataset.c;break;
+    case"chkshare":share(chkText());return;
+    case"chkcopy":copy(chkText());return;
     case"cfg":V={v:"cfg"};break;
     case"sum":V={v:"sum"};break;
     case"imp":V={v:"imp"};break;
@@ -2635,6 +2689,12 @@ g("tabInventario").addEventListener("click",function(e){
     default:return;
   }
   render();window.scrollTo(0,0);
+});
+g("tabInventario").addEventListener("change",function(e){
+  var sel=e.target.closest("[data-chk]");if(!sel||!sel.value)return;
+  var D=chkData(),r=D.rows[+sel.dataset.chk],b=S.bancas.filter(function(x){return x.id===sel.value})[0];
+  if(!r||!b||r.b)return;
+  b.itens.push(toItem(r.m));save();toast(r.m.n+" → "+b.nome);render();
 });
 g("tabInventario").addEventListener("input",function(e){
   if(e.target.id==="ivBusca")renderRes();
