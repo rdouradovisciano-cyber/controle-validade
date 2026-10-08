@@ -578,6 +578,13 @@ html[data-tema=dark] .ivtbl th{background:#1a6a45}
 .ivli.ok{opacity:.62;background:rgba(0,0,0,.14);margin:0 -6px;padding-left:10px;padding-right:10px}
 .ivli.ok.cur{opacity:1;background:var(--lt2)}
 .ivfinh{margin:14px -6px 4px;padding:6px 10px;font-size:12px;font-weight:700;color:var(--mut);letter-spacing:.2px}
+.ivname{font-size:26px!important;font-weight:800!important;text-transform:none!important;margin:4px 0 2px!important;line-height:1.15!important}
+.ivcodes{gap:14px!important;margin:0 0 8px!important;opacity:.75}
+.ivcodes small{font-size:9px!important}
+.ivcodes b{font-size:13px!important;font-weight:600!important;color:var(--mut)!important}
+.ivq{margin:0 0 10px}
+.ivqr .ivli{cursor:pointer}
+.ivqr .ivli b{white-space:normal;text-align:right}
 </style>
 </head>
 <body data-tab="Loja">
@@ -635,7 +642,7 @@ html[data-tema=dark] .ivtbl th{background:#1a6a45}
 <div class="ivbanner" id="ivCBanner"><div id="ivCName"></div><span id="ivCPct">0%</span></div>
 <section class="panel"><div class="prog"><div id="ivCBar" style="width:0%"></div></div><small class="note" id="ivCInfo" style="margin:0"></small></section>
 <section class="panel" id="ivCur"><small class="note" id="ivCNum" style="text-align:center;margin:0"></small>
-<div class="ivcodes" id="ivCCode"></div><div class="ivname" id="ivCItem"></div>
+<div class="ivname" id="ivCItem"></div><div class="ivcodes" id="ivCCode"></div>
 <div id="ivLans"></div><div class="ivsub" id="ivSub"></div>
 <label for="ivPeso" id="ivPesoL">Quantidade</label>
 <input id="ivPeso" type="text" readonly inputmode="none" data-np data-np-submit="#ivAdd" data-np-label="Lançar" placeholder="kg (ex.: 2,5)" autocomplete="off">
@@ -1830,7 +1837,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.07-44";
+const APP_VERSION = "2026.10.07-45";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -1947,7 +1954,7 @@ if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
-var UPDATES=[{t:"2026-10-08T09:30:00-03:00",itens:["Inventário: produtos concluídos vão para o fim da lista em tom mais escuro e continuam editáveis (acrescentar ou remover lançamentos)"]},{t:"2026-10-08T05:40:00-03:00",itens:["Inventário: botão Começar agora é deslizante, com vibração e menor; cores das bancas mais suaves"]},{t:"2026-10-08T05:20:00-03:00",itens:["Inventário: nova lista para conferir quais produtos ainda não estão em nenhuma banca, com opção de incluir direto"]},{t:"2026-10-08T05:00:00-03:00",itens:["Inventário: cada banca com sua cor, lançamentos por pesagem, relatório e código de barras único por produto"]},{t:"2026-10-07T21:10:00-03:00",itens:["Inventário: cada produto pertence a uma única banca (o app avisa e pergunta antes de mover) e o botão Novo inventário zera as contagens mantendo as bancas"]},{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código interno ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+var UPDATES=[{t:"2026-10-08T09:50:00-03:00",itens:["Inventário: busca na tela inicial para lançar direto num produto (abre na banca certa) e nome do produto em destaque com códigos menores"]},{t:"2026-10-08T09:30:00-03:00",itens:["Inventário: produtos concluídos vão para o fim da lista em tom mais escuro e continuam editáveis (acrescentar ou remover lançamentos)"]},{t:"2026-10-08T05:40:00-03:00",itens:["Inventário: botão Começar agora é deslizante, com vibração e menor; cores das bancas mais suaves"]},{t:"2026-10-08T05:20:00-03:00",itens:["Inventário: nova lista para conferir quais produtos ainda não estão em nenhuma banca, com opção de incluir direto"]},{t:"2026-10-08T05:00:00-03:00",itens:["Inventário: cada banca com sua cor, lançamentos por pesagem, relatório e código de barras único por produto"]},{t:"2026-10-07T21:10:00-03:00",itens:["Inventário: cada produto pertence a uma única banca (o app avisa e pergunta antes de mover) e o botão Novo inventário zera as contagens mantendo as bancas"]},{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código interno ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
@@ -2327,8 +2334,33 @@ function initSwipe(){
     h.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();start()}});
   });
 }
+
+function qFind(q){
+  q=normS(q);if(!q)return[];var toks=q.split(/\s+/),out=[];
+  S.bancas.forEach(function(b){b.itens.forEach(function(it,i){
+    var n=normS(it.n),sc=0;
+    if(codeEq(q,it.b)||codeEq(q,it.d)||codeEq(q,it.e))sc=100;
+    else if((it.b&&String(it.b).toLowerCase().indexOf(q)===0)||(it.d&&String(it.d).toLowerCase().indexOf(q)===0))sc=60;
+    else if(n.indexOf(q)===0)sc=40;
+    else if(toks.every(function(t){return n.indexOf(t)>=0}))sc=20;
+    if(sc)out.push({b:b,i:i,it:it,sc:sc})
+  })});
+  out.sort(function(a,b){return b.sc-a.sc||a.it.n.localeCompare(b.it.n)});
+  return out.slice(0,8);
+}
+function qRes(){
+  var q=(g("ivQ")||{}).value||"",el=g("ivQRes");if(!el)return;
+  if(!q.trim()){el.innerHTML="";return}
+  var r=qFind(q);
+  el.innerHTML=r.length?r.map(function(x){
+    var ls=lansOf(x.b,x.it.c),c=eff(x.b).cont||{},ok=typeof c[x.it.c]==="number";
+    var st=ok?(c[x.it.c]===0?"sem estoque":fmt3(c[x.it.c])+" "+x.it.u):ls.length?fmt3(sumL(ls))+" "+x.it.u+"…":"";
+    return'<div class="ivli" data-iv="qgo" data-id="'+x.b.id+'" data-i="'+x.i+'"><span><b style="white-space:normal;font-size:16px">'+esc(x.it.n)+'</b><small>'+tag(x.b)+' '+esc(codesTxt(x.it))+'</small></span>'+(st?'<b style="color:var(--g)">'+st+'</b>':'<b style="color:var(--mut)">›</b>')+'</div>';
+  }).join(""):'<small class="note">Nenhum produto das bancas com esse nome ou código.</small>';
+}
 function vHome(){
   var T=totals(),h='';
+  if(S.bancas.length)h+='<section class="panel"><label for="ivQ" style="margin-top:0">Lançar direto num produto</label><input id="ivQ" class="ivq" type="search" placeholder="Nome ou código — abre na banca certa" autocomplete="off"><div class="ivqr" id="ivQRes"></div></section>';
   if(S.bancas.length)h+='<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">Avanço geral</h2><span class="hbadge">'+T.pct+'%</span></div>'+barHtml(T.pct)+'<small class="note" style="margin:0">'+T.n+' de '+T.m+' produtos · '+fmt(T.kg)+' kg</small></section>';
   else h+='<section class="panel"><h2 class="h2">Nenhuma banca ainda</h2><p class="note">Monte as bancas buscando os produtos pelo código, ou importe o link que alguém enviou.</p>'+btn("primary big","new","＋ Nova banca")+'</section>';
   T.rows.forEach(function(r){
@@ -2666,6 +2698,7 @@ g("tabInventario").addEventListener("click",function(e){
   var a=el.dataset.iv,id=el.dataset.id,b=S.bancas.filter(function(x){return x.id===id})[0];
   switch(a){
     case"home":V={v:"home"};break;
+    case"qgo":{var qb=S.bancas.filter(function(x){return x.id===el.dataset.id})[0];if(!qb)return;qb.cont=qb.cont||{};V={v:"count",id:qb.id,i:+el.dataset.i};break}
     case"chk":V={v:"chk"};break;
     case"chkcat":V.cat=el.dataset.c;break;
     case"chkshare":share(chkText());return;
@@ -2727,6 +2760,7 @@ g("tabInventario").addEventListener("change",function(e){
 });
 g("tabInventario").addEventListener("input",function(e){
   if(e.target.id==="ivBusca")renderRes();
+  if(e.target.id==="ivQ")qRes();
   if(e.target.id==="ivNome"){V.nome=e.target.value;renderPrevTag()}
 });
 g("tabInventario").addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="ivBusca"){e.preventDefault();if(V.hits&&V.hits.length)addHit(0)}});
