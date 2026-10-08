@@ -494,6 +494,7 @@ ap(document.documentElement.dataset.tema||"dark")});
 <style id="limpeza">
 .lnk{display:block;margin:2px auto 6px;background:none;color:var(--mut);font-size:13px;min-height:34px;padding:0 8px;text-decoration:underline;border-radius:8px}
 .sdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#9aa5b0}.sdot.ok{background:#2fb37a}.sdot.wait{background:#e0a100}.sdot.err{background:#d64545}
+.ivsync{display:flex;align-items:center;justify-content:center;gap:7px;margin:10px 0 0;font-size:12px;font-weight:650;color:var(--mut)}.ivsync:empty{display:none}
 #tabLoja .stats .stat{cursor:pointer}.stat.on{outline:2px solid var(--g2);outline-offset:-2px}
 #productForm.lote .hide-lote{display:none}
 #productForm.lote .formgrid>div:not(.hide-lote){grid-column:1/-1}
@@ -637,6 +638,7 @@ html[data-tema=dark] .ivtbl th{background:#1a6a45}
 <div class="csum"><div><span>PRODUTOS</span><b id="eSumP">0</b></div><div><span>QUANTIDADE TOTAL</span><b id="eSumQ">0</b></div></div><div id="eLista" class="clist"></div><p class="emarc" id="eMarc"></p><button type="button" id="eLimpa" class="secondary hidden" style="width:100%;margin-top:10px">🗑 Remover todos (já imprimi)</button>
 </div>
 <div id="tabInventario" class="hidden">
+<p class="ivsync" id="ivSync"></p>
 <div id="ivMain"></div>
 <div id="ivCount" class="hidden">
 <div class="ivbanner" id="ivCBanner"><div id="ivCName"></div><span id="ivCPct">0%</span></div>
@@ -760,6 +762,7 @@ const LOJA = C.loja || "Sam's Club Radial Leste";
 const EMPTY_FLV = '<div class="empty"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="#9db8a4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 28h44l-5 22a4 4 0 0 1-4 3H19a4 4 0 0 1-4-3z"/><path d="M22 28c0-9 4-16 10-16s10 7 10 16"/><path d="M32 12c0-4 3-7 8-7 0 5-3 8-8 7z"/></svg><p>Nenhum produto do FLV com validade para vencer no momento.</p></div>';
 let products = [], db = null, scanner = null, toastTimer;
 window.vmProducts = () => products;
+window.vmDb = () => db;
 const cloud = !!fb.apiKey && !/COLE_|SEU_/.test(fb.apiKey + fb.projectId);
 const store = {
   get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
@@ -1837,7 +1840,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.07-45";
+const APP_VERSION = "2026.10.08-46";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -1954,7 +1957,7 @@ if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
-var UPDATES=[{t:"2026-10-08T09:50:00-03:00",itens:["Inventário: busca na tela inicial para lançar direto num produto (abre na banca certa) e nome do produto em destaque com códigos menores"]},{t:"2026-10-08T09:30:00-03:00",itens:["Inventário: produtos concluídos vão para o fim da lista em tom mais escuro e continuam editáveis (acrescentar ou remover lançamentos)"]},{t:"2026-10-08T05:40:00-03:00",itens:["Inventário: botão Começar agora é deslizante, com vibração e menor; cores das bancas mais suaves"]},{t:"2026-10-08T05:20:00-03:00",itens:["Inventário: nova lista para conferir quais produtos ainda não estão em nenhuma banca, com opção de incluir direto"]},{t:"2026-10-08T05:00:00-03:00",itens:["Inventário: cada banca com sua cor, lançamentos por pesagem, relatório e código de barras único por produto"]},{t:"2026-10-07T21:10:00-03:00",itens:["Inventário: cada produto pertence a uma única banca (o app avisa e pergunta antes de mover) e o botão Novo inventário zera as contagens mantendo as bancas"]},{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código interno ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+var UPDATES=[{t:"2026-10-08T11:30:00-03:00",itens:["Inventário em tempo real: o que cada pessoa lança ou conclui aparece na hora em todos os aparelhos, com o nome de quem contou"]},{t:"2026-10-08T09:50:00-03:00",itens:["Inventário: busca na tela inicial para lançar direto num produto (abre na banca certa) e nome do produto em destaque com códigos menores"]},{t:"2026-10-08T09:30:00-03:00",itens:["Inventário: produtos concluídos vão para o fim da lista em tom mais escuro e continuam editáveis (acrescentar ou remover lançamentos)"]},{t:"2026-10-08T05:40:00-03:00",itens:["Inventário: botão Começar agora é deslizante, com vibração e menor; cores das bancas mais suaves"]},{t:"2026-10-08T05:20:00-03:00",itens:["Inventário: nova lista para conferir quais produtos ainda não estão em nenhuma banca, com opção de incluir direto"]},{t:"2026-10-08T05:00:00-03:00",itens:["Inventário: cada banca com sua cor, lançamentos por pesagem, relatório e código de barras único por produto"]},{t:"2026-10-07T21:10:00-03:00",itens:["Inventário: cada produto pertence a uma única banca (o app avisa e pergunta antes de mover) e o botão Novo inventário zera as contagens mantendo as bancas"]},{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código interno ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
@@ -2065,7 +2068,8 @@ var KEY="validamais-inventario-v1",KBAL="validamais-inv-balanca";
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 var S=rd(KEY,null);if(!S||!Array.isArray(S.bancas))S={bancas:[]};
-function save(){wr(KEY,S)}
+var CL={on:false,adopted:false,started:false,err:"",fc:true,hps:{},bancas:{},lan:{},fin:{},hist:null,sig:"",force:false,late:false,tm:0,migT:0,warned:false},swiping=false,hashQ=null;
+function save(){wr(KEY,S);CL.sig=sigNow()}
 function me(){var n=rd("validamais-operador","");return typeof n==="string"&&n?n:"Aparelho"}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function normS(s){return String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim()}
@@ -2088,7 +2092,7 @@ function firstUnused(){var used=S.bancas.map(corOf);return PAL.filter(function(c
 /* ---- lançamentos e cálculo ---- */
 /* b.cont[chave] = total do produto (existe só quando o produto foi concluído); b.lan[chave] = [[peso,hora],...] */
 function eff(b){
-  var loc={por:me(),cont:b.cont||{},lan:b.lan||{},t:b.t||0},e=b.ext;
+  var loc={por:b.por||me(),cont:b.cont||{},lan:b.lan||{},t:b.t||0},e=b.ext;
   if(e&&e.cont&&(e.t>loc.t||(e.t===loc.t&&Object.keys(e.cont).length>Object.keys(loc.cont).length)))return{por:e.por,cont:e.cont,lan:e.lan||{},t:e.t};
   return loc;
 }
@@ -2270,7 +2274,7 @@ function unpack(a){
 function cfgLink(l){return link({k:"cfg",b:l.map(function(b){return{id:b.id,n:b.nome,i:pack(b.itens),cor:corOf(b)}})})}
 function resLink(b){
   var e=eff(b),l={};
-  b.itens.forEach(function(it){var a=lansOf(b,it.c);if(a.length)l[it.c]=a});
+  b.itens.forEach(function(it){var a=lansOf(b,it.c);if(a.length)l[it.c]=a.map(function(x){return[x[0],x[1]]})});
   return link({k:"res",id:b.id,n:b.nome,i:pack(b.itens),c:e.cont,l:l,por:e.por||me(),t:e.t||Date.now(),cor:corOf(b)});
 }
 function share(msg){
@@ -2287,20 +2291,36 @@ function imp(o){
     o.b.slice(0,30).forEach(function(x){
       var items=unpack(x.i),b=S.bancas.filter(function(y){return y.id===x.id})[0];
       if(b){b.nome=String(x.n).slice(0,40);b.itens=items;u++;if(okCor(x.cor))b.cor=x.cor}
-      else{S.bancas.push({id:String(x.id).slice(0,12),nome:String(x.n).slice(0,40),itens:items,cont:{},lan:{},cor:okCor(x.cor)?x.cor:firstUnused()});a++}
+      else{b={id:String(x.id).slice(0,12),nome:String(x.n).slice(0,40),itens:items,cont:{},lan:{},cor:okCor(x.cor)?x.cor:firstUnused(),ord:Date.now()+a};S.bancas.push(b);a++}
+      pushBanca(b);
     });
     save();return a+" banca(s) nova(s), "+u+" atualizada(s)";
   }
   if(o.k==="res"&&o.c&&typeof o.c==="object"){
     var b2=S.bancas.filter(function(y){return y.id===o.id})[0];
-    if(!b2){b2={id:String(o.id).slice(0,12),nome:String(o.n).slice(0,40),itens:unpack(o.i),cont:{},lan:{},cor:okCor(o.cor)?o.cor:firstUnused()};S.bancas.push(b2)}
+    if(!b2){b2={id:String(o.id).slice(0,12),nome:String(o.n).slice(0,40),itens:unpack(o.i),cont:{},lan:{},cor:okCor(o.cor)?o.cor:firstUnused(),ord:Date.now()};S.bancas.push(b2);pushBanca(b2)}
     var cont={},lan={};
     Object.keys(o.c).forEach(function(k){if(typeof o.c[k]==="number"&&isFinite(o.c[k]))cont[k]=o.c[k]});
     if(o.l&&typeof o.l==="object")Object.keys(o.l).forEach(function(k){
       if(!Array.isArray(o.l[k]))return;
       lan[k]=o.l[k].filter(function(x){return Array.isArray(x)&&typeof x[0]==="number"&&isFinite(x[0])}).map(function(x){return[x[0],Number(x[1])||0]});
     });
-    b2.ext={por:String(o.por||"").slice(0,40),t:Number(o.t)||0,cont:cont,lan:lan};save();
+    var por=String(o.por||"").slice(0,40);
+    if(CL.on){   // nuvem: grava só os produtos que ainda não foram contados nesta banca
+      var keys={},n=0;Object.keys(cont).forEach(function(k){keys[k]=1});Object.keys(lan).forEach(function(k){keys[k]=1});
+      b2.lan=b2.lan||{};b2.cont=b2.cont||{};b2.pi=b2.pi||{};
+      Object.keys(keys).forEach(function(k){
+        if((b2.lan[k]&&b2.lan[k].length)||typeof b2.cont[k]==="number")return;
+        var ls=lan[k]&&lan[k].length?lan[k]:(cont[k]>0?[[cont[k],Number(o.t)||Date.now()]]:[]);
+        b2.lan[k]=[];
+        ls.forEach(function(x,j){var l=[x[0],x[1]||Date.now(),lanId(b2.id,k)+j,por||me()];b2.lan[k].push(l);pushLan(b2,k,l)});
+        if(typeof cont[k]==="number"){b2.cont[k]=sumL(b2.lan[k]);pushFin(b2,k,true)}
+        b2.pi[k]=por||me();n++;
+      });
+      b2.t=Date.now();b2.por=por||b2.por||me();save();
+      return b2.nome+": "+n+" produto(s) importado(s) de "+(por||"?");
+    }
+    b2.ext={por:por,t:Number(o.t)||0,cont:cont,lan:lan};save();
     return b2.nome+": resultado de "+(b2.ext.por||"?")+" importado";
   }
   throw 0;
@@ -2327,9 +2347,9 @@ function initSwipe(){
     function lim(){return el.clientWidth-h.offsetWidth-4}
     function set(x){x=Math.max(0,Math.min(lim(),x));h.style.transform="translateX("+x+"px)";t.style.opacity=String(1-x/Math.max(1,lim())*1.3);return x}
     function start(){if(go)return;go=true;vib([30,40,30]);var b=S.bancas.filter(function(y){return y.id===el.dataset.id})[0];if(!b)return;b.cont=b.cont||{};V={v:"count",id:b.id,i:nextPending(b,0)};render();window.scrollTo(0,0)}
-    h.addEventListener("pointerdown",function(e){on=true;x0=e.clientX;try{h.setPointerCapture(e.pointerId)}catch(_){}h.style.transition="none";vib(8)});
+    h.addEventListener("pointerdown",function(e){on=true;swiping=true;x0=e.clientX;try{h.setPointerCapture(e.pointerId)}catch(_){}h.style.transition="none";vib(8)});
     h.addEventListener("pointermove",function(e){if(!on)return;var x=set(e.clientX-x0);mx=x;var k=Math.floor(x/lim()*6);if(k!==tick){tick=k;vib(6)}});
-    function end(){if(!on)return;on=false;h.style.transition="transform .2s";t.style.opacity="1";if(mx>=lim()*.85){set(lim());start()}else set(0);mx=0;tick=0}
+    function end(){if(!on)return;on=false;swiping=false;if(CL.late){CL.late=false;setTimeout(liveRender,0)}h.style.transition="transform .2s";t.style.opacity="1";if(mx>=lim()*.85){set(lim());start()}else set(0);mx=0;tick=0}
     h.addEventListener("pointerup",end);h.addEventListener("pointercancel",end);
     h.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();start()}});
   });
@@ -2616,8 +2636,9 @@ function nextPending(b,from){
   for(var k=0;k<n;k++){var i=(from+k)%n;if(typeof c[b.itens[i].c]!=="number")return i}
   return -1;
 }
-function renderCount(){
+function renderCount(keep){
   var b=bcur();if(!b){V={v:"home"};render();return}
+  if(V.i>=b.itens.length)V.i=nextPending(b,0);
   var s=stats(b),done=V.i<0,c=eff(b).cont||{},col=corOf(b);
   var bn=g("ivCBanner");bn.style.background=col;bn.style.color=inkOn(col);
   g("ivCName").textContent=b.nome;g("ivCPct").textContent=s.pct+"%";
@@ -2630,11 +2651,11 @@ function renderCount(){
     g("ivCNum").textContent="Produto "+(V.i+1)+" de "+s.m;
     g("ivCCode").innerHTML=codesBig(it);g("ivCItem").textContent=it.n;
     g("ivLans").innerHTML=ls.length?ls.map(function(l,i){
-      return'<div class="ivlan"><span>'+(i+1)+') <b>'+fmt3(l[0])+' '+it.u+'</b> <small class="muted">'+hhmm(l[1])+'</small></span><button type="button" class="danger" style="min-height:34px;padding:0 12px" data-lan="'+i+'" aria-label="Remover lançamento">✕</button></div>';
+      return'<div class="ivlan"><span>'+(i+1)+') <b>'+fmt3(l[0])+' '+it.u+'</b> <small class="muted">'+hhmm(l[1])+(l[3]&&l[3]!==me()?' · '+esc(l[3]):'')+'</small></span><button type="button" class="danger" style="min-height:34px;padding:0 12px" data-lan="'+i+'" aria-label="Remover lançamento">✕</button></div>';
     }).join(""):'<small class="note" style="margin:6px 0;text-align:center">Pese e toque em «Lançar». Pode lançar várias pesagens do mesmo produto; o total é a soma.</small>';
     g("ivSub").innerHTML=ls.length?'<span>Total do produto</span><span>'+fmt3(sumL(ls))+' '+it.u+'</span>':'';
     g("ivPesoL").textContent=it.n+" ("+it.u+")";
-    p.value="";
+    if(!keep)p.value="";
     p.placeholder=it.u==="un"?"unidades (ex.: 3)":"kg (ex.: 2,5)";
     p.toggleAttribute("data-np-int",it.u==="un");
   }
@@ -2645,37 +2666,43 @@ function renderCount(){
     if(ok)right='<b>'+(v===0?'sem estoque':fmt3(v)+' '+it.u)+(ls.length>1?'<small>'+ls.length+' lançamentos</small>':'')+'</b>';
     else if(ls.length)right='<b style="color:var(--amb)">'+fmt3(sumL(ls))+' '+it.u+'…<small>em andamento</small></b>';
     else right='<b>—</b>';
-    return'<div class="ivli'+(ok?' ok':'')+(i===V.i?' cur':'')+'" data-i="'+i+'"><span>'+esc(it.n)+'<small>'+codesTxt(it)+'</small></span>'+right+'</div>';
+    var who=b.pi&&b.pi[it.c];
+    return'<div class="ivli'+(ok?' ok':'')+(i===V.i?' cur':'')+'" data-i="'+i+'"><span>'+esc(it.n)+'<small>'+codesTxt(it)+(who&&who!==me()?' · '+esc(who):'')+'</small></span>'+right+'</div>';
   }
   g("ivList").innerHTML=pend.map(row).join("")
     +(fin.length?'<div class="ivfinh">Concluídos ('+fin.length+') · toque para acrescentar ou remover</div>'+fin.map(row).join(""):"");
 }
+function touch(b,key){b.t=Date.now();b.por=me();b.pi=b.pi||{};b.pi[key]=me()}
 function addLan(v){
-  var b=bcur(),it=b.itens[V.i],a=lanArr(b,it.c);
-  a.push([Math.round(v*1000)/1000,Date.now()]);
+  var b=bcur(),it=b.itens[V.i],a=lanArr(b,it.c),l=[Math.round(v*1000)/1000,Date.now(),lanId(b.id,it.c),me()];
+  a.push(l);
   if(typeof b.cont[it.c]==="number")b.cont[it.c]=sumL(a);
-  b.t=Date.now();save();
+  touch(b,it.c);save();pushLan(b,it.c,l);
 }
 function concluir(){
   var b=bcur(),it=b.itens[V.i],raw=g("ivPeso").value;
   if(raw){var v=num(raw);if(v===null||v<0){toast("Quantidade inválida");return}addLan(v)}
   var a=lanArr(b,it.c);
   if(!a.length){toast("Lance o peso ou toque em «Não tem»");return}
-  b.cont[it.c]=sumL(a);b.t=Date.now();save();
+  b.cont[it.c]=sumL(a);touch(b,it.c);save();pushFin(b,it.c,true);
   V.i=nextPending(b,V.i+1);renderCount();
   if(V.i<0&&typeof window.npClose==="function")window.npClose();
 }
 function semEstoque(){
   var b=bcur(),it=b.itens[V.i];
-  b.lan=b.lan||{};b.cont=b.cont||{};b.lan[it.c]=[];b.cont[it.c]=0;b.t=Date.now();save();
+  b.lan=b.lan||{};b.cont=b.cont||{};
+  var old=(b.lan[it.c]||[]).slice();
+  b.lan[it.c]=[];b.cont[it.c]=0;touch(b,it.c);save();
+  old.forEach(function(l){if(l[2])cdel("inv_lan",l[2])});pushFin(b,it.c,true);
   V.i=nextPending(b,V.i+1);renderCount();
   if(V.i<0&&typeof window.npClose==="function")window.npClose();
 }
 function rmLan(i){
-  var b=bcur(),it=b.itens[V.i],a=lanArr(b,it.c);
-  a.splice(i,1);
-  if(typeof b.cont[it.c]==="number"){if(a.length)b.cont[it.c]=sumL(a);else delete b.cont[it.c]}
-  b.t=Date.now();save();renderCount();
+  var b=bcur(),it=b.itens[V.i],a=lanArr(b,it.c),r=a.splice(i,1)[0];
+  if(typeof b.cont[it.c]==="number"){if(a.length)b.cont[it.c]=sumL(a);else{delete b.cont[it.c];pushFin(b,it.c,false)}}
+  touch(b,it.c);save();
+  if(r&&r[2])cdel("inv_lan",r[2]);
+  renderCount();
 }
 
 /* ---- render ---- */
@@ -2733,14 +2760,15 @@ g("tabInventario").addEventListener("click",function(e){
       if(!nome){toast("Dê um nome à banca");g("ivNome").focus();return}
       if(!V.items.length){toast("Adicione ao menos um produto");return}
       (V.moved||[]).forEach(function(m){var ob=S.bancas.filter(function(y){return y.id===m.id})[0];if(ob)ob.itens=ob.itens.filter(function(x){return x.c!==m.c})});
-      if(V.id){var x=S.bancas.filter(function(y){return y.id===V.id})[0];x.nome=nome;x.itens=V.items;x.cor=V.cor}
-      else S.bancas.push({id:uid(),nome:nome,itens:V.items,cont:{},lan:{},cor:V.cor});
+      (V.moved||[]).forEach(function(m){var ob=S.bancas.filter(function(y){return y.id===m.id})[0];if(ob)pushBanca(ob)});
+      if(V.id){var x=S.bancas.filter(function(y){return y.id===V.id})[0];x.nome=nome;x.itens=V.items;x.cor=V.cor;pushBanca(x)}
+      else{var nid=uid();while(S.bancas.some(function(y){return y.id===nid}))nid=uid();var nb={id:nid,nome:nome,itens:V.items,cont:{},lan:{},cor:V.cor,ord:Date.now()};S.bancas.push(nb);pushBanca(nb)}
       save();V={v:"cfg"};toast("Banca salva");break;
     }
-    case"delb":if(!confirm("Excluir esta banca?"))return;S.bancas=S.bancas.filter(function(y){return y.id!==V.id});save();V={v:"cfg"};break;
+    case"delb":if(!confirm("Excluir esta banca?"))return;var gone=S.bancas.filter(function(y){return y.id===V.id})[0];if(gone){purgeCounts(gone);cdel("inv_bancas",safeId(gone.id))}S.bancas=S.bancas.filter(function(y){return y.id!==V.id});save();V={v:"cfg"};break;
     case"reset":if(!confirm("Começar um novo inventário? As contagens serão zeradas, mas as bancas e os produtos de cada uma continuam salvos. O resultado atual fica guardado em «Inventários anteriores», no Resumo."))return;
-      if(totals().n>0){S.hist=S.hist||[];S.hist.unshift({t:Date.now(),txt:relText(null)});S.hist=S.hist.slice(0,10)}
-      S.bancas.forEach(function(y){y.cont={};y.lan={};y.ext=null;y.t=0});save();toast("Novo inventário iniciado");break;
+      if(totals().n>0){S.hist=S.hist||[];var hh={t:Date.now(),txt:relText(null)};S.hist.unshift(hh);S.hist=S.hist.slice(0,10);cset("inv_hist",String(hh.t),{t:hh.t,txt:hh.txt,por:me()})}
+      S.bancas.forEach(function(y){purgeCounts(y);y.cont={};y.lan={};y.pi={};y.ext=null;y.t=0;y.por=""});save();toast("Novo inventário iniciado");break;
     case"copyhist":copy(S.hist[+el.dataset.i].txt);return;
     case"sendcfg":share("Inventário FLV — "+b.nome+"\nAbra o link e comece a contar:\n"+cfgLink([b]));return;
     case"sendall":share("Inventário FLV — todas as bancas\nAbra o link para carregar as bancas:\n"+cfgLink(S.bancas));return;
@@ -2756,7 +2784,7 @@ g("tabInventario").addEventListener("change",function(e){
   var sel=e.target.closest("[data-chk]");if(!sel||!sel.value)return;
   var D=chkData(),r=D.rows[+sel.dataset.chk],b=S.bancas.filter(function(x){return x.id===sel.value})[0];
   if(!r||!b||r.b)return;
-  b.itens.push(toItem(r.m));save();toast(r.m.n+" → "+b.nome);render();
+  b.itens.push(toItem(r.m));save();pushBanca(b);toast(r.m.n+" → "+b.nome);render();
 });
 g("tabInventario").addEventListener("input",function(e){
   if(e.target.id==="ivBusca")renderRes();
@@ -2777,13 +2805,171 @@ g("ivDoneRel").onclick=function(){var id=V.id;if(typeof window.npClose==="functi
 g("ivDoneSend").onclick=function(){var b=bcur();share("Inventário FLV — "+b.nome+" ("+stats(b).pct+"%)\nAbra o link no app para importar o resultado:\n"+resLink(b))};
 g("ivDoneCopy").onclick=function(){copy(resLink(bcur()))};
 
+function doHash(h){
+  try{var msg=imp(dec(h.slice(5)));V={v:"home"};render();var n=g("navInventario");if(n)n.click();toast(msg)}
+  catch(e){toast("Link inválido")}
+}
 function checkHash(){
   if(location.hash.indexOf("#inv=")!==0)return;
-  try{var msg=imp(dec(location.hash.slice(5)));V={v:"home"};render();var n=g("navInventario");if(n)n.click();toast(msg)}
-  catch(e){toast("Link inválido")}
+  var h=location.hash;
   try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}
+  if(cloudAvail()&&!CL.adopted&&!hashQ){   // espera os dados da nuvem (até 6 s) para não perder a importação
+    hashQ=h;startCloud();
+    setTimeout(function(){if(hashQ){var q=hashQ;hashQ=null;doHash(q)}},6000);
+    var n=g("navInventario");if(n)n.click();return;
+  }
+  doHash(h);
 }
 window.addEventListener("hashchange",checkHash);
+
+/* ================= sincronização em tempo real (Firestore) =================
+   inv_bancas/{id}  → nome, cor, produtos de cada banca
+   inv_lan/{id}     → um documento por lançamento (peso/quantidade) — ninguém sobrescreve o outro
+   inv_fin/{id}     → produto marcado como concluído
+   inv_hist/{t}     → inventários anteriores                                              */
+var KFLAG="validamais-inv-cloud";
+function fdb(){try{return typeof window.vmDb==="function"?window.vmDb():null}catch(e){return null}}
+var FB=window.V||{};
+function cloudAvail(){return!!(fdb()&&FB.onSnapshot&&FB.setDoc&&FB.doc&&FB.collection&&FB.deleteDoc&&FB.query&&FB.orderBy&&FB.limit)}
+function safeId(x){return String(x).replace(/[^A-Za-z0-9]/g,function(ch){return"_"+ch.charCodeAt(0).toString(16)+"_"})}
+function finId(bid,c){return safeId(bid)+"~"+safeId(c)}
+function lanId(bid,c){return finId(bid,c)+"~"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function cset(col,id,data){if(!CL.on)return;try{FB.setDoc(FB.doc(fdb(),col,id),data).catch(cfail)}catch(e){cfail(e)}}
+function cdel(col,id){if(!CL.on||!id)return;try{FB.deleteDoc(FB.doc(fdb(),col,id)).catch(cfail)}catch(e){cfail(e)}}
+function bancaDoc(b){return{id:b.id,nome:b.nome,cor:corOf(b),ord:b.ord||0,por:me(),upd:Date.now(),
+  itens:b.itens.map(function(x){return{c:String(x.c),n:String(x.n),u:x.u==="un"?"un":"kg",b:String(x.b||""),d:String(x.d||""),e:String(x.e||"")}})}}
+function pushBanca(b){if(!b.ord)b.ord=Date.now();cset("inv_bancas",safeId(b.id),bancaDoc(b))}
+function pushLan(b,key,l){if(l&&l[2])cset("inv_lan",l[2],{b:b.id,c:String(key),p:l[0],t:l[1]||Date.now(),por:l[3]||me()})}
+function pushFin(b,key,on){if(on)cset("inv_fin",finId(b.id,key),{b:b.id,c:String(key),t:Date.now(),por:me()});else cdel("inv_fin",finId(b.id,key))}
+function purgeCounts(b){   // apaga na nuvem todos os lançamentos e conclusões da banca
+  Object.keys(b.lan||{}).forEach(function(k){(b.lan[k]||[]).forEach(function(l){if(l[2])cdel("inv_lan",l[2])})});
+  Object.keys(b.cont||{}).forEach(function(k){cdel("inv_fin",finId(b.id,k))});
+}
+function cfail(e){
+  console.error(e);
+  var denied=!!e&&(e.code==="permission-denied"||/permission|insufficient/i.test(e.message||""));
+  CL.err=denied?"o Firestore recusou o acesso: atualize as regras (inv_bancas, inv_lan, inv_fin, inv_hist)":"falha ao sincronizar";
+  if(denied){CL.on=false;CL.adopted=false;clearTimeout(CL.tm)}   // volta ao modo local, sem perder o que está na tela
+  ivStatus();
+  if(!CL.warned){CL.warned=true;toast(denied?"O Firestore não permitiu sincronizar o inventário. Ele segue só neste aparelho.":"Falha ao sincronizar o inventário.")}
+}
+function sigNow(){
+  var o=[];
+  S.bancas.forEach(function(b){
+    var x=[b.id,b.nome,corOf(b),b.por||"",b.itens.map(function(i){return i.c+"/"+i.u+"/"+i.n}).join(",")];
+    Object.keys(b.lan||{}).sort().forEach(function(k){x.push(k+":"+b.lan[k].map(function(l){return l[0]+"@"+l[1]}).join("+")+(typeof(b.cont||{})[k]==="number"?"#":""))});
+    o.push(x.join("|"));
+  });
+  return o.join("\n")+"\nH"+((S.hist||[]).length);
+}
+function rebuild(){
+  var arr=Object.keys(CL.bancas).map(function(k){return CL.bancas[k]}).filter(function(d){return d&&d.id});
+  arr.sort(function(a,b){return((a.ord||0)-(b.ord||0))||(String(a.id)<String(b.id)?-1:1)});
+  var by={},ptm={};
+  var out=arr.map(function(d){
+    var b={id:String(d.id),nome:String(d.nome||"").slice(0,40),cor:okCor(d.cor)?d.cor:"",ord:d.ord||0,cont:{},lan:{},pi:{},t:0,por:"",ext:null,
+      itens:(Array.isArray(d.itens)?d.itens:[]).filter(function(x){return x&&x.c}).map(function(x){return{c:String(x.c),n:String(x.n||x.c),u:x.u==="un"?"un":"kg",b:String(x.b||""),d:String(x.d||""),e:String(x.e||"")}})};
+    by[b.id]=b;return b;
+  });
+  function mark(b,c,t,por){t=t||0;var k=b.id+"|"+c;if(t>=(ptm[k]||0)){ptm[k]=t;b.pi[c]=por||""}if(t>=b.t){b.t=t;if(por)b.por=por}}
+  Object.keys(CL.lan).forEach(function(k){
+    var d=CL.lan[k],b=d&&by[d.b];if(!b||typeof d.p!=="number"||!isFinite(d.p))return;
+    (b.lan[d.c]=b.lan[d.c]||[]).push([d.p,d.t||0,k,d.por||""]);mark(b,d.c,d.t,d.por);
+  });
+  Object.keys(CL.fin).forEach(function(k){
+    var d=CL.fin[k],b=d&&by[d.b];if(!b)return;
+    b.cont[d.c]=0;mark(b,d.c,d.t,d.por);
+  });
+  out.forEach(function(b){
+    Object.keys(b.lan).forEach(function(c){b.lan[c].sort(function(x,y){return(x[1]-y[1])||(x[2]<y[2]?-1:1)})});
+    Object.keys(b.cont).forEach(function(c){b.lan[c]=b.lan[c]||[];b.cont[c]=sumL(b.lan[c])});
+  });
+  S.bancas=out;
+  if(CL.hist)S.hist=CL.hist.map(function(x){return{t:x.t,txt:String(x.txt||"")}});
+}
+function cloudChanged(){clearTimeout(CL.tm);CL.tm=setTimeout(applyCloud,60)}
+function applyCloud(){
+  ivStatus();
+  if(!CL.adopted)return;
+  var before=CL.sig;
+  rebuild();save();
+  if(CL.sig!==before||CL.force){CL.force=false;liveRender()}
+  if(hashQ){var q=hashQ;hashQ=null;doHash(q)}
+}
+function liveRender(){   // atualiza a tela na hora sem apagar o que a pessoa está digitando
+  if(swiping){CL.late=true;return}
+  if(V.v==="count"){renderCount(true);return}
+  var ae=document.activeElement,tab=g("tabInventario");
+  if(V.v==="home"){
+    var q=g("ivQ"),val=q?q.value:"",foc=!!q&&ae===q,pos=foc?q.selectionStart:0;
+    render();
+    if(val){q=g("ivQ");if(q){q.value=val;qRes();if(foc){q.focus();try{q.setSelectionRange(pos,pos)}catch(e){}}}}
+    return;
+  }
+  if(V.v==="edit"||V.v==="imp")return;   // formulário aberto: não mexe
+  if(ae&&tab&&tab.contains(ae)&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName))return;
+  render();
+}
+function ivStatus(){
+  var el=g("ivSync");if(!el)return;
+  var t,c="";
+  if(!cloudAvail()){t="Modo local neste aparelho (sem sincronização)"}
+  else if(CL.err){t="Sem sincronização: "+CL.err;c="err"}
+  else if(!CL.on){t="Conectando…";c="wait"}
+  else if(CL.hps.bancas||CL.hps.lan||CL.hps.fin){t="Enviando alterações…";c="wait"}
+  else if(CL.fc){t=navigator.onLine===false?"Offline: salvo no aparelho, envia ao voltar a conexão":"Conectando…";c="wait"}
+  else{t="Sincronizado ao vivo";c="ok"}
+  el.innerHTML='<i class="sdot '+c+'"></i>'+esc(t);
+}
+function onBancas(s){
+  CL.hps.bancas=s.metadata.hasPendingWrites;CL.fc=s.metadata.fromCache;
+  var docs=s.docs;
+  if(s.metadata.fromCache&&!docs.length){ivStatus();return}      // ainda sem resposta do servidor
+  if(!rd(KFLAG,0)){
+    if(!docs.length){cloudMigrate();return}                       // nuvem vazia: sobe o que já existe neste aparelho
+    wr(KEY+"-bkp",S);wr(KFLAG,1);                                  // nuvem já tem inventário: usa o dela (cópia local guardada)
+  }
+  if(!docs.length&&CL.migT&&Date.now()-CL.migT<8000){ivStatus();return}
+  var m={};docs.forEach(function(x){m[x.id]=x.data()});CL.bancas=m;
+  CL.err="";CL.on=true;
+  if(!CL.adopted){CL.adopted=true;CL.force=true}
+  cloudChanged();
+}
+function onMap(key){return function(s){
+  CL.hps[key]=s.metadata.hasPendingWrites;
+  var m={};s.docs.forEach(function(x){m[x.id]=x.data()});CL[key]=m;cloudChanged();
+}}
+function cloudMigrate(){
+  wr(KFLAG,1);CL.migT=Date.now();CL.on=true;
+  if(!S.bancas.length&&!(S.hist&&S.hist.length)){CL.adopted=true;CL.force=true;cloudChanged();return}
+  wr(KEY+"-bkp",S);
+  S.bancas.forEach(function(b,i){
+    b.ord=Date.now()+i;pushBanca(b);
+    var e=eff(b);
+    b.itens.forEach(function(it){
+      lansOf(b,it.c).forEach(function(l,j){pushLan(b,it.c,[l[0],l[1]||Date.now(),l[2]||(lanId(b.id,it.c)+j),l[3]||e.por||me()])});
+      if(typeof e.cont[it.c]==="number")pushFin(b,it.c,true);
+    });
+  });
+  (S.hist||[]).forEach(function(h){cset("inv_hist",String(h.t),{t:h.t,txt:String(h.txt||""),por:me()})});
+  toast("Inventário agora sincroniza em tempo real");
+}
+function startCloud(){
+  if(CL.started||!cloudAvail())return;
+  CL.started=true;
+  var d=fdb(),o={includeMetadataChanges:true};
+  try{
+    FB.onSnapshot(FB.collection(d,"inv_bancas"),o,onBancas,cfail);
+    FB.onSnapshot(FB.collection(d,"inv_lan"),o,onMap("lan"),cfail);
+    FB.onSnapshot(FB.collection(d,"inv_fin"),o,onMap("fin"),cfail);
+    FB.onSnapshot(FB.query(FB.collection(d,"inv_hist"),FB.orderBy("t","desc"),FB.limit(10)),function(s){CL.hist=s.docs.map(function(x){return x.data()});cloudChanged()},cfail);
+  }catch(e){cfail(e)}
+  ivStatus();
+}
+function maybeStart(){var t=g("tabInventario");if(t&&!t.classList.contains("hidden"))startCloud()}
+try{new MutationObserver(maybeStart).observe(g("tabInventario"),{attributes:true,attributeFilter:["class"]})}catch(e){}
+window.addEventListener("online",ivStatus);window.addEventListener("offline",ivStatus);
+ivStatus();maybeStart();
 render();checkHash();
 })();</script>
 </body></html>
