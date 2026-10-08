@@ -347,6 +347,7 @@ body.mao1 .fabitem{min-height:56px;font-size:16px}
 .utog{display:flex;gap:6px;margin-top:8px;background:var(--lt);padding:4px;border-radius:14px}
 .utog button{flex:1;min-height:40px;background:transparent;color:var(--g-d);border-radius:10px}
 .utog .sel{background:#fff;color:var(--g-d);box-shadow:0 2px 6px rgba(16,40,28,.15)}
+#tabDoacao .qh,#tabDoacao #qBar,#tabDoacao #qFreq,#tabDoacao #qgrid{display:none!important}
 .qgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}
 .qbtn{min-height:48px;padding:5px 2px;font-size:13px;line-height:1.15;background:var(--lt2);color:var(--g-d);border:1px solid #d3e5da;border-radius:12px}
 .qbtn small{display:block;font-size:10px;font-weight:600;color:var(--mut);margin-top:1px}
@@ -610,11 +611,11 @@ html[data-tema=dark] .ivtbl th{background:#1a6a45}
 </div>
 <div id="tabDoacao" class="hidden">
 <div id="donaEntrada">
-<div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><small>COLETANDO AGORA</small><span id="dNome">Escolha o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
+<div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><small>COLETANDO AGORA</small><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
 <div class="nowrow"><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
 <section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button></div>
 <div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></section>
-<section class="panel"><h2 class="h2 qh">⚖️ Escolha o produto <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
+<section class="panel"><h2 class="h2 qh">Produto <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
 <div id="qBar" class="qbar hidden"><span>Toque num atalho para editar</span><button type="button" class="secondary" id="qReset">Restaurar padrão</button><button type="button" class="primary" id="qDone">Concluir</button></div>
 <div id="qFreq" class="qfreq hidden"></div><div id="qgrid" class="qgrid"></div>
 <input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off"><div id="dSug" class="rows sug"></div>
@@ -1430,7 +1431,7 @@ async function donationScan(code) {
 }
 // pesagem manual
 function renderKey() {
-  $("dNome").textContent = dSel || "Escolha o produto"; $("dNow").classList.toggle("vazio", !dSel);
+  $("dNome").textContent = dSel || "Pesquise o produto"; $("dNow").classList.toggle("vazio", !dSel);
   const it = dSel && don.itens.find(i => i.key === norm(dSel) + "|" + dUnit);
   const plus = lastAdd && lastAdd.k === norm(dSel) + "|" + dUnit && Date.now() - lastAdd.t < 2500 ? `<i class="plus">+${fq(lastAdd.q)}</i>` : "";
   $("dSelInfo").innerHTML = !dSel ? "" : it ? `<b>${plus}${fq(it.qtd)} ${esc(it.unidade)}</b>${it.lanc} lançamento${it.lanc > 1 ? "s" : ""}` : `<b>0 ${dUnit}</b>ainda não lançado`;
@@ -1508,7 +1509,7 @@ $("qgrid").onclick = e => { const b = e.target.closest("[data-q]"); if (!b) retu
   buzz(); const s = shortcuts[Number(k)], p = prodFor(s.n); selectProd(p ? p.name : s.n, s.c, s.u); };
 $("navDoacao").addEventListener("click", renderQuick); $("dBusca").addEventListener("focus", renderQuick);
 function selectProd(n, code, unit) { dSel = n; dCodSel = code || ""; setUnit(unit || unitOf(n), false); renderQuick(); $("dCod").value = code || (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderDon(); $("dPeso").focus({ preventScroll: true }); }
-$("dCodSave").onclick = () => { if (!dSel) return toast("Escolha o produto primeiro."); const pr = products.find(x => norm(x.name) === norm(dSel)) || { name: dSel };
+$("dCodSave").onclick = () => { if (!dSel) return toast("Pesquise o produto primeiro."); const pr = products.find(x => norm(x.name) === norm(dSel)) || { name: dSel };
   const v = saveCode(pr, "codigo_doacao", $("dCod").value); if (v !== null) $("dCod").value = v; };
 // aviso de quantidade fora do normal: aprende o usual de cada produto (por lançamento)
 const DSTAT = "valida_dstat";
@@ -1539,7 +1540,7 @@ async function dOddOk(n, u, q) {
     ok: "Está certo", cancel: "Corrigir" });
 }
 async function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",", "."));
-  if (!dSel) return toast("Escolha o produto."); if (!(q > 0)) return toast(dUnit === "un" ? "Digite a quantidade." : "Digite o peso em kg.");
+  if (!dSel) return toast("Pesquise o produto."); if (!(q > 0)) return toast(dUnit === "un" ? "Digite a quantidade." : "Digite o peso em kg.");
   if (dUnit === "un") q = Math.round(q); if (!(q > 0)) return toast("Digite a quantidade.");
   if (!(await dOddOk(dSel, dUnit, q))) return;
   dStatLearn(dSel, dUnit, q);
@@ -1921,7 +1922,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.08-47";
+const APP_VERSION = "2026.10.08-48";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
