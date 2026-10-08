@@ -575,6 +575,9 @@ html[data-tema=dark] .ivtbl th{background:#1a6a45}
 .ivsw{position:relative;height:44px;border-radius:22px;background:rgba(127,127,127,.16);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;min-width:0}
 .ivswt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:34px;font-size:14px;font-weight:600;color:var(--muted,#8a9a90);letter-spacing:.3px;pointer-events:none}
 .ivswh{position:absolute;left:2px;top:2px;width:40px;height:40px;border-radius:50%;background:#4f8a68;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;touch-action:none;cursor:grab;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.ivli.ok{opacity:.62;background:rgba(0,0,0,.14);margin:0 -6px;padding-left:10px;padding-right:10px}
+.ivli.ok.cur{opacity:1;background:var(--lt2)}
+.ivfinh{margin:14px -6px 4px;padding:6px 10px;font-size:12px;font-weight:700;color:var(--mut);letter-spacing:.2px}
 </style>
 </head>
 <body data-tab="Loja">
@@ -1142,7 +1145,7 @@ const setSync = t => $("syncState").textContent = t;
 if (cloud && V.initializeApp) {
   try {
     const app = V.initializeApp(fb);
-    db = V.initializeFirestore(app, { localCache: V.persistentLocalCache({ tabManager: V.persistentMultipleTabManager() }) }); window.__vdb = db; window.__vfb = V;
+    db = V.initializeFirestore(app, { localCache: V.persistentLocalCache({ tabManager: V.persistentMultipleTabManager() }) });
     V.onSnapshot(V.collection(db, "products"), { includeMetadataChanges: true }, snap => {
       products = snap.docs.map(d => ({ id: d.id, ...d.data() })); render();
       setSync(snap.metadata.hasPendingWrites ? "alterações aguardando envio…" : snap.metadata.fromCache ? (navigator.onLine ? "conectando…" : "offline (dados salvos no aparelho)") : "sincronizado");
@@ -1827,7 +1830,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.07-43";
+const APP_VERSION = "2026.10.07-44";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -1944,7 +1947,7 @@ if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
-var UPDATES=[{t:"2026-10-08T12:00:00-03:00",itens:["Inventário: bancas e contagem agora são compartilhadas entre todos os aparelhos"]},{t:"2026-10-08T05:40:00-03:00",itens:["Inventário: botão Começar agora é deslizante, com vibração e menor; cores das bancas mais suaves"]},{t:"2026-10-08T05:20:00-03:00",itens:["Inventário: nova lista para conferir quais produtos ainda não estão em nenhuma banca, com opção de incluir direto"]},{t:"2026-10-08T05:00:00-03:00",itens:["Inventário: cada banca com sua cor, lançamentos por pesagem, relatório e código de barras único por produto"]},{t:"2026-10-07T21:10:00-03:00",itens:["Inventário: cada produto pertence a uma única banca (o app avisa e pergunta antes de mover) e o botão Novo inventário zera as contagens mantendo as bancas"]},{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código interno ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+var UPDATES=[{t:"2026-10-08T09:30:00-03:00",itens:["Inventário: produtos concluídos vão para o fim da lista em tom mais escuro e continuam editáveis (acrescentar ou remover lançamentos)"]},{t:"2026-10-08T05:40:00-03:00",itens:["Inventário: botão Começar agora é deslizante, com vibração e menor; cores das bancas mais suaves"]},{t:"2026-10-08T05:20:00-03:00",itens:["Inventário: nova lista para conferir quais produtos ainda não estão em nenhuma banca, com opção de incluir direto"]},{t:"2026-10-08T05:00:00-03:00",itens:["Inventário: cada banca com sua cor, lançamentos por pesagem, relatório e código de barras único por produto"]},{t:"2026-10-07T21:10:00-03:00",itens:["Inventário: cada produto pertence a uma única banca (o app avisa e pergunta antes de mover) e o botão Novo inventário zera as contagens mantendo as bancas"]},{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código interno ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
@@ -2055,7 +2058,7 @@ var KEY="validamais-inventario-v1",KBAL="validamais-inv-balanca";
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 var S=rd(KEY,null);if(!S||!Array.isArray(S.bancas))S={bancas:[]};
-function save(){wr(KEY,S);syncPush()}
+function save(){wr(KEY,S)}
 function me(){var n=rd("validamais-operador","");return typeof n==="string"&&n?n:"Aparelho"}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function normS(s){return String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim()}
@@ -2603,13 +2606,17 @@ function renderCount(){
     p.placeholder=it.u==="un"?"unidades (ex.: 3)":"kg (ex.: 2,5)";
     p.toggleAttribute("data-np-int",it.u==="un");
   }
-  g("ivList").innerHTML=b.itens.map(function(it,i){
-    var ls=lansOf(b,it.c),v=c[it.c],ok=typeof v==="number",right;
-    if(ok)right='<b>'+fmt3(v)+' '+it.u+(ls.length>1?'<small>'+ls.length+' lançamentos</small>':'')+'</b>';
+  var pend=[],fin=[];
+  b.itens.forEach(function(it,i){(typeof c[it.c]==="number"?fin:pend).push(i)});
+  function row(i){
+    var it=b.itens[i],ls=lansOf(b,it.c),v=c[it.c],ok=typeof v==="number",right;
+    if(ok)right='<b>'+(v===0?'sem estoque':fmt3(v)+' '+it.u)+(ls.length>1?'<small>'+ls.length+' lançamentos</small>':'')+'</b>';
     else if(ls.length)right='<b style="color:var(--amb)">'+fmt3(sumL(ls))+' '+it.u+'…<small>em andamento</small></b>';
     else right='<b>—</b>';
     return'<div class="ivli'+(ok?' ok':'')+(i===V.i?' cur':'')+'" data-i="'+i+'"><span>'+esc(it.n)+'<small>'+codesTxt(it)+'</small></span>'+right+'</div>';
-  }).join("");
+  }
+  g("ivList").innerHTML=pend.map(row).join("")
+    +(fin.length?'<div class="ivfinh">Concluídos ('+fin.length+') · toque para acrescentar ou remover</div>'+fin.map(row).join(""):"");
 }
 function addLan(v){
   var b=bcur(),it=b.itens[V.i],a=lanArr(b,it.c);
@@ -2730,103 +2737,11 @@ g("ivAdd").onclick=function(){
 g("ivNext").onclick=concluir;
 g("ivZero").onclick=semEstoque;
 g("ivPrev").onclick=function(){var b=bcur();if(!b)return;V.i=Math.max(0,(V.i<0?b.itens.length:V.i)-1);renderCount()};
-function backHome(){if(typeof window.npClose==="function")window.npClose();V={v:"home"};if(lastSnap)applyRemote(lastSnap);if(lastCSnap)applyCounts(lastCSnap);render();window.scrollTo(0,0)}
+function backHome(){if(typeof window.npClose==="function")window.npClose();V={v:"home"};render();window.scrollTo(0,0)}
 g("ivBack").onclick=backHome;g("ivDoneBack").onclick=backHome;
 g("ivDoneRel").onclick=function(){var id=V.id;if(typeof window.npClose==="function")window.npClose();V={v:"rel",rb:id};render();window.scrollTo(0,0)};
 g("ivDoneSend").onclick=function(){var b=bcur();share("Inventário FLV — "+b.nome+" ("+stats(b).pct+"%)\nAbra o link no app para importar o resultado:\n"+resLink(b))};
 g("ivDoneCopy").onclick=function(){copy(resLink(bcur()))};
-
-/* ---- bancas compartilhadas entre aparelhos (Firebase, coleção "bancas") ---- */
-var KSYNC="validamais-inv-sync",cdb=window.__vdb||null,cv=window.__vfb||null,known=rd(KSYNC,[]),lastSig={},lastSnap=null,syncErr=false,defReady=false,lastCSnap=null,cntReady=false,ckSig={},pt=null;
-function sigOf(b){return b.nome+"|"+corOf(b)+"|"+JSON.stringify(pack(b.itens||[]))}
-function syncFail(e){console.error(e);if(!syncErr){syncErr=true;toast("Bancas não sincronizadas com os outros aparelhos (confira as regras do Firestore).")}}
-function busy(id){return(V.v==="edit"||V.v==="count")&&V.id===id}
-function syncPush(){pushDefs();clearTimeout(pt);pt=setTimeout(pushCounts,600)}
-function pushDefs(){
-  if(!cdb||!cv||!defReady)return;
-  S.bancas.forEach(function(b){
-    var s=sigOf(b);if(lastSig[b.id]===s)return;lastSig[b.id]=s;
-    if(known.indexOf(b.id)<0){known.push(b.id);wr(KSYNC,known)}
-    cv.setDoc(cv.doc(cdb,"bancas",b.id),{n:String(b.nome).slice(0,40),cor:corOf(b),i:JSON.stringify(pack(b.itens||[])),por:me(),t:cv.serverTimestamp()}).catch(syncFail);
-  });
-  known.slice().forEach(function(id){
-    if(S.bancas.some(function(b){return b.id===id}))return;
-    known=known.filter(function(x){return x!==id});delete lastSig[id];wr(KSYNC,known);
-    cv.deleteDoc(cv.doc(cdb,"bancas",id)).catch(syncFail);
-  });
-}
-function applyRemote(snap){
-  if(!snap)return;var changed=false,inCloud={};
-  snap.docs.forEach(function(d){
-    var x=d.data(),id=d.id,items;
-    try{items=unpack(JSON.parse(x.i))}catch(e){return}
-    var nome=String(x.n||"").slice(0,40),cor=okCor(x.cor)?x.cor:"",b=S.bancas.filter(function(y){return y.id===id})[0];
-    inCloud[id]=1;if(known.indexOf(id)<0){known.push(id);wr(KSYNC,known)}
-    if(!b){b={id:id,nome:nome,itens:items,cont:{},lan:{},cor:cor||firstUnused()};S.bancas.push(b);lastSig[id]=sigOf(b);changed=true;return}
-    if(busy(id)){lastSig[id]=sigOf(b);return}
-    var novo=nome+"|"+(cor||corOf(b))+"|"+JSON.stringify(pack(items));
-    if(sigOf(b)!==novo){b.nome=nome;b.itens=items;if(cor)b.cor=cor;changed=true}
-    lastSig[id]=sigOf(b);
-  });
-  if(!snap.metadata.fromCache){
-    S.bancas=S.bancas.filter(function(b){
-      if(inCloud[b.id]||known.indexOf(b.id)<0)return true;   // só some quem já foi sincronizado e foi excluído em outro aparelho
-      known=known.filter(function(k){return k!==b.id});wr(KSYNC,known);delete lastSig[b.id];
-      if(V.id===b.id&&(V.v==="count"||V.v==="edit"))V={v:"home"};
-      changed=true;return false;
-    });
-  }
-  if(changed){wr(KEY,S);if(V.v!=="edit"&&V.v!=="count")render()}
-  if(!snap.metadata.fromCache){defReady=true;pushDefs();syncPush()}   // sobe as bancas que só existiam neste aparelho
-  if(changed&&lastCSnap)applyCounts(lastCSnap);
-}
-/* ---- contagem compartilhada (coleção "contagem": 1 documento por banca, 1 campo por produto) ---- */
-function fld(c){return"c_"+String(c).replace(/[^A-Za-z0-9]/g,function(ch){return"_"+ch.charCodeAt(0).toString(16)+"_"})}
-function lstate(b,c){var n=b.cont&&b.cont[c];return{v:typeof n==="number"?n:null,l:(b.lan&&b.lan[c])||[]}}
-function lsig(x){return JSON.stringify([x.v,x.l])}
-function emptyS(x){return x.v===null&&!x.l.length}
-function itemT(b,c){var t=0;((b.lan&&b.lan[c])||[]).forEach(function(z){if(z[1]>t)t=z[1]});return t||b.t||0}
-function pushCounts(){
-  if(!cdb||!cv||!cntReady)return;
-  S.bancas.forEach(function(b){
-    var out={},n=0;
-    b.itens.forEach(function(it){
-      var k=b.id+"|"+it.c,x=lstate(b,it.c),sg=lsig(x),old=ckSig[k];
-      if(old===sg)return;
-      if(old===undefined&&emptyS(x)){ckSig[k]=sg;return}
-      ckSig[k]=sg;out[fld(it.c)]=JSON.stringify({k:it.c,v:x.v,l:x.l,p:me(),t:emptyS(x)?Date.now():itemT(b,it.c)});n++;
-    });
-    if(n)cv.setDoc(cv.doc(cdb,"contagem",b.id),out,{merge:true}).catch(syncFail);
-  });
-}
-function applyCounts(snap){
-  if(!snap)return;var changed=false;
-  snap.docs.forEach(function(d){
-    var b=S.bancas.filter(function(y){return y.id===d.id})[0];if(!b)return;
-    var data=d.data();
-    b.itens.forEach(function(it){
-      var raw=data[fld(it.c)];if(typeof raw!=="string"||!raw)return;
-      var r;try{r=JSON.parse(raw)}catch(e){return}
-      var rs={v:typeof r.v==="number"&&isFinite(r.v)?r.v:null,l:Array.isArray(r.l)?r.l.filter(function(z){return Array.isArray(z)&&typeof z[0]==="number"&&isFinite(z[0])}).map(function(z){return[z[0],Number(z[1])||0]}):[]};
-      var k=b.id+"|"+it.c,ls=lstate(b,it.c),lg=lsig(ls),rg=lsig(rs),old=ckSig[k];
-      if(rg===lg){ckSig[k]=lg;return}
-      var take=old===undefined?(emptyS(ls)||(Number(r.t)||0)>=itemT(b,it.c)):old===lg;   // 1ª vez: vale o mais recente; depois: vale o da nuvem se aqui não há alteração pendente
-      if(!take)return;
-      b.cont=b.cont||{};b.lan=b.lan||{};
-      if(rs.v!==null)b.cont[it.c]=rs.v;else delete b.cont[it.c];
-      if(rs.l.length)b.lan[it.c]=rs.l;else delete b.lan[it.c];
-      b.t=Math.max(b.t||0,Number(r.t)||0);ckSig[k]=rg;changed=true;
-    });
-  });
-  if(!snap.metadata.fromCache&&!cntReady)cntReady=true;
-  if(changed){wr(KEY,S);if(V.v!=="edit"&&V.v!=="count")render()}
-  if(cntReady)pushCounts();
-}
-if(cdb&&cv){
-  try{cv.onSnapshot(cv.collection(cdb,"contagem"),{includeMetadataChanges:true},function(snap){lastCSnap=snap;applyCounts(snap)},syncFail)}catch(e){syncFail(e)}
-  try{cv.onSnapshot(cv.collection(cdb,"bancas"),{includeMetadataChanges:true},function(snap){lastSnap=snap;applyRemote(snap)},syncFail)}
-  catch(e){syncFail(e)}
-}
 
 function checkHash(){
   if(location.hash.indexOf("#inv=")!==0)return;
