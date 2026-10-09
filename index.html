@@ -589,6 +589,64 @@ html[data-tema=dark] .ivtbl th{background:#1a6a45}
 .ivq{margin:0 0 10px}
 .ivqr .ivli{cursor:pointer}
 .ivqr .ivli b{white-space:normal;text-align:right}
+
+/* ===== Inventário v50: visual novo ===== */
+#tabInventario{--ivr:20px}
+.ivhero{margin:12px 0;padding:18px 18px 16px;border-radius:var(--ivr);color:#fff;background:radial-gradient(120% 140% at 100% 0%,#2a9a68 0%,rgba(42,154,104,0) 55%),linear-gradient(160deg,#0e4a30,#146040);box-shadow:0 10px 26px rgba(14,74,48,.28)}
+.ivh-row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.ivh-big b{display:block;font-size:46px;line-height:1;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.ivh-big span{display:block;margin-top:6px;font-size:13px;font-weight:600;opacity:.8}
+.ivh-pct{font-size:20px;font-weight:800;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.16);font-variant-numeric:tabular-nums}
+.ivsegs{display:flex;gap:4px;margin:16px 0 10px}
+.ivsegs i{height:10px;border-radius:6px;background:rgba(255,255,255,.2);overflow:hidden;position:relative;min-width:10px}
+.ivsegs u{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:#fff;box-shadow:inset 0 0 0 9px var(--c);opacity:1}
+.ivsegs u{background:var(--c);filter:brightness(1.35) saturate(1.1)}
+.ivh-s{margin:0;font-size:13px;font-weight:600;opacity:.85}
+.ivfind{margin:0 0 4px}.ivfind .ivq{margin:0}
+.ivfind input{background:var(--card);border-radius:14px}
+.ivb{position:relative;margin:12px 0;padding:16px 16px 14px;border-radius:var(--ivr);border:1px solid var(--ln);background:linear-gradient(135deg,color-mix(in srgb,var(--c) 11%,var(--card)) 0%,var(--card) 62%);box-shadow:var(--sh1);overflow:hidden}
+.ivb::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:5px;border-radius:0 5px 5px 0;background:var(--c)}
+.ivb-top{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding-left:4px}
+.ivb-t{min-width:0;flex:1}
+.ivb-t h3{margin:0;font-size:19px;line-height:1.2;font-weight:800;color:var(--ink);overflow-wrap:anywhere}
+.ivb-t p{margin:3px 0 0;font-size:13px;color:var(--mut);font-weight:600;font-variant-numeric:tabular-nums}
+.ivb-t .ivb-who{font-weight:500;font-size:12px;opacity:.9}
+.ivring{--p:0;--c:var(--g);position:relative;flex:none;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--c) calc(var(--p)*1%),color-mix(in srgb,var(--c) 18%,transparent) 0)}
+.ivring::before{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--card)}
+.ivring b{position:relative;font-size:16px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.ivring b i{font-style:normal;font-size:10px;font-weight:700;opacity:.65;margin-left:1px}
+.ivring.full{background:var(--c)}.ivring.full::before{background:color-mix(in srgb,var(--c) 14%,var(--card))}.ivring.full b{color:var(--c);font-size:22px;filter:brightness(.8)}
+.ivb-act{margin:0}
+.ivb-act .secondary{flex:0 0 38%}
+.ivtiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 0}
+.ivtile{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:76px;padding:12px 14px;border-radius:16px;background:var(--card);border:1px solid var(--ln);color:var(--ink);font-size:14.5px;font-weight:700;text-align:left;box-shadow:var(--sh1)}
+.ivtile span{font-size:22px;line-height:1}
+.ivempty{margin:14px 0;padding:30px 22px;border-radius:var(--ivr);text-align:center;background:var(--card);border:1px dashed color-mix(in srgb,var(--g) 45%,var(--ln))}
+.ivempty .ive-ico{font-size:44px;line-height:1}
+.ivempty h2{margin:12px 0 6px;font-size:20px;color:var(--ink)}
+.ivempty p{margin:0 0 16px;color:var(--mut);font-size:14px;line-height:1.5}
+/* contagem */
+.ivbanner{border-radius:var(--ivr)!important;padding:14px 18px!important;font-size:20px!important;font-weight:800!important}
+.ivcp{padding:12px 14px!important}
+.ivcp .prog{display:none}
+.ivseg{display:flex;gap:3px;margin:2px 0 10px}
+.ivseg i{flex:1;height:9px;min-width:3px;border-radius:5px;background:color-mix(in srgb,var(--c) 20%,transparent)}
+.ivseg i.wip{background:color-mix(in srgb,var(--c) 55%,transparent)}
+.ivseg i.ok{background:var(--c)}
+.ivseg i.cur{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--c);transform:scaleY(1.35)}
+#ivCur{border-radius:var(--ivr)!important;padding:18px 16px!important}
+#ivCNum{font-weight:700;letter-spacing:.02em}
+.ivname{font-size:28px!important;margin:6px 0 4px!important}
+#ivPeso{font-size:34px!important;font-weight:800!important;text-align:center;min-height:68px!important;border-radius:16px!important;font-variant-numeric:tabular-nums}
+#ivAdd{min-height:60px;font-size:18px}
+.ivlan{border-radius:12px;background:var(--lt2);border:0!important;margin:6px 0;padding:8px 12px!important}
+.ivsub{border-top:2px dashed var(--ln);margin-top:8px}
+.ivli{border-radius:12px;margin:2px 0}
+.ivli.cur{background:color-mix(in srgb,var(--g) 12%,var(--card))}
+.ivli.ok{background:color-mix(in srgb,var(--g) 9%,var(--card))!important;opacity:1}
+#ivPeso::placeholder{font-size:20px;font-weight:600}
+.ivli.ok b{color:var(--g)}
+html[data-tema=dark] .ivhero{box-shadow:none;border:1px solid rgba(255,255,255,.06)}
 </style>
 </head>
 <body data-tab="Loja">
@@ -654,7 +712,7 @@ html[data-tema=dark] .ivtbl th{background:#1a6a45}
 <div id="ivMain"></div>
 <div id="ivCount" class="hidden">
 <div class="ivbanner" id="ivCBanner"><div id="ivCName"></div><span id="ivCPct">0%</span></div>
-<section class="panel"><div class="prog"><div id="ivCBar" style="width:0%"></div></div><small class="note" id="ivCInfo" style="margin:0"></small></section>
+<section class="panel ivcp"><div class="prog"><div id="ivCBar" style="width:0%"></div></div><div class="ivseg" id="ivCSeg"></div><small class="note" id="ivCInfo" style="margin:0"></small></section>
 <section class="panel" id="ivCur"><small class="note" id="ivCNum" style="text-align:center;margin:0"></small>
 <div class="ivname" id="ivCItem"></div><div class="ivcodes" id="ivCCode"></div>
 <div id="ivLans"></div><div class="ivsub" id="ivSub"></div>
@@ -1923,7 +1981,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.09-49";
+const APP_VERSION = "2026.10.09-50";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -2462,20 +2520,23 @@ function qRes(){
     return'<div class="ivli" data-iv="qgo" data-id="'+x.b.id+'" data-i="'+x.i+'"><span><b style="white-space:normal;font-size:16px">'+esc(x.it.n)+'</b><small>'+tag(x.b)+' '+esc(codesTxt(x.it))+'</small></span>'+(st?'<b style="color:var(--g)">'+st+'</b>':'<b style="color:var(--mut)">›</b>')+'</div>';
   }).join(""):'<small class="note">Nenhum produto das bancas com esse nome ou código.</small>';
 }
+function ring(p,col){return'<div class="ivring'+(p===100?' full':'')+'" style="--p:'+p+';--c:'+col+'">'+(p===100?'<b>✓</b>':'<b>'+p+'<i>%</i></b>')+'</div>'}
 function vHome(){
-  var T=totals(),h='';
-  if(S.bancas.length)h+='<section class="panel"><label for="ivQ" style="margin-top:0">Lançar direto num produto</label><input id="ivQ" class="ivq" type="search" placeholder="Nome ou código — abre na banca certa" autocomplete="off"><div class="ivqr" id="ivQRes"></div></section>';
-  if(S.bancas.length)h+='<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">Avanço geral</h2><span class="hbadge">'+T.pct+'%</span></div>'+barHtml(T.pct)+'<small class="note" style="margin:0">'+T.n+' de '+T.m+' produtos · '+fmt(T.kg)+' kg</small></section>';
-  else h+='<section class="panel"><h2 class="h2">Nenhuma banca ainda</h2><p class="note">Monte as bancas buscando os produtos pelo código, ou importe o link que alguém enviou.</p>'+btn("primary big","new","＋ Nova banca")+'</section>';
+  var T=totals(),h='',nb=S.bancas.length;
+  if(nb){
+    var segs=T.rows.map(function(r){return'<i style="flex:'+Math.max(1,r.s.m)+';--c:'+corOf(r.b)+'"><u style="width:'+r.s.pct+'%"></u></i>'}).join("");
+    h+='<section class="ivhero"><div class="ivh-row"><div class="ivh-big"><b>'+fmt(T.kg)+'</b><span>kg contados'+(T.un?' · '+fmt(T.un)+' un':'')+'</span></div><div class="ivh-pct">'+T.pct+'%</div></div>'
+      +'<div class="ivsegs" aria-hidden="true">'+segs+'</div>'
+      +'<p class="ivh-s">'+T.n+' de '+T.m+' produtos contados em '+nb+(nb>1?' bancas':' banca')+'</p></section>'
+      +'<div class="ivfind"><input id="ivQ" class="ivq" type="search" placeholder="Buscar produto para lançar direto" aria-label="Buscar produto para lançar direto" autocomplete="off"><div class="ivqr" id="ivQRes"></div></div>';
+  }else h+='<section class="ivempty"><div class="ive-ico">📦</div><h2>Monte sua primeira banca</h2><p>Uma banca é um grupo de produtos para contar junto, como a bancada das frutas. Busque pelo código ou importe o link que alguém enviou.</p>'+btn("primary big","new","＋ Nova banca")+'</section>';
   T.rows.forEach(function(r){
-    var b=r.b,s=r.s,ok=s.pct===100;
-    h+=card(b,'<div class="qh" style="margin-bottom:8px">'+tag(b,true)+'<span class="hbadge">'+(ok?"concluída":s.pct+"%")+'</span></div>'+barHtml(s.pct,corOf(b))
-      +'<small class="note" style="margin:0 0 10px">'+s.n+' de '+s.m+' produtos'+(s.por?' · '+esc(s.por):'')+(s.kg?' · '+fmt(s.kg)+' kg':'')+'</small>'
-      +'<div class="toolbar">'+swipeBtn(b.id,s.n===0?"Começar":ok?"Revisar":"Continuar")+btn("secondary","sendres","Enviar",b.id)+'</div>');
+    var b=r.b,s=r.s,ok=s.pct===100,c=corOf(b);
+    h+='<section class="ivb'+(ok?' done':'')+'" style="--c:'+c+'"><div class="ivb-top">'+ring(s.pct,c)+'<div class="ivb-t"><h3>'+esc(b.nome)+'</h3><p>'+s.n+' de '+s.m+' produtos'+(s.kg?' · '+fmt(s.kg)+' kg':'')+(s.un?' · '+fmt(s.un)+' un':'')+'</p>'+(s.por?'<p class="ivb-who">'+esc(s.por)+(s.e&&s.e.t?' às '+hhmm(s.e.t):'')+'</p>':'')+'</div></div>'
+      +'<div class="toolbar ivb-act">'+swipeBtn(b.id,s.n===0?"Começar":ok?"Revisar":"Continuar")+btn("secondary","sendres","Enviar",b.id)+'</div></section>';
   });
-  h+='<div class="toolbar">'+btn("secondary","cfg","⚙️ Bancas")+btn("secondary","sum","📊 Resumo")+'</div><div class="ivsp"></div>'+full(btn("secondary","chk","✅ Conferir se todos estão em banca"))+'<div class="ivsp"></div>'
-    +(S.bancas.length?full(btn("primary","rel","📄 Relatório e códigos de barras"))+'<div class="ivsp"></div>':'')
-    +full(btn("secondary","imp","📥 Importar link ou código"));
+  h+='<div class="ivtiles">'+btn("ivtile","cfg",'<span>⚙️</span>Bancas')+btn("ivtile","sum",'<span>📊</span>Resumo')+btn("ivtile","chk",'<span>✅</span>Conferir bancas')+btn("ivtile","imp",'<span>📥</span>Importar')+'</div>'
+    +(nb?'<div class="ivsp"></div>'+full(btn("primary","rel","📄 Relatório e códigos de barras")):'');
   return h;
 }
 
@@ -2732,6 +2793,7 @@ function renderCount(keep){
   var bn=g("ivCBanner");bn.style.background=col;bn.style.color=inkOn(col);
   g("ivCName").textContent=b.nome;g("ivCPct").textContent=s.pct+"%";
   var bar=g("ivCBar");bar.style.width=s.pct+"%";bar.style.background=col;
+  g("ivCSeg").innerHTML=b.itens.map(function(it,i){var v=c[it.c],st=typeof v==="number"?"ok":lansOf(b,it.c).length?"wip":"";return'<i class="'+st+(i===V.i?" cur":"")+'" style="--c:'+col+'"></i>'}).join("");
   g("ivCInfo").textContent=s.n+" de "+s.m+" produtos"+(s.kg?" · "+fmt(s.kg)+" kg":"")+(s.un?" · "+fmt(s.un)+" un":"");
   g("ivCur").classList.toggle("hidden",done);g("ivDone").classList.toggle("hidden",!done);
   if(done){g("ivDoneTxt").textContent="Banca concluída"+(s.kg?": "+fmt(s.kg)+" kg":"")+(s.un?" · "+fmt(s.un)+" un":"")}
