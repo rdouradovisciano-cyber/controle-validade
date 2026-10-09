@@ -716,7 +716,15 @@ body.dfocus #dSug button{min-height:52px;text-align:left}
 body.dfocus.mao1[data-tab="Doacao"] .nowbar{top:calc(var(--top-h,108px) + 8px + env(safe-area-inset-top));bottom:auto}
 body.dfocus .fabwrap{display:none}
 body.dfocus .toast{top:calc(var(--top-h,108px) + 8px + env(safe-area-inset-top));bottom:auto}
-body.dfocus::after{content:"";position:fixed;inset:0;z-index:44;background:rgba(0,0,0,.28);pointer-events:none}
+/* v54: com o teclado numérico aberto, a barra do item fica enxuta (o teclado já tem valor e botão Adicionar) */
+body.np-open[data-tab="Doacao"] .nowbar:not(.vazio){display:flex;align-items:center;gap:12px;padding:8px 12px}
+body.np-open[data-tab="Doacao"] .nowbar .nowtop{flex:1;min-width:0;margin:0}
+body.np-open[data-tab="Doacao"] .nowbar .nowname small{display:none}
+body.np-open[data-tab="Doacao"] .nowbar .nowrow{flex:none}
+body.np-open[data-tab="Doacao"] .nowbar #dPeso,body.np-open[data-tab="Doacao"] .nowbar #dAdd{position:absolute;width:1px;height:1px;min-height:0;padding:0;margin:0;border:0;opacity:0;overflow:hidden;pointer-events:none}
+body.np-open[data-tab="Doacao"] .nowbar{position:sticky}
+body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog{width:92px}
+body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 </style>
 </head>
 <body data-tab="Loja">
@@ -2057,7 +2065,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.09-53";
+const APP_VERSION = "2026.10.09-54";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
