@@ -2492,7 +2492,7 @@ function parseItens(txt){
 
 /* ---- código de barras EAN-13 no formato da etiqueta de balança ---- */
 function fmtB(){
-  var s=rd(KBAL,null);if(s&&s.cd&&s.vd&&s.div)return s;
+  return{cd:5,vd:5,div:100,ok:true,upc:true,price:true};
   var B=(window.VALIDA_CONFIG&&window.VALIDA_CONFIG.balanca)||{};
   var cd=B.codigoDigitos||6,vd=B.valorDigitos||5;
   return{cd:cd,vd:vd,div:B.divisor||1000,ok:false};
@@ -2917,8 +2917,7 @@ function vRel(){
   D.bancas.forEach(function(r){h+='<tr><td><span class="ivdot" style="background:'+corOf(r.b)+'"></span>'+esc(r.b.nome)+'</td><td>'+r.s.pct+'%</td><td>'+fmt(r.s.kg)+'</td><td>'+pctOf(r.s.kg,D.T.kg)+'%</td></tr>'});
   h+='<tr><td class="tot">Total</td><td class="tot">'+D.T.pct+'%</td><td class="tot">'+fmt(D.T.kg)+'</td><td class="tot">'+(D.T.kg?'100%':'0%')+'</td></tr></tbody></table>';
   h+='<h3>Códigos de barras para coleta (um por produto)</h3>';
-  if(!f.ok)h+='<div class="ivwarn noprint">⚠ O formato do código ainda não foi conferido com uma etiqueta real da balança. Faça a conferência abaixo antes de imprimir ou usar.</div>';
-  else h+='<div class="ivok noprint">✓ Formato conferido com etiqueta real ('+(f.upc?'12 dígitos, ':'')+f.cd+' dígitos de produto + '+(f.upc?f.vd-1:f.vd)+' de '+(f.price?'preço total em centavos':'peso')+').</div>';
+  h+='<div class="ivok noprint">Formato da etiqueta PRIX (UPC-A, 12 dígitos, preço total). Informe o preço do kg de cada produto uma única vez.</div>';
   var bc=bcList(D);
   if(!bc.length)h+='<p>Conclua ao menos um produto para gerar o código.</p>';
   h+='<div class="ivbcs">';
@@ -2931,13 +2930,6 @@ function vRel(){
     });
   });
   h+='</div></div>';
-  h+='<section class="panel noprint"><details'+(f.ok?'':' open')+'><summary>Conferir o formato com uma etiqueta real da balança</summary>'
-    +'<p class="note">Pegue uma etiqueta impressa pela balança. Digite os números embaixo do código de barras e o peso (kg) que aparece na mesma etiqueta. Se a etiqueta traz o preço total (como a PRIX), digite também o preço por kg. O app confere se o formato bate e passa a usá-lo.</p>'
-    +'<label for="ivCal13">Números da etiqueta (12 ou 13)</label><input id="ivCal13" inputmode="numeric" maxlength="20" placeholder="Ex.: 200022005230" autocomplete="off">'
-    +'<label for="ivCalKg">Peso da etiqueta (kg)</label><input id="ivCalKg" inputmode="decimal" placeholder="Ex.: 0,308" autocomplete="off">'
-    +'<label for="ivCalPkg">Preço por kg (R$/kg) — só se a etiqueta traz o preço total</label><input id="ivCalPkg" inputmode="decimal" placeholder="Ex.: 16,98" autocomplete="off">'
-    +'<div class="ivsp"></div>'+full(btn("primary","calib","Conferir formato"))+'<div id="ivCalMsg"></div>'
-    +(f.ok?'<div class="ivsp"></div>'+full(btn("secondary","calibreset","Voltar ao formato padrão do app")):'')+'</details></section>';
   return h;
 }
 
