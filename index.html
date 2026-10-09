@@ -707,6 +707,16 @@ html[data-tema=dark] .product.none .vbox{background:#181a22}
 .ivli.cur{background:color-mix(in srgb,var(--gold3) 14%,var(--card))}
 .moremenu button:active{background:var(--lt2)}
 .ivok{background:#f6efd8;border-color:#e5d08a;color:#6d5410}
+
+/* ===== v53: busca da Doação acima do teclado ===== */
+body.dfocus #dFind{position:fixed;left:8px;right:8px;bottom:calc(var(--kb,0px) + 8px + env(safe-area-inset-bottom));z-index:45;display:flex;flex-direction:column-reverse;gap:8px;padding:10px;border-radius:22px;background:var(--card);border:1px solid var(--ln);box-shadow:0 -12px 36px rgba(0,0,0,.38)}
+body.dfocus #dSug{max-height:calc(100vh - var(--kb,0px) - var(--top-h,108px) - 200px);max-height:calc(100dvh - var(--kb,0px) - var(--top-h,108px) - 200px);overflow-y:auto;overscroll-behavior:contain}
+body.dfocus #dSug:empty{display:none}
+body.dfocus #dSug button{min-height:52px;text-align:left}
+body.dfocus.mao1[data-tab="Doacao"] .nowbar{top:calc(var(--top-h,108px) + 8px + env(safe-area-inset-top));bottom:auto}
+body.dfocus .fabwrap{display:none}
+body.dfocus .toast{top:calc(var(--top-h,108px) + 8px + env(safe-area-inset-top));bottom:auto}
+body.dfocus::after{content:"";position:fixed;inset:0;z-index:44;background:rgba(0,0,0,.28);pointer-events:none}
 </style>
 </head>
 <body data-tab="Loja">
@@ -736,7 +746,7 @@ html[data-tema=dark] .product.none .vbox{background:#181a22}
 <section class="panel"><h2 class="h2 qh">Produto <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
 <div id="qBar" class="qbar hidden"><span>Toque num atalho para editar</span><button type="button" class="secondary" id="qReset">Restaurar padrão</button><button type="button" class="primary" id="qDone">Concluir</button></div>
 <div id="qFreq" class="qfreq hidden"></div><div id="qgrid" class="qgrid"></div>
-<input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off"><div id="dSug" class="rows sug"></div>
+<div id="dFindBox"><div id="dFind"><input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off" enterkeyhint="search"><div id="dSug" class="rows sug"></div></div></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
 <section class="panel dlistp" id="dListaBox"><h2 class="h2" style="margin:8px 0 0">Itens coletados</h2><div id="dLista"></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
 <div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
@@ -2047,7 +2057,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.09-52";
+const APP_VERSION = "2026.10.09-53";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -3200,5 +3210,16 @@ try{new MutationObserver(maybeStart).observe(g("tabInventario"),{attributes:true
 window.addEventListener("online",ivStatus);window.addEventListener("offline",ivStatus);
 ivStatus();maybeStart();
 render();checkHash();
+})();</script>
+<script>/* busca da Doação fica acima do teclado */(function(){
+var d=document,b=d.getElementById("dBusca"),box=d.getElementById("dFindBox"),f=d.getElementById("dFind"),sug=d.getElementById("dSug"),root=d.documentElement,vv=window.visualViewport,t;
+if(!b||!box||!f)return;
+function kb(){var k=0;if(vv)k=Math.max(0,Math.round(window.innerHeight-vv.height-vv.offsetTop));root.style.setProperty("--kb",k+"px")}
+function abre(){clearTimeout(t);if(!d.body.classList.contains("dfocus")){box.style.minHeight=f.offsetHeight+"px";d.body.classList.add("dfocus")}kb()}
+function fecha(){t=setTimeout(function(){if(d.activeElement===b)return;d.body.classList.remove("dfocus");box.style.minHeight="";root.style.removeProperty("--kb")},120)}
+b.addEventListener("focus",abre);b.addEventListener("blur",fecha);
+sug.addEventListener("pointerdown",function(e){e.preventDefault()});   // tocar numa sugestão não fecha antes de escolher
+if(vv){vv.addEventListener("resize",kb);vv.addEventListener("scroll",kb)}
+d.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.activeElement===b)b.blur()});
 })();</script>
 </body></html>
