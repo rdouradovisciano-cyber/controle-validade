@@ -506,7 +506,7 @@ body:not([data-tab="Doacao"]) .doacao-only{display:none}
 .codbox .r{text-align:right;flex:none}
 .codbox b{font-size:26px;font-weight:800;color:var(--g-d);letter-spacing:.5px;font-variant-numeric:tabular-nums;line-height:1.1}
 .codbox.none span{color:var(--mut)}
-body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .toast{top:calc(var(--top-h) + 8px + env(safe-area-inset-top))!important;bottom:auto!important}
+body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden),#pkModal:not(.hidden)) .toast{top:calc(var(--top-h) + 8px + env(safe-area-inset-top))!important;bottom:auto!important}
 </style>
 <style id="inv-css">
 .tabbar button{padding:0 2px;font-size:12px;white-space:nowrap}
@@ -861,6 +861,11 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <label for="qtQtd">Quantas unidades?</label>
 <div class="stepper"><button type="button" class="secondary" id="qtMenos" aria-label="Diminuir">−</button><input id="qtQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-submit="#qtOk" data-np-label="Adicionar" value="1"><button type="button" class="secondary" id="qtMais" aria-label="Aumentar">＋</button></div>
 <div class="toolbar" style="margin-top:14px"><button class="primary big" id="qtOk">Adicionar</button><button class="secondary big" id="qtCancel">Cancelar</button></div></section></div>
+<div id="pkModal" class="modal hidden" style="z-index:36"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="pkNome">
+<div class="sheethead"><h2 id="pkNome">Produto</h2><button class="secondary" id="pkClose" aria-label="Fechar">✕</button></div>
+<p class="note" id="pkInfo"></p>
+<label for="pkPeso">Peso (kg)</label><input id="pkPeso" type="text" readonly inputmode="none" data-np data-np-submit="#pkOk" data-np-label="OK" placeholder="Ex.: 0,308" autocomplete="off" style="font-size:26px;font-weight:800;text-align:center">
+<div class="toolbar" style="margin-top:14px"><button class="primary big" id="pkOk">Adicionar</button><button class="secondary big" id="pkCancel">Cancelar</button></div></section></div>
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="modal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 <div class="sheethead"><h2 id="modalTitle">Cadastrar produto</h2><button id="closeModal" class="secondary" aria-label="Fechar">✕</button></div>
@@ -1175,7 +1180,7 @@ async function onCode(code) {
   if (scanMode === "cadastro") return cadScan(code);
   if (navigator.vibrate) navigator.vibrate(100);
   beep(); await stopScanner(); resetForm();
-  if (/^2\d{12}$/.test(code)) {                                   // etiqueta de balança: o código de balança identifica o produto
+  if (isScale(code)) {                                   // etiqueta de balança: o código de balança identifica o produto
     const plu = String(Number(parseScale(code).item)), k = products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(plu));
     logScan(code, k); show(k ? `Novo lote de «${k.name}»` : "Produto novo: cadastre agora");
     $("barcode").value = (k && k.barcode) || ""; $("name").value = (k && k.name) || ""; $("category").value = (k && k.category) || "FLV";
@@ -1478,7 +1483,7 @@ function registerProduct({ name, category = "FLV", barcode = "", codigo_balanca 
 
 // ---------- Doação: lançar por EAN digitado (botão +) ----------
 function eanFind(v) {
-  if (/^2\d{12}$/.test(v)) { const it = Number(parseScale(v).item); return products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === it); }
+  if (isScale(v)) { const it = Number(parseScale(v).item); return products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === it); }
   return products.find(p => p.barcode === v);
 }
 function eanPreview() {                              // assim que o código é digitado, mostra o produto e o código de doação
@@ -1544,18 +1549,47 @@ function addDon(nome, unidade, qtd, cod = "", bar = "") {
   const pr = products.find(x => norm(x.name) === norm(nome)); it.cod =it.cod || cod || (pr && (pr.codigo_doacao || pr.barcode || pr.codigo_balanca)) || "";
   store.set(DK, don); renderDon(); return it.qtd;
 }
-function parseScale(code) {                       // EAN-13 de balança: 2 + código do item + peso (g) + dígito verificador
+const isScale = c => /^2\d{12}$/.test(c) || /^2\d{11}$/.test(c) || /^02\d{11}$/.test(c);   // EAN-13 de balança, ou UPC-A de 12 dígitos (etiqueta PRIX), às vezes lido com um 0 na frente
+function parseScale(code) {
+  if (/^02\d{11}$/.test(code)) code = code.slice(1);
+  if (/^2\d{11}$/.test(code)) {                    // UPC-A (PRIX): 2 + item (5) + valor (5) + dígito verificador. O valor é o PREÇO total em centavos
+    const v = Number(code.slice(6, 11)), peso = (C.balanca || {}).upcValor === "peso";
+    return { item: code.slice(1, 6).padStart(6, "0"), kg: peso ? v / 1000 : 0, total: peso ? 0 : v / 100 };
+  }
   const b = C.balanca || {}, cd = b.codigoDigitos ?? 6, vd = b.valorDigitos ?? 5, div = b.divisor ?? 1000;
-  return { item: code.slice(1, 1 + cd), kg: Number(code.slice(1 + cd, 1 + cd + vd)) / div };
+  return { item: code.slice(1, 1 + cd), kg: Number(code.slice(1 + cd, 1 + cd + vd)) / div, total: 0 };
 }
+window.vmScale = { is: isScale, parse: parseScale };
+
+// ---------- etiqueta PRIX: peso a partir do preço total ----------
+const PKK = "validamais-precokg", brl = v => v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+let pkResolve = null, pkTotal = 0, pkNome = "";
+const precoKg = n => Number((store.get(PKK, {})[norm(n)] || {}).p) || 0;
+function askPeso(nome, total) {                        // devolve { kg, nota } ou null se cancelar
+  const pk = precoKg(nome);
+  if (pk > 0) { const kg = Math.round(total / pk * 1000) / 1000; if (kg > 0) return Promise.resolve({ kg, nota: ` (R$ ${brl(total)} ÷ R$ ${brl(pk)}/kg)` }); }
+  return new Promise(res => {
+    pkResolve = res; pkTotal = total; pkNome = nome;
+    $("pkNome").textContent = nome; $("pkInfo").textContent = `Etiqueta com total de R$ ${brl(total)}. Digite o peso que está na etiqueta (PESO). O app guarda o preço do kg e, nas próximas, calcula o peso sozinho.`;
+    $("pkPeso").value = ""; $("pkModal").classList.remove("hidden"); setTimeout(() => $("pkPeso").focus(), 80);
+  });
+}
+function pkDone(ok) {
+  const res = pkResolve; if (!res) return;
+  if (ok) { const kg = Number(String($("pkPeso").value).replace(",", ".")); if (!(kg > 0) || kg > 999) return toast("Digite o peso em kg, como está na etiqueta.");
+    const p = Math.round(pkTotal / kg * 100) / 100, m = store.get(PKK, {}); m[norm(pkNome)] = { p, em: Date.now() }; store.set(PKK, m);
+    pkResolve = null; $("pkModal").classList.add("hidden"); if (window.npClose) window.npClose(); res({ kg: Math.round(kg * 1000) / 1000, nota: ` (preço do kg guardado: R$ ${brl(p)})` }); }
+  else { pkResolve = null; $("pkModal").classList.add("hidden"); if (window.npClose) window.npClose(); res(null); }
+}
+$("pkOk").onclick = () => pkDone(true); $("pkCancel").onclick = $("pkClose").onclick = () => pkDone(false);
 async function donationScan(code) {
   const now = Date.now(); if (code === lastScan.c && now - lastScan.t < 2500) return;   // ignora leitura repetida do mesmo código
   lastScan = { c: code, t: now };
-  if (nrResolve || qtResolve) return;                // há um cadastro ou uma pergunta de quantidade aberta
+  if (nrResolve || qtResolve || pkResolve) return;   // há um cadastro ou uma pergunta aberta
   buzz(); beep();
-  const names = store.get(NK, {}); let key, unidade, qtd, regd = null, donCod = "";
-  if (/^2\d{12}$/.test(code)) { const s = parseScale(code); key = "B" + s.item; unidade = "kg"; qtd = s.kg;
-    if (!(qtd > 0)) { toast("Etiqueta de balança sem peso legível. Ajuste a configuração 'balanca' no config.js."); return; } }
+  const names = store.get(NK, {}); let key, unidade, qtd, regd = null, donCod = "", precoTot = 0, notaPeso = "";
+  if (isScale(code)) { const s = parseScale(code); key = "B" + s.item; unidade = "kg"; qtd = s.kg; precoTot = s.total || 0;
+    if (!(qtd > 0) && !(precoTot > 0)) { toast("Etiqueta de balança sem peso legível. Ajuste a configuração 'balanca' no config.js."); return; } }
   else { key = code; unidade = "un"; qtd = 1; }
   let nome = (unidade === "un" && (products.find(p => p.barcode === code) || {}).name) || (unidade === "kg" && (products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(key.slice(1))) || {}).name) || names[key];
   if (nome && products.length && !adopted.has(key)) { adopted.add(key);       // nome que só existia neste aparelho passa para o cadastro compartilhado
@@ -1565,13 +1599,15 @@ async function donationScan(code) {
     if (!r) { lastScan.t = Date.now(); return; }
     regd = registerProduct({ name: r.nome, barcode: sc ? "" : code, codigo_balanca: plu, codigo_doacao: r.don || "" });
     nome = r.nome; names[key] = nome; store.set(NK, names); }
-  const scaleLbl = /^2\d{12}$/.test(code); if (unidade === "kg" && unitOf(nome) === "un") { unidade = "un"; qtd = 1; }
+  const scaleLbl = isScale(code); if (unidade === "kg" && unitOf(nome) === "un") { unidade = "un"; qtd = 1; precoTot = 0; }
+  if (precoTot > 0) {                                  // etiqueta PRIX traz o preço total: peso = total ÷ preço do kg
+    const r = await askPeso(nome, precoTot); if (!r) { lastScan.t = Date.now(); return; } qtd = r.kg; notaPeso = r.nota; }
   if (unidade === "un" && !scaleLbl) {
     const prod = regd || products.find(p => p.barcode === code) || products.find(p => norm(p.name || "") === norm(nome));
     const r = await askQty(nome, prod, code); if (!r) { lastScan.t = Date.now(); return; } qtd = r.q; donCod = r.cod; }   // item por unidade: informa a quantidade em vez de bipar várias vezes
   const romAbertaAntes = romAberta();
   const total = addDon(nome, unidade, qtd, (!scaleLbl && unidade === "un") ? (donCod || code) : "", (!scaleLbl && unidade === "un") ? code : "");
-  if (!romAbertaAntes) toast(`${nome}${donCod ? " (cód. " + donCod + ")" : ""}: +${fq(qtd)} ${unidade} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
+  if (!romAbertaAntes) toast(`${nome}${donCod ? " (cód. " + donCod + ")" : ""}: +${fq(qtd)} ${unidade}${notaPeso} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
 }
 // pesagem manual
 function renderKey() {
@@ -1771,7 +1807,7 @@ $("romBody").addEventListener("click", async e => { if (!romEdit) return; const 
     if (!nome) return toast("Digite o produto."); if (!(q > 0)) return toast("Digite a quantidade.");
     let pr = products.find(x => norm(x.name || "") === norm(nome));
     if (!pr && /^[0-9A-Za-z]{3,14}$/.test(nome) && /\d/.test(nome)) {   // digitou um código: acha o produto pelo EAN, código de balança ou de doação
-      const c = nome.toUpperCase(), sc = /^2\d{12}$/.test(nome) ? Number(parseScale(nome).item) : null;
+      const c = nome.toUpperCase(), sc = isScale(nome) ? Number(parseScale(nome).item) : null;
       pr = products.find(x => x.barcode === nome || String(x.codigo_doacao || "").toUpperCase() === c || String(x.codigo_balanca || "") === nome || (sc !== null && x.codigo_balanca && Number(x.codigo_balanca) === sc));
       if (!pr) return toast("Código " + nome + " não está cadastrado. Digite o nome do produto.");
       if (u === "kg" && unitOf(pr.name) === "un") $("reUn").value = "un"; }
@@ -1847,7 +1883,7 @@ async function cadScan(code) {
   if (navigator.vibrate) navigator.vibrate(100); beep(); await stopScanner(); closeModal();
   const d = String(code).replace(/\D/g, "");
   if (!d) return toast("Esse código não é só de números. Digite-o no campo.");
-  if (/^2\d{12}$/.test(d)) { $("cPlu").value = String(Number(parseScale(d).item)).slice(0, 6); toast("Etiqueta de balança: preenchi o código de balança (PLU)."); }
+  if (isScale(d)) { $("cPlu").value = String(Number(parseScale(d).item)).slice(0, 6); toast("Etiqueta de balança: preenchi o código de balança (PLU)."); }
   else if (d.length > 13) return toast("Código com mais de 13 dígitos. Digite manualmente o que for válido.");
   else {
     const ja = products.find(p => p.barcode === d);
@@ -1944,7 +1980,7 @@ function labelPick(p) {
 }
 async function labelScan(code) {
   buzz(); beep(); await stopScanner(); closeModal();
-  const scale = /^2\d{12}$/.test(code), item = scale ? Number(parseScale(code).item) : 0;
+  const scale = isScale(code), item = scale ? Number(parseScale(code).item) : 0;
   let p = scale ? products.find(x => x.codigo_balanca && Number(x.codigo_balanca) === item) : products.find(x => x.barcode === code);
   if (!p) { const r = await askNewProduct(code, scale, scale ? String(item) : ""); if (!r) return;
     p = registerProduct({ name: r.nome, barcode: scale ? "" : code, codigo_balanca: scale ? String(item) : "" }); }
@@ -2082,7 +2118,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.09-55";
+const APP_VERSION = "2026.10.09-56";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -2391,7 +2427,7 @@ function codeEq(q,code){
 }
 function search(q){
   q=normS(q);if(!q)return[];
-  if(/^2\d{12}$/.test(q))q=String(Number(q.slice(1,7)));   // etiqueta de balança: usa o código do item
+  if(window.vmScale&&vmScale.is(q))q=String(Number(vmScale.parse(q).item));   // etiqueta de balança: usa o código do item
   var toks=q.split(/\s+/),out=[];
   merged().forEach(function(h){
     var n=normS(h.n),sc=0;
@@ -2742,7 +2778,7 @@ function renderRes(){
   if(!V.hits.length){
     var d=q.replace(/\D/g,"");
     if(d===q.trim()&&d.length>=6&&d.length<=13){
-      var sc=/^2\d{12}$/.test(d);
+      var sc=window.vmScale&&vmScale.is(d);
       el.innerHTML='<div class="pick" style="cursor:default"><b>Código '+esc(d)+' não está cadastrado</b><br><small class="muted">Digite o nome para cadastrar e já colocar na banca.</small><input id="ivNewNome" maxlength="60" placeholder="Nome do produto" autocomplete="off" style="margin-top:8px"><button type="button" class="primary big" data-iv="newprod" data-code="'+d+'" style="margin-top:8px;width:100%">Cadastrar e adicionar</button></div>';return}
     el.innerHTML='<small class="note">Nenhum produto encontrado para «'+esc(q)+'». Para cadastrar por código, digite só os números (6 a 13 dígitos).</small>';return}
   el.innerHTML=V.hits.map(function(h,i){
@@ -3006,7 +3042,7 @@ g("tabInventario").addEventListener("click",function(e){
     case"add":addHit(+el.dataset.i);return;
     case"newprod":{var nm=(g("ivNewNome").value||"").trim().replace(/\s+/g," "),cd=el.dataset.code;
       if(!nm){toast("Digite o nome do produto");g("ivNewNome").focus();return}
-      var isS=/^2\d{12}$/.test(cd),plu=isS?String(Number(cd.slice(1,7))):"";
+      var isS=window.vmScale&&vmScale.is(cd),plu=isS?String(Number(vmScale.parse(cd).item)):"";
       if(typeof window.vmRegister==="function")window.vmRegister({name:nm,category:"FLV",barcode:isS?"":cd,codigo_balanca:plu,codigo_doacao:""});
       var it=toItem({n:nm,b:plu,d:"",e:isS?"":cd});
       if(V.items.some(function(x){return x.c===it.c})){toast("Já está na banca");return}
