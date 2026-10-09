@@ -1565,6 +1565,7 @@ window.vmScale = { is: isScale, parse: parseScale };
 const PKK = "validamais-precokg", brl = v => v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 let pkResolve = null, pkTotal = 0, pkNome = "";
 const precoKg = n => Number((store.get(PKK, {})[norm(n)] || {}).p) || 0;
+window.vmPk = { get: n => precoKg(n), set: (n, p) => { const m = store.get(PKK, {}); m[norm(n)] = { p: Math.round(p * 100) / 100, em: Date.now() }; store.set(PKK, m); } };
 function askPeso(nome, total) {                        // devolve { kg, nota } ou null se cancelar
   const pk = precoKg(nome);
   if (pk > 0) { const kg = Math.round(total / pk * 1000) / 1000; if (kg > 0) return Promise.resolve({ kg, nota: ` (R$ ${brl(total)} ÷ R$ ${brl(pk)}/kg)` }); }
@@ -2118,7 +2119,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.09-56";
+const APP_VERSION = "2026.10.09-57";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -2498,12 +2499,16 @@ function fmtB(){
 }
 function pad(s,n){s=String(s);while(s.length<n)s="0"+s;return s}
 function chk(b12){var s=0;for(var i=0;i<12;i++)s+=(+b12[i])*(i%2===0?1:3);return(10-s%10)%10}
-function ean13(plu,kg,f){   // lista de códigos de 13 dígitos (divide se passar do limite de peso)
+function pkFor(it){   // preço do kg: guardado na Doação (por nome), pela conferência (por código) ou digitado no relatório
+  var v=window.vmPk?window.vmPk.get(it.n):0;if(v>0)return v;
+  var m=rd("validamais-precokg-plu",{}),p=Number(m[String(parseInt(it.b,10))]);return p>0?p:0;
+}
+function ean13(plu,kg,f,pk){   // lista de códigos (13 dígitos, ou 12 no formato UPC-A) — divide se passar do limite de valor
   if(!isNum(String(plu)))return null;
   var pluS=String(parseInt(plu,10));if(pluS.length>f.cd)return null;pluS=pad(pluS,f.cd);
-  var max=Math.pow(10,f.vd)-1,tot=Math.round(kg*f.div),out=[];
+  var max=Math.pow(10,f.vd)-1,tot=f.price?Math.round(kg*pk*100):Math.round(kg*f.div),out=[];
   if(!(tot>0))return null;
-  while(tot>0){var part=Math.min(tot,max);tot-=part;var body="2"+pluS+pad(part,f.vd);out.push(body+chk(body))}
+  while(tot>0){var part=Math.min(tot,max);tot-=part;var body="2"+pluS+pad(part,f.vd);out.push(f.upc?body+chk("0"+body):body+chk(body))}
   return out;
 }
 var EL=["0001101","0011001","0010011","0111101","0100011","0110001","0101111","0111011","0110111","0001011"];
@@ -2511,6 +2516,7 @@ var EG=["0100111","0110011","0011011","0100001","0011101","0111001","0000101","0
 var ER=["1110010","1100110","1101100","1000010","1011100","1001110","1010000","1000100","1001000","1110100"];
 var EP=["LLLLLL","LLGLGG","LLGGLG","LLGGGL","LGLLGG","LGGLLG","LGGGLL","LGLGLG","LGLGGL","LGGLGL"];
 function eanSvg(code){
+  var upc=code.length===12;if(upc)code="0"+code;
   var d=code.split("").map(Number),bits="101",par=EP[d[0]],i;
   for(i=1;i<=6;i++)bits+=(par.charAt(i-1)==="L"?EL:EG)[d[i]];
   bits+="01010";
@@ -2524,23 +2530,35 @@ function eanSvg(code){
       r+='<rect x="'+(q+i)+'" y="0" width="'+(j-i)+'" height="'+(guard?gh:h)+'"/>';i=j}
     else i++;
   }
-  var t='<text x="'+(q-3)+'" y="'+(H-2)+'" text-anchor="end">'+code.charAt(0)+'</text>';
-  for(i=0;i<6;i++)t+='<text x="'+(q+3+7*i+3.5)+'" y="'+(H-2)+'" text-anchor="middle">'+code.charAt(1+i)+'</text>';
-  for(i=0;i<6;i++)t+='<text x="'+(q+50+7*i+3.5)+'" y="'+(H-2)+'" text-anchor="middle">'+code.charAt(7+i)+'</text>';
+  var t='<text x="'+(q-3)+'" y="'+(H-2)+'" text-anchor="end">'+code.charAt(upc?1:0)+'</text>';
+  if(upc){for(i=0;i<5;i++)t+='<text x="'+(q+10+7*i+3.5)+'" y="'+(H-2)+'" text-anchor="middle">'+code.charAt(2+i)+'</text>';
+    for(i=0;i<5;i++)t+='<text x="'+(q+50+7*i+3.5)+'" y="'+(H-2)+'" text-anchor="middle">'+code.charAt(7+i)+'</text>';
+    t+='<text x="'+(q+95+3)+'" y="'+(H-2)+'" text-anchor="start">'+code.charAt(12)+'</text>';}
+  else{for(i=0;i<6;i++)t+='<text x="'+(q+3+7*i+3.5)+'" y="'+(H-2)+'" text-anchor="middle">'+code.charAt(1+i)+'</text>';
+  for(i=0;i<6;i++)t+='<text x="'+(q+50+7*i+3.5)+'" y="'+(H-2)+'" text-anchor="middle">'+code.charAt(7+i)+'</text>';}
   return'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Código de barras '+code+'"><rect width="'+W+'" height="'+H+'" fill="#fff"/><g fill="#000" shape-rendering="crispEdges">'+r+'</g><g fill="#000" font-family="Arial,Helvetica,sans-serif" font-size="10">'+t+'</g></svg>';
 }
-function calibrar(txt,kg){
+function calibrar(txt,kg,pkg){
   var dg=String(txt).replace(/\D/g,"");
-  if(dg.length!==13)return{err:"Digite os 13 números que ficam embaixo do código de barras da etiqueta."};
-  if(chk(dg.slice(0,12))!==+dg.charAt(12))return{err:"O dígito verificador não bate. Confira se digitou os 13 números corretamente."};
+  if(dg.length!==12&&dg.length!==13)return{err:"Digite todos os números que ficam embaixo do código de barras da etiqueta (12 ou 13 dígitos)."};
+  var up=dg.length===12;
+  if(up?chk("0"+dg.slice(0,11))!==+dg.charAt(11):chk(dg.slice(0,12))!==+dg.charAt(12))return{err:"O dígito verificador não bate. Confira se digitou os números corretamente."};
   if(dg.charAt(0)!=="2")return{err:"Etiqueta de balança normalmente começa com 2. Confira os números."};
   if(kg===null||!(kg>0))return{err:"Digite o peso (kg) que aparece nessa mesma etiqueta."};
-  var cands=[[6,1000],[6,100],[5,1000],[5,100],[4,1000],[4,100],[6,10],[5,10],[4,10]];
+  var cands=up?[[5,1000],[5,100],[5,10]]:[[6,1000],[6,100],[5,1000],[5,100],[4,1000],[4,100],[6,10],[5,10],[4,10]];
+  var body=up?dg.slice(0,11):dg.slice(0,12);
   for(var i=0;i<cands.length;i++){
-    var cd=cands[i][0],div=cands[i][1],vd=11-cd,val=parseInt(dg.substr(1+cd,vd),10);
-    if(Math.abs(val/div-kg)<0.0006)return{ok:true,f:{cd:cd,vd:vd,div:div,ok:true},plu:String(parseInt(dg.substr(1,cd),10))};
+    var cd=cands[i][0],div=cands[i][1],vd=11-cd,val=parseInt(body.substr(1+cd,vd),10);
+    if(Math.abs(val/div-kg)<0.0006)return{ok:true,f:{cd:cd,vd:vd,div:div,ok:true,upc:up},plu:String(parseInt(body.substr(1,cd),10))};
   }
-  return{err:"Não encontrei o peso "+fmt3(kg)+" kg nesses números. A etiqueta pode estar trazendo o preço em vez do peso. Envie a foto para eu ajustar."};
+  if(pkg&&pkg>0){          // etiqueta que traz o PREÇO total (ex.: PRIX): valor = centavos = peso x preço do kg
+    var cdp=up?[5]:[6,5,4];
+    for(var j=0;j<cdp.length;j++){
+      var c2=cdp[j],v2=11-c2,val2=parseInt(body.substr(1+c2,v2),10);
+      if(Math.abs(val2/100-kg*pkg)<0.011)return{ok:true,price:true,f:{cd:c2,vd:v2,div:100,ok:true,upc:up,price:true},plu:String(parseInt(body.substr(1,c2),10)),pkg:pkg};
+    }
+  }
+  return{err:"Não encontrei o peso "+fmt3(kg)+" kg nesses números."+(pkg?" Também não bate com o preço (R$ "+pkg.toFixed(2).replace(".",",")+"/kg).":" Se a etiqueta traz o preço total (como a PRIX), digite também o preço por kg (R$/kg) que está nela.")};
 }
 
 /* ---- compartilhar / importar ---- */
@@ -2853,7 +2871,8 @@ function bcList(D){
       if(!x.done)o.err="Contagem deste produto ainda em andamento (toque em Concluir).";
       else if(x.it.u==="un")o.err="Item por unidade: informe "+fmt3(x.total)+" un manualmente (não tem código de peso).";
       else if(!x.it.b||!isNum(String(x.it.b)))o.err="Sem código de balança no cadastro do produto.";
-      else{var cs=ean13(x.it.b,x.total,f);if(!cs)o.err="Código de balança não cabe no formato configurado.";else o.codes=cs}
+      else if(f.price&&!(pkFor(x.it)>0)){o.err="Sem o preço do kg deste produto (a etiqueta traz o preço total). Informe abaixo.";o.needPk=true}
+      else{o.pk=f.price?pkFor(x.it):0;var cs=ean13(x.it.b,x.total,f,o.pk);if(!cs)o.err="Código de balança não cabe no formato configurado.";else o.codes=cs}
       out.push(o);
     });
   });
@@ -2899,23 +2918,24 @@ function vRel(){
   h+='<tr><td class="tot">Total</td><td class="tot">'+D.T.pct+'%</td><td class="tot">'+fmt(D.T.kg)+'</td><td class="tot">'+(D.T.kg?'100%':'0%')+'</td></tr></tbody></table>';
   h+='<h3>Códigos de barras para coleta (um por produto)</h3>';
   if(!f.ok)h+='<div class="ivwarn noprint">⚠ O formato do código ainda não foi conferido com uma etiqueta real da balança. Faça a conferência abaixo antes de imprimir ou usar.</div>';
-  else h+='<div class="ivok noprint">✓ Formato conferido com etiqueta real ('+f.cd+' dígitos de produto + '+f.vd+' de peso).</div>';
+  else h+='<div class="ivok noprint">✓ Formato conferido com etiqueta real ('+(f.upc?'12 dígitos, ':'')+f.cd+' dígitos de produto + '+(f.upc?f.vd-1:f.vd)+' de '+(f.price?'preço total em centavos':'peso')+').</div>';
   var bc=bcList(D);
   if(!bc.length)h+='<p>Conclua ao menos um produto para gerar o código.</p>';
   h+='<div class="ivbcs">';
   bc.forEach(function(o){
     var head='<div class="ivbch">'+tag(o.b)+'</div><div class="ivbch">'+esc(o.it.n)+'</div><small>'+codesTxt(o.it)+'</small>';
-    if(o.err){h+='<div class="ivbc warn">'+head+'<small style="color:#6b4a00;margin-top:6px">'+esc(o.err)+'</small></div>';return}
+    if(o.err){h+='<div class="ivbc warn">'+head+'<small style="color:#6b4a00;margin-top:6px">'+esc(o.err)+'</small>'+(o.needPk?'<div class="noprint" style="display:flex;gap:6px;margin-top:8px"><input inputmode="decimal" placeholder="R$/kg" style="flex:1;min-width:0"><button type="button" class="secondary" data-iv="setpk" data-n="'+esc(o.it.n)+'">Salvar</button></div>':'')+'</div>';return}
     o.codes.forEach(function(c,i){
-      var kgp=parseInt(c.substr(1+f.cd,f.vd),10)/f.div;
-      h+='<div class="ivbc">'+head+eanSvg(c)+'<div class="ivbct">'+fmt3(kgp)+' kg'+(o.codes.length>1?' <small style="display:inline">· parte '+(i+1)+'/'+o.codes.length+'</small>':'')+'</div></div>';
+      var vv=parseInt(c.substr(1+f.cd,f.vd),10),kgp=f.price?vv/100/o.pk:vv/f.div;
+      h+='<div class="ivbc">'+head+eanSvg(c)+'<div class="ivbct">'+fmt3(kgp)+' kg'+(f.price?' <small style="display:inline">· R$ '+(vv/100).toFixed(2).replace('.',',')+'</small>':'')+(o.codes.length>1?' <small style="display:inline">· parte '+(i+1)+'/'+o.codes.length+'</small>':'')+'</div></div>';
     });
   });
   h+='</div></div>';
   h+='<section class="panel noprint"><details'+(f.ok?'':' open')+'><summary>Conferir o formato com uma etiqueta real da balança</summary>'
-    +'<p class="note">Pegue uma etiqueta impressa pela balança. Digite os 13 números embaixo do código de barras e o peso (kg) que aparece na mesma etiqueta. O app confere se o formato bate e passa a usá-lo.</p>'
-    +'<label for="ivCal13">13 números da etiqueta</label><input id="ivCal13" inputmode="numeric" maxlength="20" placeholder="2000140023500 1" autocomplete="off">'
-    +'<label for="ivCalKg">Peso da etiqueta (kg)</label><input id="ivCalKg" inputmode="decimal" placeholder="2,350" autocomplete="off">'
+    +'<p class="note">Pegue uma etiqueta impressa pela balança. Digite os números embaixo do código de barras e o peso (kg) que aparece na mesma etiqueta. Se a etiqueta traz o preço total (como a PRIX), digite também o preço por kg. O app confere se o formato bate e passa a usá-lo.</p>'
+    +'<label for="ivCal13">Números da etiqueta (12 ou 13)</label><input id="ivCal13" inputmode="numeric" maxlength="20" placeholder="Ex.: 200022005230" autocomplete="off">'
+    +'<label for="ivCalKg">Peso da etiqueta (kg)</label><input id="ivCalKg" inputmode="decimal" placeholder="Ex.: 0,308" autocomplete="off">'
+    +'<label for="ivCalPkg">Preço por kg (R$/kg) — só se a etiqueta traz o preço total</label><input id="ivCalPkg" inputmode="decimal" placeholder="Ex.: 16,98" autocomplete="off">'
     +'<div class="ivsp"></div>'+full(btn("primary","calib","Conferir formato"))+'<div id="ivCalMsg"></div>'
     +(f.ok?'<div class="ivsp"></div>'+full(btn("secondary","calibreset","Voltar ao formato padrão do app")):'')+'</details></section>';
   return h;
@@ -3031,10 +3051,11 @@ g("tabInventario").addEventListener("click",function(e){
     case"sharerel":share(relText(V.rb));return;
     case"copyrel":copy(relText(V.rb));return;
     case"calib":{
-      var r=calibrar(g("ivCal13").value,num(g("ivCalKg").value)),m=g("ivCalMsg");
+      var r=calibrar(g("ivCal13").value,num(g("ivCalKg").value),num(g("ivCalPkg").value)),m=g("ivCalMsg");
       if(r.err){m.innerHTML='<div class="ivwarn">'+esc(r.err)+'</div>';return}
-      wr(KBAL,r.f);toast("Formato conferido e salvo");V={v:"rel",rb:V.rb};break;
+      wr(KBAL,r.f);if(r.price&&r.pkg){wr("validamais-precokg-plu",(function(){var m=rd("validamais-precokg-plu",{});m[r.plu]=r.pkg;return m})())}toast(r.price?"Formato conferido: a etiqueta traz o preço":"Formato conferido e salvo");V={v:"rel",rb:V.rb};break;
     }
+    case"setpk":{var inp=el.previousElementSibling,pv=num(inp&&inp.value);if(!(pv>0)){toast("Digite o preço do kg, ex.: 16,98");return}if(window.vmPk)window.vmPk.set(el.dataset.n,pv);toast("Preço do kg guardado");V={v:"rel",rb:V.rb};break}
     case"calibreset":try{localStorage.removeItem(KBAL)}catch(e2){}toast("Formato padrão do app");V={v:"rel",rb:V.rb};break;
     case"new":V={v:"edit",id:null,nome:"",cor:firstUnused(),items:[],hits:[],moved:[]};break;
     case"edit":V={v:"edit",id:id,nome:b.nome,cor:corOf(b),items:b.itens.map(function(x){var y={};for(var k in x)y[k]=x[k];return y}),hits:[],moved:[]};break;
