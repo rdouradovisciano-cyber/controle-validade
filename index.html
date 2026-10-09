@@ -774,6 +774,7 @@ const LOJA = C.loja || "Sam's Club Radial Leste";
 const EMPTY_FLV = '<div class="empty"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="#9db8a4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 28h44l-5 22a4 4 0 0 1-4 3H19a4 4 0 0 1-4-3z"/><path d="M22 28c0-9 4-16 10-16s10 7 10 16"/><path d="M32 12c0-4 3-7 8-7 0 5-3 8-8 7z"/></svg><p>Nenhum produto do FLV com validade para vencer no momento.</p></div>';
 let products = [], db = null, scanner = null, toastTimer;
 window.vmProducts = () => products;
+window.vmRegister = o => registerProduct(o);
 window.vmDb = () => db;
 const cloud = !!fb.apiKey && !/COLE_|SEU_/.test(fb.apiKey + fb.projectId);
 const store = {
@@ -1922,7 +1923,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.08-48";
+const APP_VERSION = "2026.10.09-49";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -2226,6 +2227,7 @@ function codeEq(q,code){
 }
 function search(q){
   q=normS(q);if(!q)return[];
+  if(/^2\d{12}$/.test(q))q=String(Number(q.slice(1,7)));   // etiqueta de balança: usa o código do item
   var toks=q.split(/\s+/),out=[];
   merged().forEach(function(h){
     var n=normS(h.n),sc=0;
@@ -2492,7 +2494,7 @@ function chkData(){
   rows.sort(function(a,b){return normS(a.m.n)<normS(b.m.n)?-1:1});
   return{rows:rows,names:names,cats:cats,falta:rows.filter(function(r){return!r.b}),ok:rows.filter(function(r){return r.b})};
 }
-function codesTxt(m){var a=[];if(m.b)a.push("Balança "+m.b);if(m.d)a.push("Cód. interno "+m.d);return a.join(" · ")||"sem código"}
+function codesTxt(m){var a=[];if(m.b)a.push("Balança "+m.b);if(m.d)a.push("Cód. interno "+m.d);if(m.e)a.push("EAN "+m.e);return a.join(" · ")||"sem código"}
 function chkText(){
   var D=chkData();
   var t="Conferência do inventário"+(V.cat?" — "+V.cat:"")+"\n"+D.ok.length+" de "+D.rows.length+" produtos já estão em uma banca.\n";
@@ -2541,8 +2543,8 @@ function vEdit(){
     +'<label for="ivNome">Nome da banca</label><input id="ivNome" placeholder="Ex.: Banca das Frutas" maxlength="40" value="'+esc(V.nome||"")+'">'
     +'<label>Cor da banca</label><div class="ivchips">'+PAL.map(function(c){return'<button type="button" class="ivchip'+(c===V.cor?' sel':'')+'" style="background:'+c+'" data-iv="cor" data-c="'+c+'" aria-label="Cor"></button>'}).join("")+'</div>'
     +'<div id="ivPrevTag" style="margin:8px 0 2px"></div>'
-    +'<label for="ivBusca">Buscar produto: código de balança, código interno ou nome</label>'
-    +'<input id="ivBusca" type="search" placeholder="Ex.: 123, B1 ou banana" autocomplete="off">'
+    +'<label for="ivBusca">Buscar produto: código de barras, balança, código interno ou nome</label>'
+    +'<input id="ivBusca" type="search" placeholder="Ex.: 123, B1, EAN ou banana" autocomplete="off">'
     +'<div id="ivRes" class="rows"></div></section>'
     +'<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">Produtos da banca</h2><span class="hbadge" id="ivECount">0</span></div><div id="ivEList" style="margin-top:6px"></div>'
     +'<details style="margin-top:10px"><summary>Colar lista de códigos</summary>'
@@ -2570,7 +2572,12 @@ function renderRes(){
   if(!q.trim()){el.innerHTML="";return}
   if(!merged().length){el.innerHTML='<small class="note">O cadastro de produtos ainda não carregou. Aguarde um instante ou use «Colar lista de códigos».</small>';return}
   V.hits=search(q);
-  if(!V.hits.length){el.innerHTML='<small class="note">Nenhum produto encontrado para «'+esc(q)+'».</small>';return}
+  if(!V.hits.length){
+    var d=q.replace(/\D/g,"");
+    if(d===q.trim()&&d.length>=6&&d.length<=13){
+      var sc=/^2\d{12}$/.test(d);
+      el.innerHTML='<div class="pick" style="cursor:default"><b>Código '+esc(d)+' não está cadastrado</b><br><small class="muted">Digite o nome para cadastrar e já colocar na banca.</small><input id="ivNewNome" maxlength="60" placeholder="Nome do produto" autocomplete="off" style="margin-top:8px"><button type="button" class="primary big" data-iv="newprod" data-code="'+d+'" style="margin-top:8px;width:100%">Cadastrar e adicionar</button></div>';return}
+    el.innerHTML='<small class="note">Nenhum produto encontrado para «'+esc(q)+'». Para cadastrar por código, digite só os números (6 a 13 dígitos).</small>';return}
   el.innerHTML=V.hits.map(function(h,i){
     var it=toItem(h),has=V.items.some(function(x){return x.c===it.c}),own=has?null:ownerOf(it);
     return'<div class="pick" data-iv="add" data-i="'+i+'"><b>'+esc(h.n)+'</b>'+(has?' <span class="hbadge">✓ na banca</span>':own?' <span class="hbadge" style="background:#fdf0c4;color:#7c5a00">na «'+esc(own.b.nome)+'»</span>':'')+'<br><small class="muted">'+(codesTxt(it)||"sem código")+'</small></div>';
@@ -2829,6 +2836,13 @@ g("tabInventario").addEventListener("click",function(e){
     case"edit":V={v:"edit",id:id,nome:b.nome,cor:corOf(b),items:b.itens.map(function(x){var y={};for(var k in x)y[k]=x[k];return y}),hits:[],moved:[]};break;
     case"cor":{V.cor=el.dataset.c;var chips=document.querySelectorAll(".ivchip");for(var ci=0;ci<chips.length;ci++)chips[ci].classList.toggle("sel",chips[ci].dataset.c===V.cor);renderPrevTag();return}
     case"add":addHit(+el.dataset.i);return;
+    case"newprod":{var nm=(g("ivNewNome").value||"").trim().replace(/\s+/g," "),cd=el.dataset.code;
+      if(!nm){toast("Digite o nome do produto");g("ivNewNome").focus();return}
+      var isS=/^2\d{12}$/.test(cd),plu=isS?String(Number(cd.slice(1,7))):"";
+      if(typeof window.vmRegister==="function")window.vmRegister({name:nm,category:"FLV",barcode:isS?"":cd,codigo_balanca:plu,codigo_doacao:""});
+      var it=toItem({n:nm,b:plu,d:"",e:isS?"":cd});
+      if(V.items.some(function(x){return x.c===it.c})){toast("Já está na banca");return}
+      V.items.push(it);renderEList();var bb=g("ivBusca");bb.value="";renderRes();bb.focus();toast("Cadastrado e adicionado: "+nm);return}
     case"rm":V.items.splice(+el.dataset.i,1);renderEList();renderRes();return;
     case"unit":{var it=V.items[+el.dataset.i];it.u=it.u==="un"?"kg":"un";renderEList();return}
     case"addpaste":{
