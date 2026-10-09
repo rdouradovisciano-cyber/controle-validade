@@ -647,11 +647,32 @@ html[data-tema=dark] .ivtbl th{background:#1a6a45}
 #ivPeso::placeholder{font-size:20px;font-weight:600}
 .ivli.ok b{color:var(--g)}
 html[data-tema=dark] .ivhero{box-shadow:none;border:1px solid rgba(255,255,255,.06)}
+
+/* ===== v51: 3 abas, Ferramentas, ⋮ e botão BIPAR ===== */
+.tabbar button{font-size:13.5px!important;padding:0 4px!important}
+.ferrnav{display:flex;gap:6px;padding:0 10px 10px}
+.ferrnav button{flex:1 1 0;min-width:0;min-height:38px;border-radius:11px;padding:0 4px;font-size:12.5px;font-weight:700;white-space:nowrap;background:transparent;color:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.28)}
+.ferrnav button.on{background:rgba(255,255,255,.95);color:var(--g-d,#0e4a30);border-color:transparent}
+html[data-tema=dark] .ferrnav button.on{background:#2a8f5d;color:#fff}
+#moreBtn{flex:none;min-width:40px;height:44px;padding:0;border-radius:12px;background:rgba(255,255,255,.14);color:#fff;font-size:24px;font-weight:800;line-height:1}
+header h1{min-width:0;flex:1;overflow:hidden}
+#appVer{display:none!important}
+.morebg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.28)}
+.moremenu{position:fixed;z-index:61;top:calc(54px + env(safe-area-inset-top));right:10px;width:min(300px,calc(100vw - 20px));padding:6px;border-radius:18px;background:var(--card);border:1px solid var(--ln);box-shadow:0 18px 44px rgba(0,0,0,.35);display:flex;flex-direction:column}
+.moremenu.hidden,.morebg.hidden{display:none}
+.moremenu button{display:flex;align-items:center;gap:12px;width:100%;min-height:50px;padding:0 14px;border-radius:12px;background:transparent;color:var(--ink);font-size:15px;font-weight:650;text-align:left;border:0;box-shadow:none}
+.moremenu button span{flex:1}
+.moremenu button:active{background:var(--lt2)}
+.moremenu button.hidden{display:none}
+#side .menu button:not(#navImport){display:none}
+.fabwrap .fabscan{letter-spacing:.06em;box-shadow:0 10px 26px rgba(14,74,48,.45)}
+body[data-grp="Ferramentas"][data-tab="Inventario"] .fabwrap,body[data-grp="Ferramentas"][data-tab="Cadastros"] .fabwrap{display:none}
+#dScan{margin-bottom:8px}
 </style>
 </head>
 <body data-tab="Loja">
 <main class="app">
-<div class="top"><header><h1>Valida+ <small id="appVer" style="font-size:11px;font-weight:600;opacity:.65;letter-spacing:.3px"></small><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1></header><nav class="tabbar"><button id="tbDoacao">📋 Doação</button><button id="tbEtiquetas">🏷️ Etiquetas</button><button id="tbLoja">⏱️ Validades</button><button id="tbInventario">📦 Inventário</button><button id="tbCadastros">🗂️ Cadastros</button></nav></div>
+<div class="top"><header><h1>Valida+ <small id="appVer" style="font-size:11px;font-weight:600;opacity:.65;letter-spacing:.3px"></small><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1></header><nav class="tabbar"><button id="tbLoja">⏱️ Validades</button><button id="tbDoacao">📋 Doação</button><button id="tbFerramentas">🧰 Ferramentas</button></nav><nav class="ferrnav hidden" id="ferrNav" aria-label="Ferramentas"><button type="button" data-ferr="Etiquetas">🏷️ Etiquetas</button><button type="button" data-ferr="Inventario">📦 Inventário</button><button type="button" data-ferr="Cadastros">🗂️ Cadastros</button></nav></div>
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
@@ -671,7 +692,7 @@ html[data-tema=dark] .ivhero{box-shadow:none;border:1px solid rgba(255,255,255,.
 <div id="donaEntrada">
 <div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><small>COLETANDO AGORA</small><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
 <div class="nowrow"><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
-<section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button></div>
+<section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div>
 <div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></section>
 <section class="panel"><h2 class="h2 qh">Produto <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
 <div id="qBar" class="qbar hidden"><span>Toque num atalho para editar</span><button type="button" class="secondary" id="qReset">Restaurar padrão</button><button type="button" class="primary" id="qDone">Concluir</button></div>
@@ -744,7 +765,8 @@ html[data-tema=dark] .ivhero{box-shadow:none;border:1px solid rgba(255,255,255,.
 <textarea id="impText" rows="8" placeholder="Mamão Papaya;123;45&#10;Banana Prata;124;46&#10;Pão Francês;200;B1;;Padaria"></textarea>
 <div class="toolbar" style="margin-top:8px"><button class="secondary" id="impFileBtn">📎 Escolher arquivo</button><button class="secondary" id="impModel">Baixar modelo</button></div><input type="file" id="impFile" accept=".csv,.txt,.tsv,text/plain,text/csv" hidden>
 <div class="toolbar" style="margin-top:10px"><button class="secondary big" id="impCheck">Conferir lista</button><button class="primary big" id="impGo" disabled>Cadastrar</button></div><div id="impPrev" class="rows"></div></section></div>
-<div id="fabScrim" class="fabscrim hidden"></div><div class="fabwrap" id="fabWrap"><div class="fabmenu"><button class="fabitem doacao-only" id="fabEan">⌨️ Lançar por EAN</button><button class="fabitem loja-only" id="fabManual">＋ Cadastro manual</button><button class="fabitem loja-only" id="fabZap">💬 Enviar por WhatsApp</button><button class="fabitem" id="fabExport">📤 Exportar (Excel/PDF)</button><button class="fabitem" id="fabImport">📥 Importar lista</button><button class="fabitem" id="fabBkp">💾 Fazer backup</button><button class="fabitem" id="fabRest">♻️ Restaurar backup</button><button class="fabitem" id="fabDup">🔍 Revisar duplicados</button><button class="fabitem" id="fabInstall">📲 Instalar app</button></div><div class="fabrow"><button class="fabscan" id="fab">▦ Bipar</button><button class="fabmain" id="fabMain" aria-label="Mais ações">＋</button></div></div>
+<div id="moreBg" class="morebg hidden"></div><div id="moreMenu" class="moremenu hidden" role="menu" aria-label="Mais opções"><button type="button" role="menuitem" id="mnExport">📤<span>Exportar Excel / PDF</span></button><button type="button" role="menuitem" id="mnZap">💬<span>Enviar por WhatsApp</span></button><button type="button" role="menuitem" id="mnImport">📥<span>Importar lista</span></button><button type="button" role="menuitem" id="mnBkp">💾<span>Fazer backup</span></button><button type="button" role="menuitem" id="mnRest">♻️<span>Restaurar backup</span></button><button type="button" role="menuitem" id="mnDup">🔍<span>Revisar duplicados</span></button><button type="button" role="menuitem" id="mnInstall">📲<span>Instalar app</span></button><button type="button" role="menuitem" id="mnVer">🔄<span id="mnVerT">Verificar atualização</span></button></div>
+<div class="fabwrap" id="fabWrap"><div class="fabrow"><button class="fabscan" id="fab" aria-label="Bipar código de barras">▦ BIPAR</button></div></div>
 <div id="qModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="qTitle"><div class="sheethead"><h2 id="qTitle">Atalho</h2><button class="secondary" id="qClose" aria-label="Fechar">✕</button></div>
 <label for="qNome">Nome do produto</label><input id="qNome" maxlength="40" autocomplete="off" placeholder="Ex.: Chuchu">
 <label for="qCod">Código de doação (49xx ou PLU)</label><input id="qCod" maxlength="12" autocomplete="off" placeholder="Ex.: 4912">
@@ -1409,8 +1431,7 @@ function eanPreview() {                              // assim que o código é d
                     : '<div><small>NÃO CADASTRADO</small><span>Será cadastrado a seguir</span></div>';
 }
 const eanClose = () => $("eanModal").classList.add("hidden");
-$("fabEan").onclick = () => {
-  $("fabWrap").classList.remove("open"); $("fabScrim").classList.add("hidden");
+$("dEan").onclick = () => {
   $("eanCode").value = ""; eanPreview(); $("eanModal").classList.remove("hidden"); setTimeout(() => $("eanCode").focus(), 80);
 };
 $("eanClose").onclick = $("eanCancel").onclick = eanClose;
@@ -1434,10 +1455,16 @@ function dayOf(p) { const t = p.updatedAt, v = t && t.toMillis ? t.toMillis() : 
 const fq = q => (Math.round(q * 1000) / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 3 });
 const sumU = u => don.itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0);
 const dataBR = d => new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
+const FERR = ["Etiquetas", "Inventario", "Cadastros"], FK = "validamais-ferr";
 function tab(t) {
-  curTab = t;
-  ["Loja", "Doacao", "Etiquetas", "Inventario", "Cadastros"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); $("tb" + n).classList.toggle("active", n === t); });
-  document.body.dataset.tab = t;
+  if (t === "Ferramentas") { const u = store.get(FK, "Etiquetas"); t = FERR.includes(u) ? u : "Etiquetas"; }
+  curTab = t; const em = FERR.includes(t);
+  if (em) store.set(FK, t);
+  ["Loja", "Doacao", "Etiquetas", "Inventario", "Cadastros"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); });
+  [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Ferramentas", em]].forEach(([n, on]) => $("tb" + n).classList.toggle("active", on));
+  $("ferrNav").classList.toggle("hidden", !em);
+  $("ferrNav").querySelectorAll("[data-ferr]").forEach(b => b.classList.toggle("on", b.dataset.ferr === t));
+  document.body.dataset.tab = t; document.body.dataset.grp = em ? "Ferramentas" : t;
 }
 function dCodTxt(i) {   // kg: código de doação · un: código de barras
   const pr = products.find(x => norm(x.name || "") === norm(i.nome)) || {};
@@ -1981,7 +2008,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.09-50";
+const APP_VERSION = "2026.10.09-51";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -2081,14 +2108,10 @@ if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) $("iosHint").c
 })();
 
 </script>
-<script>(function(){var w=document.getElementById("fabWrap"),s=document.getElementById("fabScrim"),$=function(i){return document.getElementById(i)};
-function set(o){w.classList.toggle("open",o);s.classList.toggle("hidden",!o)}
-$("fabMain").onclick=function(){set(!w.classList.contains("open"))};s.onclick=function(){set(false)};
-$("fab").addEventListener("click",function(){set(false)});
-$("fabManual").onclick=function(){set(false);$("manualOpen").click()};
-$("fabZap").onclick=function(){set(false);$("shareBtn").click()};
-["Loja","Doacao","Etiquetas","Inventario","Cadastros"].forEach(function(n){$("tb"+n).onclick=function(){set(false);$("nav"+n).click()}});})();</script>
-<script>(function(){var T=["Doacao","Etiquetas","Loja","Inventario","Cadastros"],x0=0,y0=0,ok=false,g=function(i){return document.getElementById(i)};
+<script>(function(){var $=function(i){return document.getElementById(i)};
+["Loja","Doacao","Ferramentas"].forEach(function(n){$("tb"+n).onclick=function(){if(n==="Ferramentas"){var u=null;try{u=JSON.parse(localStorage.getItem("validamais-ferr"))}catch(e){}$("nav"+(["Etiquetas","Inventario","Cadastros"].indexOf(u)>=0?u:"Etiquetas")).click()}else $("nav"+n).click()}});
+$("ferrNav").onclick=function(e){var b=e.target.closest("[data-ferr]");if(b)$("nav"+b.dataset.ferr).click()};})();</script>
+<script>(function(){var T=["Loja","Doacao","Etiquetas","Inventario","Cadastros"],x0=0,y0=0,ok=false,g=function(i){return document.getElementById(i)};
 function blocked(t){if(t.closest&&t.closest("input,textarea,select,.ivsw,.rwrap,#reader,.side,.modal,#confView,.fabwrap,.topdo,.askbg,.cropbg,.redit"))return true;
 var m=document.querySelectorAll(".modal,#confView,.side.open");for(var i=0;i<m.length;i++){if(!m[i].classList.contains("hidden")&&getComputedStyle(m[i]).display!=="none")return true}return false}
 document.addEventListener("touchstart",function(e){if(e.touches.length!==1){ok=false;return}var t=e.touches[0];x0=t.clientX;y0=t.clientY;ok=!blocked(e.target)},{passive:true});
@@ -2183,21 +2206,30 @@ var hiddenAt=0;document.addEventListener("visibilitychange",function(){if(docume
   window.addEventListener("resize", function () { if (act) measure(); });
 })();
 </script>
-<script>/* menu +: exportar, importar, instalar */(function(){
-var g=function(i){return document.getElementById(i)},w=g("fabWrap"),s=g("fabScrim");
-function fecha(){w.classList.remove("open");s.classList.add("hidden")}
+<script>/* menu ⋮: exportar, importar, backup, duplicados, instalar */(function(){
+var g=function(i){return document.getElementById(i)},m=g("moreMenu"),bg=g("moreBg");
+function fecha(){m.classList.add("hidden");bg.classList.add("hidden")}
+function abre(){m.classList.remove("hidden");bg.classList.remove("hidden")}
 function msg(t){var e=g("toast");e.textContent=t;e.classList.remove("hidden");clearTimeout(msg.t);msg.t=setTimeout(function(){e.classList.add("hidden")},7000)}
-if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)g("fabInstall").classList.add("hidden");
-g("fabExport").onclick=function(){fecha();g("side").classList.add("open");g("sideBg").classList.remove("hidden");
-setTimeout(function(){var x=g("exportScope");if(x)x.scrollIntoView({block:"center"})},280)};
-g("fabImport").onclick=function(){fecha();g("navImport").click()};
-g("fabBkp").onclick=function(){fecha();if(window.vmBackup)window.vmBackup()};
-g("fabRest").onclick=function(){fecha();if(window.vmRestaurar)window.vmRestaurar()};
-g("fabDup").onclick=function(){fecha();if(window.dupReview)window.dupReview()};
-g("fabInstall").onclick=function(){fecha();var b=g("installBtn");
+var h=document.querySelector("header");
+if(h&&!g("moreBtn")){var b=document.createElement("button");b.id="moreBtn";b.type="button";b.textContent="⋮";b.setAttribute("aria-label","Mais opções");b.setAttribute("aria-haspopup","menu");h.appendChild(b);
+b.onclick=function(){m.classList.contains("hidden")?abre():fecha()}}
+bg.onclick=fecha;document.addEventListener("keydown",function(e){if(e.key==="Escape")fecha()});
+if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)g("mnInstall").classList.add("hidden");
+g("mnExport").onclick=function(){fecha();g("side").classList.add("open");g("sideBg").classList.remove("hidden");setTimeout(function(){var x=g("exportScope");if(x)x.scrollIntoView({block:"center"})},280)};
+g("mnZap").onclick=function(){fecha();g("shareBtn").click()};
+g("mnImport").onclick=function(){fecha();g("navImport").click()};
+g("mnBkp").onclick=function(){fecha();if(window.vmBackup)window.vmBackup()};
+g("mnRest").onclick=function(){fecha();if(window.vmRestaurar)window.vmRestaurar()};
+g("mnDup").onclick=function(){fecha();if(window.dupReview)window.dupReview()};
+g("mnVer").onclick=function(){fecha();g("appVer").click()};var vt=g("appVer");if(vt)g("mnVerT").textContent="Atualizar · "+vt.textContent;
+g("mnInstall").onclick=function(){fecha();var b=g("installBtn");
 if(b&&!b.hidden){b.click();return}
 if(/iphone|ipad|ipod/i.test(navigator.userAgent)){var h=g("iosHint");if(h){h.classList.remove("hidden");window.scrollTo(0,0)}msg("No iPhone: toque em Compartilhar e depois em Adicionar à Tela de Início.");return}
 msg("Para instalar: menu do navegador (⋮) e depois Instalar app ou Adicionar à tela inicial.")};
+/* altura do topo (abas + subabas) para os elementos fixos logo abaixo */
+var top=document.querySelector(".top");function alt(){document.documentElement.style.setProperty("--top-h",top.offsetHeight+"px")}
+alt();if(window.ResizeObserver)new ResizeObserver(alt).observe(top);
 })();</script>
 <script>/* ponto de status da sincronização */(function(){var s=document.getElementById("syncState"),d=document.getElementById("syncDot");if(!s||!d)return;
 function u(){var t=s.textContent||"";d.title=t;d.className="sdot "+(/^sincronizado/.test(t)?"ok":/erro|falha/.test(t)?"err":/conectando|aguardando|offline|iniciando/.test(t)?"wait":"")}
