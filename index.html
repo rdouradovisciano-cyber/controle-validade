@@ -510,7 +510,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .to
 </style>
 <style id="inv-css">
 .tabbar button{padding:0 2px;font-size:12px;white-space:nowrap}
-body[data-tab="Inventario"] .fabwrap,body[data-tab="Inventario"] .fabscrim,body[data-tab="Cadastros"] .fabwrap,body[data-tab="Cadastros"] .fabscrim{display:none}
+body[data-tab="Inventario"] .fabwrap,body[data-tab="Inventario"] .fabscrim{display:none}
 .tabbar{gap:3px!important;padding:0 8px 12px!important}.tabbar button{flex:1 1 0!important;min-width:0;font-size:10.5px!important;padding:0 1px!important;overflow:hidden;text-overflow:ellipsis}
 .cadrow{display:flex;align-items:center;gap:6px;padding:10px 0;border-bottom:1px solid var(--ln)}.cadrow .ci{flex:1;min-width:0;font-size:14px}.cadrow .ci small{display:block;color:var(--mut,#667);margin-top:2px;word-break:break-all}.cadrow>button{min-height:38px;padding:0 12px;font-size:13px}.cadcnt{float:right;font-weight:600;font-size:12px;opacity:.7}
 .ivcode{font-size:32px;font-weight:800;color:var(--g-d);text-align:center;letter-spacing:.5px;font-variant-numeric:tabular-nums;line-height:1.15;word-break:break-all;margin-top:6px}
@@ -666,7 +666,7 @@ header h1{min-width:0;flex:1;overflow:hidden}
 .moremenu button.hidden{display:none}
 #side .menu button:not(#navImport){display:none}
 .fabwrap .fabscan{letter-spacing:.06em;box-shadow:0 10px 26px rgba(14,74,48,.45)}
-body[data-grp="Ferramentas"][data-tab="Inventario"] .fabwrap,body[data-grp="Ferramentas"][data-tab="Cadastros"] .fabwrap{display:none}
+body[data-grp="Ferramentas"][data-tab="Inventario"] .fabwrap{display:none}
 #dScan{margin-bottom:8px}
 
 /* ===== v52: preto e dourado (cores do ícone) ===== */
@@ -777,9 +777,9 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div class="csum"><div><span>PRODUTOS</span><b id="eSumP">0</b></div><div><span>QUANTIDADE TOTAL</span><b id="eSumQ">0</b></div></div><div id="eLista" class="clist"></div><p class="emarc" id="eMarc"></p><button type="button" id="eLimpa" class="secondary hidden" style="width:100%;margin-top:10px">🗑 Remover todos (já imprimi)</button>
 </div>
 <div id="tabCadastros" class="hidden">
-<section class="panel"><h2 class="h2" id="cTitulo">Novo cadastro</h2><p class="note">Cadastro digitado, sem foto e sem câmera. O código de barras aceita no máximo 13 dígitos.</p>
+<section class="panel"><h2 class="h2" id="cTitulo">Novo cadastro</h2><p class="note">Cadastro sem foto: digite ou bipe o código de barras (no máximo 13 dígitos).</p>
 <label for="cNome">Nome do produto</label><input id="cNome" maxlength="60" autocomplete="off" placeholder="Ex.: Couve-flor">
-<label for="cEan">Código de barras (EAN) <span class="cadcnt" id="cEanN">0/13</span></label><input id="cEan" inputmode="numeric" maxlength="13" autocomplete="off" placeholder="Só números, até 13 dígitos">
+<label for="cEan">Código de barras (EAN) <span class="cadcnt" id="cEanN">0/13</span></label><div class="stepper"><input id="cEan" inputmode="numeric" maxlength="13" autocomplete="off" placeholder="Até 13 dígitos"><button type="button" class="secondary" id="cBipar" style="padding:0 14px;white-space:nowrap;font-size:14px">▦ Bipar</button></div>
 <label for="cPlu">Código de balança (PLU)</label><input id="cPlu" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Opcional, até 6 números">
 <label for="cDon">Código de doação</label><input id="cDon" maxlength="12" autocomplete="off" placeholder="Opcional, ex.: B1" style="text-transform:uppercase">
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="cSalvar">Cadastrar</button><button class="secondary" id="cCancela" hidden>Cancelar</button></div></section>
@@ -1172,6 +1172,7 @@ $("loteEdit").onclick = () => { $("productForm").classList.remove("lote"); $("lo
 async function onCode(code) {
   if (scanMode === "doacao") return donationScan(code);
   if (scanMode === "etiqueta") return labelScan(code);
+  if (scanMode === "cadastro") return cadScan(code);
   if (navigator.vibrate) navigator.vibrate(100);
   beep(); await stopScanner(); resetForm();
   if (/^2\d{12}$/.test(code)) {                                   // etiqueta de balança: o código de balança identifica o produto
@@ -1193,8 +1194,8 @@ function manualCodeGo() {            // código digitado: segue o mesmo caminho 
 $("manualGo").onclick = manualCodeGo;
 $("manualCode").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); manualCodeGo(); } };
 async function openScan(mode = "loja") {
-  scanMode = ["doacao", "etiqueta"].includes(mode) ? mode : "loja";
-  resetForm(); show({ doacao: "Bipar itens da doação", etiqueta: "Bipar para etiqueta" }[scanMode] || "Ler código de barras", true);
+  scanMode = ["doacao", "etiqueta", "cadastro"].includes(mode) ? mode : "loja";
+  resetForm(); show({ doacao: "Bipar itens da doação", etiqueta: "Bipar para etiqueta", cadastro: "Bipar para o cadastro" }[scanMode] || "Ler código de barras", true);
   $("scanManual").textContent = scanMode === "loja" ? "Digitar código" : "Cancelar";
   ["retryScan", "torchBtn"].forEach(i => $(i).classList.add("hidden"));
   $("scanMsg").textContent = "Aponte a câmera traseira para o código de barras. Se não ler, digite o código abaixo."; $("manualCode").value = "";
@@ -1279,7 +1280,7 @@ fillCategories();
 ["search"].forEach(i => $(i).oninput = render);
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
 $("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.del) remove(b.dataset.del); };
-$("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Etiquetas" ? "etiqueta" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
+$("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = async () => { await stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("modal").classList.contains("hidden")) closeModal(); });
@@ -1841,6 +1842,22 @@ $("cLista").onclick = e => { const b = e.target.closest("[data-ced],[data-cdel]"
   if (!db) { products = products.filter(p => !x.l.includes(p)); persist(); render(); }
   toast("Cadastro excluído."); if (cadEdit === x.k) cadReset(); setTimeout(cadPaint, db ? 600 : 0); };
 $("navCadastros").addEventListener("click", cadPaint);
+// ---------- Cadastros: preencher o código lendo com a câmera ----------
+async function cadScan(code) {
+  if (navigator.vibrate) navigator.vibrate(100); beep(); await stopScanner(); closeModal();
+  const d = String(code).replace(/\D/g, "");
+  if (!d) return toast("Esse código não é só de números. Digite-o no campo.");
+  if (/^2\d{12}$/.test(d)) { $("cPlu").value = String(Number(parseScale(d).item)).slice(0, 6); toast("Etiqueta de balança: preenchi o código de balança (PLU)."); }
+  else if (d.length > 13) return toast("Código com mais de 13 dígitos. Digite manualmente o que for válido.");
+  else {
+    const ja = products.find(p => p.barcode === d);
+    if (ja && !cadEdit) { toast("«" + ja.name + "» já tem esse código. Abri para editar."); $("cBusca").value = ""; cadPaint(); const b = document.querySelector('[data-ced="' + (cadKey(ja)).replace(/"/g, '\\"') + '"]'); if (b) b.click(); return; }
+    $("cEan").value = d; $("cEan").dispatchEvent(new Event("input", { bubbles: true })); toast("Código lido: " + d);
+  }
+  if (!$("cNome").value.trim()) $("cNome").focus();
+}
+$("cBipar").onclick = () => openScan("cadastro");
+
 
 // ---------- doação já lançada: itens bipados entram nela, sem criar outra ----------
 const romAberta = () => curRom && !romEdit && !$("donaRomaneio").classList.contains("hidden") && document.body.dataset.tab === "Doacao";
@@ -2065,7 +2082,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.09-54";
+const APP_VERSION = "2026.10.09-55";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
