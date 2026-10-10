@@ -676,7 +676,10 @@ body.np-doa #npTop{min-height:30px;justify-content:flex-end;margin-bottom:4px}
 #donaEntrada[data-dview="pick"] #dNow,#donaEntrada[data-dview="pick"] #dAddItem,#donaEntrada[data-dview="pick"] #dListaBox,#donaEntrada[data-dview="pick"] #topDoados,#donaEntrada[data-dview="pick"] #histBox{display:none!important}
 #donaEntrada[data-dview="pick"] section:has(#histBox){display:none!important}
 #dNow:not(.vazio)~#dAddItem{display:none}
-#dAddItem{width:100%;min-height:76px;font-size:22px;font-weight:900;margin:6px 0 14px;border-radius:18px;box-shadow:0 8px 22px rgba(201,162,39,.35)}
+#dAddItem{position:fixed;left:14px;right:158px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:21;height:64px;min-height:64px;font-size:20px;font-weight:900;border-radius:32px;box-shadow:0 10px 26px rgba(201,162,39,.5)}
+body.mao1 #dAddItem{bottom:calc(var(--tb-h,72px) + 14px)}
+body.np-open #dAddItem{display:none!important}
+#tabDoacao{padding-bottom:96px}
 #dPickBar{display:flex;align-items:center;gap:10px;margin:2px 0 12px}
 #dPickBar b{font-size:18px}
 #dVoltar{min-height:50px;padding:0 16px;border-radius:14px;font-weight:800;background:#10131a;color:#f3d87a;border:2px solid #c9a227}
@@ -2254,7 +2257,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-77";
+const APP_VERSION = "2026.10.10-78";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
