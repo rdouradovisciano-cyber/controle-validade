@@ -674,6 +674,8 @@ body.np-doa #npTop{min-height:30px;justify-content:flex-end;margin-bottom:4px}
 .morebg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.28)}
 .moremenu{position:fixed;z-index:61;top:calc(54px + env(safe-area-inset-top));right:10px;width:min(300px,calc(100vw - 20px));padding:6px;border-radius:18px;background:var(--card);border:1px solid var(--ln);box-shadow:0 18px 44px rgba(0,0,0,.35);display:flex;flex-direction:column}
 .moremenu.hidden,.morebg.hidden{display:none}
+.product.retirado{opacity:.82;border-left-color:#7a8599}.product.retirado .vd b{color:var(--mut)}
+.actions .primary{flex:1}
 .phe{border:1px solid var(--ln);border-radius:14px;padding:10px 12px;margin:8px 0;background:var(--card);display:flex;flex-direction:column;gap:3px;font-size:14px}
 .phe b{font-size:15px}.phe.del{border-color:#c2475a}.phe.add{border-color:#3d9b6b}.phe .secondary{margin-top:6px;min-height:40px}
 .tabbar button{position:relative}
@@ -761,7 +763,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div class="toolbar"><button class="secondary big" id="manualOpen">＋ Cadastro manual</button></div>
 <input id="search" type="search" placeholder="Buscar por nome ou código" aria-label="Buscar produto" style="margin-top:12px">
 <div class="filters"><select id="categoryFilter" class="hidden" aria-label="Categoria"></select><select id="statusFilter" class="hidden" aria-label="Status"><option value="">Todos os status</option><option value="expired">Vencidos</option><option value="soon">Vencem em breve</option><option value="ok">Dentro do prazo</option></select></div>
-<button type="button" class="lnk" id="verTodos"></button>
+<button type="button" class="lnk" id="verTodos"></button><button type="button" class="lnk hidden" id="verRet"></button>
 <div id="list"></div>
 </section>
 <div class="hidden"><details id="scansBox"><div id="scanList"></div></details></div>
@@ -1008,12 +1010,12 @@ function fillCategories() {
   opt("category", "Selecione"); opt("categoryFilter", "Todas as categorias"); opt("exportCategory", "Selecione a categoria");
 }
 function sirene() {   // aba Validades pisca vermelho/azul só quando há produto que vence hoje ou amanhã (os já vencidos não contam)
-  const n = products.filter(p => { const d = daysLeft(p.expiry); return d !== null && d >= 0 && d <= 1; }).length, b = $("tbLoja");
+  const n = products.filter(p => { const d = daysLeft(p.expiry); return !p.retirado && d !== null && d >= 0 && d <= 1; }).length, b = $("tbLoja");
   b.classList.toggle("siren", n > 0); $("sirN").textContent = n > 99 ? "99+" : n; b.title = n ? n + " produto(s) vencendo hoje ou amanhã" : "";
 }
 setInterval(() => { if (typeof sirene === "function") sirene(); }, 60000);
 // ---------- histórico de produtos (o que entrou, mudou ou saiu — e quem) ----------
-const PHK = "validamais-phbase", PLK = "validamais-phlog", PHF = ["name", "expiry", "quantity", "category", "barcode", "codigo_balanca", "codigo_doacao"];
+const PHK = "validamais-phbase", PLK = "validamais-phlog", PHF = ["name", "expiry", "quantity", "category", "barcode", "codigo_balanca", "codigo_doacao", "retirado"];
 let phBase = store.get(PHK, null), phLog = store.get(PLK, []), lastAct = 0;
 ["pointerdown", "keydown"].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); }, true));
 const phLite = p => { const r = {}; Object.keys(p).forEach(k => { if (k === "foto" || k === "createdAt" || k === "updatedAt") return; r[k] = p[k]; }); return r; };
@@ -1024,7 +1026,7 @@ function phDiff() {
   const t = Date.now(), who = (t - lastAct < 8000) ? myName() : "outro aparelho (ou com o app fechado)", ev = [];
   const add = Object.keys(cur).filter(i => !phBase[i]), del = Object.keys(phBase).filter(i => !cur[i]), chg = [];
   Object.keys(cur).forEach(i => { const a = phBase[i], b = cur[i]; if (!a) return;
-    const d = []; PHF.forEach(f => { if (String(a[f] ?? "") !== String(b[f] ?? "")) d.push(f === "expiry" ? `validade ${fmt(a.expiry)} → ${fmt(b.expiry)}` : f === "quantity" ? `qtd ${a.quantity} → ${b.quantity}` : `${f === "name" ? "nome" : f === "category" ? "setor" : f}: ${a[f] || "—"} → ${b[f] || "—"}`); });
+    const d = []; PHF.forEach(f => { if (String(a[f] ?? "") !== String(b[f] ?? "")) d.push(f === "expiry" ? `validade ${fmt(a.expiry)} → ${fmt(b.expiry)}` : f === "quantity" ? `qtd ${a.quantity} → ${b.quantity}` : f === "retirado" ? (b.retirado ? "retirado da loja" : "voltou para a loja") : `${f === "name" ? "nome" : f === "category" ? "setor" : f}: ${a[f] || "—"} → ${b[f] || "—"}`); });
     if (d.length) chg.push({ n: b.name, d: d.join("; ") }); });
   if (add.length) ev.push({ t, who, k: "add", n: add.length, it: add.slice(0, 40).map(i => ({ n: cur[i].name, d: cur[i].expiry ? "validade " + fmt(cur[i].expiry) : "" })) });
   if (del.length) ev.push({ t, who, k: "del", n: del.length, it: del.slice(0, 300).map(i => phBase[i]) });
@@ -1058,26 +1060,28 @@ function render() {
       cf.value = [...cf.options].some(o => o.value === cur) ? cur : "FLV"; cf.dataset.sig = sig; }
     cf.classList.toggle("hidden", !oth.length); document.querySelector("#tabLoja .filters").classList.toggle("hidden", !oth.length); $("verTodos").classList.toggle("hidden", !!oth.length); }
   const q = $("search").value.trim().toLowerCase(), cat = $("categoryFilter").value, st = $("statusFilter").value;
-  const base = products.filter(p => !cat || p.category === cat), ex = base.filter(p => status(p) === "expired").length, so = base.filter(p => status(p) === "soon").length;
+  const base = products.filter(p => !p.retirado && (!cat || p.category === cat)), ex = base.filter(p => status(p) === "expired").length, so = base.filter(p => status(p) === "soon").length;
   $("countAll").textContent = products.length;
+  { const nr = products.filter(p => p.retirado).length; $("verRet").classList.toggle("hidden", !nr && !retView); $("verRet").textContent = retView ? "← Voltar às validades" : `📦 Ver retirados da loja (${nr})`; }
   { const vt = $("verTodos"); if (vt) vt.textContent = cat ? `Ver todos os ${products.length} cadastrados` : "Voltar ao FLV"; }
   document.querySelectorAll("#tabLoja .stats .stat").forEach((e, i) => e.classList.toggle("on", (i === 1 && st === "soon") || (i === 2 && st === "expired"))); $("countSoon").textContent = so; $("countExpired").textContent = ex;
-  { const fora = cat ? products.filter(p => p.category !== cat && daysLeft(p.expiry) !== null && daysLeft(p.expiry) >= 0 && daysLeft(p.expiry) <= 1).length : 0;
+  { const fora = cat ? products.filter(p => !p.retirado && p.category !== cat && daysLeft(p.expiry) !== null && daysLeft(p.expiry) >= 0 && daysLeft(p.expiry) <= 1).length : 0;
     $("outAlert").classList.toggle("hidden", !fora); $("outAlert").textContent = `⚠ ${fora} produto(s) de OUTROS setores vencem em até 1 dia — toque para ver todos`; }
   $("topAlert").classList.toggle("hidden", !(ex || so));
   $("topAlert").textContent = `Atenção: ${ex} vencido(s) e ${so} vencendo em breve.`;
   sirene(); FM = fotoMap();
   const cnt = {}; products.forEach(p => { if (p.barcode) cnt[p.barcode] = (cnt[p.barcode] || 0) + 1; });
-  const hoje = products.filter(p => daysLeft(p.expiry) === 0 && (!cat || p.category === cat));
+  const hoje = products.filter(p => !p.retirado && daysLeft(p.expiry) === 0 && (!cat || p.category === cat));
   $("todayBanner").classList.toggle("hidden", !hoje.length);
   $("todayBanner").textContent = `⚠ VENCEM HOJE (${hoje.length}): ` + hoje.slice(0, 5).map(p => p.name).join(", ") + (hoje.length > 5 ? "…" : "");
   if (!hoje.length) alarmed = false; else if (!alarmed && actx) { alarmed = true; alarm(); }
-  const rows = products.filter(p => q ? ((p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q) || String(p.codigo_balanca || "") === q || String(p.codigo_doacao || "").toLowerCase() === q)   // buscando: procura em TODOS os setores, com ou sem validade
-      : ((!cat || p.category === cat) && !(cat === "FLV" && daysLeft(p.expiry) === null) && (!st || status(p) === st)))
+  const rows = retView ? products.filter(p => p.retirado).sort((a, b) => (Number(b.retEm) || 0) - (Number(a.retEm) || 0)) : products.filter(p => q ? ((p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q) || String(p.codigo_balanca || "") === q || String(p.codigo_doacao || "").toLowerCase() === q)   // buscando: procura em TODOS os setores, com ou sem validade
+      : (!p.retirado && (!cat || p.category === cat) && !(cat === "FLV" && daysLeft(p.expiry) === null) && (!st || status(p) === st)))
     .sort((a, b) => cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
-    return `<article class="product ${cls}"><div class="ctop"><h3>${(p.foto || FM.get(norm(p.name || ""))) ? `<img class="pth" alt="" src="${p.foto || FM.get(norm(p.name || ""))}">` : ""}${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
+    if (p.retirado) return `<article class="product retirado"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">${esc(p.category)}</span></div><div class="vbox"><div class="vd"><small>RETIRADO DA LOJA</small><b>${p.retEm ? new Date(Number(p.retEm)).toLocaleDateString("pt-BR") : "—"}</b></div><div class="vr"><span class="pill">${p.retPor ? "por " + esc(p.retPor) : ""}</span><small>validade era ${fmt(p.expiry)}</small></div></div><div class="actions"><button class="secondary" data-volta="${esc(p.id)}">↩ Voltar para a loja</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
+    return `<article class="product ${cls}"><div class="ctop"><h3>${(p.foto || FM.get(norm(p.name || ""))) ? `<img class="pth" alt="" src="${p.foto || FM.get(norm(p.name || ""))}">` : ""}${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
   }).join("") : (cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
 }
 
@@ -1222,9 +1226,21 @@ async function save(next) {
   }
   closeModal(); toast("Produto salvo."); if (next) openScan();
 }
+let retView = false;
+async function retirar(id, sai) {
+  const p = products.find(x => x.id === id); if (!p) return;
+  if (sai) { const ok = await askConfirm({ icon: "📦", title: "Retirar da loja?", text: p.name + " · validade " + fmt(p.expiry), sub: "Sai da lista de vencimentos e do alerta, mas fica guardado em «Ver retirados da loja», com a data e quem retirou. O cadastro continua.", ok: "Retirar da loja", cancel: "Cancelar" }); if (!ok) return; }
+  const campos = sai ? { retirado: true, retEm: Date.now(), retPor: myName() } : { retirado: false };
+  if (db) V.updateDoc(V.doc(db, "products", id), { ...campos, updatedAt: V.serverTimestamp() }).catch(() => toast("Erro ao salvar na nuvem."));
+  else { products = products.map(x => x.id === id ? { ...x, ...campos, updatedAt: Date.now() } : x); persist(); render(); }
+  toast(sai ? "✓ " + p.name + " retirado da loja." : p.name + " voltou para a loja.", "Desfazer", () => { const c2 = sai ? { retirado: false } : { retirado: true, retEm: Date.now(), retPor: myName() }; if (db) V.updateDoc(V.doc(db, "products", id), { ...c2, updatedAt: V.serverTimestamp() }); else { products = products.map(x => x.id === id ? { ...x, ...c2 } : x); persist(); render(); } });
+}
+$("verRet").onclick = () => { retView = !retView; render(); window.scrollTo(0, 0); };
 function remove(id) {
   const p = products.find(x => x.id === id); if (!p) return;
   const { id: _i, createdAt, updatedAt, ...data } = p;
+  const outros = products.filter(x => x.id !== id && (p.barcode ? x.barcode === p.barcode : norm(x.name || "") === norm(p.name || ""))).length;
+  if (!confirm(`Excluir «${p.name}»?\n\n${outros ? "Os outros lotes deste produto continuam cadastrados." : "Este é o ÚNICO registro: o cadastro do produto (códigos e foto) também será apagado."}\n\nPara só tirar da loja e guardar o registro, use «Retirar da loja».`)) return;
   if (db) V.deleteDoc(V.doc(db, "products", id)).catch(() => toast("Não foi possível excluir."));
   else { products = products.filter(x => x.id !== id); persist(); render(); }
   toast("Produto excluído.", "Desfazer", () => {
@@ -1300,7 +1316,7 @@ async function openScan(mode = "loja") {
 
 // ---------- exportação ----------
 function exportRows() {
-  const s = $("exportScope").value, c = $("exportCategory").value; let r = [...products];
+  const s = $("exportScope").value, c = $("exportCategory").value; let r = products.filter(p => !p.retirado);
   if (s === "products") {                 // um registro por produto, com todos os códigos (mesmo formato da importação)
     const m = new Map();
     products.forEach(p => { const k = p.barcode || norm(p.name || ""); if (!k) return; const o = m.get(k) || { n: "", b: "", d: "", e: "", c: "" };
@@ -1357,7 +1373,7 @@ const fname = () => ($("exportScope").value === "products" ? "produtos-cadastrad
 fillCategories();
 ["search"].forEach(i => $(i).oninput = render);
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
-$("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.del) remove(b.dataset.del); };
+$("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.del) remove(b.dataset.del); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
 $("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = async () => { await stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
@@ -2204,7 +2220,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-70";
+const APP_VERSION = "2026.10.10-71";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
