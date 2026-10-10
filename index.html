@@ -1747,7 +1747,10 @@ async function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",",
   if (dUnit === "un") q = Math.round(q); if (!(q > 0)) return toast("Digite a quantidade.");
   if (!(await dOddOk(dSel, dUnit, q))) return;
   dStatLearn(dSel, dUnit, q);
-  lastAdd = { k: norm(dSel) + "|" + dUnit, q, t: Date.now() }; addDon(dSel, dUnit, q, dCodSel); flashNow(); $("dPeso").value = ""; $("dPeso").blur(); if (window.npClose) window.npClose(); }
+  const nome = dSel, un = dUnit, total = addDon(dSel, dUnit, q, dCodSel);
+  $("dPeso").value = ""; $("dPeso").blur(); if (window.npClose) window.npClose();
+  if (!romAberta()) toast(`✓ ${nome}: +${fq(q)} ${un} → total ${fq(total)} ${un}`);
+  dSel = ""; dCodSel = ""; $("dCod").value = ""; renderQuick(); renderKey(); window.scrollTo({ top: 0, behavior: "smooth" }); }
 $("dAdd").onclick = dPesoAdd; $("dPeso").onkeydown = e => { if (e.key === "Enter") dPesoAdd(); };
 // editar a quantidade de um item já coletado (toque no "5 kg")
 let dEditing = -1;
@@ -2151,7 +2154,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-65";
+const APP_VERSION = "2026.10.10-66";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
