@@ -237,6 +237,7 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .crr .ltam button{min-width:30px;min-height:26px;padding:0 8px;border-radius:99px;font-size:12px;font-weight:800;background:#fff;color:var(--g);border:1.5px solid #b9cfc2}
 .crr .ltam .sel{background:var(--g);color:#fff;border-color:var(--g)}
 .crr .ltam .cdel{border:0;background:transparent;color:#d98a8a;min-width:28px;font-size:15px;padding:0}
+.crr .ltam .cdup{border:0;background:transparent;color:var(--g);min-width:30px;font-size:19px;font-weight:700;padding:0}
 .tbadge{display:inline-block;margin-left:6px;background:var(--g);color:#fff;border-radius:99px;font-size:11px;font-weight:800;padding:2px 8px;vertical-align:middle}
 .cdel{border:0;background:transparent;color:#d98a8a;min-width:34px;min-height:34px;padding:0;font-size:16px}
 
@@ -455,6 +456,7 @@ html[data-tema=dark] input,html[data-tema=dark] select,html[data-tema=dark] text
 html[data-tema=dark] input::placeholder,html[data-tema=dark] textarea::placeholder{color:#767a86}
 html[data-tema=dark] .keypad button,html[data-tema=dark] .ltam button,html[data-tema=dark] .crr .ltam button,html[data-tema=dark] .qbtn.qadd,html[data-tema=dark] #npGrid button,html[data-tema=dark] #npClose{background:#0b0d12;border-color:#2c303c;color:var(--ink)}
 html[data-tema=dark] .crr .ltam .cdel{background:transparent;border:0;color:#d98a8a}
+html[data-tema=dark] .crr .ltam .cdup{background:transparent;border:0;color:#e5c158}
 html[data-tema=dark] #npGrid .del{background:#2c1516;color:#ff8f8f;border-color:#4a2325}
 html[data-tema=dark] .primary,html[data-tema=dark] .grid .sel,html[data-tema=dark] .grid3 .sel,html[data-tema=dark] .qbtn.sel,html[data-tema=dark] .ltam .sel,html[data-tema=dark] .crr .ltam .sel,html[data-tema=dark] .keypad .add,html[data-tema=dark] .rom th,html[data-tema=dark] .fabscan,html[data-tema=dark] .menu .active,html[data-tema=dark] .utog .sel,html[data-tema=dark] #npGrid .ok{background:linear-gradient(180deg,#228456,#1a6a45);color:#fff;border-color:#1a6a45}
 html[data-tema=dark] .tbadge,html[data-tema=dark] .plus{background:#1f7a49;color:#fff}
@@ -766,7 +768,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rAdd">＋ Bipar item</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
 </div>
 <div id="tabEtiquetas" class="hidden">
-<details class="etqinfo"><summary>ℹ️ Como usar esta aba</summary><span>Use esta aba para <b>coletar os códigos de barras dos produtos que precisam de etiquetas na loja</b>.</span><ol><li>Bipe o código ou pesquise o produto pelo nome.</li><li>Segure o item para escolher o tamanho (P, M ou G) e a quantidade.</li><li>Toque no quadrado ao lado do item para marcar as que <b>já foram colocadas para impressão</b>.</li><li>Quando terminar, use <b>Remover todos</b> para limpar a lista.</li></ol><span class="etqnote">O cadastro de produtos pode ser feito por qualquer usuário: se o código ainda não existir, o app pede o nome e cadastra na hora.</span></details>
+<details class="etqinfo"><summary>ℹ️ Como usar esta aba</summary><span>Use esta aba para <b>coletar os códigos de barras dos produtos que precisam de etiquetas na loja</b>.</span><ol><li>Bipe o código ou pesquise o produto pelo nome.</li><li>Segure o item para escolher o tamanho (P, M ou G) e a quantidade.</li><li>Toque no quadrado ao lado do item para marcar as que <b>já foram colocadas para impressão</b>.</li><li>Toque no <b>⧉</b> para <b>duplicar</b> o código e escolher outro tamanho (ex.: 2 P e 1 G do mesmo produto).</li><li>Quando terminar, use <b>Remover todos</b> para limpar a lista.</li></ol><span class="etqnote">O cadastro de produtos pode ser feito por qualquer usuário: se o código ainda não existir, o app pede o nome e cadastra na hora.</span></details>
 <section class="panel"><div class="toolbar"><button class="primary big" id="eScan">▦ Bipar EAN</button></div>
 <input id="eBusca" type="search" placeholder="Ou pesquise o produto pelo nome" style="margin-top:12px"><div id="eRes" class="rows"></div></section>
 <section class="panel hidden" id="ePend"><h2 class="h2" id="eNome"></h2><p class="note" id="eCod"></p>
@@ -833,7 +835,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div id="lModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="lmNome"><div class="sheethead"><h2 id="lmNome"></h2><button class="secondary" id="lmClose" aria-label="Fechar">✕</button></div>
 <p class="note" id="lmCod"></p><label>Tamanho da etiqueta</label><div class="utog" id="lmTam"><button type="button" data-t="P">P</button><button type="button" data-t="M">M</button><button type="button" data-t="G">G</button></div>
 <label>Quantidade</label><div class="stepper"><button type="button" class="secondary" id="lmMenos" aria-label="Diminuir">−</button><input id="lmQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-label="OK" value="1"><button type="button" class="secondary" id="lmMais" aria-label="Aumentar">＋</button></div>
-<div class="toolbar" style="margin-top:14px"><button class="primary big" id="lmOk">Pronto</button></div><button type="button" id="lmUni" class="lmuni">Unificar código</button></section></div>
+<div class="toolbar" style="margin-top:14px"><button class="primary big" id="lmOk">Pronto</button></div><button type="button" id="lmDup" class="lmuni">⧉ Duplicar com outro tamanho</button><button type="button" id="lmUni" class="lmuni">Unificar código</button></section></div>
 <div id="opModal" class="modal hidden" style="z-index:100;align-items:center"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="opTitle"><h2 id="opTitle" class="h2" style="font-size:18px">Nome do Operador</h2>
 <p class="note">Digite o seu nome para começar. <b>Atenção: depois de salvo, o nome não poderá ser alterado neste aparelho.</b></p>
 <input id="opNome" maxlength="40" autocomplete="off" placeholder="Ex.: Rodrigo Dourado"><div class="toolbar" style="margin-top:12px"><button class="primary big" id="opOk">Entrar</button></div></section></div>
@@ -1971,11 +1973,11 @@ const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.categ
 function renderLabels() {
   $("eLimpa").classList.toggle("hidden", !labels.length); { const n = labels.filter(l => l.ok).length; $("eMarc").textContent = labels.length ? `✓ ${n} de ${labels.length} já colocadas para impressão` : ""; } $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
   const ord = { P: 0, M: 1, G: 2 };   // lista única: primeiro os P, depois M, depois G (mantém a ordem de inclusão dentro de cada tamanho)
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crw${l.ok ? " done" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crw${l.ok ? " done" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdup" data-ldup="${i}" aria-label="Duplicar ${esc(l.nome)} com outro tamanho" title="Duplicar com outro tamanho">⧉</button><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 function labelPick(p) {
   buzz();
-  const c = labelCode(p), key = pkey(p), ex = labels.find(l => l.key === key && (l.orig || l.code) === c.code);
+  const c = labelCode(p), key = pkey(p), ex = labels.find(l => !l.dup && l.key === key && (l.orig || l.code) === c.code);
   if (ex) { ex.qtd = (Number(ex.qtd) || 1) + 1; ex.ok = false; } else labels.push({ nome: p.name, code: uniCode(c.code), orig: c.code, kg: c.kg, tam: tamOf(p), key, qtd: 1 });
   store.set(EK, labels); pend = null; $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels();
   toast((c.code ? c.code + " · " : "") + p.name + " adicionado.");
@@ -2007,7 +2009,10 @@ $("eAdd").onclick = () => {
   labels.push({ nome: pend.nome, code: uniCode(pend.code), orig: pend.code, kg: pend.kg, tam: pend.tam || "M", key: pkey(pend.src), qtd: Math.max(1, Math.round(Number($("eQtd").value) || 1)) }); store.set(EK, labels);
   pend = null; $("ePend").classList.add("hidden"); $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels(); toast("Item adicionado à lista.");
 };
-$("eLista").onclick = e => { const k = e.target.closest("[data-lchk]"); if (k) { const l = labels[Number(k.dataset.lchk)]; if (l) { l.ok = !l.ok; store.set(EK, labels); renderLabels(); } return; }
+function labelDup(i) { const l = labels[i]; if (!l) return; const ord = ["P", "M", "G"], atual = l.tam || "M", novo = ord[(ord.indexOf(atual) + 1) % 3];
+  labels.splice(i + 1, 0, { ...l, tam: novo, qtd: 1, ok: false, dup: true }); store.set(EK, labels); renderLabels(); lmOpen(i + 1); toast("Duplicado: escolha o tamanho e a quantidade."); }
+$("eLista").onclick = e => { const dp = e.target.closest("[data-ldup]"); if (dp) { labelDup(Number(dp.dataset.ldup)); return; }
+  const k = e.target.closest("[data-lchk]"); if (k) { const l = labels[Number(k.dataset.lchk)]; if (l) { l.ok = !l.ok; store.set(EK, labels); renderLabels(); } return; }
   const b = e.target.closest("[data-ldrop]"); if (!b) return; const x = Number(b.dataset.ldrop), it = labels.splice(x, 1)[0];
   store.set(EK, labels); renderLabels(); toast("Etiqueta removida.", "Desfazer", () => { labels.splice(x, 0, it); store.set(EK, labels); renderLabels(); }); };
 renderLabels();
@@ -2038,14 +2043,15 @@ let lmI = -1;
 function lmDraw() { const l = labels[lmI]; if (!l) return; document.querySelectorAll("#lmTam button").forEach(b => b.classList.toggle("sel", b.dataset.t === (l.tam || "M"))); $("lmQtd").value = l.qtd; }
 function lmOpen(i) { const l = labels[i]; if (!l) return; lmI = i; $("lmNome").textContent = l.nome; $("lmCod").textContent = l.code ? "Código: " + l.code : "Sem código"; lmDraw(); $("lModal").classList.remove("hidden"); if (navigator.vibrate) navigator.vibrate(40); }
 const lmSave = () => { store.set(EK, labels); renderLabels(); };
-$("lmTam").onclick = e => { const b = e.target.closest("button"); const l = labels[lmI]; if (!b || !l) return; l.tam = b.dataset.t; if (l.key) { const m = store.get(TK, {}); m[l.key] = l.tam; store.set(TK, m); } lmSave(); lmDraw(); };
+$("lmTam").onclick = e => { const b = e.target.closest("button"); const l = labels[lmI]; if (!b || !l) return; l.tam = b.dataset.t; if (l.key && !l.dup) { const m = store.get(TK, {}); m[l.key] = l.tam; store.set(TK, m); } lmSave(); lmDraw(); };
 const lmQ = n => { const l = labels[lmI]; if (!l) return; l.qtd = Math.max(1, Math.round(n) || 1); lmSave(); lmDraw(); };
 $("lmMenos").onclick = () => lmQ((labels[lmI] || {}).qtd - 1); $("lmMais").onclick = () => lmQ((labels[lmI] || {}).qtd + 1); $("lmQtd").onchange = () => lmQ(Number($("lmQtd").value));
 $("lmOk").onclick = $("lmClose").onclick = () => $("lModal").classList.add("hidden");
+$("lmDup").onclick = () => { const i = lmI; $("lModal").classList.add("hidden"); labelDup(i); };
 $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden"); labelUnify(i); };
 (function () { const box = $("eLista"); let t = null, x0 = 0, y0 = 0;
   const stop = () => { clearTimeout(t); t = null; };
-  box.addEventListener("pointerdown", e => { const r = e.target.closest(".crw"); if (!r || e.target.closest("[data-ldrop],[data-lchk]")) return; x0 = e.clientX; y0 = e.clientY;
+  box.addEventListener("pointerdown", e => { const r = e.target.closest(".crw"); if (!r || e.target.closest("[data-ldrop],[data-lchk],[data-ldup]")) return; x0 = e.clientX; y0 = e.clientY;
     const i = Number(r.dataset.li); t = setTimeout(() => { t = null; lmOpen(i); }, 500); });
   box.addEventListener("pointermove", e => { if (t && (Math.abs(e.clientX - x0) > 10 || Math.abs(e.clientY - y0) > 10)) stop(); });
   ["pointerup", "pointercancel", "pointerleave"].forEach(n => box.addEventListener(n, stop));
@@ -2126,7 +2132,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-61";
+const APP_VERSION = "2026.10.10-62";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
