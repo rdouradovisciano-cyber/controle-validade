@@ -659,6 +659,17 @@ html[data-tema=dark] .ferrnav button.on{background:#2a8f5d;color:#fff}
 #moreBtn{flex:none;min-width:40px;height:44px;padding:0;border-radius:12px;background:rgba(255,255,255,.14);color:#fff;font-size:24px;font-weight:800;line-height:1}
 header h1{min-width:0;flex:1;overflow:hidden}
 header{gap:6px!important;padding-left:12px!important}.onchip{margin-left:3px!important;padding:3px 7px!important}
+/* ===== Doação: item selecionado bem claro (nome inteiro + peso grande) ===== */
+.dhint,.dbig{display:none}
+body.np-doa[data-tab="Doacao"] .nowbar:not(.vazio){display:block!important;padding:10px 12px 12px!important;border-color:var(--gold2,#e5c158)}
+body.np-doa[data-tab="Doacao"] .nowbar .nowtop{display:flex!important;align-items:flex-start;gap:10px;margin:0 0 6px!important;flex:none!important;width:100%}
+body.np-doa[data-tab="Doacao"] #dNome{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:19px;line-height:1.2}
+body.np-doa[data-tab="Doacao"] .nowbar .dhint{display:block;font-size:12px;font-weight:700;color:var(--mut);margin:0 0 8px}
+body.np-doa[data-tab="Doacao"] .nowbar .nowrow{display:flex!important;align-items:center;gap:10px;width:100%}
+body.np-doa[data-tab="Doacao"] .nowbar .dbig{display:block;flex:1;min-width:0;font-size:38px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;color:var(--g-d);background:var(--lt2,rgba(0,0,0,.05));border-radius:14px;padding:10px 14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.np-doa[data-tab="Doacao"] .nowbar .dbig small{font-size:18px;font-weight:800;opacity:.75;margin-left:6px}
+body.np-doa #npTitle,body.np-doa #npVal{display:none}
+body.np-doa #npTop{min-height:30px;justify-content:flex-end;margin-bottom:4px}
 #appVer{cursor:pointer;padding:2px 6px;margin-left:2px;border-radius:99px;background:rgba(255,255,255,.14);opacity:1!important;white-space:nowrap}
 .morebg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.28)}
 .moremenu{position:fixed;z-index:61;top:calc(54px + env(safe-area-inset-top));right:10px;width:min(300px,calc(100vw - 20px));padding:6px;border-radius:18px;background:var(--card);border:1px solid var(--ln);box-shadow:0 18px 44px rgba(0,0,0,.35);display:flex;flex-direction:column}
@@ -757,7 +768,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div id="tabDoacao" class="hidden">
 <div id="donaEntrada">
 <div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
-<div class="nowrow"><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
+<div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
 <section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div>
 <div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></section>
 <section class="panel"><h2 class="h2 qh">Produto <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
@@ -2140,7 +2151,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-64";
+const APP_VERSION = "2026.10.10-65";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -2285,6 +2296,7 @@ var hiddenAt=0;document.addEventListener("visibilitychange",function(){if(docume
 <script>
 /* Teclado numerico integrado: campos [data-np] ficam readonly e usam o painel inferior */
 (function () {
+  ["uKg", "uUn"].forEach(function (i) { document.getElementById(i).addEventListener("click", function () { setTimeout(function () { if (window.npPaint) window.npPaint(); }, 0); }); });
   var pad = document.getElementById("np"), val = document.getElementById("npVal"), ttl = document.getElementById("npTitle"), okb = document.getElementById("npOk"), comma = pad.querySelector('[data-k=","]');
   var act = null, fresh = false, root = document.documentElement;
   var isInt = function (el) { return el.hasAttribute("data-np-int"); };
@@ -2292,17 +2304,19 @@ var hiddenAt=0;document.addEventListener("visibilitychange",function(){if(docume
     if (el.id === "dPeso") { var n = document.getElementById("dNome"), u = document.getElementById("uUn").classList.contains("sel") ? "un" : "kg"; return ((n && n.textContent) || "Peso") + " (" + u + ")"; }
     var l = el.id && document.querySelector('label[for="' + el.id + '"]'); return l ? l.textContent.replace("*", "").trim() : "Quantidade";
   }
-  function paint() { val.textContent = act ? (act.value || "0") : ""; }
+  function paint() { val.textContent = act ? (act.value || "0") : "";
+    var bg = document.getElementById("dBig"); if (bg && act && act.id === "dPeso") bg.innerHTML = (act.value || "0") + "<small>" + (document.getElementById("uUn").classList.contains("sel") ? "un" : "kg") + "</small>"; }
+  window.npPaint = paint;
   function measure() { root.style.setProperty("--np-h", pad.offsetHeight + "px"); }
   function open(el) {
     var first = !pad.classList.contains("show") || act !== el;
     if (act !== el) { if (act) act.classList.remove("np-on"); act = el; fresh = true; }
     el.classList.add("np-on"); ttl.textContent = title(el); okb.textContent = el.dataset.npLabel || "OK"; comma.disabled = isInt(el); paint();
-    pad.classList.add("show"); document.body.classList.add("np-open"); measure();
+    pad.classList.add("show"); document.body.classList.add("np-open"); document.body.classList.toggle("np-doa", el.id === "dPeso"); measure();
     if (el.id !== "dPeso") { try { el.scrollIntoView({ block: "nearest" }); } catch (e) {} }
   }
   function close() {
-    if (act) act.classList.remove("np-on"); act = null; pad.classList.remove("show"); document.body.classList.remove("np-open"); root.style.removeProperty("--np-h");
+    if (act) act.classList.remove("np-on"); act = null; pad.classList.remove("show"); document.body.classList.remove("np-open", "np-doa"); root.style.removeProperty("--np-h");
   }
   window.npClose = close;
   function put(v) { act.value = v; act.dispatchEvent(new Event("input", { bubbles: true })); act.dispatchEvent(new Event("change", { bubbles: true })); paint(); }
