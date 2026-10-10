@@ -659,6 +659,17 @@ html[data-tema=dark] .ferrnav button.on{background:#2a8f5d;color:#fff}
 #moreBtn{flex:none;min-width:40px;height:44px;padding:0;border-radius:12px;background:rgba(255,255,255,.14);color:#fff;font-size:24px;font-weight:800;line-height:1}
 header h1{min-width:0;flex:1;overflow:hidden}
 header{gap:6px!important;padding-left:12px!important}.onchip{margin-left:3px!important;padding:3px 7px!important}
+/* ===== Doação: cada botão com um papel (principal / secundário / confirmar / perigo) ===== */
+#dNow.vazio{display:none!important}
+#tabDoacao #dScan{min-height:66px;font-size:19px;font-weight:900;letter-spacing:.02em}
+#tabDoacao #dEan{min-height:66px;background:transparent!important;color:var(--ink)!important;border:2px solid var(--gold3,#c9a227)!important;box-shadow:none!important;font-weight:800}
+#tabDoacao #dLimpar{background:transparent!important;color:#e0525e!important;border:2px solid #e0525e!important;box-shadow:none!important;font-weight:800;flex:0 0 34%}
+#tabDoacao #dFinalizar{min-height:60px;font-size:18px;font-weight:900}
+#tabDoacao .nowrow .utog{background:transparent;border:2px solid var(--ln);padding:3px}
+#tabDoacao .nowrow .utog button{background:transparent!important;color:var(--mut)!important;box-shadow:none!important;font-weight:800}
+#tabDoacao .nowrow .utog button.sel{background:#14171f!important;color:#f3d87a!important;box-shadow:0 0 0 1.5px #c9a227 inset!important}
+#tabDoacao .nowrow #dAdd{min-height:56px;font-size:18px;font-weight:900}
+#tabDoacao .dsum{margin-top:10px;background:transparent;border:0;border-top:1px dashed var(--ln);border-radius:0;padding:10px 0 0}
 /* ===== Doação: item selecionado bem claro (nome inteiro + peso grande) ===== */
 .dhint,.dbig{display:none}
 body.np-doa[data-tab="Doacao"] .nowbar:not(.vazio){display:block!important;padding:10px 12px 12px!important;border-color:var(--gold2,#e5c158)}
@@ -781,7 +792,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div id="dFindBox"><div id="dFind"><input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off" enterkeyhint="search"><div id="dSug" class="rows sug"></div></div></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
 <section class="panel dlistp" id="dListaBox"><h2 class="h2" style="margin:8px 0 0">Itens coletados</h2><div id="dLista"></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
-<div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
+<div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">🗑 Limpar</button><button class="primary big" id="dFinalizar">✔ Finalizar doação</button></div>
 <small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
 <div id="topDoados" class="topdo hidden" aria-live="polite"></div>
 <section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
@@ -1726,7 +1737,7 @@ $("dBusca").onkeydown = e => { if (e.key === "Enter") { const b = $("dSug").quer
 $("dSug").onclick = e => { const b = e.target.closest("[data-sel]"); if (b) selectProd(b.dataset.sel); };
 const unitOf = n => store.get(UK, {})[norm(n)] || (/^abacaxi/.test(norm(n)) ? "un" : "kg");
 function setUnit(u, save) { dUnit = u; $("uKg").classList.toggle("sel", u === "kg"); $("uUn").classList.toggle("sel", u === "un");
-  $("dPeso").placeholder = u === "un" ? "unidades (ex.: 3)" : "kg (ex.: 2,5)"; $("dPeso").toggleAttribute("data-np-int", u === "un");
+  $("dPeso").placeholder = u === "un" ? "quantas?" : "peso"; $("dPeso").toggleAttribute("data-np-int", u === "un");
   if (save && dSel) { const m = store.get(UK, {}); m[norm(dSel)] = u; store.set(UK, m); } renderKey(); }
 let dUnit = "kg", lastAdd = null, addTimer = null; $("uKg").onclick = () => setUnit("kg", true); $("uUn").onclick = () => setUnit("un", true);
 const QK = "validamais-atalhos";
@@ -1935,7 +1946,7 @@ function cadGroups() { const m = new Map(); products.forEach(p => { if (!p.name)
 function cadPaint() {
   const q = norm($("cBusca").value.trim()), all = cadGroups(), g = all.filter(x => !q || norm(x.name).includes(q) || x.barcode.includes(q) || x.plu === q || x.don.toLowerCase() === q);
   $("cCount").textContent = all.length + (q ? " · " + g.length + " achados" : "");
-  $("cLista").innerHTML = g.length ? g.map(x => `<div class="cadrow"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · Doação ${x.don ? esc(x.don) : "—"}</small></div><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`).join("")  : '<p class="empty">Nenhum produto encontrado.</p>';
+  $("cLista").innerHTML = g.length ? g.slice(0, 80).map(x => `<div class="cadrow"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · Doação ${x.don ? esc(x.don) : "—"}</small></div><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`).join("") + (g.length > 80 ? '<p class="note">Mostrando 80. Use a busca para achar os outros.</p>' : "") : '<p class="empty">Nenhum produto encontrado.</p>';
 }
 function cadReset() { cadEdit = null; ["cNome", "cEan", "cPlu", "cDon"].forEach(i => $(i).value = ""); $("cTitulo").textContent = "Novo cadastro"; $("cSalvar").textContent = "Cadastrar"; $("cCancela").hidden = true; $("cEanN").textContent = "0/13"; }
 $("cEan").oninput = () => { const v = $("cEan").value.replace(/\D/g, "").slice(0, 13); $("cEan").value = v; $("cEanN").textContent = v.length + "/13"; };
@@ -2226,7 +2237,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-72";
+const APP_VERSION = "2026.10.10-73";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -3416,94 +3427,5 @@ b.addEventListener("focus",abre);b.addEventListener("blur",fecha);
 sug.addEventListener("pointerdown",function(e){e.preventDefault()});   // tocar numa sugestão não fecha antes de escolher
 if(vv){vv.addEventListener("resize",kb);vv.addEventListener("scroll",kb)}
 d.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.activeElement===b)b.blur()});
-})();</script>
-<script>/* sincronização em tempo real: Doação (lista atual), Etiquetas e preferências compartilhadas */(function(){
-var KD="validamais-doacao",KE="validamais-etiquetas",KQ="validamais-atalhos",
-  MAPS={"validamais-precokg":"preco","validamais-dunid":"unid","validamais-dnomes":"nomes","validamais-etq-uni":"etqcod","validamais-tam":"tam"},
-  applying=false,off=false,warned=false,origSet=store.set.bind(store),D=null,F=null;
-function sj(o){if(o&&typeof o==="object"){if(Array.isArray(o))return"["+o.map(sj).join(",")+"]";
-  return"{"+Object.keys(o).filter(function(k){return o[k]!==undefined}).sort().map(function(k){return JSON.stringify(k)+":"+sj(o[k])}).join(",")+"}"}
-  return JSON.stringify(o)}
-function clean(o){return JSON.parse(JSON.stringify(o))}
-function safeId(x){return String(x).replace(/[^A-Za-z0-9]/g,function(c){return"_"+c.charCodeAt(0).toString(16)+"_"})}
-function rid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
-function fail(e){console.error(e);
-  var den=!!e&&(e.code==="permission-denied"||/permission|insufficient/i.test(e.message||""));
-  if(den){off=true;if(!warned){warned=true;try{toast("Doação/Etiquetas: o Firebase recusou a sincronização. Libere as coleções sh_doacao, sh_etiquetas e sh_cfg nas regras do Firestore.")}catch(x){}}}}
-function cset(col,id,data){if(off)return;try{F.setDoc(F.doc(D,col,id),data).catch(fail)}catch(e){fail(e)}}
-function cdel(col,id){if(off)return;try{F.deleteDoc(F.doc(D,col,id)).catch(fail)}catch(e){fail(e)}}
-function flag(n){try{return localStorage.getItem("validamais-sh-"+n)==="1"}catch(e){return false}}
-function setFlag(n){try{localStorage.setItem("validamais-sh-"+n,"1")}catch(e){}}
-
-/* ---------- listas: um documento por item (ninguém sobrescreve a lista inteira do outro) ---------- */
-function makeList(name,col,idOf,getArr,setArr,saveRaw,render){
-  var known={},ready=false,server=false;
-  function assign(arr){var seen={},i,j,p,q,n=arr.length;
-    for(i=0;i<n;i++){var it=arr[i];
-      if(!it._sid||seen[it._sid]){it._sid=idOf(it);if(seen[it._sid]){it._sid=rid()}delete it._so}   // cópia (duplicar) ganha id próprio
-      seen[it._sid]=1}
-    for(i=0;i<n;i++){if(typeof arr[i]._so!=="number"){p=null;q=null;
-      for(j=i-1;j>=0;j--)if(typeof arr[j]._so==="number"){p=arr[j]._so;break}
-      for(j=i+1;j<n;j++)if(typeof arr[j]._so==="number"){q=arr[j]._so;break}
-      arr[i]._so=(p===null&&q===null)?1000:(p===null?q-1000:(q===null?p+1000:(p+q)/2))}}}
-  function push(arr){if(!ready||off)return;assign(arr);var cur={};
-    arr.forEach(function(it){var d=clean(it),s=sj(d);cur[it._sid]=1;if(known[it._sid]!==s){known[it._sid]=s;cset(col,it._sid,d)}});
-    Object.keys(known).forEach(function(id){if(!cur[id]){delete known[id];cdel(col,id)}})}
-  function onSnap(snap){
-    if(snap.metadata.fromCache&&snap.empty&&!server)return;            // cache vazio: espera o servidor responder
-    if(!snap.metadata.fromCache&&!server){server=true;
-      if(snap.empty&&!snap.metadata.hasPendingWrites&&!flag(name)){var loc=getArr();setFlag(name);   // nuvem vazia na 1ª vez: sobe a lista deste aparelho
-        if(loc.length){ready=true;known={};push(loc);return}}
-      setFlag(name)}
-    var items=snap.docs.map(function(d){return d.data()}).sort(function(a,b){return((a._so||0)-(b._so||0))||(a._sid<b._sid?-1:1)});
-    ready=true;known={};items.forEach(function(it){known[it._sid]=sj(it)});
-    if(sj(items)===sj(getArr()))return;                                  // nada mudou na tela
-    applying=true;try{setArr(items);saveRaw();render()}catch(e){console.error(e)}finally{applying=false}}
-  return{push:push,onSnap:onSnap}}
-
-/* ---------- preferências compartilhadas (preço/kg, unidade, nomes, códigos unificados, tamanhos, atalhos) ---------- */
-var cfgKnown={},cfgReady=false,cfgServer=false;
-function cid(m,k){return m+"~"+safeId(k)}
-function pushMap(m,obj){if(!cfgReady||off)return;obj=obj||{};var cur={},pre=m+"~";
-  Object.keys(obj).forEach(function(k){var id=cid(m,k),s=sj(obj[k]);cur[id]=1;if(cfgKnown[id]!==s){cfgKnown[id]=s;cset("sh_cfg",id,{m:m,k:k,j:JSON.stringify(obj[k])})}});
-  Object.keys(cfgKnown).forEach(function(id){if(id.indexOf(pre)===0&&!cur[id]){delete cfgKnown[id];cdel("sh_cfg",id)}})}
-function pushQ(list){if(!cfgReady||off||!Array.isArray(list))return;var s=sj(list);
-  if(cfgKnown.atalhos!==s){cfgKnown.atalhos=s;cset("sh_cfg","atalhos",{m:"atalhos",k:"",j:JSON.stringify(list)})}}
-function localMaps(){var o={};Object.keys(MAPS).forEach(function(k){o[MAPS[k]]=store.get(k,{})||{}});return o}
-function cfgSnap(snap){
-  if(snap.metadata.fromCache&&snap.empty&&!cfgServer)return;
-  var cloud={},cq=null;
-  snap.docs.forEach(function(d){var x=d.data();try{var v=JSON.parse(x.j);if(x.m==="atalhos")cq=v;else{(cloud[x.m]=cloud[x.m]||{})[x.k]=v}}catch(e){}});
-  var first=!snap.metadata.fromCache&&!cfgServer;if(first)cfgServer=true;
-  cfgKnown={};Object.keys(cloud).forEach(function(m){Object.keys(cloud[m]).forEach(function(k){cfgKnown[cid(m,k)]=sj(cloud[m][k])})});
-  if(cq)cfgKnown.atalhos=sj(cq);
-  cfgReady=true;
-  if(first&&!flag("cfg")){setFlag("cfg");var lm=localMaps();                    // 1ª vez: o que só existe neste aparelho sobe para a nuvem
-    Object.keys(lm).forEach(function(m){Object.keys(lm[m]).forEach(function(k){if(!cloud[m]||!(k in cloud[m])){(cloud[m]=cloud[m]||{})[k]=lm[m][k]}})});
-    Object.keys(cloud).forEach(function(m){pushMap(m,cloud[m])});
-    if(!cq){try{var def=QDEF().sort(function(a,b){return a.n.localeCompare(b.n,"pt-BR",{sensitivity:"base"})});
-      if(sj(shortcuts)!==sj(def)){pushQ(shortcuts);cq=null}}catch(e){}}}
-  applying=true;
-  try{Object.keys(MAPS).forEach(function(k){var m=MAPS[k],cur=store.get(k,{})||{},nv=cloud[m]||{};if(sj(cur)!==sj(nv))origSet(k,nv)});
-    if(cq&&Array.isArray(cq)&&cq.length&&sj(cq)!==sj(shortcuts)){shortcuts=cq;origSet(KQ,cq);if(typeof renderQuick==="function")renderQuick()}
-  }catch(e){console.error(e)}finally{applying=false}}
-
-/* ---------- liga tudo ---------- */
-var LD,LE;
-function start(){D=window.vmDb&&window.vmDb();F=window.V;
-  if(!D||!F||!F.onSnapshot||!F.setDoc||!F.deleteDoc||!F.doc||!F.collection)return false;
-  LD=makeList("doacao","sh_doacao",function(it){return safeId(it.key||rid())},
-    function(){return don.itens},function(a){don.itens=a},function(){origSet(KD,don)},function(){renderDon()});
-  LE=makeList("etq","sh_etiquetas",function(){return rid()},
-    function(){return labels},function(a){labels=a},function(){origSet(KE,labels)},function(){renderLabels()});
-  var o={includeMetadataChanges:true};
-  F.onSnapshot(F.collection(D,"sh_doacao"),o,LD.onSnap,fail);
-  F.onSnapshot(F.collection(D,"sh_etiquetas"),o,LE.onSnap,fail);
-  F.onSnapshot(F.collection(D,"sh_cfg"),o,cfgSnap,fail);
-  return true}
-store.set=function(k,v){origSet(k,v);if(applying||!LD)return;
-  try{if(k===KD&&v&&Array.isArray(v.itens))LD.push(v.itens);else if(k===KE&&Array.isArray(v))LE.push(v);
-    else if(MAPS[k])pushMap(MAPS[k],v);else if(k===KQ)pushQ(v)}catch(e){fail(e)}};
-if(!start()){var n=0,t=setInterval(function(){n++;if(start()||n>40)clearInterval(t)},500)}
 })();</script>
 </body></html>
