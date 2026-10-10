@@ -747,7 +747,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 </div>
 <div id="tabDoacao" class="hidden">
 <div id="donaEntrada">
-<div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><small>COLETANDO AGORA</small><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
+<div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
 <div class="nowrow"><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
 <section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div>
 <div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></section>
@@ -783,7 +783,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <label for="cPlu">Código de balança (PLU)</label><input id="cPlu" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Opcional, até 6 números">
 <label for="cDon">Código de doação</label><input id="cDon" maxlength="12" autocomplete="off" placeholder="Opcional, ex.: B1" style="text-transform:uppercase">
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="cSalvar">Cadastrar</button><button class="secondary" id="cCancela" hidden>Cancelar</button></div></section>
-<section class="panel"><h2 class="h2">Produtos cadastrados <span class="cadcnt" id="cCount"></span></h2><input id="cBusca" type="search" placeholder="Buscar por nome ou código" autocomplete="off"><button type="button" class="secondary" id="cLixo" style="margin:8px 0">🧹 Apagar cadastros com símbolos</button><div id="cLista"></div></section>
+<section class="panel"><h2 class="h2">Produtos cadastrados <span class="cadcnt" id="cCount"></span></h2><input id="cBusca" type="search" placeholder="Buscar por nome ou código" autocomplete="off"><div id="cLista"></div></section>
 </div>
 <div id="tabInventario" class="hidden">
 <p class="ivsync" id="ivSync"></p>
@@ -821,7 +821,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <p class="note">Uma linha por produto. Separe as colunas com <b>;</b> (ponto e vírgula), tabulação (ao colar do Excel) ou <b>|</b>. Ordem: <b>nome; código de balança; código de doação; EAN; categoria</b>. Só o nome é obrigatório. Quem já existe (pelo EAN ou pelo nome) é atualizado; os novos entram como FLV, sem validade, se você não informar a categoria.</p>
 <textarea id="impText" rows="8" placeholder="Mamão Papaya;123;45&#10;Banana Prata;124;46&#10;Pão Francês;200;B1;;Padaria"></textarea>
 <div class="toolbar" style="margin-top:8px"><button class="secondary" id="impFileBtn">📎 Escolher arquivo</button><button class="secondary" id="impModel">Baixar modelo</button></div><input type="file" id="impFile" accept=".csv,.txt,.tsv,text/plain,text/csv" hidden>
-<div class="toolbar" style="margin-top:8px"><button class="secondary" id="impLimpa">🗑️ Limpar texto</button><button class="secondary" id="impLixo">🧹 Apagar cadastros com símbolos</button></div>
+<div class="toolbar" style="margin-top:8px"><button class="secondary" id="impLimpa">🗑️ Limpar texto</button></div>
 <div class="toolbar" style="margin-top:10px"><button class="secondary big" id="impCheck">Conferir lista</button><button class="primary big" id="impGo" disabled>Cadastrar</button></div><div id="impPrev" class="rows"></div></section></div>
 <div id="moreBg" class="morebg hidden"></div><div id="moreMenu" class="moremenu hidden" role="menu" aria-label="Mais opções"><button type="button" role="menuitem" id="mnExport">📤<span>Exportar Excel / PDF</span></button><button type="button" role="menuitem" id="mnZap">💬<span>Enviar por WhatsApp</span></button><button type="button" role="menuitem" id="mnImport">📥<span>Importar lista</span></button><button type="button" role="menuitem" id="mnBkp">💾<span>Fazer backup</span></button><button type="button" role="menuitem" id="mnRest">♻️<span>Restaurar backup</span></button><button type="button" role="menuitem" id="mnDup">🔍<span>Revisar duplicados</span></button><button type="button" role="menuitem" id="mnInstall">📲<span>Instalar app</span></button><button type="button" role="menuitem" id="mnVer">🔄<span id="mnVerT">Verificar atualização</span></button></div>
 <div class="fabwrap" id="fabWrap"><div class="fabrow"><button class="fabscan" id="fab" aria-label="Bipar código de barras">▦ BIPAR</button></div></div>
@@ -2117,15 +2117,6 @@ $("impFile").onchange = async () => { const f = $("impFile").files[0]; if (!f) r
   if (impBinario(t)) { $("impFile").value = ""; toast("Arquivo ilegível: não parece uma lista em texto/CSV."); return; }
   $("impText").value = t.replace(/^\ufeff/, ""); $("impFile").value = ""; impCheck(); };
 $("impLimpa").onclick = () => { $("impText").value = ""; $("impPrev").innerHTML = ""; impRows = []; $("impGo").disabled = true; $("impGo").textContent = "Cadastrar"; };
-const impLixo = p => { const n = String(p.name || "").trim();
-  return !/^[A-Za-z0-9À-ÃÇÉÊÍÓ-ÕÚà-ãçéêíó-õú\s.,\-\/()&'%+ºª°:!"*]+$/.test(n) || (n.match(/[A-Za-z]/g) || []).length < 2 || /^(end)?(obj|stream)$|^(xref|trailer|startxref|endstream)$|^%PDF/i.test(n); };
-$("cLixo").onclick = () => window.apagarLixo();
-window.apagarLixo = () => { const l = products.filter(impLixo); if (!l.length) { toast("Nenhum cadastro com símbolos encontrado."); return; }
-  if (!confirm(`Apagar ${l.length} cadastro(s) com nome em símbolos?\n\nEx.: ${l.slice(0, 4).map(p => "«" + String(p.name).slice(0, 25) + "»").join("  ")}\n\nProdutos com nome normal não são tocados.`)) return;
-  l.forEach(p => { if (db) V.deleteDoc(V.doc(db, "products", p.id)).catch(() => toast("Não foi possível excluir.")); });
-  if (!db) { products = products.filter(p => !l.includes(p)); persist(); render(); }
-  toast(`${l.length} cadastro(s) apagado(s).`); if (typeof cadPaint === "function") setTimeout(cadPaint, db ? 600 : 0); };
-$("impLixo").onclick = () => window.apagarLixo();
 $("impModel").onclick = () => download(new Blob(["\ufeffnome;codigo_balanca;codigo_doacao;ean;categoria\r\nMamão Papaya;123;45;;FLV\r\nBanana Prata;124;46;;FLV\r\nPão Francês;200;B1;;Padaria\r\n"], { type: "text/csv;charset=utf-8" }), "modelo-importacao-valida.csv");
 
 if (db) startPresence(); else localStats();
@@ -2135,7 +2126,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-60";
+const APP_VERSION = "2026.10.10-61";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
