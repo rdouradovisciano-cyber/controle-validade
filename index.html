@@ -674,6 +674,8 @@ body.np-doa #npTop{min-height:30px;justify-content:flex-end;margin-bottom:4px}
 .morebg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.28)}
 .moremenu{position:fixed;z-index:61;top:calc(54px + env(safe-area-inset-top));right:10px;width:min(300px,calc(100vw - 20px));padding:6px;border-radius:18px;background:var(--card);border:1px solid var(--ln);box-shadow:0 18px 44px rgba(0,0,0,.35);display:flex;flex-direction:column}
 .moremenu.hidden,.morebg.hidden{display:none}
+.phe{border:1px solid var(--ln);border-radius:14px;padding:10px 12px;margin:8px 0;background:var(--card);display:flex;flex-direction:column;gap:3px;font-size:14px}
+.phe b{font-size:15px}.phe.del{border-color:#c2475a}.phe.add{border-color:#3d9b6b}.phe .secondary{margin-top:6px;min-height:40px}
 .tabbar button{position:relative}
 @keyframes sirene{0%,49.9%{background:#d8202f;box-shadow:0 0 16px 4px rgba(216,32,47,.9)}50%,100%{background:#1f6bff;box-shadow:0 0 16px 4px rgba(31,107,255,.9)}}
 .tabbar button.siren{animation:sirene .7s steps(1,end) infinite;color:#fff!important;border:1.5px solid #fff}
@@ -753,7 +755,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
-<div id="topAlert" class="alert hidden" role="status"></div>
+<div id="topAlert" class="alert hidden" role="status"></div><button type="button" id="outAlert" class="alert hidden" style="width:100%;text-align:left;background:#7a1020;border-color:#ff5a6e;color:#fff"></button>
 <section class="stats"><div class="stat"><b id="countAll">0</b><span>Cadastrados</span></div><div class="stat"><b id="countSoon">0</b><span>Vencem em breve</span></div><div class="stat"><b id="countExpired">0</b><span>Vencidos</span></div></section>
 <section class="panel">
 <div class="toolbar"><button class="secondary big" id="manualOpen">＋ Cadastro manual</button></div>
@@ -837,13 +839,16 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div class="toolbar" style="margin-top:10px"><button class="secondary" id="csvBtn">Excel (.csv)</button><button class="secondary" id="pdfBtn">Gerar PDF</button><button class="primary" id="shareBtn">Compartilhar</button></div>
 <small class="note">O compartilhamento usa a janela nativa do celular quando disponível; se não houver, o PDF é baixado.</small></section>
 <button class="secondary" id="installBtn" hidden style="width:100%;margin-top:10px">Instalar app</button></aside>
+<div id="phModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="phTitle"><div class="sheethead"><h2 id="phTitle">Histórico de produtos</h2><button class="secondary" id="phClose" aria-label="Fechar">✕</button></div>
+<p class="note">Tudo que entra, muda ou sai da lista, com data e quem fez. Se algo sumiu, toque em <b>Restaurar</b>. Este histórico vale para este aparelho: ele registra o que ele viu acontecer.</p>
+<input id="phBusca" type="search" placeholder="Buscar produto no histórico" autocomplete="off"><div id="phList" class="rows"></div></section></div>
 <div id="impModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="impTitle"><div class="sheethead"><h2 id="impTitle">Importar lista de produtos</h2><button class="secondary" id="impClose" aria-label="Fechar">✕</button></div>
 <p class="note">Uma linha por produto. Separe as colunas com <b>;</b> (ponto e vírgula), tabulação (ao colar do Excel) ou <b>|</b>. Ordem: <b>nome; código de balança; código de doação; EAN; categoria</b>. Só o nome é obrigatório. Quem já existe (pelo EAN ou pelo nome) é atualizado; os novos entram como FLV, sem validade, se você não informar a categoria.</p>
 <textarea id="impText" rows="8" placeholder="Mamão Papaya;123;45&#10;Banana Prata;124;46&#10;Pão Francês;200;B1;;Padaria"></textarea>
 <div class="toolbar" style="margin-top:8px"><button class="secondary" id="impFileBtn">📎 Escolher arquivo</button><button class="secondary" id="impModel">Baixar modelo</button></div><input type="file" id="impFile" accept=".csv,.txt,.tsv,text/plain,text/csv" hidden>
 <div class="toolbar" style="margin-top:8px"><button class="secondary" id="impLimpa">🗑️ Limpar texto</button></div>
 <div class="toolbar" style="margin-top:10px"><button class="secondary big" id="impCheck">Conferir lista</button><button class="primary big" id="impGo" disabled>Cadastrar</button></div><div id="impPrev" class="rows"></div></section></div>
-<div id="moreBg" class="morebg hidden"></div><div id="moreMenu" class="moremenu hidden" role="menu" aria-label="Mais opções"><button type="button" role="menuitem" id="mnCad">🗂️<span>Cadastros</span></button><button type="button" role="menuitem" id="mnInv">📦<span>Inventário</span></button><button type="button" role="menuitem" id="mnBkp">💾<span>Fazer backup</span></button><button type="button" role="menuitem" id="mnRest">♻️<span>Restaurar backup</span></button><button type="button" role="menuitem" id="mnInstall">📲<span>Instalar app</span></button></div>
+<div id="moreBg" class="morebg hidden"></div><div id="moreMenu" class="moremenu hidden" role="menu" aria-label="Mais opções"><button type="button" role="menuitem" id="mnCad">🗂️<span>Cadastros</span></button><button type="button" role="menuitem" id="mnInv">📦<span>Inventário</span></button><button type="button" role="menuitem" id="mnHist">📜<span>Histórico</span></button><button type="button" role="menuitem" id="mnBkp">💾<span>Fazer backup</span></button><button type="button" role="menuitem" id="mnRest">♻️<span>Restaurar backup</span></button><button type="button" role="menuitem" id="mnInstall">📲<span>Instalar app</span></button></div>
 <div class="fabwrap" id="fabWrap"><div class="fabrow"><button class="fabscan" id="fab" aria-label="Bipar código de barras">▦ BIPAR</button></div></div>
 <div id="qModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="qTitle"><div class="sheethead"><h2 id="qTitle">Atalho</h2><button class="secondary" id="qClose" aria-label="Fechar">✕</button></div>
 <label for="qNome">Nome do produto</label><input id="qNome" maxlength="40" autocomplete="off" placeholder="Ex.: Chuchu">
@@ -1002,12 +1007,52 @@ function fillCategories() {
   const opt = (id, first) => { const el = $(id); el.innerHTML = ""; el.add(new Option(first, "")); CATS.forEach(c => el.add(new Option(c, c))); };
   opt("category", "Selecione"); opt("categoryFilter", "Todas as categorias"); opt("exportCategory", "Selecione a categoria");
 }
-function sirene() {   // aba Validades pisca vermelho/azul quando há produto vencendo em até 1 dia (ou já vencido)
-  const n = products.filter(p => { const d = daysLeft(p.expiry); return d !== null && d <= 1; }).length, b = $("tbLoja");
-  b.classList.toggle("siren", n > 0); $("sirN").textContent = n > 99 ? "99+" : n; b.title = n ? n + " produto(s) vencendo em até 1 dia" : "";
+function sirene() {   // aba Validades pisca vermelho/azul só quando há produto que vence hoje ou amanhã (os já vencidos não contam)
+  const n = products.filter(p => { const d = daysLeft(p.expiry); return d !== null && d >= 0 && d <= 1; }).length, b = $("tbLoja");
+  b.classList.toggle("siren", n > 0); $("sirN").textContent = n > 99 ? "99+" : n; b.title = n ? n + " produto(s) vencendo hoje ou amanhã" : "";
 }
 setInterval(() => { if (typeof sirene === "function") sirene(); }, 60000);
+// ---------- histórico de produtos (o que entrou, mudou ou saiu — e quem) ----------
+const PHK = "validamais-phbase", PLK = "validamais-phlog", PHF = ["name", "expiry", "quantity", "category", "barcode", "codigo_balanca", "codigo_doacao"];
+let phBase = store.get(PHK, null), phLog = store.get(PLK, []), lastAct = 0;
+["pointerdown", "keydown"].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); }, true));
+const phLite = p => { const r = {}; Object.keys(p).forEach(k => { if (k === "foto" || k === "createdAt" || k === "updatedAt") return; r[k] = p[k]; }); return r; };
+function phDiff() {
+  if (db && !window.__hReady) return;
+  const cur = {}; products.forEach(p => { cur[p.id] = phLite(p); });
+  if (!phBase) { phBase = cur; store.set(PHK, cur); return; }
+  const t = Date.now(), who = (t - lastAct < 8000) ? myName() : "outro aparelho (ou com o app fechado)", ev = [];
+  const add = Object.keys(cur).filter(i => !phBase[i]), del = Object.keys(phBase).filter(i => !cur[i]), chg = [];
+  Object.keys(cur).forEach(i => { const a = phBase[i], b = cur[i]; if (!a) return;
+    const d = []; PHF.forEach(f => { if (String(a[f] ?? "") !== String(b[f] ?? "")) d.push(f === "expiry" ? `validade ${fmt(a.expiry)} → ${fmt(b.expiry)}` : f === "quantity" ? `qtd ${a.quantity} → ${b.quantity}` : `${f === "name" ? "nome" : f === "category" ? "setor" : f}: ${a[f] || "—"} → ${b[f] || "—"}`); });
+    if (d.length) chg.push({ n: b.name, d: d.join("; ") }); });
+  if (add.length) ev.push({ t, who, k: "add", n: add.length, it: add.slice(0, 40).map(i => ({ n: cur[i].name, d: cur[i].expiry ? "validade " + fmt(cur[i].expiry) : "" })) });
+  if (del.length) ev.push({ t, who, k: "del", n: del.length, it: del.slice(0, 300).map(i => phBase[i]) });
+  if (chg.length) ev.push({ t, who, k: "chg", n: chg.length, it: chg.slice(0, 40) });
+  if (ev.length) { phLog = ev.concat(phLog).slice(0, 300); while (phLog.length > 1 && JSON.stringify(phLog).length > 900000) phLog.pop(); store.set(PLK, phLog); phBase = cur; store.set(PHK, cur); if (!$("phModal").classList.contains("hidden")) phDraw(); }
+}
+const phWhen = t => new Date(t).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+function phDraw() {
+  const q = norm($("phBusca").value || "");
+  const rows = phLog.map((e, i) => ({ e, i })).filter(({ e }) => !q || e.it.some(x => norm(x.n || x.name || "").includes(q)));
+  $("phList").innerHTML = rows.length ? rows.map(({ e, i }) => {
+    const nm = x => esc(x.n || x.name || "?"), tit = e.k === "add" ? `＋ Entrou · ${e.n} produto(s)` : e.k === "del" ? `🗑 Saiu · ${e.n} produto(s)` : `✎ Alterado · ${e.n} produto(s)`;
+    const lines = e.it.slice(0, 8).map(x => `<div>• ${nm(x)}${x.d ? " <small class='muted'>" + esc(x.d) + "</small>" : x.expiry ? " <small class='muted'>validade " + fmt(x.expiry) + "</small>" : ""}</div>`).join("") + (e.n > 8 ? `<div class="muted">… e mais ${e.n - 8}</div>` : "");
+    return `<div class="phe ${e.k}"><b>${tit}</b><small class="muted">${phWhen(e.t)} · ${esc(e.who)}</small>${lines}${e.k === "del" ? (e.rest ? '<small class="muted">✓ já restaurado</small>' : `<button type="button" class="secondary" data-phr="${i}">↩ Restaurar ${e.it.length > 1 ? "estes " + e.it.length : "este"}</button>`) : ""}</div>`;
+  }).join("") : '<p class="muted">Nada registrado ainda. A partir de agora, o que entrar, mudar ou sair aparece aqui.</p>';
+}
+window.phOpen = () => { $("phBusca").value = ""; phDraw(); $("phModal").classList.remove("hidden"); };
+async function phRestore(i) {
+  const e = phLog[i]; if (!e || e.rest) return;
+  const ok = await askConfirm({ icon: "↩", title: "Restaurar produtos?", text: e.it.length + " produto(s)", sub: "Eles voltam para a lista com os dados de antes (a foto não é recuperada).", ok: "Restaurar", cancel: "Cancelar" });
+  if (!ok) return; const ts = db ? V.serverTimestamp() : null;
+  e.it.forEach(d => { const data = { ...d }; delete data.id;
+    if (db) V.addDoc(V.collection(db, "products"), { ...data, createdAt: ts, updatedAt: ts }).catch(() => toast("Não foi possível restaurar na nuvem."));
+    else products.push({ ...data, id: uid(), updatedAt: Date.now() }); });
+  e.rest = true; store.set(PLK, phLog); if (!db) { persist(); render(); } phDraw(); toast(e.it.length + " produto(s) restaurado(s).");
+}
 function render() {
+  phDiff();
   { const cf = $("categoryFilter"), oth = [...new Set(products.map(p => p.category).filter(c => c && c !== "FLV"))].sort(), sig = oth.join("|");
     if (cf.dataset.sig !== sig) { const cur = cf.value; cf.innerHTML = ""; cf.add(new Option("Todos os setores", "")); ["FLV", ...oth].forEach(c => cf.add(new Option(c, c)));
       cf.value = [...cf.options].some(o => o.value === cur) ? cur : "FLV"; cf.dataset.sig = sig; }
@@ -1017,6 +1062,8 @@ function render() {
   $("countAll").textContent = products.length;
   { const vt = $("verTodos"); if (vt) vt.textContent = cat ? `Ver todos os ${products.length} cadastrados` : "Voltar ao FLV"; }
   document.querySelectorAll("#tabLoja .stats .stat").forEach((e, i) => e.classList.toggle("on", (i === 1 && st === "soon") || (i === 2 && st === "expired"))); $("countSoon").textContent = so; $("countExpired").textContent = ex;
+  { const fora = cat ? products.filter(p => p.category !== cat && daysLeft(p.expiry) !== null && daysLeft(p.expiry) >= 0 && daysLeft(p.expiry) <= 1).length : 0;
+    $("outAlert").classList.toggle("hidden", !fora); $("outAlert").textContent = `⚠ ${fora} produto(s) de OUTROS setores vencem em até 1 dia — toque para ver todos`; }
   $("topAlert").classList.toggle("hidden", !(ex || so));
   $("topAlert").textContent = `Atenção: ${ex} vencido(s) e ${so} vencendo em breve.`;
   sirene(); FM = fotoMap();
@@ -1339,7 +1386,7 @@ if (cloud && V.initializeApp) {
     const app = V.initializeApp(fb);
     db = V.initializeFirestore(app, { localCache: V.persistentLocalCache({ tabManager: V.persistentMultipleTabManager() }) });
     V.onSnapshot(V.collection(db, "products"), { includeMetadataChanges: true }, snap => {
-      products = snap.docs.map(d => ({ id: d.id, ...d.data() })); render();
+      products = snap.docs.map(d => ({ id: d.id, ...d.data() })); window.__hReady = !snap.metadata.fromCache; render();
       setSync(snap.metadata.hasPendingWrites ? "alterações aguardando envio…" : snap.metadata.fromCache ? (navigator.onLine ? "conectando…" : "offline (dados salvos no aparelho)") : "sincronizado");
     }, err => { console.error(err); setSync("erro de sincronização (confira as regras do Firestore)"); toast("Erro ao ler os dados da nuvem."); });
   } catch (e) { console.error(e); db = null; setSync("falha ao iniciar o Firebase"); }
@@ -1400,6 +1447,9 @@ $("scansBox").ontoggle = () => {
 const SETOR = "FLV"; $("categoryFilter").value = SETOR; store.set(LC, SETOR); render();
 { const sf = $("statusFilter"), stt = document.querySelectorAll("#tabLoja .stats .stat");
   stt[0].onclick = () => { sf.value = ""; render(); }; stt[1].onclick = () => { sf.value = sf.value === "soon" ? "" : "soon"; render(); }; stt[2].onclick = () => { sf.value = sf.value === "expired" ? "" : "expired"; render(); }; }
+$("phClose").onclick = () => $("phModal").classList.add("hidden"); $("phBusca").oninput = phDraw;
+$("phList").onclick = e => { const b = e.target.closest("[data-phr]"); if (b) phRestore(Number(b.dataset.phr)); };
+$("outAlert").onclick = () => { $("categoryFilter").value = ""; render(); window.scrollTo(0, 0); };
 $("verTodos").onclick = () => { $("categoryFilter").value = $("categoryFilter").value ? "" : "FLV"; render(); };
 document.addEventListener("pointerdown", () => { audio(); render(); }, { once: true }); // libera o som do alerta no primeiro toque
 const side = o => { $("side").classList.toggle("open", o); $("sideBg").classList.toggle("hidden", !o); };
@@ -2154,7 +2204,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-67";
+const APP_VERSION = "2026.10.10-69";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -2380,6 +2430,7 @@ bg.onclick=fecha;document.addEventListener("keydown",function(e){if(e.key==="Esc
 if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)g("mnInstall").classList.add("hidden");
 g("mnCad").onclick=function(){fecha();g("navCadastros").click();window.scrollTo(0,0)};
 g("mnInv").onclick=function(){fecha();g("navInventario").click();window.scrollTo(0,0)};
+g("mnHist").onclick=function(){fecha();if(window.phOpen)window.phOpen()};
 g("mnBkp").onclick=function(){fecha();if(window.vmBackup)window.vmBackup()};
 g("mnRest").onclick=function(){fecha();if(window.vmRestaurar)window.vmRestaurar()};
 g("mnInstall").onclick=function(){fecha();var b=g("installBtn");
