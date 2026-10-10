@@ -770,6 +770,18 @@ body.np-open[data-tab="Doacao"] .nowbar #dPeso,body.np-open[data-tab="Doacao"] .
 body.np-open[data-tab="Doacao"] .nowbar{position:sticky}
 body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog{width:92px}
 body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
+#donaEntrada[data-dview="lancar"] #dListaBox,#donaEntrada[data-dview="lancar"] .dhist{display:none!important}
+#donaEntrada[data-dview="lista"] .dlanc,#donaEntrada[data-dview="lista"] #dNow{display:none!important}
+.dseg{display:flex;gap:0;margin:2px 0 12px;background:rgba(128,128,128,.2);border-radius:16px;padding:4px;position:sticky;top:0;z-index:5}
+.dseg button{flex:1;min-height:52px;border:0;border-radius:12px;background:transparent;color:inherit;font-size:16px;font-weight:800;box-shadow:none}
+.dseg button.on{background:#10131a;color:#f3d87a;outline:2px solid #c9a227;outline-offset:-2px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.dseg button b{display:inline-block;min-width:24px;padding:1px 7px;margin-left:4px;border-radius:99px;background:#c9a227;color:#10131a;font-size:14px}
+.dseg button b.pulse{animation:dpulse .6s}
+@keyframes dpulse{40%{transform:scale(1.5)}}
+.dvazia{display:none;text-align:center;padding:18px 0;font-weight:700;opacity:.8}
+.dvazia button{margin-top:10px;width:100%;min-height:56px}
+#dListaBox.vazia #dLista~#dFinalizar,#dListaBox.vazia #dLimpar,#dListaBox.vazia .note{display:none!important}
+#dListaBox.vazia .dvazia{display:block}
 </style>
 </head>
 <body data-tab="Loja">
@@ -791,20 +803,21 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <p style="text-align:center;margin:8px 0"><span id="syncDot" class="sdot" title="iniciando…"></span><span id="syncState" class="hidden">iniciando…</span></p>
 </div>
 <div id="tabDoacao" class="hidden">
-<div id="donaEntrada">
+<div id="donaEntrada" data-dview="lancar">
+<div class="dseg" id="dSeg" role="tablist"><button type="button" data-v="lancar" class="on">➕ Lançar</button><button type="button" data-v="lista">📋 Lista <b id="dSegN">0</b></button></div>
 <div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
 <div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
-<section class="panel dlaunch"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div></section>
-<section class="panel"><h2 class="h2 qh">Produto <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
+<section class="panel dlaunch dlanc"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div></section>
+<section class="panel dprod dlanc"><h2 class="h2 qh">Produto <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
 <div id="qBar" class="qbar hidden"><span>Toque num atalho para editar</span><button type="button" class="secondary" id="qReset">Restaurar padrão</button><button type="button" class="primary" id="qDone">Concluir</button></div>
 <div id="qFreq" class="qfreq hidden"></div><div id="qgrid" class="qgrid"></div>
 <div id="dFindBox"><div id="dFind"><input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off" enterkeyhint="search"><div id="dSug" class="rows sug"></div></div></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
 <section class="panel dlistp" id="dListaBox"><div class="dlh"><h2 class="h2">Itens coletados</h2><div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></div><div id="dLista"></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
 <button class="primary big" id="dFinalizar">✔ Finalizar doação</button><button type="button" id="dLimpar">🗑 Limpar lista</button>
-<small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
-<div id="topDoados" class="topdo hidden" aria-live="polite"></div>
-<section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
+<small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small><div id="dVazia" class="dvazia"><button type="button" class="primary" id="dIrLancar">➕ Lançar itens</button></div></section>
+<div id="topDoados" class="topdo hidden dhist" aria-live="polite"></div>
+<section class="panel dhist"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
 </div>
 <div id="donaRomaneio" class="hidden"><section class="panel"><div id="romHead"></div><div id="romBody"></div>
 <div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rAdd">＋ Bipar item</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
@@ -1642,6 +1655,7 @@ function tab(t) {
   ["Loja", "Doacao", "Etiquetas", "Inventario", "Cadastros"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); });
   [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Etiquetas", t === "Etiquetas"]].forEach(([n, on]) => $("tb" + n).classList.toggle("active", on));
   document.body.dataset.tab = t; document.body.dataset.grp = t;
+  if (t === "Doacao" && typeof dView === "function" && !romAberta()) dView("lancar");
 }
 function dCodTxt(i) {   // kg: código de doação · un: código de barras
   const pr = products.find(x => norm(x.name || "") === norm(i.nome)) || {};
@@ -1650,10 +1664,16 @@ function dCodTxt(i) {   // kg: código de doação · un: código de barras
     : ((pr.codigo_doacao || i.cod) ? "Cód. doação: " + esc(pr.codigo_doacao || i.cod) : "");
 }
 function renderDon() {
+  if(typeof dSegUpd==="function") dSegUpd();
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dKg").parentElement.style.display = sumU("kg") > 0 ? "" : "none"; $("dUn").parentElement.style.display = sumU("un") > 0 ? "" : "none"; $("dItens").textContent = don.itens.length;
   $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Bipe um item para começar.</p>';
   renderKey();
 }
+function dView(v){ const e=$("donaEntrada"); if(!e) return; e.dataset.dview=v; document.querySelectorAll("#dSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v===v)); if(v==="lista"){ if(typeof npClose==="function") npClose(); window.scrollTo({top:0}); } }
+document.querySelectorAll("#dSeg button").forEach(b=>b.onclick=()=>dView(b.dataset.v));
+$("dIrLancar").onclick=()=>dView("lancar");
+let dSegPrev=0;
+function dSegUpd(){ const n=don.itens.length; $("dSegN").textContent=n; $("dListaBox").classList.toggle("vazia",!n); if(n>dSegPrev){ const b=$("dSegN"); b.classList.remove("pulse"); void b.offsetWidth; b.classList.add("pulse"); } dSegPrev=n; }
 function addDon(nome, unidade, qtd, cod = "", bar = "") {
   if (romAberta()) return addToRom(nome, unidade, qtd, cod, bar);
   qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0; buzz(); usoLearn(nome, unidade, cod);
@@ -1803,7 +1823,7 @@ $("qgrid").onclick = e => { const b = e.target.closest("[data-q]"); if (!b) retu
   if (qEdit) return qOpen(k === "new" ? "new" : Number(k));
   buzz(); const s = shortcuts[Number(k)], p = prodFor(s.n); selectProd(p ? p.name : s.n, s.c, s.u); };
 $("navDoacao").addEventListener("click", renderQuick); $("dBusca").addEventListener("focus", renderQuick);
-function selectProd(n, code, unit) { dSel = n; dCodSel = code || ""; setUnit(unit || unitOf(n), false); renderQuick(); $("dCod").value = code || (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderDon(); $("dPeso").focus({ preventScroll: true }); }
+function selectProd(n, code, unit) { dView("lancar"); dSel = n; dCodSel = code || ""; setUnit(unit || unitOf(n), false); renderQuick(); $("dCod").value = code || (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderDon(); $("dPeso").focus({ preventScroll: true }); }
 $("dCodSave").onclick = () => { if (!dSel) return toast("Pesquise o produto primeiro."); const pr = products.find(x => norm(x.name) === norm(dSel)) || { name: dSel };
   const v = saveCode(pr, "codigo_doacao", $("dCod").value); if (v !== null) $("dCod").value = v; };
 // aviso de quantidade fora do normal: aprende o usual de cada produto (por lançamento)
@@ -2246,7 +2266,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-74";
+const APP_VERSION = "2026.10.10-75";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
