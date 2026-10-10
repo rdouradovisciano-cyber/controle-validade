@@ -658,7 +658,8 @@ html[data-tema=dark] .ivhero{box-shadow:none;border:1px solid rgba(255,255,255,.
 html[data-tema=dark] .ferrnav button.on{background:#2a8f5d;color:#fff}
 #moreBtn{flex:none;min-width:40px;height:44px;padding:0;border-radius:12px;background:rgba(255,255,255,.14);color:#fff;font-size:24px;font-weight:800;line-height:1}
 header h1{min-width:0;flex:1;overflow:hidden}
-#appVer{cursor:pointer;padding:2px 7px;border-radius:99px;background:rgba(255,255,255,.14);opacity:1!important;white-space:nowrap}
+header{gap:6px!important;padding-left:12px!important}.onchip{margin-left:3px!important;padding:3px 7px!important}
+#appVer{cursor:pointer;padding:2px 6px;margin-left:2px;border-radius:99px;background:rgba(255,255,255,.14);opacity:1!important;white-space:nowrap}
 .morebg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.28)}
 .moremenu{position:fixed;z-index:61;top:calc(54px + env(safe-area-inset-top));right:10px;width:min(300px,calc(100vw - 20px));padding:6px;border-radius:18px;background:var(--card);border:1px solid var(--ln);box-shadow:0 18px 44px rgba(0,0,0,.35);display:flex;flex-direction:column}
 .moremenu.hidden,.morebg.hidden{display:none}
@@ -2139,8 +2140,8 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-63";
-$("appVer").textContent = "v" + APP_VERSION;
+const APP_VERSION = "2026.10.10-64";
+$("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
   const BK = "validamais-bkp", BI = "validamais-bkp-ini", BS = "validamais-bkp-soneca", DIA = 864e5, SEMANA = 7 * DIA;
