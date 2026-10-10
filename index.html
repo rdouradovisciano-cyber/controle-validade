@@ -670,6 +670,24 @@ body.np-doa[data-tab="Doacao"] .nowbar .dbig{display:block;flex:1;min-width:0;fo
 body.np-doa[data-tab="Doacao"] .nowbar .dbig small{font-size:18px;font-weight:800;opacity:.75;margin-left:6px}
 body.np-doa #npTitle,body.np-doa #npVal{display:none}
 body.np-doa #npTop{min-height:30px;justify-content:flex-end;margin-bottom:4px}
+/* ===== Doação: lista é a tela principal; escolher produto é uma tela à parte ===== */
+#dNow.vazio{display:none!important}
+#donaEntrada[data-dview="lista"] .dpick{display:none!important}
+#donaEntrada[data-dview="pick"] #dNow,#donaEntrada[data-dview="pick"] #dAddItem,#donaEntrada[data-dview="pick"] #dListaBox,#donaEntrada[data-dview="pick"] #topDoados,#donaEntrada[data-dview="pick"] #histBox{display:none!important}
+#donaEntrada[data-dview="pick"] section:has(#histBox){display:none!important}
+#dNow:not(.vazio)~#dAddItem{display:none}
+#dAddItem{width:100%;min-height:76px;font-size:22px;font-weight:900;margin:6px 0 14px;border-radius:18px;box-shadow:0 8px 22px rgba(201,162,39,.35)}
+#dPickBar{display:flex;align-items:center;gap:10px;margin:2px 0 12px}
+#dPickBar b{font-size:18px}
+#dVoltar{min-height:50px;padding:0 16px;border-radius:14px;font-weight:800;background:#10131a;color:#f3d87a;border:2px solid #c9a227}
+.dtroca{display:block;margin:0 0 6px auto;min-height:36px;padding:0 12px;border-radius:99px;border:1.5px solid var(--ln);background:transparent;color:var(--mut);font-weight:800;font-size:13px}
+.dlh{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.dlh .dsum{margin:0;padding:6px 12px;gap:14px;justify-content:flex-end;flex:0 0 auto}
+.dlh .dsum b{font-size:19px}
+#dListaBox{border-top:5px solid #c9a227}
+.ditem.novo{animation:dnovo 2.4s ease-out;border-left:5px solid #2e9e5b;padding-left:8px;margin-left:-4px}
+@keyframes dnovo{0%,35%{background:rgba(46,158,91,.28)}100%{background:transparent}}
+#dFinalizar{min-height:62px;font-size:19px;font-weight:900}
 #appVer{cursor:pointer;padding:2px 6px;margin-left:2px;border-radius:99px;background:rgba(255,255,255,.14);opacity:1!important;white-space:nowrap}
 .morebg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.28)}
 .moremenu{position:fixed;z-index:61;top:calc(54px + env(safe-area-inset-top));right:10px;width:min(300px,calc(100vw - 20px));padding:6px;border-radius:18px;background:var(--card);border:1px solid var(--ln);box-shadow:0 18px 44px rgba(0,0,0,.35);display:flex;flex-direction:column}
@@ -770,17 +788,20 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <p style="text-align:center;margin:8px 0"><span id="syncDot" class="sdot" title="iniciando…"></span><span id="syncState" class="hidden">iniciando…</span></p>
 </div>
 <div id="tabDoacao" class="hidden">
-<div id="donaEntrada">
+<div id="donaEntrada" data-dview="lista">
 <div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
-<div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
+<button type="button" id="dTrocar" class="dtroca">✕ Trocar produto</button><div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
+<button type="button" class="primary big" id="dAddItem">＋ Adicionar item</button>
+<div class="dpick"><div id="dPickBar"><button type="button" id="dVoltar">← Voltar à lista</button><b>Escolher produto</b></div>
 <section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div>
-<div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></section>
+</section>
 <section class="panel"><h2 class="h2 qh">Produto <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
 <div id="qBar" class="qbar hidden"><span>Toque num atalho para editar</span><button type="button" class="secondary" id="qReset">Restaurar padrão</button><button type="button" class="primary" id="qDone">Concluir</button></div>
 <div id="qFreq" class="qfreq hidden"></div><div id="qgrid" class="qgrid"></div>
 <div id="dFindBox"><div id="dFind"><input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off" enterkeyhint="search"><div id="dSug" class="rows sug"></div></div></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
-<section class="panel dlistp" id="dListaBox"><h2 class="h2" style="margin:8px 0 0">Itens coletados</h2><div id="dLista"></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
+</div>
+<section class="panel dlistp" id="dListaBox"><div class="dlh"><h2 class="h2" style="margin:0">Itens coletados</h2><div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></div><div id="dLista"></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
 <div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
 <small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
 <div id="topDoados" class="topdo hidden" aria-live="polite"></div>
@@ -1622,6 +1643,7 @@ function tab(t) {
   ["Loja", "Doacao", "Etiquetas", "Inventario", "Cadastros"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); });
   [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Etiquetas", t === "Etiquetas"]].forEach(([n, on]) => $("tb" + n).classList.toggle("active", on));
   document.body.dataset.tab = t; document.body.dataset.grp = t;
+  if (t === "Doacao" && typeof dView === "function") dView("lista");
 }
 function dCodTxt(i) {   // kg: código de doação · un: código de barras
   const pr = products.find(x => norm(x.name || "") === norm(i.nome)) || {};
@@ -1631,9 +1653,15 @@ function dCodTxt(i) {   // kg: código de doação · un: código de barras
 }
 function renderDon() {
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dKg").parentElement.style.display = sumU("kg") > 0 ? "" : "none"; $("dUn").parentElement.style.display = sumU("un") > 0 ? "" : "none"; $("dItens").textContent = don.itens.length;
-  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Bipe um item para começar.</p>';
+  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Bipe um item para começar.</p>';
   renderKey();
 }
+function dView(v){ const e=$("donaEntrada"); if(!e) return; e.dataset.dview=v; if(v==="pick"){ if(window.npClose) window.npClose(); window.scrollTo({top:0}); } }
+$("dAddItem").onclick=()=>{ dView("pick"); setTimeout(()=>{ try{ $("dBusca").focus({preventScroll:true}); }catch(e){} },60); };
+$("dVoltar").onclick=()=>dView("lista");
+$("dTrocar").onclick=()=>{ dSel=""; dCodSel=""; $("dPeso").value=""; if(window.npClose) window.npClose(); renderQuick(); renderDon(); dView("pick"); };
+["dScan","dEan"].forEach(id=>$(id).addEventListener("click",()=>dView("lista"),true));
+function dNovoMark(key){ window.dNovo=key; clearTimeout(window.dNovoT); window.dNovoT=setTimeout(()=>{ window.dNovo=""; const n=document.querySelector(".ditem.novo"); if(n) n.classList.remove("novo"); },2600); setTimeout(()=>{ const n=document.querySelector(".ditem.novo"); if(n && !romAberta()) n.scrollIntoView({block:"center",behavior:"smooth"}); },450); }
 function addDon(nome, unidade, qtd, cod = "", bar = "") {
   if (romAberta()) return addToRom(nome, unidade, qtd, cod, bar);
   qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0; buzz(); usoLearn(nome, unidade, cod);
@@ -1641,7 +1669,7 @@ function addDon(nome, unidade, qtd, cod = "", bar = "") {
   if (it) { it.qtd = Math.round((it.qtd + qtd) * 1000) / 1000; it.lanc++; } else { it = { key, nome: nome.trim().slice(0, 60), unidade, qtd, lanc: 1 }; don.itens.push(it); }
   if (bar && !it.bar) it.bar = bar;
   const pr = products.find(x => norm(x.name) === norm(nome)); it.cod =it.cod || cod || (pr && (pr.codigo_doacao || pr.barcode || pr.codigo_balanca)) || "";
-  store.set(DK, don); renderDon(); return it.qtd;
+  dNovoMark(it.key); store.set(DK, don); renderDon(); return it.qtd;
 }
 const isScale = c => /^2\d{12}$/.test(c) || /^2\d{11}$/.test(c) || /^02\d{11}$/.test(c);   // EAN-13 de balança, ou UPC-A de 12 dígitos (etiqueta PRIX), às vezes lido com um 0 na frente
 function parseScale(code) {
@@ -1783,7 +1811,7 @@ $("qgrid").onclick = e => { const b = e.target.closest("[data-q]"); if (!b) retu
   if (qEdit) return qOpen(k === "new" ? "new" : Number(k));
   buzz(); const s = shortcuts[Number(k)], p = prodFor(s.n); selectProd(p ? p.name : s.n, s.c, s.u); };
 $("navDoacao").addEventListener("click", renderQuick); $("dBusca").addEventListener("focus", renderQuick);
-function selectProd(n, code, unit) { dSel = n; dCodSel = code || ""; setUnit(unit || unitOf(n), false); renderQuick(); $("dCod").value = code || (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderDon(); $("dPeso").focus({ preventScroll: true }); }
+function selectProd(n, code, unit) { dView("lista"); dSel = n; dCodSel = code || ""; setUnit(unit || unitOf(n), false); renderQuick(); $("dCod").value = code || (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderDon(); $("dPeso").focus({ preventScroll: true }); }
 $("dCodSave").onclick = () => { if (!dSel) return toast("Pesquise o produto primeiro."); const pr = products.find(x => norm(x.name) === norm(dSel)) || { name: dSel };
   const v = saveCode(pr, "codigo_doacao", $("dCod").value); if (v !== null) $("dCod").value = v; };
 // aviso de quantidade fora do normal: aprende o usual de cada produto (por lançamento)
@@ -2226,7 +2254,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-76";
+const APP_VERSION = "2026.10.10-77";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
