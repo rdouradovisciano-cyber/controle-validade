@@ -783,7 +783,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <label for="cPlu">Código de balança (PLU)</label><input id="cPlu" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Opcional, até 6 números">
 <label for="cDon">Código de doação</label><input id="cDon" maxlength="12" autocomplete="off" placeholder="Opcional, ex.: B1" style="text-transform:uppercase">
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="cSalvar">Cadastrar</button><button class="secondary" id="cCancela" hidden>Cancelar</button></div></section>
-<section class="panel"><h2 class="h2">Produtos cadastrados <span class="cadcnt" id="cCount"></span></h2><input id="cBusca" type="search" placeholder="Buscar por nome ou código" autocomplete="off"><div id="cLista"></div></section>
+<section class="panel"><h2 class="h2">Produtos cadastrados <span class="cadcnt" id="cCount"></span></h2><input id="cBusca" type="search" placeholder="Buscar por nome ou código" autocomplete="off"><button type="button" class="secondary" id="cLixo" style="margin:8px 0">🧹 Apagar cadastros com símbolos</button><div id="cLista"></div></section>
 </div>
 <div id="tabInventario" class="hidden">
 <p class="ivsync" id="ivSync"></p>
@@ -2117,13 +2117,15 @@ $("impFile").onchange = async () => { const f = $("impFile").files[0]; if (!f) r
   if (impBinario(t)) { $("impFile").value = ""; toast("Arquivo ilegível: não parece uma lista em texto/CSV."); return; }
   $("impText").value = t.replace(/^\ufeff/, ""); $("impFile").value = ""; impCheck(); };
 $("impLimpa").onclick = () => { $("impText").value = ""; $("impPrev").innerHTML = ""; impRows = []; $("impGo").disabled = true; $("impGo").textContent = "Cadastrar"; };
-const impLixo = p => { const n = String(p.name || ""); if (p.barcode || p.codigo_balanca || p.codigo_doacao) return false;
-  return !/\p{L}/u.test(n) || /[\u0000-\u001f\ufffd<>\[\]{}\\%]/.test(n) || /^\/|^(end)?(obj|stream)$|^(xref|trailer|startxref)$/i.test(n.trim()); };
-$("impLixo").onclick = () => { const l = products.filter(impLixo); if (!l.length) { toast("Nenhum cadastro com símbolos encontrado."); return; }
-  if (!confirm(`Apagar ${l.length} cadastro(s) com nome em símbolos?\n\nEx.: ${l.slice(0, 4).map(p => "«" + String(p.name).slice(0, 25) + "»").join("  ")}\n\nSó entram os que não têm nenhum código.`)) return;
+const impLixo = p => { const n = String(p.name || "").trim();
+  return !/^[A-Za-z0-9À-ÃÇÉÊÍÓ-ÕÚà-ãçéêíó-õú\s.,\-\/()&'%+ºª°:!"*]+$/.test(n) || (n.match(/[A-Za-z]/g) || []).length < 2 || /^(end)?(obj|stream)$|^(xref|trailer|startxref|endstream)$|^%PDF/i.test(n); };
+$("cLixo").onclick = () => window.apagarLixo();
+window.apagarLixo = () => { const l = products.filter(impLixo); if (!l.length) { toast("Nenhum cadastro com símbolos encontrado."); return; }
+  if (!confirm(`Apagar ${l.length} cadastro(s) com nome em símbolos?\n\nEx.: ${l.slice(0, 4).map(p => "«" + String(p.name).slice(0, 25) + "»").join("  ")}\n\nProdutos com nome normal não são tocados.`)) return;
   l.forEach(p => { if (db) V.deleteDoc(V.doc(db, "products", p.id)).catch(() => toast("Não foi possível excluir.")); });
   if (!db) { products = products.filter(p => !l.includes(p)); persist(); render(); }
   toast(`${l.length} cadastro(s) apagado(s).`); if (typeof cadPaint === "function") setTimeout(cadPaint, db ? 600 : 0); };
+$("impLixo").onclick = () => window.apagarLixo();
 $("impModel").onclick = () => download(new Blob(["\ufeffnome;codigo_balanca;codigo_doacao;ean;categoria\r\nMamão Papaya;123;45;;FLV\r\nBanana Prata;124;46;;FLV\r\nPão Francês;200;B1;;Padaria\r\n"], { type: "text/csv;charset=utf-8" }), "modelo-importacao-valida.csv");
 
 if (db) startPresence(); else localStats();
@@ -2133,7 +2135,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-59";
+const APP_VERSION = "2026.10.10-60";
 $("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
