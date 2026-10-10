@@ -2154,7 +2154,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-66";
+const APP_VERSION = "2026.10.10-67";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -2166,13 +2166,27 @@ $("appVer").textContent = APP_VERSION.split("-").pop();
     const dados = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (/^valida/.test(k) && !skip(k)) dados[k] = localStorage.getItem(k); } } catch (e) {}
     return { app: "Valida+", versao: APP_VERSION, em: new Date().toISOString(), dados, produtosNuvem: db ? products.map(({ id, ...p }) => p) : undefined };
   }
-  async function fazer() {
-    const b = pack(), blob = new Blob([JSON.stringify(b)], { type: "application/json" }), nome = `valida-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    try {
-      const file = new File([blob], nome, { type: "application/json" });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Backup Valida+", files: [file] }); else download(blob, nome);
-      wr(BK, String(Date.now())); document.querySelectorAll(".bkpbanner").forEach(x => x.remove()); toast("Backup feito. Guarde o arquivo no Drive ou no WhatsApp.");
-    } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Não foi possível gerar o backup."); } }
+  function fazer() {   // abre um quadro com 2 caminhos (cada botão é um toque direto: funciona em qualquer celular) e mostra o motivo se algo falhar
+    const b = pack(), txt = JSON.stringify(b), blob = new Blob([txt], { type: "application/json" }), nome = `valida-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    const bg = document.createElement("div"); bg.className = "askbg";
+    bg.innerHTML = `<div class="ask" style="text-align:left"><div class="ai" style="text-align:center">💾</div><h3 style="text-align:center">Fazer backup</h3><p style="text-align:center">${Object.keys(b.dados).length} grupos de dados${b.produtosNuvem ? " · " + b.produtosNuvem.length + " produtos" : ""}</p>
+      <div class="arow" style="flex-direction:column;gap:8px"><button type="button" class="ok" data-a="baixar">📥 Salvar arquivo no aparelho</button><button type="button" data-a="enviar">📤 Enviar (WhatsApp, Drive, e-mail…)</button><button type="button" data-a="fechar">Fechar</button></div>
+      <p id="bkMsg" style="margin-top:10px;font-size:14px;text-align:center"></p></div>`;
+    const msg = (t, bad) => { const m = bg.querySelector("#bkMsg"); m.textContent = t; m.style.color = bad ? "#ff8a80" : ""; };
+    const feito = () => { wr(BK, String(Date.now())); document.querySelectorAll(".bkpbanner").forEach(x => x.remove()); };
+    bg.onclick = async e => {
+      if (e.target === bg) return bg.remove(); const a = e.target.closest("[data-a]"); if (!a) return;
+      if (a.dataset.a === "fechar") return bg.remove();
+      if (a.dataset.a === "baixar") { try { download(blob, nome); feito(); msg("✓ Arquivo " + nome + " salvo (veja em Downloads / Arquivos do celular)."); } catch (err) { msg("Não consegui salvar: " + (err && err.message || err), true); } return; }
+      try {
+        const file = new File([blob], nome, { type: "application/json" });
+        if (!navigator.share) throw new Error("este aparelho não tem compartilhamento. Use «Salvar arquivo».");
+        if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Backup Valida+", files: [file] });
+        else await navigator.share({ title: "Backup Valida+ " + nome, text: txt });   // alguns celulares não aceitam arquivo .json: envia como texto
+        feito(); msg("✓ Enviado.");
+      } catch (err) { if (err && err.name === "AbortError") return; msg("Não deu para enviar (" + (err && (err.message || err.name) || "erro") + "). Use «Salvar arquivo no aparelho».", true); }
+    };
+    document.body.appendChild(bg);
   }
   function restaurar() {
     const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".json,application/json";
