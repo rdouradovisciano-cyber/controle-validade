@@ -1072,8 +1072,8 @@ function render() {
   $("todayBanner").classList.toggle("hidden", !hoje.length);
   $("todayBanner").textContent = `⚠ VENCEM HOJE (${hoje.length}): ` + hoje.slice(0, 5).map(p => p.name).join(", ") + (hoje.length > 5 ? "…" : "");
   if (!hoje.length) alarmed = false; else if (!alarmed && actx) { alarmed = true; alarm(); }
-  const rows = products.filter(p => (!cat || p.category === cat) && !(cat === "FLV" && daysLeft(p.expiry) === null) && (!st || status(p) === st) &&
-    (!q || (p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q)))
+  const rows = products.filter(p => q ? ((p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q) || String(p.codigo_balanca || "") === q || String(p.codigo_doacao || "").toLowerCase() === q)   // buscando: procura em TODOS os setores, com ou sem validade
+      : ((!cat || p.category === cat) && !(cat === "FLV" && daysLeft(p.expiry) === null) && (!st || status(p) === st)))
     .sort((a, b) => cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
@@ -2204,7 +2204,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-69";
+const APP_VERSION = "2026.10.10-70";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
