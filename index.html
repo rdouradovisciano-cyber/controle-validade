@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#08090c">
+<meta name="theme-color" content="#0e4a30">
 <meta name="description" content="Controle de validade de loja">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Valida+"><meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -119,7 +119,7 @@ label{display:block;font-size:12px;font-weight:700;color:var(--mut);margin:12px 
 html[data-tema=dark] .vbox{background:#14281c;border-color:#24493a}html[data-tema=dark] .vd b{color:#8ee6ae}
 html[data-tema=dark] .product.soon .vbox{background:#2a2410;border-color:#5a4a14}html[data-tema=dark] .product.soon .vd b{color:#ffd666}
 html[data-tema=dark] .product.expired .vbox{background:#2a1415;border-color:#5a2a2a}html[data-tema=dark] .product.expired .vd b{color:#ff9a9a}
-html[data-tema=dark] .product.none .vbox{background:#181a22}html[data-tema=dark] .product.none .vd b{color:#b6c2bb}
+html[data-tema=dark] .product.none .vbox{background:#1b231f}html[data-tema=dark] .product.none .vd b{color:#b6c2bb}
 .pills{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px}
 .pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:4px 11px;font-size:12px;font-weight:800;background:#dcf3e4;color:#14633d}
 .pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
@@ -237,7 +237,6 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .crr .ltam button{min-width:30px;min-height:26px;padding:0 8px;border-radius:99px;font-size:12px;font-weight:800;background:#fff;color:var(--g);border:1.5px solid #b9cfc2}
 .crr .ltam .sel{background:var(--g);color:#fff;border-color:var(--g)}
 .crr .ltam .cdel{border:0;background:transparent;color:#d98a8a;min-width:28px;font-size:15px;padding:0}
-.crr .ltam .cdup{border:0;background:transparent;color:var(--g);min-width:30px;font-size:19px;font-weight:700;padding:0}
 .tbadge{display:inline-block;margin-left:6px;background:var(--g);color:#fff;border-radius:99px;font-size:11px;font-weight:800;padding:2px 8px;vertical-align:middle}
 .cdel{border:0;background:transparent;color:#d98a8a;min-width:34px;min-height:34px;padding:0;font-size:16px}
 
@@ -348,7 +347,6 @@ body.mao1 .fabitem{min-height:56px;font-size:16px}
 .utog{display:flex;gap:6px;margin-top:8px;background:var(--lt);padding:4px;border-radius:14px}
 .utog button{flex:1;min-height:40px;background:transparent;color:var(--g-d);border-radius:10px}
 .utog .sel{background:#fff;color:var(--g-d);box-shadow:0 2px 6px rgba(16,40,28,.15)}
-#tabDoacao .qh,#tabDoacao #qBar,#tabDoacao #qFreq,#tabDoacao #qgrid{display:none!important}
 .qgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}
 .qbtn{min-height:48px;padding:5px 2px;font-size:13px;line-height:1.15;background:var(--lt2);color:var(--g-d);border:1px solid #d3e5da;border-radius:12px}
 .qbtn small{display:block;font-size:10px;font-weight:600;color:var(--mut);margin-top:1px}
@@ -452,11 +450,10 @@ html[data-tema=dark] .alert,html[data-tema=dark] .qbar{background:#2e260b;border
 html[data-tema=dark] .today{background:linear-gradient(135deg,#a8281c,#8a1f16)}
 html[data-tema=dark] .danger{background:#2c1516;color:#ff8f8f}
 @media(hover:hover){html[data-tema=dark] .secondary:hover{background:#1d3226}html[data-tema=dark] .danger:hover{background:#3a1b1c}}
-html[data-tema=dark] input,html[data-tema=dark] select,html[data-tema=dark] textarea{background-color:#0b0d12;border-color:#2c303c;color:var(--ink)}
-html[data-tema=dark] input::placeholder,html[data-tema=dark] textarea::placeholder{color:#767a86}
-html[data-tema=dark] .keypad button,html[data-tema=dark] .ltam button,html[data-tema=dark] .crr .ltam button,html[data-tema=dark] .qbtn.qadd,html[data-tema=dark] #npGrid button,html[data-tema=dark] #npClose{background:#0b0d12;border-color:#2c303c;color:var(--ink)}
+html[data-tema=dark] input,html[data-tema=dark] select,html[data-tema=dark] textarea{background-color:#0d1310;border-color:#2c3a32;color:var(--ink)}
+html[data-tema=dark] input::placeholder,html[data-tema=dark] textarea::placeholder{color:#6f7d75}
+html[data-tema=dark] .keypad button,html[data-tema=dark] .ltam button,html[data-tema=dark] .crr .ltam button,html[data-tema=dark] .qbtn.qadd,html[data-tema=dark] #npGrid button,html[data-tema=dark] #npClose{background:#0d1310;border-color:#2c3a32;color:var(--ink)}
 html[data-tema=dark] .crr .ltam .cdel{background:transparent;border:0;color:#d98a8a}
-html[data-tema=dark] .crr .ltam .cdup{background:transparent;border:0;color:#e5c158}
 html[data-tema=dark] #npGrid .del{background:#2c1516;color:#ff8f8f;border-color:#4a2325}
 html[data-tema=dark] .primary,html[data-tema=dark] .grid .sel,html[data-tema=dark] .grid3 .sel,html[data-tema=dark] .qbtn.sel,html[data-tema=dark] .ltam .sel,html[data-tema=dark] .crr .ltam .sel,html[data-tema=dark] .keypad .add,html[data-tema=dark] .rom th,html[data-tema=dark] .fabscan,html[data-tema=dark] .menu .active,html[data-tema=dark] .utog .sel,html[data-tema=dark] #npGrid .ok{background:linear-gradient(180deg,#228456,#1a6a45);color:#fff;border-color:#1a6a45}
 html[data-tema=dark] .tbadge,html[data-tema=dark] .plus{background:#1f7a49;color:#fff}
@@ -468,24 +465,24 @@ html[data-tema=dark] .product.none{border-left-color:#4a5650}
 html[data-tema=dark] .pill,html[data-tema=dark] .hbadge{background:#17402a;color:#8ee6ae}
 html[data-tema=dark] .expired .pill{background:#4a1c1c;color:#ffa3a3}
 html[data-tema=dark] .soon .pill{background:#4a3a0a;color:#ffd666}
-html[data-tema=dark] .none .pill{background:#222530;color:#b6c2bb}
-html[data-tema=dark] .sheet{background:#0d0f14}
-html[data-tema=dark] .sheet::before{background:#3a3f4d}
+html[data-tema=dark] .none .pill{background:#26302b;color:#b6c2bb}
+html[data-tema=dark] .sheet{background:#0f1512}
+html[data-tema=dark] .sheet::before{background:#33443a}
 html[data-tema=dark] .modal,html[data-tema=dark] .bg{background:rgba(0,0,0,.7)}
 html[data-tema=dark] .fabscrim{background:rgba(0,0,0,.6)}
-html[data-tema=dark] .toast{background:#1a1d26;color:#e3eae5;border:1px solid #3a3f4d}
+html[data-tema=dark] .toast{background:#1d2822;color:#e3eae5;border:1px solid #33443a}
 html[data-tema=dark] .toast button{background:#1f7a49;color:#fff}
 html[data-tema=dark] .qbtn{border-color:#24402f}
 html[data-tema=dark] .bad{color:#ff8f8f}
 html[data-tema=dark] .foot b{color:#8a978f}
 html[data-tema=dark] .dot{background:#3a4640}
-html[data-tema=dark] #np{background:rgba(13,15,20,.97);border-top-color:#2c303c}
+html[data-tema=dark] #np{background:rgba(15,21,18,.97);border-top-color:#2c3a32}
 @keyframes vm-flash{0%{background:#1d4a31;border-color:#46c283}100%{background:#111814}}
 </style>
 <script>try{document.documentElement.dataset.tema=localStorage.getItem("validamais-tema")||"dark"}catch(e){document.documentElement.dataset.tema="dark"}</script>
 <script>(function(){
-var K="validamais-tema",m=document.querySelector('meta[name=theme-color]'),claro=m?m.content:"#08090c";
-function ap(t){document.documentElement.dataset.tema=t;if(m)m.content=t==="dark"?"#08090c":claro;
+var K="validamais-tema",m=document.querySelector('meta[name=theme-color]'),claro=m?m.content:"#0e4a30";
+function ap(t){document.documentElement.dataset.tema=t;if(m)m.content=t==="dark"?"#0f2418":claro;
 var b=document.getElementById("temaBtn");if(b){b.textContent=t==="dark"?"\u2600\uFE0F":"\uD83C\uDF19";b.setAttribute("aria-label",t==="dark"?"Modo claro":"Modo escuro")}}
 document.addEventListener("DOMContentLoaded",function(){var h=document.querySelector("header");if(!h)return;
 var b=document.createElement("button");b.id="temaBtn";b.type="button";
@@ -497,7 +494,6 @@ ap(document.documentElement.dataset.tema||"dark")});
 <style id="limpeza">
 .lnk{display:block;margin:2px auto 6px;background:none;color:var(--mut);font-size:13px;min-height:34px;padding:0 8px;text-decoration:underline;border-radius:8px}
 .sdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#9aa5b0}.sdot.ok{background:#2fb37a}.sdot.wait{background:#e0a100}.sdot.err{background:#d64545}
-.ivsync{display:flex;align-items:center;justify-content:center;gap:7px;margin:10px 0 0;font-size:12px;font-weight:650;color:var(--mut)}.ivsync:empty{display:none}
 #tabLoja .stats .stat{cursor:pointer}.stat.on{outline:2px solid var(--g2);outline-offset:-2px}
 #productForm.lote .hide-lote{display:none}
 #productForm.lote .formgrid>div:not(.hide-lote){grid-column:1/-1}
@@ -508,262 +504,22 @@ body:not([data-tab="Doacao"]) .doacao-only{display:none}
 .codbox .r{text-align:right;flex:none}
 .codbox b{font-size:26px;font-weight:800;color:var(--g-d);letter-spacing:.5px;font-variant-numeric:tabular-nums;line-height:1.1}
 .codbox.none span{color:var(--mut)}
-body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden),#pkModal:not(.hidden)) .toast{top:calc(var(--top-h) + 8px + env(safe-area-inset-top))!important;bottom:auto!important}
-</style>
-<style id="inv-css">
-.tabbar button{padding:0 2px;font-size:12px;white-space:nowrap}
-body[data-tab="Inventario"] .fabwrap,body[data-tab="Inventario"] .fabscrim{display:none}
-.tabbar{gap:3px!important;padding:0 8px 12px!important}.tabbar button{flex:1 1 0!important;min-width:0;font-size:10.5px!important;padding:0 1px!important;overflow:hidden;text-overflow:ellipsis}
-.cadrow{display:flex;align-items:center;gap:6px;padding:10px 0;border-bottom:1px solid var(--ln)}.cadrow .ci{flex:1;min-width:0;font-size:14px}.cadrow .ci small{display:block;color:var(--mut,#667);margin-top:2px;word-break:break-all}.cadrow>button{min-height:38px;padding:0 12px;font-size:13px}.cadcnt{float:right;font-weight:600;font-size:12px;opacity:.7}
-.ivcode{font-size:32px;font-weight:800;color:var(--g-d);text-align:center;letter-spacing:.5px;font-variant-numeric:tabular-nums;line-height:1.15;word-break:break-all;margin-top:6px}
-.ivcodes{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-top:6px}
-.ivcodes span{text-align:center}
-.ivcodes small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--mut)}
-.ivcodes b{font-size:30px;font-weight:800;color:var(--g-d);font-variant-numeric:tabular-nums;line-height:1.15;word-break:break-all}
-.ivname{text-align:center;font-size:17px;font-weight:700;text-transform:uppercase;color:var(--ink);margin:2px 0 6px;line-height:1.25}
-.ivcard .qh{margin-bottom:8px}
-.ivli{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--ln);cursor:pointer}
-.ivli:last-child{border-bottom:0}
-.ivli small{display:block;color:var(--mut);font-size:12px}
-.ivli b{white-space:nowrap}
-.ivli.ok b{color:var(--g)}
-.ivli.cur{background:var(--lt2);margin:0 -6px;padding-left:10px;padding-right:10px;border-radius:10px}
-.ivrow{display:flex;gap:8px}.ivrow>*{flex:1}
-.ivtbl{width:100%;border-collapse:collapse;font-size:14px}
-.ivtbl th{background:var(--g);color:#fff;padding:9px 8px;text-align:right;font-size:11px;letter-spacing:.05em}
-.ivtbl th:first-child,.ivtbl td:first-child{text-align:left}
-.ivtbl td{padding:10px 8px;border-bottom:1px solid var(--ln);text-align:right;font-variant-numeric:tabular-nums}
-.ivtbl tfoot td{font-weight:800;color:var(--g-d);border-bottom:0}
-.ivtbl td small{display:block;color:var(--mut);font-size:11.5px}
-html[data-tema=dark] .ivtbl th{background:#1a6a45}
-#ivMain textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;min-height:190px}
-.ivsp{height:8px}
-.ivtag{display:inline-block;padding:3px 11px;border-radius:9px;font-weight:700;line-height:1.3;max-width:100%;overflow-wrap:anywhere}
-.ivtag.big{font-size:17px;padding:5px 12px;border-radius:10px}
-.ivbanner{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;font-size:19px;font-weight:700;margin:12px 0 0;box-shadow:none;line-height:1.2}
-.ivbanner span{font-size:14px;font-weight:700;background:rgba(255,255,255,.18);border-radius:99px;padding:2px 11px;flex:none}
-.ivdot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:7px;vertical-align:middle}
-.ivchips{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 4px}
-.ivchip{width:42px;height:42px;min-height:0;padding:0;border-radius:50%;border:3px solid transparent}
-.ivchip.sel{border-color:var(--ink);box-shadow:0 0 0 3px var(--card) inset}
-.ivlan{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--ln);font-size:16px}
-.ivsub{display:flex;justify-content:space-between;font-weight:800;font-size:19px;color:var(--g-d);padding:8px 4px 2px}
-.ivsub:empty{display:none}
-.ivrel{background:#fff;color:#16212b;border-radius:14px;padding:16px;margin:12px 0;border:1px solid #d9e0e6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.ivrel h2{margin:0 0 2px;font-size:20px;color:#16212b}
-.ivrel .sub{margin:0 0 12px;color:#64727f;font-size:13px}
-.ivrel h3{margin:18px 0 8px;font-size:15px;color:#16212b}
-.ivrel table{width:100%;border-collapse:collapse;font-size:14px}
-.ivrel th{text-align:left;background:#eef2ef;color:#16212b;padding:7px 8px;font-size:11px;letter-spacing:.04em}
-.ivrel td{padding:8px;border-bottom:1px solid #e3e9e6;vertical-align:top;text-align:left;font-variant-numeric:tabular-nums}
-.ivrel td:last-child,.ivrel th:last-child{text-align:right}
-.ivrel td small{display:block;color:#64727f;font-size:11.5px}
-.ivrel .ivrb{border-left:5px solid #ccc;border-radius:6px;padding:0 0 4px 10px;margin:14px 0;break-inside:avoid-page}
-.ivrel .ivrbh{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
-.ivrel .ivrbh>span{font-size:13px;color:#64727f}
-.ivrel .tot{font-weight:800}
-.ivbcs{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-.ivbc{border:1px solid #cfd8d3;border-radius:12px;padding:10px;break-inside:avoid;text-align:center;background:#fff;color:#16212b}
-.ivbc svg{width:100%;height:auto;display:block;margin:6px 0 2px}
-.ivbc .ivbch{font-weight:800;font-size:15px;margin-bottom:2px}
-.ivbc small{color:#64727f;font-size:12px;display:block}
-.ivbc .ivbct{font-weight:800;font-size:16px}
-.ivbc.warn{text-align:left;background:#fff8e1;border-color:#f0d98a}
-.ivwarn{background:#fff4d6;border:1px solid #f3dc9a;color:#6b4a00;padding:10px 12px;border-radius:12px;font-size:13px;font-weight:600;margin:10px 0}
-.ivok{background:#e6f4ea;border:1px solid #b7dfc3;color:#14633d;padding:10px 12px;border-radius:12px;font-size:13px;font-weight:600;margin:10px 0}
-@media print{
-  html,body{background:#fff!important;color:#000!important}
-  body *{visibility:hidden}
-  #ivMain .ivrel,#ivMain .ivrel *{visibility:visible}
-  #ivMain .ivrel{position:absolute;left:0;top:0;width:100%;border:0;margin:0;padding:0}
-  .noprint{display:none!important}
-}
-.ivsw{position:relative;height:44px;border-radius:22px;background:rgba(127,127,127,.16);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;min-width:0}
-.ivswt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:34px;font-size:14px;font-weight:600;color:var(--muted,#8a9a90);letter-spacing:.3px;pointer-events:none}
-.ivswh{position:absolute;left:2px;top:2px;width:40px;height:40px;border-radius:50%;background:#4f8a68;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;touch-action:none;cursor:grab;box-shadow:0 1px 3px rgba(0,0,0,.25)}
-.ivli.ok{opacity:.62;background:rgba(0,0,0,.14);margin:0 -6px;padding-left:10px;padding-right:10px}
-.ivli.ok.cur{opacity:1;background:var(--lt2)}
-.ivfinh{margin:14px -6px 4px;padding:6px 10px;font-size:12px;font-weight:700;color:var(--mut);letter-spacing:.2px}
-.ivname{font-size:26px!important;font-weight:800!important;text-transform:none!important;margin:4px 0 2px!important;line-height:1.15!important}
-.ivcodes{gap:14px!important;margin:0 0 8px!important;opacity:.75}
-.ivcodes small{font-size:9px!important}
-.ivcodes b{font-size:13px!important;font-weight:600!important;color:var(--mut)!important}
-.ivq{margin:0 0 10px}
-.ivqr .ivli{cursor:pointer}
-.ivqr .ivli b{white-space:normal;text-align:right}
-
-/* ===== Inventário v50: visual novo ===== */
-#tabInventario{--ivr:20px}
-.ivhero{margin:12px 0;padding:18px 18px 16px;border-radius:var(--ivr);color:#fff;background:radial-gradient(120% 140% at 100% 0%,#2a9a68 0%,rgba(42,154,104,0) 55%),linear-gradient(160deg,#0e4a30,#146040);box-shadow:0 10px 26px rgba(14,74,48,.28)}
-.ivh-row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
-.ivh-big b{display:block;font-size:46px;line-height:1;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.ivh-big span{display:block;margin-top:6px;font-size:13px;font-weight:600;opacity:.8}
-.ivh-pct{font-size:20px;font-weight:800;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.16);font-variant-numeric:tabular-nums}
-.ivsegs{display:flex;gap:4px;margin:16px 0 10px}
-.ivsegs i{height:10px;border-radius:6px;background:rgba(255,255,255,.2);overflow:hidden;position:relative;min-width:10px}
-.ivsegs u{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:#fff;box-shadow:inset 0 0 0 9px var(--c);opacity:1}
-.ivsegs u{background:var(--c);filter:brightness(1.35) saturate(1.1)}
-.ivh-s{margin:0;font-size:13px;font-weight:600;opacity:.85}
-.ivfind{margin:0 0 4px}.ivfind .ivq{margin:0}
-.ivfind input{background:var(--card);border-radius:14px}
-.ivb{position:relative;margin:12px 0;padding:16px 16px 14px;border-radius:var(--ivr);border:1px solid var(--ln);background:linear-gradient(135deg,color-mix(in srgb,var(--c) 11%,var(--card)) 0%,var(--card) 62%);box-shadow:var(--sh1);overflow:hidden}
-.ivb::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:5px;border-radius:0 5px 5px 0;background:var(--c)}
-.ivb-top{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding-left:4px}
-.ivb-t{min-width:0;flex:1}
-.ivb-t h3{margin:0;font-size:19px;line-height:1.2;font-weight:800;color:var(--ink);overflow-wrap:anywhere}
-.ivb-t p{margin:3px 0 0;font-size:13px;color:var(--mut);font-weight:600;font-variant-numeric:tabular-nums}
-.ivb-t .ivb-who{font-weight:500;font-size:12px;opacity:.9}
-.ivring{--p:0;--c:var(--g);position:relative;flex:none;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--c) calc(var(--p)*1%),color-mix(in srgb,var(--c) 18%,transparent) 0)}
-.ivring::before{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--card)}
-.ivring b{position:relative;font-size:16px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
-.ivring b i{font-style:normal;font-size:10px;font-weight:700;opacity:.65;margin-left:1px}
-.ivring.full{background:var(--c)}.ivring.full::before{background:color-mix(in srgb,var(--c) 14%,var(--card))}.ivring.full b{color:var(--c);font-size:22px;filter:brightness(.8)}
-.ivb-act{margin:0}
-.ivb-act .secondary{flex:0 0 38%}
-.ivtiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 0}
-.ivtile{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:76px;padding:12px 14px;border-radius:16px;background:var(--card);border:1px solid var(--ln);color:var(--ink);font-size:14.5px;font-weight:700;text-align:left;box-shadow:var(--sh1)}
-.ivtile span{font-size:22px;line-height:1}
-.ivempty{margin:14px 0;padding:30px 22px;border-radius:var(--ivr);text-align:center;background:var(--card);border:1px dashed color-mix(in srgb,var(--g) 45%,var(--ln))}
-.ivempty .ive-ico{font-size:44px;line-height:1}
-.ivempty h2{margin:12px 0 6px;font-size:20px;color:var(--ink)}
-.ivempty p{margin:0 0 16px;color:var(--mut);font-size:14px;line-height:1.5}
-/* contagem */
-.ivbanner{border-radius:var(--ivr)!important;padding:14px 18px!important;font-size:20px!important;font-weight:800!important}
-.ivcp{padding:12px 14px!important}
-.ivcp .prog{display:none}
-.ivseg{display:flex;gap:3px;margin:2px 0 10px}
-.ivseg i{flex:1;height:9px;min-width:3px;border-radius:5px;background:color-mix(in srgb,var(--c) 20%,transparent)}
-.ivseg i.wip{background:color-mix(in srgb,var(--c) 55%,transparent)}
-.ivseg i.ok{background:var(--c)}
-.ivseg i.cur{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--c);transform:scaleY(1.35)}
-#ivCur{border-radius:var(--ivr)!important;padding:18px 16px!important}
-#ivCNum{font-weight:700;letter-spacing:.02em}
-.ivname{font-size:28px!important;margin:6px 0 4px!important}
-#ivPeso{font-size:34px!important;font-weight:800!important;text-align:center;min-height:68px!important;border-radius:16px!important;font-variant-numeric:tabular-nums}
-#ivAdd{min-height:60px;font-size:18px}
-.ivlan{border-radius:12px;background:var(--lt2);border:0!important;margin:6px 0;padding:8px 12px!important}
-.ivsub{border-top:2px dashed var(--ln);margin-top:8px}
-.ivli{border-radius:12px;margin:2px 0}
-.ivli.cur{background:color-mix(in srgb,var(--g) 12%,var(--card))}
-.ivli.ok{background:color-mix(in srgb,var(--g) 9%,var(--card))!important;opacity:1}
-#ivPeso::placeholder{font-size:20px;font-weight:600}
-.ivli.ok b{color:var(--g)}
-html[data-tema=dark] .ivhero{box-shadow:none;border:1px solid rgba(255,255,255,.06)}
-
-/* ===== v51: 3 abas, Ferramentas, ⋮ e botão BIPAR ===== */
-.tabbar button{font-size:13.5px!important;padding:0 4px!important}
-.ferrnav{display:flex;gap:6px;padding:0 10px 10px}
-.ferrnav button{flex:1 1 0;min-width:0;min-height:38px;border-radius:11px;padding:0 4px;font-size:12.5px;font-weight:700;white-space:nowrap;background:transparent;color:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.28)}
-.ferrnav button.on{background:rgba(255,255,255,.95);color:var(--g-d,#0e4a30);border-color:transparent}
-html[data-tema=dark] .ferrnav button.on{background:#2a8f5d;color:#fff}
-#moreBtn{flex:none;min-width:40px;height:44px;padding:0;border-radius:12px;background:rgba(255,255,255,.14);color:#fff;font-size:24px;font-weight:800;line-height:1}
-header h1{min-width:0;flex:1;overflow:hidden}
-header{gap:6px!important;padding-left:12px!important}.onchip{margin-left:3px!important;padding:3px 7px!important}
-/* ===== Doação: item selecionado bem claro (nome inteiro + peso grande) ===== */
-.dhint,.dbig{display:none}
-body.np-doa[data-tab="Doacao"] .nowbar:not(.vazio){display:block!important;padding:10px 12px 12px!important;border-color:var(--gold2,#e5c158)}
-body.np-doa[data-tab="Doacao"] .nowbar .nowtop{display:flex!important;align-items:flex-start;gap:10px;margin:0 0 6px!important;flex:none!important;width:100%}
-body.np-doa[data-tab="Doacao"] #dNome{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:19px;line-height:1.2}
-body.np-doa[data-tab="Doacao"] .nowbar .dhint{display:block;font-size:12px;font-weight:700;color:var(--mut);margin:0 0 8px}
-body.np-doa[data-tab="Doacao"] .nowbar .nowrow{display:flex!important;align-items:center;gap:10px;width:100%}
-body.np-doa[data-tab="Doacao"] .nowbar .dbig{display:block;flex:1;min-width:0;font-size:38px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;color:var(--g-d);background:var(--lt2,rgba(0,0,0,.05));border-radius:14px;padding:10px 14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.np-doa[data-tab="Doacao"] .nowbar .dbig small{font-size:18px;font-weight:800;opacity:.75;margin-left:6px}
-body.np-doa #npTitle,body.np-doa #npVal{display:none}
-body.np-doa #npTop{min-height:30px;justify-content:flex-end;margin-bottom:4px}
-#appVer{cursor:pointer;padding:2px 6px;margin-left:2px;border-radius:99px;background:rgba(255,255,255,.14);opacity:1!important;white-space:nowrap}
-.morebg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.28)}
-.moremenu{position:fixed;z-index:61;top:calc(54px + env(safe-area-inset-top));right:10px;width:min(300px,calc(100vw - 20px));padding:6px;border-radius:18px;background:var(--card);border:1px solid var(--ln);box-shadow:0 18px 44px rgba(0,0,0,.35);display:flex;flex-direction:column}
-.moremenu.hidden,.morebg.hidden{display:none}
-.product.retirado{opacity:.82;border-left-color:#7a8599}.product.retirado .vd b{color:var(--mut)}
-.actions .primary{flex:1}
-.phe{border:1px solid var(--ln);border-radius:14px;padding:10px 12px;margin:8px 0;background:var(--card);display:flex;flex-direction:column;gap:3px;font-size:14px}
-.phe b{font-size:15px}.phe.del{border-color:#c2475a}.phe.add{border-color:#3d9b6b}.phe .secondary{margin-top:6px;min-height:40px}
-.tabbar button{position:relative}
-@keyframes sirene{0%,49.9%{background:#d8202f;box-shadow:0 0 16px 4px rgba(216,32,47,.9)}50%,100%{background:#1f6bff;box-shadow:0 0 16px 4px rgba(31,107,255,.9)}}
-.tabbar button.siren{animation:sirene .7s steps(1,end) infinite;color:#fff!important;border:1.5px solid #fff}
-.tabbar button.siren .sirn{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;margin-left:5px;padding:0 5px;border-radius:99px;background:#fff;color:#c01322;font-size:11px;font-weight:900}
-.tabbar button:not(.siren) .sirn{display:none}
-@media (prefers-reduced-motion:reduce){.tabbar button.siren{animation:none;background:linear-gradient(90deg,#d8202f 50%,#1f6bff 50%)}}
-.moremenu button{display:flex;align-items:center;gap:12px;width:100%;min-height:50px;padding:0 14px;border-radius:12px;background:transparent;color:var(--ink);font-size:15px;font-weight:650;text-align:left;border:0;box-shadow:none}
-.moremenu button span{flex:1}
-.moremenu button:active{background:var(--lt2)}
-.moremenu button.hidden{display:none}
-#side .menu button:not(#navImport){display:none}
-.fabwrap .fabscan{letter-spacing:.06em;box-shadow:0 10px 26px rgba(14,74,48,.45)}
-body[data-tab="Inventario"] .fabwrap{display:none}
-#dScan{margin-bottom:8px}
-
-/* ===== v52: preto e dourado (cores do ícone) ===== */
-:root{--g:#8a6a14;--g-d:#1a1e29;--g2:#d4ad3a;--g3:#ebcb62;--bg:#f4f2ec;--lt:#f6efd8;--lt2:#faf7ec;--ln:#e8e4d8;--gold1:#f3d87a;--gold2:#e5c158;--gold3:#c9a227;--gold4:#9e7a1c;--onGold:#17130a}
-html[data-tema=dark]{--g:#e5c158;--g-d:#f3d87a;--g2:#c9a227;--g3:#e5c158;--bg:#08090c;--card:#12141b;--ink:#ece8dc;--mut:#a39e8f;--ln:#262a35;--lt:#1d1a10;--lt2:#14151b}
-button:focus-visible,summary:focus-visible{outline-color:rgba(201,162,39,.55)}
-input:focus,select:focus,textarea:focus,[data-np].np-on{border-color:var(--gold3);box-shadow:0 0 0 4px rgba(201,162,39,.2)}
-.top,html[data-tema=dark] .top{background:linear-gradient(135deg,#08090c 0%,#1a1e29 100%);box-shadow:0 8px 24px rgba(0,0,0,.4)}
-.tabbar .active,html[data-tema=dark] .tabbar .active{background:linear-gradient(180deg,var(--gold1),var(--gold3));color:var(--onGold);box-shadow:0 3px 10px rgba(0,0,0,.35)}
-.ferrnav button.on,html[data-tema=dark] .ferrnav button.on{background:linear-gradient(180deg,var(--gold1),var(--gold3));color:var(--onGold)}
-.primary,.grid .sel,.grid3 .sel,.qbtn.sel,.qbtn.fav.sel,.keypad .add,#npGrid .ok,.fabscan,.fabwrap .fabscan,
-html[data-tema=dark] .primary,html[data-tema=dark] .grid .sel,html[data-tema=dark] .grid3 .sel,html[data-tema=dark] .qbtn.sel,html[data-tema=dark] .keypad .add,html[data-tema=dark] #npGrid .ok,html[data-tema=dark] .fabscan{background:linear-gradient(180deg,var(--gold1),var(--gold3));color:var(--onGold);border-color:var(--gold4);box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 4px 10px rgba(158,122,28,.32)}
-.qbtn.sel small{color:#4a3a0c}
-.fabwrap .fabscan{box-shadow:0 10px 26px rgba(0,0,0,.45),0 0 0 1px rgba(243,216,122,.5) inset}
-.ltam .sel,.crr .ltam .sel,html[data-tema=dark] .ltam .sel,html[data-tema=dark] .crr .ltam .sel{background:linear-gradient(180deg,var(--gold1),var(--gold3));color:var(--onGold);border-color:var(--gold4)}
-.menu .active,html[data-tema=dark] .menu .active{background:linear-gradient(135deg,#1a1e29,#08090c);color:var(--gold1);box-shadow:0 6px 16px rgba(0,0,0,.3)}
-.utog .sel,html[data-tema=dark] .utog .sel{background:linear-gradient(180deg,var(--gold1),var(--gold3));color:var(--onGold);box-shadow:0 2px 6px rgba(0,0,0,.2)}
-.prog div{background:linear-gradient(90deg,var(--gold2),var(--gold3))}
-.hbadge{background:#f6efd8;color:#6d5410}
-html[data-tema=dark] .pill,html[data-tema=dark] .hbadge{background:#2a2410;color:var(--gold2)}
-html[data-tema=dark] .expired .pill{background:#4a1c1c;color:#ffa3a3}
-html[data-tema=dark] .soon .pill{background:#4a3a0a;color:#ffd666}
-html[data-tema=dark] .none .pill{background:#222530;color:#b6c2bb}
-html[data-tema=dark] .tbadge,html[data-tema=dark] .plus{background:var(--gold3);color:var(--onGold)}
-html[data-tema=dark] .panel,html[data-tema=dark] .stat,html[data-tema=dark] .product,html[data-tema=dark] .tam,html[data-tema=dark] .side,html[data-tema=dark] .crow,html[data-tema=dark] .csum,html[data-tema=dark] .clist,html[data-tema=dark] .nowbar,html[data-tema=dark] .fabmain,html[data-tema=dark] .fabitem,html[data-tema=dark] .impl{background:#12141b;border-color:var(--ln)}
-html[data-tema=dark] .product.expired{background:linear-gradient(90deg,#2a1415,#12141b 45%)}
-html[data-tema=dark] .product.soon{background:linear-gradient(90deg,#2a2410,#12141b 45%)}
-html[data-tema=dark] .sheet{background:#0d0f14}
-html[data-tema=dark] .product.none .vbox{background:#181a22}
-.ivhero{background:radial-gradient(120% 140% at 100% 0%,rgba(229,193,88,.28) 0%,rgba(229,193,88,0) 55%),linear-gradient(160deg,#08090c,#1a1e29);box-shadow:0 10px 26px rgba(0,0,0,.35);border:1px solid rgba(243,216,122,.18)}
-.ivh-big b{background:linear-gradient(180deg,var(--gold1),var(--gold3));-webkit-background-clip:text;background-clip:text;color:transparent}
-.ivh-pct{background:rgba(243,216,122,.16);color:var(--gold1)}
-.ivsegs u{filter:none;background:var(--c)}
-.ivb{background:linear-gradient(135deg,color-mix(in srgb,var(--c) 11%,var(--card)) 0%,var(--card) 62%)}
-.ivswh,.ivsw .ivswh{background:linear-gradient(180deg,var(--gold1),var(--gold3))!important;color:var(--onGold)!important}
-.ivli.ok{background:color-mix(in srgb,var(--gold3) 12%,var(--card))!important}
-.ivli.ok b,.ivli.cur{color:var(--g)}
-.ivli.cur{background:color-mix(in srgb,var(--gold3) 14%,var(--card))}
-.moremenu button:active{background:var(--lt2)}
-.ivok{background:#f6efd8;border-color:#e5d08a;color:#6d5410}
-
-/* ===== v53: busca da Doação acima do teclado ===== */
-body.dfocus #dFind{position:fixed;left:8px;right:8px;bottom:calc(var(--kb,0px) + 8px + env(safe-area-inset-bottom));z-index:45;display:flex;flex-direction:column-reverse;gap:8px;padding:10px;border-radius:22px;background:var(--card);border:1px solid var(--ln);box-shadow:0 -12px 36px rgba(0,0,0,.38)}
-body.dfocus #dSug{max-height:calc(100vh - var(--kb,0px) - var(--top-h,108px) - 200px);max-height:calc(100dvh - var(--kb,0px) - var(--top-h,108px) - 200px);overflow-y:auto;overscroll-behavior:contain}
-body.dfocus #dSug:empty{display:none}
-body.dfocus #dSug button{min-height:52px;text-align:left}
-body.dfocus.mao1[data-tab="Doacao"] .nowbar{top:calc(var(--top-h,108px) + 8px + env(safe-area-inset-top));bottom:auto}
-body.dfocus .fabwrap{display:none}
-body.dfocus .toast{top:calc(var(--top-h,108px) + 8px + env(safe-area-inset-top));bottom:auto}
-/* v54: com o teclado numérico aberto, a barra do item fica enxuta (o teclado já tem valor e botão Adicionar) */
-body.np-open[data-tab="Doacao"] .nowbar:not(.vazio){display:flex;align-items:center;gap:12px;padding:8px 12px}
-body.np-open[data-tab="Doacao"] .nowbar .nowtop{flex:1;min-width:0;margin:0}
-body.np-open[data-tab="Doacao"] .nowbar .nowname small{display:none}
-body.np-open[data-tab="Doacao"] .nowbar .nowrow{flex:none}
-body.np-open[data-tab="Doacao"] .nowbar #dPeso,body.np-open[data-tab="Doacao"] .nowbar #dAdd{position:absolute;width:1px;height:1px;min-height:0;padding:0;margin:0;border:0;opacity:0;overflow:hidden;pointer-events:none}
-body.np-open[data-tab="Doacao"] .nowbar{position:sticky}
-body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog{width:92px}
-body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
+body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden)) .toast{top:calc(var(--top-h) + 8px + env(safe-area-inset-top))!important;bottom:auto!important}
 </style>
 </head>
 <body data-tab="Loja">
 <main class="app">
-<div class="top"><header><h1>Valida+ <small id="appVer" style="font-size:11px;font-weight:600;opacity:.65;letter-spacing:.3px"></small><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1></header><nav class="tabbar"><button id="tbDoacao">📋 Doação</button><button id="tbEtiquetas">🏷️ Etiquetas</button><button id="tbLoja">⏱️ Validades<span class="sirn" id="sirN"></span></button></nav></div>
+<div class="top"><header><h1>Valida+ <small id="appVer" style="font-size:11px;font-weight:600;opacity:.65;letter-spacing:.3px"></small><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1></header><nav class="tabbar"><button id="tbDoacao">📋 Doação</button><button id="tbEtiquetas">🏷️ Etiquetas</button><button id="tbLoja">⏱️ Validades</button></nav></div>
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
-<div id="topAlert" class="alert hidden" role="status"></div><button type="button" id="outAlert" class="alert hidden" style="width:100%;text-align:left;background:#7a1020;border-color:#ff5a6e;color:#fff"></button>
+<div id="topAlert" class="alert hidden" role="status"></div>
 <section class="stats"><div class="stat"><b id="countAll">0</b><span>Cadastrados</span></div><div class="stat"><b id="countSoon">0</b><span>Vencem em breve</span></div><div class="stat"><b id="countExpired">0</b><span>Vencidos</span></div></section>
 <section class="panel">
 <div class="toolbar"><button class="secondary big" id="manualOpen">＋ Cadastro manual</button></div>
 <input id="search" type="search" placeholder="Buscar por nome ou código" aria-label="Buscar produto" style="margin-top:12px">
 <div class="filters"><select id="categoryFilter" class="hidden" aria-label="Categoria"></select><select id="statusFilter" class="hidden" aria-label="Status"><option value="">Todos os status</option><option value="expired">Vencidos</option><option value="soon">Vencem em breve</option><option value="ok">Dentro do prazo</option></select></div>
-<button type="button" class="lnk" id="verTodos"></button><button type="button" class="lnk hidden" id="verRet"></button>
+<button type="button" class="lnk" id="verTodos"></button>
 <div id="list"></div>
 </section>
 <div class="hidden"><details id="scansBox"><div id="scanList"></div></details></div>
@@ -771,14 +527,14 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 </div>
 <div id="tabDoacao" class="hidden">
 <div id="donaEntrada">
-<div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
-<div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
-<section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div>
+<div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><small>COLETANDO AGORA</small><span id="dNome">Escolha o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
+<div class="nowrow"><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
+<section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button></div>
 <div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></section>
-<section class="panel"><h2 class="h2 qh">Produto <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
+<section class="panel"><h2 class="h2 qh">⚖️ Escolha o produto <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
 <div id="qBar" class="qbar hidden"><span>Toque num atalho para editar</span><button type="button" class="secondary" id="qReset">Restaurar padrão</button><button type="button" class="primary" id="qDone">Concluir</button></div>
 <div id="qFreq" class="qfreq hidden"></div><div id="qgrid" class="qgrid"></div>
-<div id="dFindBox"><div id="dFind"><input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off" enterkeyhint="search"><div id="dSug" class="rows sug"></div></div></div>
+<input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off"><div id="dSug" class="rows sug"></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
 <section class="panel dlistp" id="dListaBox"><h2 class="h2" style="margin:8px 0 0">Itens coletados</h2><div id="dLista"></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
 <div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
@@ -787,10 +543,10 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
 </div>
 <div id="donaRomaneio" class="hidden"><section class="panel"><div id="romHead"></div><div id="romBody"></div>
-<div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rAdd">＋ Bipar item</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
+<div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
 </div>
 <div id="tabEtiquetas" class="hidden">
-<details class="etqinfo"><summary>ℹ️ Como usar esta aba</summary><span>Use esta aba para <b>coletar os códigos de barras dos produtos que precisam de etiquetas na loja</b>.</span><ol><li>Bipe o código ou pesquise o produto pelo nome.</li><li>Segure o item para escolher o tamanho (P, M ou G) e a quantidade.</li><li>Toque no quadrado ao lado do item para marcar as que <b>já foram colocadas para impressão</b>.</li><li>Toque no <b>⧉</b> para <b>duplicar</b> o código e escolher outro tamanho (ex.: 2 P e 1 G do mesmo produto).</li><li>Quando terminar, use <b>Remover todos</b> para limpar a lista.</li></ol><span class="etqnote">O cadastro de produtos pode ser feito por qualquer usuário: se o código ainda não existir, o app pede o nome e cadastra na hora.</span></details>
+<details class="etqinfo"><summary>ℹ️ Como usar esta aba</summary><span>Use esta aba para <b>coletar os códigos de barras dos produtos que precisam de etiquetas na loja</b>.</span><ol><li>Bipe o código ou pesquise o produto pelo nome.</li><li>Segure o item para escolher o tamanho (P, M ou G) e a quantidade.</li><li>Toque no quadrado ao lado do item para marcar as que <b>já foram colocadas para impressão</b>.</li><li>Quando terminar, use <b>Remover todos</b> para limpar a lista.</li></ol><span class="etqnote">O cadastro de produtos pode ser feito por qualquer usuário: se o código ainda não existir, o app pede o nome e cadastra na hora.</span></details>
 <section class="panel"><div class="toolbar"><button class="primary big" id="eScan">▦ Bipar EAN</button></div>
 <input id="eBusca" type="search" placeholder="Ou pesquise o produto pelo nome" style="margin-top:12px"><div id="eRes" class="rows"></div></section>
 <section class="panel hidden" id="ePend"><h2 class="h2" id="eNome"></h2><p class="note" id="eCod"></p>
@@ -800,58 +556,24 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="eAdd">Adicionar à lista</button><button class="secondary" id="eCancela">Cancelar</button></div></section>
 <div class="csum"><div><span>PRODUTOS</span><b id="eSumP">0</b></div><div><span>QUANTIDADE TOTAL</span><b id="eSumQ">0</b></div></div><div id="eLista" class="clist"></div><p class="emarc" id="eMarc"></p><button type="button" id="eLimpa" class="secondary hidden" style="width:100%;margin-top:10px">🗑 Remover todos (já imprimi)</button>
 </div>
-<div id="tabCadastros" class="hidden">
-<section class="panel"><h2 class="h2" id="cTitulo">Novo cadastro</h2><p class="note">Cadastro sem foto: digite ou bipe o código de barras (no máximo 13 dígitos).</p>
-<label for="cNome">Nome do produto</label><input id="cNome" maxlength="60" autocomplete="off" placeholder="Ex.: Couve-flor">
-<label for="cEan">Código de barras (EAN) <span class="cadcnt" id="cEanN">0/13</span></label><div class="stepper"><input id="cEan" inputmode="numeric" maxlength="13" autocomplete="off" placeholder="Até 13 dígitos"><button type="button" class="secondary" id="cBipar" style="padding:0 14px;white-space:nowrap;font-size:14px">▦ Bipar</button></div>
-<label for="cPlu">Código de balança (PLU)</label><input id="cPlu" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Opcional, até 6 números">
-<label for="cDon">Código de doação</label><input id="cDon" maxlength="12" autocomplete="off" placeholder="Opcional, ex.: B1" style="text-transform:uppercase">
-<div class="toolbar" style="margin-top:12px"><button class="primary big" id="cSalvar">Cadastrar</button><button class="secondary" id="cCancela" hidden>Cancelar</button></div></section>
-<section class="panel"><h2 class="h2">Produtos cadastrados <span class="cadcnt" id="cCount"></span></h2><input id="cBusca" type="search" placeholder="Buscar por nome ou código" autocomplete="off"><div id="cLista"></div></section>
-</div>
-<div id="tabInventario" class="hidden">
-<p class="ivsync" id="ivSync"></p>
-<div id="ivMain"></div>
-<div id="ivCount" class="hidden">
-<div class="ivbanner" id="ivCBanner"><div id="ivCName"></div><span id="ivCPct">0%</span></div>
-<section class="panel ivcp"><div class="prog"><div id="ivCBar" style="width:0%"></div></div><div class="ivseg" id="ivCSeg"></div><small class="note" id="ivCInfo" style="margin:0"></small></section>
-<section class="panel" id="ivCur"><small class="note" id="ivCNum" style="text-align:center;margin:0"></small>
-<div class="ivname" id="ivCItem"></div><div class="ivcodes" id="ivCCode"></div>
-<div id="ivLans"></div><div class="ivsub" id="ivSub"></div>
-<label for="ivPeso" id="ivPesoL">Quantidade</label>
-<input id="ivPeso" type="text" readonly inputmode="none" data-np data-np-submit="#ivAdd" data-np-label="Lançar" placeholder="kg (ex.: 2,5)" autocomplete="off">
-<div class="toolbar" style="margin-top:12px"><button type="button" class="primary big" id="ivAdd">＋ Lançar</button><button type="button" class="secondary big" id="ivNext">Concluir ›</button></div>
-<div class="toolbar" style="margin-top:8px"><button type="button" class="secondary" id="ivZero">Não tem</button><button type="button" class="secondary" id="ivPrev">← Anterior</button></div>
-<div class="toolbar" style="margin-top:8px"><button type="button" class="secondary" id="ivBack">Voltar às bancas</button></div></section>
-<section class="panel hidden" id="ivDone" style="text-align:center"><div class="ivcode">100%</div><p id="ivDoneTxt" style="margin:4px 0 12px"></p>
-<div class="toolbar"><button type="button" class="primary big" id="ivDoneRel">📄 Relatório</button><button type="button" class="secondary big" id="ivDoneSend">Enviar resultado</button></div>
-<div class="toolbar" style="margin-top:8px"><button type="button" class="secondary" id="ivDoneCopy">Copiar link</button><button type="button" class="secondary" id="ivDoneBack">Voltar às bancas</button></div></section>
-<section class="panel"><h2 class="h2">Produtos da banca</h2><div id="ivList"></div></section>
-</div>
-</div>
 <footer class="foot hidden"><span><i class="dot v"></i>VISITAS <b id="nVisitas">–</b></span><span><i class="dot" id="dotO"></i>ONLINE <b id="nOnline">–</b></span></footer>
 <details class="updbox hidden" id="updBox"><summary id="updSum"></summary><div id="updBody"></div></details>
 </main>
 <div id="sideBg" class="bg hidden"></div>
 <aside id="side" class="side" aria-label="Menu"><div class="sheethead"><h2>Menu</h2><button class="secondary" id="sideClose" aria-label="Fechar menu">✕</button></div>
-<nav class="menu"><button id="navLoja">⏱️ Validades<small>Ovos e refrigerados</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navInventario">📦 Inventário<small>Contagem de FLV por banca</small></button><button id="navCadastros">🗂️ Cadastros<small>Cadastrar e editar digitando</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
+<nav class="menu"><button id="navLoja">⏱️ Validades<small>Ovos e refrigerados</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
 <section class="panel"><h2 style="font-size:17px;margin:0 0 10px">Exportar</h2>
 <label for="exportScope">O que exportar</label><select id="exportScope"><option value="all">Todos os produtos</option><option value="soon">Vencem em breve</option><option value="expired">Vencidos</option><option value="category">Uma categoria</option><option value="products">Produtos cadastrados (com códigos)</option></select>
 <select id="exportCategory" class="hidden" aria-label="Categoria para exportar" style="margin-top:8px"></select>
 <div class="toolbar" style="margin-top:10px"><button class="secondary" id="csvBtn">Excel (.csv)</button><button class="secondary" id="pdfBtn">Gerar PDF</button><button class="primary" id="shareBtn">Compartilhar</button></div>
 <small class="note">O compartilhamento usa a janela nativa do celular quando disponível; se não houver, o PDF é baixado.</small></section>
 <button class="secondary" id="installBtn" hidden style="width:100%;margin-top:10px">Instalar app</button></aside>
-<div id="phModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="phTitle"><div class="sheethead"><h2 id="phTitle">Histórico de produtos</h2><button class="secondary" id="phClose" aria-label="Fechar">✕</button></div>
-<p class="note">Tudo que entra, muda ou sai da lista, com data e quem fez. Se algo sumiu, toque em <b>Restaurar</b>. Este histórico vale para este aparelho: ele registra o que ele viu acontecer.</p>
-<input id="phBusca" type="search" placeholder="Buscar produto no histórico" autocomplete="off"><div id="phList" class="rows"></div></section></div>
 <div id="impModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="impTitle"><div class="sheethead"><h2 id="impTitle">Importar lista de produtos</h2><button class="secondary" id="impClose" aria-label="Fechar">✕</button></div>
 <p class="note">Uma linha por produto. Separe as colunas com <b>;</b> (ponto e vírgula), tabulação (ao colar do Excel) ou <b>|</b>. Ordem: <b>nome; código de balança; código de doação; EAN; categoria</b>. Só o nome é obrigatório. Quem já existe (pelo EAN ou pelo nome) é atualizado; os novos entram como FLV, sem validade, se você não informar a categoria.</p>
 <textarea id="impText" rows="8" placeholder="Mamão Papaya;123;45&#10;Banana Prata;124;46&#10;Pão Francês;200;B1;;Padaria"></textarea>
 <div class="toolbar" style="margin-top:8px"><button class="secondary" id="impFileBtn">📎 Escolher arquivo</button><button class="secondary" id="impModel">Baixar modelo</button></div><input type="file" id="impFile" accept=".csv,.txt,.tsv,text/plain,text/csv" hidden>
-<div class="toolbar" style="margin-top:8px"><button class="secondary" id="impLimpa">🗑️ Limpar texto</button></div>
 <div class="toolbar" style="margin-top:10px"><button class="secondary big" id="impCheck">Conferir lista</button><button class="primary big" id="impGo" disabled>Cadastrar</button></div><div id="impPrev" class="rows"></div></section></div>
-<div id="moreBg" class="morebg hidden"></div><div id="moreMenu" class="moremenu hidden" role="menu" aria-label="Mais opções"><button type="button" role="menuitem" id="mnCad">🗂️<span>Cadastros</span></button><button type="button" role="menuitem" id="mnInv">📦<span>Inventário</span></button><button type="button" role="menuitem" id="mnHist">📜<span>Histórico</span></button><button type="button" role="menuitem" id="mnBkp">💾<span>Fazer backup</span></button><button type="button" role="menuitem" id="mnRest">♻️<span>Restaurar backup</span></button><button type="button" role="menuitem" id="mnInstall">📲<span>Instalar app</span></button></div>
-<div class="fabwrap" id="fabWrap"><div class="fabrow"><button class="fabscan" id="fab" aria-label="Bipar código de barras">▦ BIPAR</button></div></div>
+<div id="fabScrim" class="fabscrim hidden"></div><div class="fabwrap" id="fabWrap"><div class="fabmenu"><button class="fabitem doacao-only" id="fabEan">⌨️ Lançar por EAN</button><button class="fabitem loja-only" id="fabManual">＋ Cadastro manual</button><button class="fabitem loja-only" id="fabZap">💬 Enviar por WhatsApp</button><button class="fabitem" id="fabExport">📤 Exportar (Excel/PDF)</button><button class="fabitem" id="fabImport">📥 Importar lista</button><button class="fabitem" id="fabBkp">💾 Fazer backup</button><button class="fabitem" id="fabRest">♻️ Restaurar backup</button><button class="fabitem" id="fabDup">🔍 Revisar duplicados</button><button class="fabitem" id="fabInstall">📲 Instalar app</button></div><div class="fabrow"><button class="fabscan" id="fab">▦ Bipar</button><button class="fabmain" id="fabMain" aria-label="Mais ações">＋</button></div></div>
 <div id="qModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="qTitle"><div class="sheethead"><h2 id="qTitle">Atalho</h2><button class="secondary" id="qClose" aria-label="Fechar">✕</button></div>
 <label for="qNome">Nome do produto</label><input id="qNome" maxlength="40" autocomplete="off" placeholder="Ex.: Chuchu">
 <label for="qCod">Código de doação (49xx ou PLU)</label><input id="qCod" maxlength="12" autocomplete="off" placeholder="Ex.: 4912">
@@ -860,7 +582,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div id="lModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="lmNome"><div class="sheethead"><h2 id="lmNome"></h2><button class="secondary" id="lmClose" aria-label="Fechar">✕</button></div>
 <p class="note" id="lmCod"></p><label>Tamanho da etiqueta</label><div class="utog" id="lmTam"><button type="button" data-t="P">P</button><button type="button" data-t="M">M</button><button type="button" data-t="G">G</button></div>
 <label>Quantidade</label><div class="stepper"><button type="button" class="secondary" id="lmMenos" aria-label="Diminuir">−</button><input id="lmQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-label="OK" value="1"><button type="button" class="secondary" id="lmMais" aria-label="Aumentar">＋</button></div>
-<div class="toolbar" style="margin-top:14px"><button class="primary big" id="lmOk">Pronto</button></div><button type="button" id="lmDup" class="lmuni">⧉ Duplicar com outro tamanho</button><button type="button" id="lmUni" class="lmuni">Unificar código</button></section></div>
+<div class="toolbar" style="margin-top:14px"><button class="primary big" id="lmOk">Pronto</button></div><button type="button" id="lmUni" class="lmuni">Unificar código</button></section></div>
 <div id="opModal" class="modal hidden" style="z-index:100;align-items:center"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="opTitle"><h2 id="opTitle" class="h2" style="font-size:18px">Nome do Operador</h2>
 <p class="note">Digite o seu nome para começar. <b>Atenção: depois de salvo, o nome não poderá ser alterado neste aparelho.</b></p>
 <input id="opNome" maxlength="40" autocomplete="off" placeholder="Ex.: Rodrigo Dourado"><div class="toolbar" style="margin-top:12px"><button class="primary big" id="opOk">Entrar</button></div></section></div>
@@ -889,11 +611,6 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <label for="qtQtd">Quantas unidades?</label>
 <div class="stepper"><button type="button" class="secondary" id="qtMenos" aria-label="Diminuir">−</button><input id="qtQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-submit="#qtOk" data-np-label="Adicionar" value="1"><button type="button" class="secondary" id="qtMais" aria-label="Aumentar">＋</button></div>
 <div class="toolbar" style="margin-top:14px"><button class="primary big" id="qtOk">Adicionar</button><button class="secondary big" id="qtCancel">Cancelar</button></div></section></div>
-<div id="pkModal" class="modal hidden" style="z-index:36"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="pkNome">
-<div class="sheethead"><h2 id="pkNome">Produto</h2><button class="secondary" id="pkClose" aria-label="Fechar">✕</button></div>
-<p class="note" id="pkInfo"></p>
-<label for="pkPeso">Peso (kg)</label><input id="pkPeso" type="text" readonly inputmode="none" data-np data-np-submit="#pkOk" data-np-label="OK" placeholder="Ex.: 0,308" autocomplete="off" style="font-size:26px;font-weight:800;text-align:center">
-<div class="toolbar" style="margin-top:14px"><button class="primary big" id="pkOk">Adicionar</button><button class="secondary big" id="pkCancel">Cancelar</button></div></section></div>
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="modal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 <div class="sheethead"><h2 id="modalTitle">Cadastrar produto</h2><button id="closeModal" class="secondary" aria-label="Fechar">✕</button></div>
@@ -943,9 +660,6 @@ let curTab = "Loja";
 const LOJA = C.loja || "Sam's Club Radial Leste";
 const EMPTY_FLV = '<div class="empty"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="#9db8a4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 28h44l-5 22a4 4 0 0 1-4 3H19a4 4 0 0 1-4-3z"/><path d="M22 28c0-9 4-16 10-16s10 7 10 16"/><path d="M32 12c0-4 3-7 8-7 0 5-3 8-8 7z"/></svg><p>Nenhum produto do FLV com validade para vencer no momento.</p></div>';
 let products = [], db = null, scanner = null, toastTimer;
-window.vmProducts = () => products;
-window.vmRegister = o => registerProduct(o);
-window.vmDb = () => db;
 const cloud = !!fb.apiKey && !/COLE_|SEU_/.test(fb.apiKey + fb.projectId);
 const store = {
   get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
@@ -1009,79 +723,30 @@ function fillCategories() {
   const opt = (id, first) => { const el = $(id); el.innerHTML = ""; el.add(new Option(first, "")); CATS.forEach(c => el.add(new Option(c, c))); };
   opt("category", "Selecione"); opt("categoryFilter", "Todas as categorias"); opt("exportCategory", "Selecione a categoria");
 }
-function sirene() {   // aba Validades pisca vermelho/azul só quando há produto que vence hoje ou amanhã (os já vencidos não contam)
-  const n = products.filter(p => { const d = daysLeft(p.expiry); return !p.retirado && d !== null && d >= 0 && d <= 1; }).length, b = $("tbLoja");
-  b.classList.toggle("siren", n > 0); $("sirN").textContent = n > 99 ? "99+" : n; b.title = n ? n + " produto(s) vencendo hoje ou amanhã" : "";
-}
-setInterval(() => { if (typeof sirene === "function") sirene(); }, 60000);
-// ---------- histórico de produtos (o que entrou, mudou ou saiu — e quem) ----------
-const PHK = "validamais-phbase", PLK = "validamais-phlog", PHF = ["name", "expiry", "quantity", "category", "barcode", "codigo_balanca", "codigo_doacao", "retirado"];
-let phBase = store.get(PHK, null), phLog = store.get(PLK, []), lastAct = 0;
-["pointerdown", "keydown"].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); }, true));
-const phLite = p => { const r = {}; Object.keys(p).forEach(k => { if (k === "foto" || k === "createdAt" || k === "updatedAt") return; r[k] = p[k]; }); return r; };
-function phDiff() {
-  if (db && !window.__hReady) return;
-  const cur = {}; products.forEach(p => { cur[p.id] = phLite(p); });
-  if (!phBase) { phBase = cur; store.set(PHK, cur); return; }
-  const t = Date.now(), who = (t - lastAct < 8000) ? myName() : "outro aparelho (ou com o app fechado)", ev = [];
-  const add = Object.keys(cur).filter(i => !phBase[i]), del = Object.keys(phBase).filter(i => !cur[i]), chg = [];
-  Object.keys(cur).forEach(i => { const a = phBase[i], b = cur[i]; if (!a) return;
-    const d = []; PHF.forEach(f => { if (String(a[f] ?? "") !== String(b[f] ?? "")) d.push(f === "expiry" ? `validade ${fmt(a.expiry)} → ${fmt(b.expiry)}` : f === "quantity" ? `qtd ${a.quantity} → ${b.quantity}` : f === "retirado" ? (b.retirado ? "retirado da loja" : "voltou para a loja") : `${f === "name" ? "nome" : f === "category" ? "setor" : f}: ${a[f] || "—"} → ${b[f] || "—"}`); });
-    if (d.length) chg.push({ n: b.name, d: d.join("; ") }); });
-  if (add.length) ev.push({ t, who, k: "add", n: add.length, it: add.slice(0, 40).map(i => ({ n: cur[i].name, d: cur[i].expiry ? "validade " + fmt(cur[i].expiry) : "" })) });
-  if (del.length) ev.push({ t, who, k: "del", n: del.length, it: del.slice(0, 300).map(i => phBase[i]) });
-  if (chg.length) ev.push({ t, who, k: "chg", n: chg.length, it: chg.slice(0, 40) });
-  if (ev.length) { phLog = ev.concat(phLog).slice(0, 300); while (phLog.length > 1 && JSON.stringify(phLog).length > 900000) phLog.pop(); store.set(PLK, phLog); phBase = cur; store.set(PHK, cur); if (!$("phModal").classList.contains("hidden")) phDraw(); }
-}
-const phWhen = t => new Date(t).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-function phDraw() {
-  const q = norm($("phBusca").value || "");
-  const rows = phLog.map((e, i) => ({ e, i })).filter(({ e }) => !q || e.it.some(x => norm(x.n || x.name || "").includes(q)));
-  $("phList").innerHTML = rows.length ? rows.map(({ e, i }) => {
-    const nm = x => esc(x.n || x.name || "?"), tit = e.k === "add" ? `＋ Entrou · ${e.n} produto(s)` : e.k === "del" ? `🗑 Saiu · ${e.n} produto(s)` : `✎ Alterado · ${e.n} produto(s)`;
-    const lines = e.it.slice(0, 8).map(x => `<div>• ${nm(x)}${x.d ? " <small class='muted'>" + esc(x.d) + "</small>" : x.expiry ? " <small class='muted'>validade " + fmt(x.expiry) + "</small>" : ""}</div>`).join("") + (e.n > 8 ? `<div class="muted">… e mais ${e.n - 8}</div>` : "");
-    return `<div class="phe ${e.k}"><b>${tit}</b><small class="muted">${phWhen(e.t)} · ${esc(e.who)}</small>${lines}${e.k === "del" ? (e.rest ? '<small class="muted">✓ já restaurado</small>' : `<button type="button" class="secondary" data-phr="${i}">↩ Restaurar ${e.it.length > 1 ? "estes " + e.it.length : "este"}</button>`) : ""}</div>`;
-  }).join("") : '<p class="muted">Nada registrado ainda. A partir de agora, o que entrar, mudar ou sair aparece aqui.</p>';
-}
-window.phOpen = () => { $("phBusca").value = ""; phDraw(); $("phModal").classList.remove("hidden"); };
-async function phRestore(i) {
-  const e = phLog[i]; if (!e || e.rest) return;
-  const ok = await askConfirm({ icon: "↩", title: "Restaurar produtos?", text: e.it.length + " produto(s)", sub: "Eles voltam para a lista com os dados de antes (a foto não é recuperada).", ok: "Restaurar", cancel: "Cancelar" });
-  if (!ok) return; const ts = db ? V.serverTimestamp() : null;
-  e.it.forEach(d => { const data = { ...d }; delete data.id;
-    if (db) V.addDoc(V.collection(db, "products"), { ...data, createdAt: ts, updatedAt: ts }).catch(() => toast("Não foi possível restaurar na nuvem."));
-    else products.push({ ...data, id: uid(), updatedAt: Date.now() }); });
-  e.rest = true; store.set(PLK, phLog); if (!db) { persist(); render(); } phDraw(); toast(e.it.length + " produto(s) restaurado(s).");
-}
 function render() {
-  phDiff();
   { const cf = $("categoryFilter"), oth = [...new Set(products.map(p => p.category).filter(c => c && c !== "FLV"))].sort(), sig = oth.join("|");
     if (cf.dataset.sig !== sig) { const cur = cf.value; cf.innerHTML = ""; cf.add(new Option("Todos os setores", "")); ["FLV", ...oth].forEach(c => cf.add(new Option(c, c)));
       cf.value = [...cf.options].some(o => o.value === cur) ? cur : "FLV"; cf.dataset.sig = sig; }
     cf.classList.toggle("hidden", !oth.length); document.querySelector("#tabLoja .filters").classList.toggle("hidden", !oth.length); $("verTodos").classList.toggle("hidden", !!oth.length); }
   const q = $("search").value.trim().toLowerCase(), cat = $("categoryFilter").value, st = $("statusFilter").value;
-  const base = products.filter(p => !p.retirado && (!cat || p.category === cat)), ex = base.filter(p => status(p) === "expired").length, so = base.filter(p => status(p) === "soon").length;
+  const base = products.filter(p => !cat || p.category === cat), ex = base.filter(p => status(p) === "expired").length, so = base.filter(p => status(p) === "soon").length;
   $("countAll").textContent = products.length;
-  { const nr = products.filter(p => p.retirado).length; $("verRet").classList.toggle("hidden", !nr && !retView); $("verRet").textContent = retView ? "← Voltar às validades" : `📦 Ver retirados da loja (${nr})`; }
   { const vt = $("verTodos"); if (vt) vt.textContent = cat ? `Ver todos os ${products.length} cadastrados` : "Voltar ao FLV"; }
   document.querySelectorAll("#tabLoja .stats .stat").forEach((e, i) => e.classList.toggle("on", (i === 1 && st === "soon") || (i === 2 && st === "expired"))); $("countSoon").textContent = so; $("countExpired").textContent = ex;
-  { const fora = cat ? products.filter(p => !p.retirado && p.category !== cat && daysLeft(p.expiry) !== null && daysLeft(p.expiry) >= 0 && daysLeft(p.expiry) <= 1).length : 0;
-    $("outAlert").classList.toggle("hidden", !fora); $("outAlert").textContent = `⚠ ${fora} produto(s) de OUTROS setores vencem em até 1 dia — toque para ver todos`; }
   $("topAlert").classList.toggle("hidden", !(ex || so));
   $("topAlert").textContent = `Atenção: ${ex} vencido(s) e ${so} vencendo em breve.`;
-  sirene(); FM = fotoMap();
+  FM = fotoMap();
   const cnt = {}; products.forEach(p => { if (p.barcode) cnt[p.barcode] = (cnt[p.barcode] || 0) + 1; });
-  const hoje = products.filter(p => !p.retirado && daysLeft(p.expiry) === 0 && (!cat || p.category === cat));
+  const hoje = products.filter(p => daysLeft(p.expiry) === 0 && (!cat || p.category === cat));
   $("todayBanner").classList.toggle("hidden", !hoje.length);
   $("todayBanner").textContent = `⚠ VENCEM HOJE (${hoje.length}): ` + hoje.slice(0, 5).map(p => p.name).join(", ") + (hoje.length > 5 ? "…" : "");
   if (!hoje.length) alarmed = false; else if (!alarmed && actx) { alarmed = true; alarm(); }
-  const rows = retView ? products.filter(p => p.retirado).sort((a, b) => (Number(b.retEm) || 0) - (Number(a.retEm) || 0)) : products.filter(p => q ? ((p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q) || String(p.codigo_balanca || "") === q || String(p.codigo_doacao || "").toLowerCase() === q)   // buscando: procura em TODOS os setores, com ou sem validade
-      : (!p.retirado && (!cat || p.category === cat) && !(cat === "FLV" && daysLeft(p.expiry) === null) && (!st || status(p) === st)))
+  const rows = products.filter(p => (!cat || p.category === cat) && !(cat === "FLV" && daysLeft(p.expiry) === null) && (!st || status(p) === st) &&
+    (!q || (p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q)))
     .sort((a, b) => cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
-    if (p.retirado) return `<article class="product retirado"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">${esc(p.category)}</span></div><div class="vbox"><div class="vd"><small>RETIRADO DA LOJA</small><b>${p.retEm ? new Date(Number(p.retEm)).toLocaleDateString("pt-BR") : "—"}</b></div><div class="vr"><span class="pill">${p.retPor ? "por " + esc(p.retPor) : ""}</span><small>validade era ${fmt(p.expiry)}</small></div></div><div class="actions"><button class="secondary" data-volta="${esc(p.id)}">↩ Voltar para a loja</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
-    return `<article class="product ${cls}"><div class="ctop"><h3>${(p.foto || FM.get(norm(p.name || ""))) ? `<img class="pth" alt="" src="${p.foto || FM.get(norm(p.name || ""))}">` : ""}${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
+    return `<article class="product ${cls}"><div class="ctop"><h3>${(p.foto || FM.get(norm(p.name || ""))) ? `<img class="pth" alt="" src="${p.foto || FM.get(norm(p.name || ""))}">` : ""}${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
   }).join("") : (cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
 }
 
@@ -1226,21 +891,9 @@ async function save(next) {
   }
   closeModal(); toast("Produto salvo."); if (next) openScan();
 }
-let retView = false;
-async function retirar(id, sai) {
-  const p = products.find(x => x.id === id); if (!p) return;
-  if (sai) { const ok = await askConfirm({ icon: "📦", title: "Retirar da loja?", text: p.name + " · validade " + fmt(p.expiry), sub: "Sai da lista de vencimentos e do alerta, mas fica guardado em «Ver retirados da loja», com a data e quem retirou. O cadastro continua.", ok: "Retirar da loja", cancel: "Cancelar" }); if (!ok) return; }
-  const campos = sai ? { retirado: true, retEm: Date.now(), retPor: myName() } : { retirado: false };
-  if (db) V.updateDoc(V.doc(db, "products", id), { ...campos, updatedAt: V.serverTimestamp() }).catch(() => toast("Erro ao salvar na nuvem."));
-  else { products = products.map(x => x.id === id ? { ...x, ...campos, updatedAt: Date.now() } : x); persist(); render(); }
-  toast(sai ? "✓ " + p.name + " retirado da loja." : p.name + " voltou para a loja.", "Desfazer", () => { const c2 = sai ? { retirado: false } : { retirado: true, retEm: Date.now(), retPor: myName() }; if (db) V.updateDoc(V.doc(db, "products", id), { ...c2, updatedAt: V.serverTimestamp() }); else { products = products.map(x => x.id === id ? { ...x, ...c2 } : x); persist(); render(); } });
-}
-$("verRet").onclick = () => { retView = !retView; render(); window.scrollTo(0, 0); };
 function remove(id) {
   const p = products.find(x => x.id === id); if (!p) return;
   const { id: _i, createdAt, updatedAt, ...data } = p;
-  const outros = products.filter(x => x.id !== id && (p.barcode ? x.barcode === p.barcode : norm(x.name || "") === norm(p.name || ""))).length;
-  if (!confirm(`Excluir «${p.name}»?\n\n${outros ? "Os outros lotes deste produto continuam cadastrados." : "Este é o ÚNICO registro: o cadastro do produto (códigos e foto) também será apagado."}\n\nPara só tirar da loja e guardar o registro, use «Retirar da loja».`)) return;
   if (db) V.deleteDoc(V.doc(db, "products", id)).catch(() => toast("Não foi possível excluir."));
   else { products = products.filter(x => x.id !== id); persist(); render(); }
   toast("Produto excluído.", "Desfazer", () => {
@@ -1266,10 +919,9 @@ $("loteEdit").onclick = () => { $("productForm").classList.remove("lote"); $("lo
 async function onCode(code) {
   if (scanMode === "doacao") return donationScan(code);
   if (scanMode === "etiqueta") return labelScan(code);
-  if (scanMode === "cadastro") return cadScan(code);
   if (navigator.vibrate) navigator.vibrate(100);
   beep(); await stopScanner(); resetForm();
-  if (isScale(code)) {                                   // etiqueta de balança: o código de balança identifica o produto
+  if (/^2\d{12}$/.test(code)) {                                   // etiqueta de balança: o código de balança identifica o produto
     const plu = String(Number(parseScale(code).item)), k = products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(plu));
     logScan(code, k); show(k ? `Novo lote de «${k.name}»` : "Produto novo: cadastre agora");
     $("barcode").value = (k && k.barcode) || ""; $("name").value = (k && k.name) || ""; $("category").value = (k && k.category) || "FLV";
@@ -1288,8 +940,8 @@ function manualCodeGo() {            // código digitado: segue o mesmo caminho 
 $("manualGo").onclick = manualCodeGo;
 $("manualCode").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); manualCodeGo(); } };
 async function openScan(mode = "loja") {
-  scanMode = ["doacao", "etiqueta", "cadastro"].includes(mode) ? mode : "loja";
-  resetForm(); show({ doacao: "Bipar itens da doação", etiqueta: "Bipar para etiqueta", cadastro: "Bipar para o cadastro" }[scanMode] || "Ler código de barras", true);
+  scanMode = ["doacao", "etiqueta"].includes(mode) ? mode : "loja";
+  resetForm(); show({ doacao: "Bipar itens da doação", etiqueta: "Bipar para etiqueta" }[scanMode] || "Ler código de barras", true);
   $("scanManual").textContent = scanMode === "loja" ? "Digitar código" : "Cancelar";
   ["retryScan", "torchBtn"].forEach(i => $(i).classList.add("hidden"));
   $("scanMsg").textContent = "Aponte a câmera traseira para o código de barras. Se não ler, digite o código abaixo."; $("manualCode").value = "";
@@ -1316,7 +968,7 @@ async function openScan(mode = "loja") {
 
 // ---------- exportação ----------
 function exportRows() {
-  const s = $("exportScope").value, c = $("exportCategory").value; let r = products.filter(p => !p.retirado);
+  const s = $("exportScope").value, c = $("exportCategory").value; let r = [...products];
   if (s === "products") {                 // um registro por produto, com todos os códigos (mesmo formato da importação)
     const m = new Map();
     products.forEach(p => { const k = p.barcode || norm(p.name || ""); if (!k) return; const o = m.get(k) || { n: "", b: "", d: "", e: "", c: "" };
@@ -1373,8 +1025,8 @@ const fname = () => ($("exportScope").value === "products" ? "produtos-cadastrad
 fillCategories();
 ["search"].forEach(i => $(i).oninput = render);
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
-$("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.del) remove(b.dataset.del); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
-$("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
+$("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.del) remove(b.dataset.del); };
+$("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Etiquetas" ? "etiqueta" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = async () => { await stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("modal").classList.contains("hidden")) closeModal(); });
@@ -1402,7 +1054,7 @@ if (cloud && V.initializeApp) {
     const app = V.initializeApp(fb);
     db = V.initializeFirestore(app, { localCache: V.persistentLocalCache({ tabManager: V.persistentMultipleTabManager() }) });
     V.onSnapshot(V.collection(db, "products"), { includeMetadataChanges: true }, snap => {
-      products = snap.docs.map(d => ({ id: d.id, ...d.data() })); window.__hReady = !snap.metadata.fromCache; render();
+      products = snap.docs.map(d => ({ id: d.id, ...d.data() })); render();
       setSync(snap.metadata.hasPendingWrites ? "alterações aguardando envio…" : snap.metadata.fromCache ? (navigator.onLine ? "conectando…" : "offline (dados salvos no aparelho)") : "sincronizado");
     }, err => { console.error(err); setSync("erro de sincronização (confira as regras do Firestore)"); toast("Erro ao ler os dados da nuvem."); });
   } catch (e) { console.error(e); db = null; setSync("falha ao iniciar o Firebase"); }
@@ -1463,9 +1115,6 @@ $("scansBox").ontoggle = () => {
 const SETOR = "FLV"; $("categoryFilter").value = SETOR; store.set(LC, SETOR); render();
 { const sf = $("statusFilter"), stt = document.querySelectorAll("#tabLoja .stats .stat");
   stt[0].onclick = () => { sf.value = ""; render(); }; stt[1].onclick = () => { sf.value = sf.value === "soon" ? "" : "soon"; render(); }; stt[2].onclick = () => { sf.value = sf.value === "expired" ? "" : "expired"; render(); }; }
-$("phClose").onclick = () => $("phModal").classList.add("hidden"); $("phBusca").oninput = phDraw;
-$("phList").onclick = e => { const b = e.target.closest("[data-phr]"); if (b) phRestore(Number(b.dataset.phr)); };
-$("outAlert").onclick = () => { $("categoryFilter").value = ""; render(); window.scrollTo(0, 0); };
 $("verTodos").onclick = () => { $("categoryFilter").value = $("categoryFilter").value ? "" : "FLV"; render(); };
 document.addEventListener("pointerdown", () => { audio(); render(); }, { once: true }); // libera o som do alerta no primeiro toque
 const side = o => { $("side").classList.toggle("open", o); $("sideBg").classList.toggle("hidden", !o); };
@@ -1575,7 +1224,7 @@ function registerProduct({ name, category = "FLV", barcode = "", codigo_balanca 
 
 // ---------- Doação: lançar por EAN digitado (botão +) ----------
 function eanFind(v) {
-  if (isScale(v)) { const it = Number(parseScale(v).item); return products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === it); }
+  if (/^2\d{12}$/.test(v)) { const it = Number(parseScale(v).item); return products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === it); }
   return products.find(p => p.barcode === v);
 }
 function eanPreview() {                              // assim que o código é digitado, mostra o produto e o código de doação
@@ -1586,7 +1235,8 @@ function eanPreview() {                              // assim que o código é d
                     : '<div><small>NÃO CADASTRADO</small><span>Será cadastrado a seguir</span></div>';
 }
 const eanClose = () => $("eanModal").classList.add("hidden");
-$("dEan").onclick = () => {
+$("fabEan").onclick = () => {
+  $("fabWrap").classList.remove("open"); $("fabScrim").classList.add("hidden");
   $("eanCode").value = ""; eanPreview(); $("eanModal").classList.remove("hidden"); setTimeout(() => $("eanCode").focus(), 80);
 };
 $("eanClose").onclick = $("eanCancel").onclick = eanClose;
@@ -1610,12 +1260,10 @@ function dayOf(p) { const t = p.updatedAt, v = t && t.toMillis ? t.toMillis() : 
 const fq = q => (Math.round(q * 1000) / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 3 });
 const sumU = u => don.itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0);
 const dataBR = d => new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
-const FERR = ["Etiquetas", "Inventario", "Cadastros"], FK = "validamais-ferr";
 function tab(t) {
   curTab = t;
-  ["Loja", "Doacao", "Etiquetas", "Inventario", "Cadastros"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); });
-  [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Etiquetas", t === "Etiquetas"]].forEach(([n, on]) => $("tb" + n).classList.toggle("active", on));
-  document.body.dataset.tab = t; document.body.dataset.grp = t;
+  ["Loja", "Doacao", "Etiquetas"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); $("tb" + n).classList.toggle("active", n === t); });
+  document.body.dataset.tab = t;
 }
 function dCodTxt(i) {   // kg: código de doação · un: código de barras
   const pr = products.find(x => norm(x.name || "") === norm(i.nome)) || {};
@@ -1629,7 +1277,6 @@ function renderDon() {
   renderKey();
 }
 function addDon(nome, unidade, qtd, cod = "", bar = "") {
-  if (romAberta()) return addToRom(nome, unidade, qtd, cod, bar);
   qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0; buzz(); usoLearn(nome, unidade, cod);
   const key = norm(nome) + "|" + unidade; let it = don.itens.find(i => i.key === key);
   if (it) { it.qtd = Math.round((it.qtd + qtd) * 1000) / 1000; it.lanc++; } else { it = { key, nome: nome.trim().slice(0, 60), unidade, qtd, lanc: 1 }; don.itens.push(it); }
@@ -1637,48 +1284,18 @@ function addDon(nome, unidade, qtd, cod = "", bar = "") {
   const pr = products.find(x => norm(x.name) === norm(nome)); it.cod =it.cod || cod || (pr && (pr.codigo_doacao || pr.barcode || pr.codigo_balanca)) || "";
   store.set(DK, don); renderDon(); return it.qtd;
 }
-const isScale = c => /^2\d{12}$/.test(c) || /^2\d{11}$/.test(c) || /^02\d{11}$/.test(c);   // EAN-13 de balança, ou UPC-A de 12 dígitos (etiqueta PRIX), às vezes lido com um 0 na frente
-function parseScale(code) {
-  if (/^02\d{11}$/.test(code)) code = code.slice(1);
-  if (/^2\d{11}$/.test(code)) {                    // UPC-A (PRIX): 2 + item (5) + valor (5) + dígito verificador. O valor é o PREÇO total em centavos
-    const v = Number(code.slice(6, 11)), peso = (C.balanca || {}).upcValor === "peso";
-    return { item: code.slice(1, 6).padStart(6, "0"), kg: peso ? v / 1000 : 0, total: peso ? 0 : v / 100 };
-  }
+function parseScale(code) {                       // EAN-13 de balança: 2 + código do item + peso (g) + dígito verificador
   const b = C.balanca || {}, cd = b.codigoDigitos ?? 6, vd = b.valorDigitos ?? 5, div = b.divisor ?? 1000;
-  return { item: code.slice(1, 1 + cd), kg: Number(code.slice(1 + cd, 1 + cd + vd)) / div, total: 0 };
+  return { item: code.slice(1, 1 + cd), kg: Number(code.slice(1 + cd, 1 + cd + vd)) / div };
 }
-window.vmScale = { is: isScale, parse: parseScale };
-
-// ---------- etiqueta PRIX: peso a partir do preço total ----------
-const PKK = "validamais-precokg", brl = v => v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-let pkResolve = null, pkTotal = 0, pkNome = "";
-const precoKg = n => Number((store.get(PKK, {})[norm(n)] || {}).p) || 0;
-window.vmPk = { get: n => precoKg(n), set: (n, p) => { const m = store.get(PKK, {}); m[norm(n)] = { p: Math.round(p * 100) / 100, em: Date.now() }; store.set(PKK, m); } };
-function askPeso(nome, total) {                        // devolve { kg, nota } ou null se cancelar
-  const pk = precoKg(nome);
-  if (pk > 0) { const kg = Math.round(total / pk * 1000) / 1000; if (kg > 0) return Promise.resolve({ kg, nota: ` (R$ ${brl(total)} ÷ R$ ${brl(pk)}/kg)` }); }
-  return new Promise(res => {
-    pkResolve = res; pkTotal = total; pkNome = nome;
-    $("pkNome").textContent = nome; $("pkInfo").textContent = `Etiqueta com total de R$ ${brl(total)}. Digite o peso que está na etiqueta (PESO). O app guarda o preço do kg e, nas próximas, calcula o peso sozinho.`;
-    $("pkPeso").value = ""; $("pkModal").classList.remove("hidden"); setTimeout(() => $("pkPeso").focus(), 80);
-  });
-}
-function pkDone(ok) {
-  const res = pkResolve; if (!res) return;
-  if (ok) { const kg = Number(String($("pkPeso").value).replace(",", ".")); if (!(kg > 0) || kg > 999) return toast("Digite o peso em kg, como está na etiqueta.");
-    const p = Math.round(pkTotal / kg * 100) / 100, m = store.get(PKK, {}); m[norm(pkNome)] = { p, em: Date.now() }; store.set(PKK, m);
-    pkResolve = null; $("pkModal").classList.add("hidden"); if (window.npClose) window.npClose(); res({ kg: Math.round(kg * 1000) / 1000, nota: ` (preço do kg guardado: R$ ${brl(p)})` }); }
-  else { pkResolve = null; $("pkModal").classList.add("hidden"); if (window.npClose) window.npClose(); res(null); }
-}
-$("pkOk").onclick = () => pkDone(true); $("pkCancel").onclick = $("pkClose").onclick = () => pkDone(false);
 async function donationScan(code) {
   const now = Date.now(); if (code === lastScan.c && now - lastScan.t < 2500) return;   // ignora leitura repetida do mesmo código
   lastScan = { c: code, t: now };
-  if (nrResolve || qtResolve || pkResolve) return;   // há um cadastro ou uma pergunta aberta
+  if (nrResolve || qtResolve) return;                // há um cadastro ou uma pergunta de quantidade aberta
   buzz(); beep();
-  const names = store.get(NK, {}); let key, unidade, qtd, regd = null, donCod = "", precoTot = 0, notaPeso = "";
-  if (isScale(code)) { const s = parseScale(code); key = "B" + s.item; unidade = "kg"; qtd = s.kg; precoTot = s.total || 0;
-    if (!(qtd > 0) && !(precoTot > 0)) { toast("Etiqueta de balança sem peso legível. Ajuste a configuração 'balanca' no config.js."); return; } }
+  const names = store.get(NK, {}); let key, unidade, qtd, regd = null, donCod = "";
+  if (/^2\d{12}$/.test(code)) { const s = parseScale(code); key = "B" + s.item; unidade = "kg"; qtd = s.kg;
+    if (!(qtd > 0)) { toast("Etiqueta de balança sem peso legível. Ajuste a configuração 'balanca' no config.js."); return; } }
   else { key = code; unidade = "un"; qtd = 1; }
   let nome = (unidade === "un" && (products.find(p => p.barcode === code) || {}).name) || (unidade === "kg" && (products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(key.slice(1))) || {}).name) || names[key];
   if (nome && products.length && !adopted.has(key)) { adopted.add(key);       // nome que só existia neste aparelho passa para o cadastro compartilhado
@@ -1688,19 +1305,16 @@ async function donationScan(code) {
     if (!r) { lastScan.t = Date.now(); return; }
     regd = registerProduct({ name: r.nome, barcode: sc ? "" : code, codigo_balanca: plu, codigo_doacao: r.don || "" });
     nome = r.nome; names[key] = nome; store.set(NK, names); }
-  const scaleLbl = isScale(code); if (unidade === "kg" && unitOf(nome) === "un") { unidade = "un"; qtd = 1; precoTot = 0; }
-  if (precoTot > 0) {                                  // etiqueta PRIX traz o preço total: peso = total ÷ preço do kg
-    const r = await askPeso(nome, precoTot); if (!r) { lastScan.t = Date.now(); return; } qtd = r.kg; notaPeso = r.nota; }
+  const scaleLbl = /^2\d{12}$/.test(code); if (unidade === "kg" && unitOf(nome) === "un") { unidade = "un"; qtd = 1; }
   if (unidade === "un" && !scaleLbl) {
     const prod = regd || products.find(p => p.barcode === code) || products.find(p => norm(p.name || "") === norm(nome));
     const r = await askQty(nome, prod, code); if (!r) { lastScan.t = Date.now(); return; } qtd = r.q; donCod = r.cod; }   // item por unidade: informa a quantidade em vez de bipar várias vezes
-  const romAbertaAntes = romAberta();
   const total = addDon(nome, unidade, qtd, (!scaleLbl && unidade === "un") ? (donCod || code) : "", (!scaleLbl && unidade === "un") ? code : "");
-  if (!romAbertaAntes) toast(`${nome}${donCod ? " (cód. " + donCod + ")" : ""}: +${fq(qtd)} ${unidade}${notaPeso} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
+  toast(`${nome}${donCod ? " (cód. " + donCod + ")" : ""}: +${fq(qtd)} ${unidade} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
 }
 // pesagem manual
 function renderKey() {
-  $("dNome").textContent = dSel || "Pesquise o produto"; $("dNow").classList.toggle("vazio", !dSel);
+  $("dNome").textContent = dSel || "Escolha o produto"; $("dNow").classList.toggle("vazio", !dSel);
   const it = dSel && don.itens.find(i => i.key === norm(dSel) + "|" + dUnit);
   const plus = lastAdd && lastAdd.k === norm(dSel) + "|" + dUnit && Date.now() - lastAdd.t < 2500 ? `<i class="plus">+${fq(lastAdd.q)}</i>` : "";
   $("dSelInfo").innerHTML = !dSel ? "" : it ? `<b>${plus}${fq(it.qtd)} ${esc(it.unidade)}</b>${it.lanc} lançamento${it.lanc > 1 ? "s" : ""}` : `<b>0 ${dUnit}</b>ainda não lançado`;
@@ -1778,7 +1392,7 @@ $("qgrid").onclick = e => { const b = e.target.closest("[data-q]"); if (!b) retu
   buzz(); const s = shortcuts[Number(k)], p = prodFor(s.n); selectProd(p ? p.name : s.n, s.c, s.u); };
 $("navDoacao").addEventListener("click", renderQuick); $("dBusca").addEventListener("focus", renderQuick);
 function selectProd(n, code, unit) { dSel = n; dCodSel = code || ""; setUnit(unit || unitOf(n), false); renderQuick(); $("dCod").value = code || (products.find(x => norm(x.name) === norm(n)) || {}).codigo_doacao || ""; $("dBusca").value = ""; $("dSug").innerHTML = ""; renderDon(); $("dPeso").focus({ preventScroll: true }); }
-$("dCodSave").onclick = () => { if (!dSel) return toast("Pesquise o produto primeiro."); const pr = products.find(x => norm(x.name) === norm(dSel)) || { name: dSel };
+$("dCodSave").onclick = () => { if (!dSel) return toast("Escolha o produto primeiro."); const pr = products.find(x => norm(x.name) === norm(dSel)) || { name: dSel };
   const v = saveCode(pr, "codigo_doacao", $("dCod").value); if (v !== null) $("dCod").value = v; };
 // aviso de quantidade fora do normal: aprende o usual de cada produto (por lançamento)
 const DSTAT = "valida_dstat";
@@ -1809,14 +1423,11 @@ async function dOddOk(n, u, q) {
     ok: "Está certo", cancel: "Corrigir" });
 }
 async function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",", "."));
-  if (!dSel) return toast("Pesquise o produto."); if (!(q > 0)) return toast(dUnit === "un" ? "Digite a quantidade." : "Digite o peso em kg.");
+  if (!dSel) return toast("Escolha o produto."); if (!(q > 0)) return toast(dUnit === "un" ? "Digite a quantidade." : "Digite o peso em kg.");
   if (dUnit === "un") q = Math.round(q); if (!(q > 0)) return toast("Digite a quantidade.");
   if (!(await dOddOk(dSel, dUnit, q))) return;
   dStatLearn(dSel, dUnit, q);
-  const nome = dSel, un = dUnit, total = addDon(dSel, dUnit, q, dCodSel);
-  $("dPeso").value = ""; $("dPeso").blur(); if (window.npClose) window.npClose();
-  if (!romAberta()) toast(`✓ ${nome}: +${fq(q)} ${un} → total ${fq(total)} ${un}`);
-  dSel = ""; dCodSel = ""; $("dCod").value = ""; renderQuick(); renderKey(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  lastAdd = { k: norm(dSel) + "|" + dUnit, q, t: Date.now() }; addDon(dSel, dUnit, q, dCodSel); flashNow(); $("dPeso").value = ""; $("dPeso").blur(); if (window.npClose) window.npClose(); }
 $("dAdd").onclick = dPesoAdd; $("dPeso").onkeydown = e => { if (e.key === "Enter") dPesoAdd(); };
 // editar a quantidade de um item já coletado (toque no "5 kg")
 let dEditing = -1;
@@ -1899,7 +1510,7 @@ $("romBody").addEventListener("click", async e => { if (!romEdit) return; const 
     if (!nome) return toast("Digite o produto."); if (!(q > 0)) return toast("Digite a quantidade.");
     let pr = products.find(x => norm(x.name || "") === norm(nome));
     if (!pr && /^[0-9A-Za-z]{3,14}$/.test(nome) && /\d/.test(nome)) {   // digitou um código: acha o produto pelo EAN, código de balança ou de doação
-      const c = nome.toUpperCase(), sc = isScale(nome) ? Number(parseScale(nome).item) : null;
+      const c = nome.toUpperCase(), sc = /^2\d{12}$/.test(nome) ? Number(parseScale(nome).item) : null;
       pr = products.find(x => x.barcode === nome || String(x.codigo_doacao || "").toUpperCase() === c || String(x.codigo_balanca || "") === nome || (sc !== null && x.codigo_balanca && Number(x.codigo_balanca) === sc));
       if (!pr) return toast("Código " + nome + " não está cadastrado. Digite o nome do produto.");
       if (u === "kg" && unitOf(pr.name) === "un") $("reUn").value = "un"; }
@@ -1920,90 +1531,6 @@ $("romBody").addEventListener("click", async e => { if (!romEdit) return; const 
       console.error(err); const m = store.get(EDK, {}); m[curRom._id] = campos; store.set(EDK, m); Object.assign(curRom, campos);
       toast("Salvo só neste aparelho: o Firebase não permite alterar doações na nuvem."); romEditEnd(); renderTop(); return; }
     Object.assign(curRom, campos); toast("Doação atualizada."); romEditEnd(); if (!db) reloadLocalHist(); renderTop(); } });
-
-// ---------- aba Cadastros: cadastrar e editar produtos digitando (EAN até 13 dígitos) ----------
-let cadEdit = null;   // chave do produto em edição
-const cadKey = p => p.barcode ? "b" + p.barcode : "n" + norm(p.name || "");
-function cadGroups() { const m = new Map(); products.forEach(p => { if (!p.name) return; const k = cadKey(p); if (!m.has(k)) m.set(k, []); m.get(k).push(p); });
-  return [...m.entries()].map(([k, l]) => ({ k, l, p: l[0], name: l[0].name, barcode: l.map(x => x.barcode).find(Boolean) || "", plu: l.map(x => x.codigo_balanca).find(Boolean) || "", don: l.map(x => x.codigo_doacao).find(Boolean) || "" })).sort((a, b) => a.name.localeCompare(b.name, "pt-BR")); }
-function cadPaint() {
-  const q = norm($("cBusca").value.trim()), all = cadGroups(), g = all.filter(x => !q || norm(x.name).includes(q) || x.barcode.includes(q) || x.plu === q || x.don.toLowerCase() === q);
-  $("cCount").textContent = all.length + (q ? " · " + g.length + " achados" : "");
-  $("cLista").innerHTML = g.length ? g.slice(0, 80).map(x => `<div class="cadrow"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · Doação ${x.don ? esc(x.don) : "—"}</small></div><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`).join("") + (g.length > 80 ? '<p class="note">Mostrando 80. Use a busca para achar os outros.</p>' : "") : '<p class="empty">Nenhum produto encontrado.</p>';
-}
-function cadReset() { cadEdit = null; ["cNome", "cEan", "cPlu", "cDon"].forEach(i => $(i).value = ""); $("cTitulo").textContent = "Novo cadastro"; $("cSalvar").textContent = "Cadastrar"; $("cCancela").hidden = true; $("cEanN").textContent = "0/13"; }
-$("cEan").oninput = () => { const v = $("cEan").value.replace(/\D/g, "").slice(0, 13); $("cEan").value = v; $("cEanN").textContent = v.length + "/13"; };
-$("cPlu").oninput = () => { $("cPlu").value = $("cPlu").value.replace(/\D/g, "").slice(0, 6); };
-$("cDon").oninput = () => { $("cDon").value = $("cDon").value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12); };
-$("cBusca").oninput = cadPaint; $("cCancela").onclick = cadReset;
-$("cSalvar").onclick = () => {
-  const name = $("cNome").value.trim().replace(/\s+/g, " "), ean = $("cEan").value.trim(), plu = $("cPlu").value.trim(), don = $("cDon").value.trim().toUpperCase();
-  if (!name) { toast("Digite o nome do produto."); return $("cNome").focus(); }
-  if (ean && !/^\d{6,13}$/.test(ean)) { toast("O código de barras deve ter de 6 a 13 números."); return $("cEan").focus(); }
-  const mine = cadEdit ? products.filter(x => x.name && cadKey(x) === cadEdit) : [];
-  const outros = products.filter(x => !mine.includes(x));
-  let d;
-  if (ean && (d = outros.find(x => x.barcode === ean))) return toast(`Esse código de barras já pertence a «${d.name}».`);
-  if (plu && (d = outros.find(x => x.codigo_balanca && Number(x.codigo_balanca) === Number(plu)))) return toast(`Esse código de balança já pertence a «${d.name}».`);
-  if (don && (d = outros.find(x => String(x.codigo_doacao || "").toUpperCase() === don))) return toast(`Esse código de doação já pertence a «${d.name}».`);
-  if (!ean && !mine.length && outros.some(x => norm(x.name || "") === norm(name) && !x.barcode)) return toast("Já existe um produto com esse nome.");
-  const f = { name, barcode: ean, codigo_balanca: plu, codigo_doacao: don }, fail = e => { console.error(e); toast("Erro ao salvar na nuvem (confira as regras do Firebase)."); };
-  if (mine.length) {
-    if (db) { const ts = V.serverTimestamp(); mine.forEach(x => V.updateDoc(V.doc(db, "products", x.id), { ...f, updatedAt: ts }).catch(fail)); }
-    else { mine.forEach(x => Object.assign(x, f)); persist(); render(); }
-    toast("Cadastro atualizado.");
-  } else {
-    const rec = { ...f, category: "FLV", expiry: "", quantity: 1, por: myName() };
-    if (db) { const ts = V.serverTimestamp(); V.addDoc(V.collection(db, "products"), { ...rec, createdAt: ts, updatedAt: ts }).catch(fail); }
-    else { products.push({ ...rec, id: uid(), updatedAt: Date.now() }); persist(); render(); }
-    toast("«" + name + "» cadastrado.");
-  }
-  cadReset(); setTimeout(cadPaint, db ? 600 : 0);
-};
-$("cLista").onclick = e => { const b = e.target.closest("[data-ced],[data-cdel]"); if (!b) return;
-  if (b.dataset.ced !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.ced); if (!x) return; cadEdit = x.k;
-    $("cNome").value = x.name; $("cEan").value = x.barcode; $("cPlu").value = x.plu; $("cDon").value = x.don; $("cEanN").textContent = x.barcode.length + "/13";
-    $("cTitulo").textContent = "Editando cadastro"; $("cSalvar").textContent = "Salvar alterações"; $("cCancela").hidden = false; window.scrollTo(0, 0); return; }
-  const x = cadGroups().find(y => y.k === b.dataset.cdel); if (!x) return;
-  if (!confirm(`Excluir «${x.name}»${x.l.length > 1 ? " e seus " + x.l.length + " lotes" : ""}?`)) return;
-  x.l.forEach(p => { if (db) V.deleteDoc(V.doc(db, "products", p.id)).catch(() => toast("Não foi possível excluir.")); });
-  if (!db) { products = products.filter(p => !x.l.includes(p)); persist(); render(); }
-  toast("Cadastro excluído."); if (cadEdit === x.k) cadReset(); setTimeout(cadPaint, db ? 600 : 0); };
-$("navCadastros").addEventListener("click", cadPaint);
-// ---------- Cadastros: preencher o código lendo com a câmera ----------
-async function cadScan(code) {
-  if (navigator.vibrate) navigator.vibrate(100); beep(); await stopScanner(); closeModal();
-  const d = String(code).replace(/\D/g, "");
-  if (!d) return toast("Esse código não é só de números. Digite-o no campo.");
-  if (isScale(d)) { $("cPlu").value = String(Number(parseScale(d).item)).slice(0, 6); toast("Etiqueta de balança: preenchi o código de balança (PLU)."); }
-  else if (d.length > 13) return toast("Código com mais de 13 dígitos. Digite manualmente o que for válido.");
-  else {
-    const ja = products.find(p => p.barcode === d);
-    if (ja && !cadEdit) { toast("«" + ja.name + "» já tem esse código. Abri para editar."); $("cBusca").value = ""; cadPaint(); const b = document.querySelector('[data-ced="' + (cadKey(ja)).replace(/"/g, '\\"') + '"]'); if (b) b.click(); return; }
-    $("cEan").value = d; $("cEan").dispatchEvent(new Event("input", { bubbles: true })); toast("Código lido: " + d);
-  }
-  if (!$("cNome").value.trim()) $("cNome").focus();
-}
-$("cBipar").onclick = () => openScan("cadastro");
-
-
-// ---------- doação já lançada: itens bipados entram nela, sem criar outra ----------
-const romAberta = () => curRom && !romEdit && !$("donaRomaneio").classList.contains("hidden") && document.body.dataset.tab === "Doacao";
-function addToRom(nome, unidade, qtd, cod, bar) {
-  qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0; buzz();
-  const nm = nome.trim().slice(0, 60), pr = products.find(x => norm(x.name || "") === norm(nm)), itens = curRom.itens.map(i => ({ ...i }));
-  let it = itens.find(i => norm(i.nome) === norm(nm) && i.unidade === unidade);
-  if (it) { it.qtd = Math.round((it.qtd + qtd) * 1000) / 1000; it.lanc = (it.lanc || 1) + 1; if (!it.cod) it.cod = cod || ""; }
-  else { it = { nome: nm, unidade, qtd, lanc: 1, cod: cod || (pr && (pr.codigo_doacao || pr.barcode || pr.codigo_balanca)) || "" }; itens.push(it); }
-  const tot = u => Math.round(itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0) * 1000) / 1000;
-  const campos = { itens: itens.sort(byName).map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc: lanc || 1, cod: cod || "" })), totalKg: tot("kg"), totalUn: tot("un"), editada: true };
-  const fim = () => { Object.assign(curRom, campos); showRomaneio(curRom); if (!db) reloadLocalHist(); renderTop(); };
-  const local = () => { const m = store.get(EDK, {}); if (curRom._id) { m[curRom._id] = campos; store.set(EDK, m); } };
-  if (db && curRom._id) V.updateDoc(V.doc(db, "doacoes", curRom._id), campos).catch(err => { console.error(err); local(); toast("Salvo só neste aparelho: o Firebase não permite alterar doações na nuvem."); });
-  else { const l = store.get(HK, []), y = l.find(z => String(z.em) === hid(curRom)); if (y) { Object.assign(y, campos); store.set(HK, l); } }
-  fim(); toast(`${nm}: +${fq(qtd)} ${unidade} na doação de ${dataBR(curRom.data)} (total ${fq(it.qtd)} ${unidade})`); return it.qtd;
-}
-$("rAdd").onclick = () => openScan("doacao");
 function finalizeDon() {
   const rec = { data: iso(new Date()), por: myName().slice(0, 40), totalKg: Math.round(sumU("kg") * 1000) / 1000, totalUn: Math.round(sumU("un") * 1000) / 1000,
     itens: don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc, cod: cod || "" })).sort(byName) };
@@ -2034,7 +1561,7 @@ $("dHist").onclick = e => { const b = e.target.closest("[data-hist],[data-sent],
 $("histBox").ontoggle = () => {
   if ($("histBox").open) { if (db) { if (!unsubHist) unsubHist = V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(HLIM)), s => renderHist(s.docs.map(d => withEdits({ ...d.data(), _id: d.id })))); } else reloadLocalHist(); }
   else if (unsubHist) { unsubHist(); unsubHist = null; } };
-const go = t => { tab(t); side(false); }; $("navLoja").onclick = () => go("Loja"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("navInventario").onclick = () => go("Inventario"); $("navCadastros").onclick = () => go("Cadastros"); $("dScan").onclick = () => openScan("doacao");
+const go = t => { tab(t); side(false); }; $("navLoja").onclick = () => go("Loja"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("dScan").onclick = () => openScan("doacao");
 // ----- top 3 mais doados (últimos 30 dias, compacto) -----
 let topDb = [];
 function renderTop() {
@@ -2061,18 +1588,18 @@ const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.categ
 function renderLabels() {
   $("eLimpa").classList.toggle("hidden", !labels.length); { const n = labels.filter(l => l.ok).length; $("eMarc").textContent = labels.length ? `✓ ${n} de ${labels.length} já colocadas para impressão` : ""; } $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
   const ord = { P: 0, M: 1, G: 2 };   // lista única: primeiro os P, depois M, depois G (mantém a ordem de inclusão dentro de cada tamanho)
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crw${l.ok ? " done" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdup" data-ldup="${i}" aria-label="Duplicar ${esc(l.nome)} com outro tamanho" title="Duplicar com outro tamanho">⧉</button><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crw${l.ok ? " done" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 function labelPick(p) {
   buzz();
-  const c = labelCode(p), key = pkey(p), ex = labels.find(l => !l.dup && l.key === key && (l.orig || l.code) === c.code);
+  const c = labelCode(p), key = pkey(p), ex = labels.find(l => l.key === key && (l.orig || l.code) === c.code);
   if (ex) { ex.qtd = (Number(ex.qtd) || 1) + 1; ex.ok = false; } else labels.push({ nome: p.name, code: uniCode(c.code), orig: c.code, kg: c.kg, tam: tamOf(p), key, qtd: 1 });
   store.set(EK, labels); pend = null; $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels();
   toast((c.code ? c.code + " · " : "") + p.name + " adicionado.");
 }
 async function labelScan(code) {
   buzz(); beep(); await stopScanner(); closeModal();
-  const scale = isScale(code), item = scale ? Number(parseScale(code).item) : 0;
+  const scale = /^2\d{12}$/.test(code), item = scale ? Number(parseScale(code).item) : 0;
   let p = scale ? products.find(x => x.codigo_balanca && Number(x.codigo_balanca) === item) : products.find(x => x.barcode === code);
   if (!p) { const r = await askNewProduct(code, scale, scale ? String(item) : ""); if (!r) return;
     p = registerProduct({ name: r.nome, barcode: scale ? "" : code, codigo_balanca: scale ? String(item) : "" }); }
@@ -2097,10 +1624,7 @@ $("eAdd").onclick = () => {
   labels.push({ nome: pend.nome, code: uniCode(pend.code), orig: pend.code, kg: pend.kg, tam: pend.tam || "M", key: pkey(pend.src), qtd: Math.max(1, Math.round(Number($("eQtd").value) || 1)) }); store.set(EK, labels);
   pend = null; $("ePend").classList.add("hidden"); $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels(); toast("Item adicionado à lista.");
 };
-function labelDup(i) { const l = labels[i]; if (!l) return; const ord = ["P", "M", "G"], atual = l.tam || "M", novo = ord[(ord.indexOf(atual) + 1) % 3];
-  labels.splice(i + 1, 0, { ...l, tam: novo, qtd: 1, ok: false, dup: true }); store.set(EK, labels); renderLabels(); lmOpen(i + 1); toast("Duplicado: escolha o tamanho e a quantidade."); }
-$("eLista").onclick = e => { const dp = e.target.closest("[data-ldup]"); if (dp) { labelDup(Number(dp.dataset.ldup)); return; }
-  const k = e.target.closest("[data-lchk]"); if (k) { const l = labels[Number(k.dataset.lchk)]; if (l) { l.ok = !l.ok; store.set(EK, labels); renderLabels(); } return; }
+$("eLista").onclick = e => { const k = e.target.closest("[data-lchk]"); if (k) { const l = labels[Number(k.dataset.lchk)]; if (l) { l.ok = !l.ok; store.set(EK, labels); renderLabels(); } return; }
   const b = e.target.closest("[data-ldrop]"); if (!b) return; const x = Number(b.dataset.ldrop), it = labels.splice(x, 1)[0];
   store.set(EK, labels); renderLabels(); toast("Etiqueta removida.", "Desfazer", () => { labels.splice(x, 0, it); store.set(EK, labels); renderLabels(); }); };
 renderLabels();
@@ -2131,15 +1655,14 @@ let lmI = -1;
 function lmDraw() { const l = labels[lmI]; if (!l) return; document.querySelectorAll("#lmTam button").forEach(b => b.classList.toggle("sel", b.dataset.t === (l.tam || "M"))); $("lmQtd").value = l.qtd; }
 function lmOpen(i) { const l = labels[i]; if (!l) return; lmI = i; $("lmNome").textContent = l.nome; $("lmCod").textContent = l.code ? "Código: " + l.code : "Sem código"; lmDraw(); $("lModal").classList.remove("hidden"); if (navigator.vibrate) navigator.vibrate(40); }
 const lmSave = () => { store.set(EK, labels); renderLabels(); };
-$("lmTam").onclick = e => { const b = e.target.closest("button"); const l = labels[lmI]; if (!b || !l) return; l.tam = b.dataset.t; if (l.key && !l.dup) { const m = store.get(TK, {}); m[l.key] = l.tam; store.set(TK, m); } lmSave(); lmDraw(); };
+$("lmTam").onclick = e => { const b = e.target.closest("button"); const l = labels[lmI]; if (!b || !l) return; l.tam = b.dataset.t; if (l.key) { const m = store.get(TK, {}); m[l.key] = l.tam; store.set(TK, m); } lmSave(); lmDraw(); };
 const lmQ = n => { const l = labels[lmI]; if (!l) return; l.qtd = Math.max(1, Math.round(n) || 1); lmSave(); lmDraw(); };
 $("lmMenos").onclick = () => lmQ((labels[lmI] || {}).qtd - 1); $("lmMais").onclick = () => lmQ((labels[lmI] || {}).qtd + 1); $("lmQtd").onchange = () => lmQ(Number($("lmQtd").value));
 $("lmOk").onclick = $("lmClose").onclick = () => $("lModal").classList.add("hidden");
-$("lmDup").onclick = () => { const i = lmI; $("lModal").classList.add("hidden"); labelDup(i); };
 $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden"); labelUnify(i); };
 (function () { const box = $("eLista"); let t = null, x0 = 0, y0 = 0;
   const stop = () => { clearTimeout(t); t = null; };
-  box.addEventListener("pointerdown", e => { const r = e.target.closest(".crw"); if (!r || e.target.closest("[data-ldrop],[data-lchk],[data-ldup]")) return; x0 = e.clientX; y0 = e.clientY;
+  box.addEventListener("pointerdown", e => { const r = e.target.closest(".crw"); if (!r || e.target.closest("[data-ldrop],[data-lchk]")) return; x0 = e.clientX; y0 = e.clientY;
     const i = Number(r.dataset.li); t = setTimeout(() => { t = null; lmOpen(i); }, 500); });
   box.addEventListener("pointermove", e => { if (t && (Math.abs(e.clientX - x0) > 10 || Math.abs(e.clientY - y0) > 10)) stop(); });
   ["pointerup", "pointercancel", "pointerleave"].forEach(n => box.addEventListener(n, stop));
@@ -2191,7 +1714,6 @@ function applyImport(rows) {
 }
 let impRows = [];
 function impCheck() {
-  if (impBinario($("impText").value)) { impRows = []; $("impGo").disabled = true; $("impPrev").innerHTML = '<p class="bad">✖ Esse texto parece um arquivo PDF/binário, não uma lista. Toque em «Limpar texto» e cole as linhas (ou use um CSV).</p>'; return; }
   impRows = analyzeList($("impText").value); const ok = impRows.filter(r => r.st !== "erro").length, er = impRows.length - ok;
   $("impGo").disabled = !ok; $("impGo").textContent = ok ? `Cadastrar ${ok} produto(s)` : "Cadastrar";
   $("impPrev").innerHTML = impRows.length ? `<p><b>${impRows.filter(r => r.st === "novo").length} novos · ${impRows.filter(r => r.st === "atualiza").length} atualizações · ${er} com erro</b></p><div class="impl">` +
@@ -2203,14 +1725,9 @@ $("impClose").onclick = () => impOpen(false);
 $("impCheck").onclick = impCheck;
 $("impGo").onclick = () => { const { n, u } = applyImport(impRows); impRows = []; $("impText").value = ""; $("impPrev").innerHTML = ""; $("impGo").disabled = true; impOpen(false); toast(`Importação concluída: ${n} novo(s), ${u} atualizado(s).`); };
 $("impFileBtn").onclick = () => $("impFile").click();
-const impBinario = t => /^\s*%PDF|^PK\u0003\u0004/.test(t) || /[\u0000-\u0008\u000e-\u001f\ufffd]/.test(t.slice(0, 4000));
 $("impFile").onchange = async () => { const f = $("impFile").files[0]; if (!f) return; const buf = await f.arrayBuffer();
-  const ini = new TextDecoder("latin1").decode(buf.slice(0, 8));
-  if (/^%PDF|^PK/.test(ini) || /\.(pdf|xlsx?|docx?)$/i.test(f.name) && !/^[\x20-\x7e\r\n\t;,|]/.test(ini)) { $("impFile").value = ""; toast("Esse arquivo é PDF/Excel, não texto. Salve como CSV (ou copie e cole as linhas) e tente de novo."); return; }
   let t; try { t = new TextDecoder("utf-8", { fatal: true }).decode(buf); } catch { t = new TextDecoder("windows-1252").decode(buf); }
-  if (impBinario(t)) { $("impFile").value = ""; toast("Arquivo ilegível: não parece uma lista em texto/CSV."); return; }
   $("impText").value = t.replace(/^\ufeff/, ""); $("impFile").value = ""; impCheck(); };
-$("impLimpa").onclick = () => { $("impText").value = ""; $("impPrev").innerHTML = ""; impRows = []; $("impGo").disabled = true; $("impGo").textContent = "Cadastrar"; };
 $("impModel").onclick = () => download(new Blob(["\ufeffnome;codigo_balanca;codigo_doacao;ean;categoria\r\nMamão Papaya;123;45;;FLV\r\nBanana Prata;124;46;;FLV\r\nPão Francês;200;B1;;Padaria\r\n"], { type: "text/csv;charset=utf-8" }), "modelo-importacao-valida.csv");
 
 if (db) startPresence(); else localStats();
@@ -2220,8 +1737,8 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-71";
-$("appVer").textContent = APP_VERSION.split("-").pop();
+const APP_VERSION = "2026.10.07-35";
+$("appVer").textContent = "v" + APP_VERSION;
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
   const BK = "validamais-bkp", BI = "validamais-bkp-ini", BS = "validamais-bkp-soneca", DIA = 864e5, SEMANA = 7 * DIA;
@@ -2232,27 +1749,13 @@ $("appVer").textContent = APP_VERSION.split("-").pop();
     const dados = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (/^valida/.test(k) && !skip(k)) dados[k] = localStorage.getItem(k); } } catch (e) {}
     return { app: "Valida+", versao: APP_VERSION, em: new Date().toISOString(), dados, produtosNuvem: db ? products.map(({ id, ...p }) => p) : undefined };
   }
-  function fazer() {   // abre um quadro com 2 caminhos (cada botão é um toque direto: funciona em qualquer celular) e mostra o motivo se algo falhar
-    const b = pack(), txt = JSON.stringify(b), blob = new Blob([txt], { type: "application/json" }), nome = `valida-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    const bg = document.createElement("div"); bg.className = "askbg";
-    bg.innerHTML = `<div class="ask" style="text-align:left"><div class="ai" style="text-align:center">💾</div><h3 style="text-align:center">Fazer backup</h3><p style="text-align:center">${Object.keys(b.dados).length} grupos de dados${b.produtosNuvem ? " · " + b.produtosNuvem.length + " produtos" : ""}</p>
-      <div class="arow" style="flex-direction:column;gap:8px"><button type="button" class="ok" data-a="baixar">📥 Salvar arquivo no aparelho</button><button type="button" data-a="enviar">📤 Enviar (WhatsApp, Drive, e-mail…)</button><button type="button" data-a="fechar">Fechar</button></div>
-      <p id="bkMsg" style="margin-top:10px;font-size:14px;text-align:center"></p></div>`;
-    const msg = (t, bad) => { const m = bg.querySelector("#bkMsg"); m.textContent = t; m.style.color = bad ? "#ff8a80" : ""; };
-    const feito = () => { wr(BK, String(Date.now())); document.querySelectorAll(".bkpbanner").forEach(x => x.remove()); };
-    bg.onclick = async e => {
-      if (e.target === bg) return bg.remove(); const a = e.target.closest("[data-a]"); if (!a) return;
-      if (a.dataset.a === "fechar") return bg.remove();
-      if (a.dataset.a === "baixar") { try { download(blob, nome); feito(); msg("✓ Arquivo " + nome + " salvo (veja em Downloads / Arquivos do celular)."); } catch (err) { msg("Não consegui salvar: " + (err && err.message || err), true); } return; }
-      try {
-        const file = new File([blob], nome, { type: "application/json" });
-        if (!navigator.share) throw new Error("este aparelho não tem compartilhamento. Use «Salvar arquivo».");
-        if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Backup Valida+", files: [file] });
-        else await navigator.share({ title: "Backup Valida+ " + nome, text: txt });   // alguns celulares não aceitam arquivo .json: envia como texto
-        feito(); msg("✓ Enviado.");
-      } catch (err) { if (err && err.name === "AbortError") return; msg("Não deu para enviar (" + (err && (err.message || err.name) || "erro") + "). Use «Salvar arquivo no aparelho».", true); }
-    };
-    document.body.appendChild(bg);
+  async function fazer() {
+    const b = pack(), blob = new Blob([JSON.stringify(b)], { type: "application/json" }), nome = `valida-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    try {
+      const file = new File([blob], nome, { type: "application/json" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Backup Valida+", files: [file] }); else download(blob, nome);
+      wr(BK, String(Date.now())); document.querySelectorAll(".bkpbanner").forEach(x => x.remove()); toast("Backup feito. Guarde o arquivo no Drive ou no WhatsApp.");
+    } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Não foi possível gerar o backup."); } }
   }
   function restaurar() {
     const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".json,application/json";
@@ -2334,19 +1837,24 @@ if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) $("iosHint").c
 })();
 
 </script>
-<script>(function(){var $=function(i){return document.getElementById(i)};
-["Loja","Doacao","Etiquetas"].forEach(function(n){$("tb"+n).onclick=function(){$("nav"+n).click()}});})();</script>
+<script>(function(){var w=document.getElementById("fabWrap"),s=document.getElementById("fabScrim"),$=function(i){return document.getElementById(i)};
+function set(o){w.classList.toggle("open",o);s.classList.toggle("hidden",!o)}
+$("fabMain").onclick=function(){set(!w.classList.contains("open"))};s.onclick=function(){set(false)};
+$("fab").addEventListener("click",function(){set(false)});
+$("fabManual").onclick=function(){set(false);$("manualOpen").click()};
+$("fabZap").onclick=function(){set(false);$("shareBtn").click()};
+["Loja","Doacao","Etiquetas"].forEach(function(n){$("tb"+n).onclick=function(){set(false);$("nav"+n).click()}});})();</script>
 <script>(function(){var T=["Doacao","Etiquetas","Loja"],x0=0,y0=0,ok=false,g=function(i){return document.getElementById(i)};
-function blocked(t){if(t.closest&&t.closest("input,textarea,select,.ivsw,.rwrap,#reader,.side,.modal,#confView,.fabwrap,.topdo,.askbg,.cropbg,.redit"))return true;
+function blocked(t){if(t.closest&&t.closest("input,textarea,select,.rwrap,#reader,.side,.modal,#confView,.fabwrap,.topdo,.askbg,.cropbg,.redit"))return true;
 var m=document.querySelectorAll(".modal,#confView,.side.open");for(var i=0;i<m.length;i++){if(!m[i].classList.contains("hidden")&&getComputedStyle(m[i]).display!=="none")return true}return false}
 document.addEventListener("touchstart",function(e){if(e.touches.length!==1){ok=false;return}var t=e.touches[0];x0=t.clientX;y0=t.clientY;ok=!blocked(e.target)},{passive:true});
 document.addEventListener("touchend",function(e){if(!ok)return;ok=false;var t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;
-if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*2)return;var cur=T.indexOf(document.body.dataset.tab||"Loja");if(cur<0)return;var n=cur+(dx<0?1:-1);
+if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*2)return;var cur=T.indexOf(document.body.dataset.tab||"Loja"),n=cur+(dx<0?1:-1);
 if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:true});})();</script>
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
-var UPDATES=[{t:"2026-10-08T11:30:00-03:00",itens:["Inventário em tempo real: o que cada pessoa lança ou conclui aparece na hora em todos os aparelhos, com o nome de quem contou"]},{t:"2026-10-08T09:50:00-03:00",itens:["Inventário: busca na tela inicial para lançar direto num produto (abre na banca certa) e nome do produto em destaque com códigos menores"]},{t:"2026-10-08T09:30:00-03:00",itens:["Inventário: produtos concluídos vão para o fim da lista em tom mais escuro e continuam editáveis (acrescentar ou remover lançamentos)"]},{t:"2026-10-08T05:40:00-03:00",itens:["Inventário: botão Começar agora é deslizante, com vibração e menor; cores das bancas mais suaves"]},{t:"2026-10-08T05:20:00-03:00",itens:["Inventário: nova lista para conferir quais produtos ainda não estão em nenhuma banca, com opção de incluir direto"]},{t:"2026-10-08T05:00:00-03:00",itens:["Inventário: cada banca com sua cor, lançamentos por pesagem, relatório e código de barras único por produto"]},{t:"2026-10-07T21:10:00-03:00",itens:["Inventário: cada produto pertence a uma única banca (o app avisa e pergunta antes de mover) e o botão Novo inventário zera as contagens mantendo as bancas"]},{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código interno ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+var UPDATES=[{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
@@ -2379,7 +1887,6 @@ var hiddenAt=0;document.addEventListener("visibilitychange",function(){if(docume
 <script>
 /* Teclado numerico integrado: campos [data-np] ficam readonly e usam o painel inferior */
 (function () {
-  ["uKg", "uUn"].forEach(function (i) { document.getElementById(i).addEventListener("click", function () { setTimeout(function () { if (window.npPaint) window.npPaint(); }, 0); }); });
   var pad = document.getElementById("np"), val = document.getElementById("npVal"), ttl = document.getElementById("npTitle"), okb = document.getElementById("npOk"), comma = pad.querySelector('[data-k=","]');
   var act = null, fresh = false, root = document.documentElement;
   var isInt = function (el) { return el.hasAttribute("data-np-int"); };
@@ -2387,19 +1894,17 @@ var hiddenAt=0;document.addEventListener("visibilitychange",function(){if(docume
     if (el.id === "dPeso") { var n = document.getElementById("dNome"), u = document.getElementById("uUn").classList.contains("sel") ? "un" : "kg"; return ((n && n.textContent) || "Peso") + " (" + u + ")"; }
     var l = el.id && document.querySelector('label[for="' + el.id + '"]'); return l ? l.textContent.replace("*", "").trim() : "Quantidade";
   }
-  function paint() { val.textContent = act ? (act.value || "0") : "";
-    var bg = document.getElementById("dBig"); if (bg && act && act.id === "dPeso") bg.innerHTML = (act.value || "0") + "<small>" + (document.getElementById("uUn").classList.contains("sel") ? "un" : "kg") + "</small>"; }
-  window.npPaint = paint;
+  function paint() { val.textContent = act ? (act.value || "0") : ""; }
   function measure() { root.style.setProperty("--np-h", pad.offsetHeight + "px"); }
   function open(el) {
     var first = !pad.classList.contains("show") || act !== el;
     if (act !== el) { if (act) act.classList.remove("np-on"); act = el; fresh = true; }
     el.classList.add("np-on"); ttl.textContent = title(el); okb.textContent = el.dataset.npLabel || "OK"; comma.disabled = isInt(el); paint();
-    pad.classList.add("show"); document.body.classList.add("np-open"); document.body.classList.toggle("np-doa", el.id === "dPeso"); measure();
+    pad.classList.add("show"); document.body.classList.add("np-open"); measure();
     if (el.id !== "dPeso") { try { el.scrollIntoView({ block: "nearest" }); } catch (e) {} }
   }
   function close() {
-    if (act) act.classList.remove("np-on"); act = null; pad.classList.remove("show"); document.body.classList.remove("np-open", "np-doa"); root.style.removeProperty("--np-h");
+    if (act) act.classList.remove("np-on"); act = null; pad.classList.remove("show"); document.body.classList.remove("np-open"); root.style.removeProperty("--np-h");
   }
   window.npClose = close;
   function put(v) { act.value = v; act.dispatchEvent(new Event("input", { bubbles: true })); act.dispatchEvent(new Event("change", { bubbles: true })); paint(); }
@@ -2434,981 +1939,24 @@ var hiddenAt=0;document.addEventListener("visibilitychange",function(){if(docume
   window.addEventListener("resize", function () { if (act) measure(); });
 })();
 </script>
-<script>/* menu ⋮: exportar, importar, backup, duplicados, instalar */(function(){
-var g=function(i){return document.getElementById(i)},m=g("moreMenu"),bg=g("moreBg");
-function fecha(){m.classList.add("hidden");bg.classList.add("hidden")}
-function abre(){m.classList.remove("hidden");bg.classList.remove("hidden")}
+<script>/* menu +: exportar, importar, instalar */(function(){
+var g=function(i){return document.getElementById(i)},w=g("fabWrap"),s=g("fabScrim");
+function fecha(){w.classList.remove("open");s.classList.add("hidden")}
 function msg(t){var e=g("toast");e.textContent=t;e.classList.remove("hidden");clearTimeout(msg.t);msg.t=setTimeout(function(){e.classList.add("hidden")},7000)}
-var h=document.querySelector("header");
-if(h&&!g("moreBtn")){var b=document.createElement("button");b.id="moreBtn";b.type="button";b.textContent="⋮";b.setAttribute("aria-label","Mais opções");b.setAttribute("aria-haspopup","menu");h.appendChild(b);
-b.onclick=function(){m.classList.contains("hidden")?abre():fecha()}}
-bg.onclick=fecha;document.addEventListener("keydown",function(e){if(e.key==="Escape")fecha()});
-if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)g("mnInstall").classList.add("hidden");
-g("mnCad").onclick=function(){fecha();g("navCadastros").click();window.scrollTo(0,0)};
-g("mnInv").onclick=function(){fecha();g("navInventario").click();window.scrollTo(0,0)};
-g("mnHist").onclick=function(){fecha();if(window.phOpen)window.phOpen()};
-g("mnBkp").onclick=function(){fecha();if(window.vmBackup)window.vmBackup()};
-g("mnRest").onclick=function(){fecha();if(window.vmRestaurar)window.vmRestaurar()};
-g("mnInstall").onclick=function(){fecha();var b=g("installBtn");
+if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)g("fabInstall").classList.add("hidden");
+g("fabExport").onclick=function(){fecha();g("side").classList.add("open");g("sideBg").classList.remove("hidden");
+setTimeout(function(){var x=g("exportScope");if(x)x.scrollIntoView({block:"center"})},280)};
+g("fabImport").onclick=function(){fecha();g("navImport").click()};
+g("fabBkp").onclick=function(){fecha();if(window.vmBackup)window.vmBackup()};
+g("fabRest").onclick=function(){fecha();if(window.vmRestaurar)window.vmRestaurar()};
+g("fabDup").onclick=function(){fecha();if(window.dupReview)window.dupReview()};
+g("fabInstall").onclick=function(){fecha();var b=g("installBtn");
 if(b&&!b.hidden){b.click();return}
 if(/iphone|ipad|ipod/i.test(navigator.userAgent)){var h=g("iosHint");if(h){h.classList.remove("hidden");window.scrollTo(0,0)}msg("No iPhone: toque em Compartilhar e depois em Adicionar à Tela de Início.");return}
 msg("Para instalar: menu do navegador (⋮) e depois Instalar app ou Adicionar à tela inicial.")};
-/* altura do topo (abas + subabas) para os elementos fixos logo abaixo */
-var top=document.querySelector(".top");function alt(){document.documentElement.style.setProperty("--top-h",top.offsetHeight+"px")}
-alt();if(window.ResizeObserver)new ResizeObserver(alt).observe(top);
 })();</script>
 <script>/* ponto de status da sincronização */(function(){var s=document.getElementById("syncState"),d=document.getElementById("syncDot");if(!s||!d)return;
 function u(){var t=s.textContent||"";d.title=t;d.className="sdot "+(/^sincronizado/.test(t)?"ok":/erro|falha/.test(t)?"err":/conectando|aguardando|offline|iniciando/.test(t)?"wait":"")}
 new MutationObserver(u).observe(s,{childList:true,characterData:true,subtree:true});u()})();</script>
-<script>/* aba Inventário: contagem de FLV por banca (sem banco; troca de dados por link) */(function(){
-"use strict";
-var g=function(i){return document.getElementById(i)};
-var KEY="validamais-inventario-v1",KBAL="validamais-inv-balanca";
-function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
-function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-var S=rd(KEY,null);if(!S||!Array.isArray(S.bancas))S={bancas:[]};
-var CL={on:false,adopted:false,started:false,err:"",fc:true,hps:{},bancas:{},lan:{},fin:{},hist:null,sig:"",force:false,late:false,tm:0,migT:0,warned:false},swiping=false,hashQ=null;
-function save(){wr(KEY,S);CL.sig=sigNow()}
-function me(){var n=rd("validamais-operador","");return typeof n==="string"&&n?n:"Aparelho"}
-function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
-function normS(s){return String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim()}
-function fmt(n){return(Math.round(n*10)/10).toLocaleString("pt-BR",{maximumFractionDigits:1})}
-function fmt3(n){return(Math.round(n*1000)/1000).toLocaleString("pt-BR",{maximumFractionDigits:3})}
-function num(s){var n=parseFloat(String(s).replace(",","."));return isNaN(n)?null:n}
-function uid(){return Math.random().toString(36).slice(2,8)}
-function hhmm(t){return t?new Date(t).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):""}
-var tmo;function toast(t){var e=g("toast");if(!e)return;e.textContent=t;e.classList.remove("hidden");clearTimeout(tmo);tmo=setTimeout(function(){e.classList.add("hidden")},3500)}
-
-/* ---- cores das bancas ---- */
-var PAL=["#4f79a8","#b5804d","#7b6aa6","#a86b88","#4f8a8d","#a38d4a","#b56a64","#5f8a68"];
-var LEG={"#2f80ed":0,"#f2994a":1,"#9b51e0":2,"#e0559b":3,"#17a2b8":4,"#d9a400":5,"#eb5757":6,"#43a047":7};
-function okCor(c){return/^#[0-9a-f]{6}$/i.test(c||"")}
-function corOf(b){var c=okCor(b.cor)?String(b.cor).toLowerCase():"";if(c&&LEG[c]!==undefined)return PAL[LEG[c]];return c||PAL[Math.max(0,S.bancas.indexOf(b))%PAL.length]}
-function inkOn(hex){var n=parseInt(hex.slice(1),16),r=n>>16,gg=(n>>8)&255,bb=n&255;return(r*299+gg*587+bb*114)/1000>150?"#1a1405":"#fff"}
-function tag(b,big){var c=corOf(b);return'<span class="ivtag'+(big?' big':'')+'" style="background:'+c+';color:'+inkOn(c)+'">'+esc(b.nome)+'</span>'}
-function firstUnused(){var used=S.bancas.map(corOf);return PAL.filter(function(c){return used.indexOf(c)<0})[0]||PAL[S.bancas.length%PAL.length]}
-
-/* ---- lançamentos e cálculo ---- */
-/* b.cont[chave] = total do produto (existe só quando o produto foi concluído); b.lan[chave] = [[peso,hora],...] */
-function eff(b){
-  var loc={por:b.por||me(),cont:b.cont||{},lan:b.lan||{},t:b.t||0},e=b.ext;
-  if(e&&e.cont&&(e.t>loc.t||(e.t===loc.t&&Object.keys(e.cont).length>Object.keys(loc.cont).length)))return{por:e.por,cont:e.cont,lan:e.lan||{},t:e.t};
-  return loc;
-}
-function sumL(a){return Math.round(a.reduce(function(s,x){return s+x[0]},0)*1000)/1000}
-function lansOf(b,key){var e=eff(b),a=e.lan&&e.lan[key];if(a)return a;var v=e.cont[key];return(typeof v==="number"&&v>0)?[[v,e.t||0]]:[]}
-function lanArr(b,key){   // versão editável (só neste aparelho)
-  b.lan=b.lan||{};b.cont=b.cont||{};
-  if(!b.lan[key])b.lan[key]=(typeof b.cont[key]==="number"&&b.cont[key]>0)?[[b.cont[key],b.t||0]]:[];
-  return b.lan[key];
-}
-function stats(b){
-  var e=eff(b),kg=0,un=0,n=0;
-  b.itens.forEach(function(it){var v=e.cont[it.c];if(typeof v==="number"){n++;if(it.u==="un")un+=v;else kg+=v}});
-  var m=b.itens.length;
-  return{kg:kg,un:un,n:n,m:m,pct:m?Math.round(n/m*100):0,por:(n>0||Object.keys(e.lan||{}).length)?e.por:"",e:e};
-}
-function totals(){
-  var kg=0,un=0,n=0,m=0,prod={};
-  var rows=S.bancas.map(function(b){
-    var s=stats(b);kg+=s.kg;un+=s.un;n+=s.n;m+=s.m;
-    b.itens.forEach(function(it){var v=s.e.cont[it.c];if(typeof v!=="number")return;
-      var p=prod[it.c]||(prod[it.c]={c:it.c,n:it.n,u:it.u,b:it.b,d:it.d,e:it.e,bn:b.nome,bc:corOf(b),v:0});p.v+=v});
-    return{b:b,s:s};
-  });
-  var arr=Object.keys(prod).map(function(k){return prod[k]}).sort(function(a,b){return b.v-a.v});
-  return{rows:rows,kg:kg,un:un,n:n,m:m,pct:m?Math.round(n/m*100):0,prod:arr};
-}
-function pctOf(a,b){return b?Math.round(a/b*100):0}
-
-/* ---- cadastro de produtos do app (busca por código de balança, código interno, EAN ou nome) ---- */
-function catalog(){try{return typeof window.vmProducts==="function"?(window.vmProducts()||[]):[]}catch(e){return[]}}
-function unitFor(name){var m=rd("validamais-dunid",{});return m[normS(name)]||(/^abacaxi/.test(normS(name))?"un":"kg")}
-function merged(){
-  var map={},list=[];
-  catalog().forEach(function(p){
-    var n=String(p.name||"").trim();if(!n)return;
-    var k=normS(n),m=map[k];
-    if(!m){m=map[k]={n:n,b:"",d:"",e:"",cat:p.category||""};list.push(m)}
-    if(!m.b&&p.codigo_balanca)m.b=String(p.codigo_balanca).slice(0,12);
-    if(!m.d&&p.codigo_doacao)m.d=String(p.codigo_doacao).slice(0,12);
-    if(!m.e&&p.barcode)m.e=String(p.barcode).slice(0,20);
-  });
-  return list;
-}
-function isNum(s){return/^\d+$/.test(s)}
-function codeEq(q,code){
-  if(!code)return false;var c=String(code).toLowerCase();
-  return c===q||(isNum(q)&&isNum(c)&&Number(c)===Number(q));
-}
-function search(q){
-  q=normS(q);if(!q)return[];
-  if(window.vmScale&&vmScale.is(q))q=String(Number(vmScale.parse(q).item));   // etiqueta de balança: usa o código do item
-  var toks=q.split(/\s+/),out=[];
-  merged().forEach(function(h){
-    var n=normS(h.n),sc=0;
-    if(codeEq(q,h.b)||codeEq(q,h.d)||codeEq(q,h.e))sc=100;
-    else if((h.b&&String(h.b).toLowerCase().indexOf(q)===0)||(h.d&&String(h.d).toLowerCase().indexOf(q)===0)||(h.e&&String(h.e).indexOf(q)===0))sc=60;
-    else if(n.indexOf(q)===0)sc=40;
-    else if(toks.every(function(t){return n.indexOf(t)>=0}))sc=20;
-    if(sc){var x={};for(var k in h)x[k]=h[k];x.sc=sc;out.push(x)}
-  });
-  out.sort(function(a,b){return b.sc-a.sc||(a.cat==="FLV"?0:1)-(b.cat==="FLV"?0:1)||a.n.localeCompare(b.n)});
-  return out.slice(0,8);
-}
-function keyOf(h){return h.b?"b"+h.b:h.d?"d"+h.d:h.e?"e"+h.e:"n"+normS(h.n).slice(0,38)}
-function toItem(h){return{c:keyOf(h),n:h.n,u:unitFor(h.n),b:h.b||"",d:h.d||"",e:h.e||""}}
-function ownerOf(it){   // banca (outra que a em edição) à qual o produto já pertence
-  var nm=normS(it.n),mv=(V&&V.moved)||[];
-  for(var i=0;i<S.bancas.length;i++){
-    var b=S.bancas[i];if(b.id===(V&&V.id))continue;
-    for(var j=0;j<b.itens.length;j++){
-      var x=b.itens[j];
-      if((x.c===it.c||normS(x.n)===nm)&&!mv.some(function(m){return m.id===b.id&&m.c===x.c}))return{b:b,x:x};
-    }
-  }
-  return null;
-}
-function codesTxt(it){
-  var p=[];
-  if(it.b)p.push("Balança "+it.b);
-  if(it.d)p.push("Cód. interno "+it.d);
-  if(!p.length&&it.e)p.push("EAN "+it.e);
-  if(!p.length&&it.c&&normS(it.c)!==normS(it.n))p.push("Cód. "+it.c);
-  return esc(p.join(" · "));
-}
-function codesBig(it){
-  var p=[];
-  if(it.b)p.push("<span><small>BALANÇA</small><b>"+esc(it.b)+"</b></span>");
-  if(it.d)p.push("<span><small>CÓD. INTERNO</small><b>"+esc(it.d)+"</b></span>");
-  if(!p.length&&it.e)p.push("<span><small>EAN</small><b>"+esc(it.e)+"</b></span>");
-  if(!p.length&&it.c&&normS(it.c)!==normS(it.n))p.push("<span><small>CÓDIGO</small><b>"+esc(it.c)+"</b></span>");
-  return p.join("");
-}
-
-/* ---- lista colada (código;nome;un) ---- */
-function parseItens(txt){
-  var out=[],seen={},cat=merged();
-  txt.split(/\n/).forEach(function(line){
-    line=line.trim();if(!line)return;
-    var p;
-    if(/[;\t]/.test(line))p=line.split(/[;\t]/).map(function(x){return x.trim()});
-    else{var m=line.match(/^(\S+)\s+(.+)$/);p=m?[m[1],m[2]]:[line,line]}
-    var c=p[0],n=p[1]||p[0],un=/^un/i.test(p[2]||"");
-    if(!c)return;
-    var q=c.toLowerCase(),hit=null;
-    for(var i=0;i<cat.length&&!hit;i++){if(codeEq(q,cat[i].b)||codeEq(q,cat[i].d)||codeEq(q,cat[i].e))hit=cat[i]}
-    var it=hit?toItem(hit):{c:c.slice(0,24),n:n.slice(0,60),u:"kg",b:"",d:"",e:""};
-    if(un)it.u="un";
-    if(seen[it.c])return;seen[it.c]=1;out.push(it);
-  });
-  return out;
-}
-
-/* ---- código de barras EAN-13 no formato da etiqueta de balança ---- */
-function fmtB(){
-  return{cd:5,vd:5,div:100,ok:true,upc:true,price:true};
-  var B=(window.VALIDA_CONFIG&&window.VALIDA_CONFIG.balanca)||{};
-  var cd=B.codigoDigitos||6,vd=B.valorDigitos||5;
-  return{cd:cd,vd:vd,div:B.divisor||1000,ok:false};
-}
-function pad(s,n){s=String(s);while(s.length<n)s="0"+s;return s}
-function chk(b12){var s=0;for(var i=0;i<12;i++)s+=(+b12[i])*(i%2===0?1:3);return(10-s%10)%10}
-function pkFor(it){   // preço do kg: guardado na Doação (por nome), pela conferência (por código) ou digitado no relatório
-  var v=window.vmPk?window.vmPk.get(it.n):0;if(v>0)return v;
-  var m=rd("validamais-precokg-plu",{}),p=Number(m[String(parseInt(it.b,10))]);return p>0?p:0;
-}
-function ean13(plu,kg,f,pk){   // lista de códigos (13 dígitos, ou 12 no formato UPC-A) — divide se passar do limite de valor
-  if(!isNum(String(plu)))return null;
-  var pluS=String(parseInt(plu,10));if(pluS.length>f.cd)return null;pluS=pad(pluS,f.cd);
-  var max=Math.pow(10,f.vd)-1,tot=f.price?Math.round(kg*pk*100):Math.round(kg*f.div),out=[];
-  if(!(tot>0))return null;
-  while(tot>0){var part=Math.min(tot,max);tot-=part;var body="2"+pluS+pad(part,f.vd);out.push(f.upc?body+chk("0"+body):body+chk(body))}
-  return out;
-}
-var EL=["0001101","0011001","0010011","0111101","0100011","0110001","0101111","0111011","0110111","0001011"];
-var EG=["0100111","0110011","0011011","0100001","0011101","0111001","0000101","0010001","0001001","0010111"];
-var ER=["1110010","1100110","1101100","1000010","1011100","1001110","1010000","1000100","1001000","1110100"];
-var EP=["LLLLLL","LLGLGG","LLGGLG","LLGGGL","LGLLGG","LGGLLG","LGGGLL","LGLGLG","LGLGGL","LGGLGL"];
-function eanSvg(code){
-  var upc=code.length===12;if(upc)code="0"+code;
-  var d=code.split("").map(Number),bits="101",par=EP[d[0]],i;
-  for(i=1;i<=6;i++)bits+=(par.charAt(i-1)==="L"?EL:EG)[d[i]];
-  bits+="01010";
-  for(i=7;i<=12;i++)bits+=ER[d[i]];
-  bits+="101";
-  var q=9,h=60,gh=66,W=95+2*q,H=gh+13,r="";
-  i=0;
-  while(i<95){
-    if(bits.charAt(i)==="1"){var j=i;while(j<95&&bits.charAt(j)==="1")j++;
-      var guard=i<3||(i>=45&&i<50)||i>=92;
-      r+='<rect x="'+(q+i)+'" y="0" width="'+(j-i)+'" height="'+(guard?gh:h)+'"/>';i=j}
-    else i++;
-  }
-  var t='<text x="'+(q-3)+'" y="'+(H-2)+'" text-anchor="end">'+code.charAt(upc?1:0)+'</text>';
-  if(upc){for(i=0;i<5;i++)t+='<text x="'+(q+10+7*i+3.5)+'" y="'+(H-2)+'" text-anchor="middle">'+code.charAt(2+i)+'</text>';
-    for(i=0;i<5;i++)t+='<text x="'+(q+50+7*i+3.5)+'" y="'+(H-2)+'" text-anchor="middle">'+code.charAt(7+i)+'</text>';
-    t+='<text x="'+(q+95+3)+'" y="'+(H-2)+'" text-anchor="start">'+code.charAt(12)+'</text>';}
-  else{for(i=0;i<6;i++)t+='<text x="'+(q+3+7*i+3.5)+'" y="'+(H-2)+'" text-anchor="middle">'+code.charAt(1+i)+'</text>';
-  for(i=0;i<6;i++)t+='<text x="'+(q+50+7*i+3.5)+'" y="'+(H-2)+'" text-anchor="middle">'+code.charAt(7+i)+'</text>';}
-  return'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Código de barras '+code+'"><rect width="'+W+'" height="'+H+'" fill="#fff"/><g fill="#000" shape-rendering="crispEdges">'+r+'</g><g fill="#000" font-family="Arial,Helvetica,sans-serif" font-size="10">'+t+'</g></svg>';
-}
-function calibrar(txt,kg,pkg){
-  var dg=String(txt).replace(/\D/g,"");
-  if(dg.length!==12&&dg.length!==13)return{err:"Digite todos os números que ficam embaixo do código de barras da etiqueta (12 ou 13 dígitos)."};
-  var up=dg.length===12;
-  if(up?chk("0"+dg.slice(0,11))!==+dg.charAt(11):chk(dg.slice(0,12))!==+dg.charAt(12))return{err:"O dígito verificador não bate. Confira se digitou os números corretamente."};
-  if(dg.charAt(0)!=="2")return{err:"Etiqueta de balança normalmente começa com 2. Confira os números."};
-  if(kg===null||!(kg>0))return{err:"Digite o peso (kg) que aparece nessa mesma etiqueta."};
-  var cands=up?[[5,1000],[5,100],[5,10]]:[[6,1000],[6,100],[5,1000],[5,100],[4,1000],[4,100],[6,10],[5,10],[4,10]];
-  var body=up?dg.slice(0,11):dg.slice(0,12);
-  for(var i=0;i<cands.length;i++){
-    var cd=cands[i][0],div=cands[i][1],vd=11-cd,val=parseInt(body.substr(1+cd,vd),10);
-    if(Math.abs(val/div-kg)<0.0006)return{ok:true,f:{cd:cd,vd:vd,div:div,ok:true,upc:up},plu:String(parseInt(body.substr(1,cd),10))};
-  }
-  if(pkg&&pkg>0){          // etiqueta que traz o PREÇO total (ex.: PRIX): valor = centavos = peso x preço do kg
-    var cdp=up?[5]:[6,5,4];
-    for(var j=0;j<cdp.length;j++){
-      var c2=cdp[j],v2=11-c2,val2=parseInt(body.substr(1+c2,v2),10);
-      if(Math.abs(val2/100-kg*pkg)<0.011)return{ok:true,price:true,f:{cd:c2,vd:v2,div:100,ok:true,upc:up,price:true},plu:String(parseInt(body.substr(1,c2),10)),pkg:pkg};
-    }
-  }
-  return{err:"Não encontrei o peso "+fmt3(kg)+" kg nesses números."+(pkg?" Também não bate com o preço (R$ "+pkg.toFixed(2).replace(".",",")+"/kg).":" Se a etiqueta traz o preço total (como a PRIX), digite também o preço por kg (R$/kg) que está nela.")};
-}
-
-/* ---- compartilhar / importar ---- */
-function enc(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
-function dec(s){s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";return JSON.parse(decodeURIComponent(escape(atob(s))))}
-function link(o){return location.href.split("#")[0]+"#inv="+enc(o)}
-function pack(a){return a.map(function(x){return[x.c,x.n,x.u,x.b||"",x.d||"",x.e||""]})}
-function unpack(a){
-  if(!Array.isArray(a))throw 0;
-  return a.slice(0,500).map(function(r){
-    if(!Array.isArray(r)||!r[0])throw 0;
-    return{c:String(r[0]).slice(0,40),n:String(r[1]||r[0]).slice(0,60),u:r[2]==="un"?"un":"kg",b:String(r[3]||"").slice(0,12),d:String(r[4]||"").slice(0,12),e:String(r[5]||"").slice(0,20)};
-  });
-}
-function cfgLink(l){return link({k:"cfg",b:l.map(function(b){return{id:b.id,n:b.nome,i:pack(b.itens),cor:corOf(b)}})})}
-function resLink(b){
-  var e=eff(b),l={};
-  b.itens.forEach(function(it){var a=lansOf(b,it.c);if(a.length)l[it.c]=a.map(function(x){return[x[0],x[1]]})});
-  return link({k:"res",id:b.id,n:b.nome,i:pack(b.itens),c:e.cont,l:l,por:e.por||me(),t:e.t||Date.now(),cor:corOf(b)});
-}
-function share(msg){
-  if(navigator.share){navigator.share({text:msg}).catch(function(e){if(e&&e.name==="AbortError")return;window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank")});return}
-  window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
-}
-function copy(t){
-  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){toast("Copiado")},function(){prompt("Copie o texto:",t)});
-  else prompt("Copie o texto:",t);
-}
-function imp(o){
-  if(o.k==="cfg"&&Array.isArray(o.b)){
-    var a=0,u=0;
-    o.b.slice(0,30).forEach(function(x){
-      var items=unpack(x.i),b=S.bancas.filter(function(y){return y.id===x.id})[0];
-      if(b){b.nome=String(x.n).slice(0,40);b.itens=items;u++;if(okCor(x.cor))b.cor=x.cor}
-      else{b={id:String(x.id).slice(0,12),nome:String(x.n).slice(0,40),itens:items,cont:{},lan:{},cor:okCor(x.cor)?x.cor:firstUnused(),ord:Date.now()+a};S.bancas.push(b);a++}
-      pushBanca(b);
-    });
-    save();return a+" banca(s) nova(s), "+u+" atualizada(s)";
-  }
-  if(o.k==="res"&&o.c&&typeof o.c==="object"){
-    var b2=S.bancas.filter(function(y){return y.id===o.id})[0];
-    if(!b2){b2={id:String(o.id).slice(0,12),nome:String(o.n).slice(0,40),itens:unpack(o.i),cont:{},lan:{},cor:okCor(o.cor)?o.cor:firstUnused(),ord:Date.now()};S.bancas.push(b2);pushBanca(b2)}
-    var cont={},lan={};
-    Object.keys(o.c).forEach(function(k){if(typeof o.c[k]==="number"&&isFinite(o.c[k]))cont[k]=o.c[k]});
-    if(o.l&&typeof o.l==="object")Object.keys(o.l).forEach(function(k){
-      if(!Array.isArray(o.l[k]))return;
-      lan[k]=o.l[k].filter(function(x){return Array.isArray(x)&&typeof x[0]==="number"&&isFinite(x[0])}).map(function(x){return[x[0],Number(x[1])||0]});
-    });
-    var por=String(o.por||"").slice(0,40);
-    if(CL.on){   // nuvem: grava só os produtos que ainda não foram contados nesta banca
-      var keys={},n=0;Object.keys(cont).forEach(function(k){keys[k]=1});Object.keys(lan).forEach(function(k){keys[k]=1});
-      b2.lan=b2.lan||{};b2.cont=b2.cont||{};b2.pi=b2.pi||{};
-      Object.keys(keys).forEach(function(k){
-        if((b2.lan[k]&&b2.lan[k].length)||typeof b2.cont[k]==="number")return;
-        var ls=lan[k]&&lan[k].length?lan[k]:(cont[k]>0?[[cont[k],Number(o.t)||Date.now()]]:[]);
-        b2.lan[k]=[];
-        ls.forEach(function(x,j){var l=[x[0],x[1]||Date.now(),lanId(b2.id,k)+j,por||me()];b2.lan[k].push(l);pushLan(b2,k,l)});
-        if(typeof cont[k]==="number"){b2.cont[k]=sumL(b2.lan[k]);pushFin(b2,k,true)}
-        b2.pi[k]=por||me();n++;
-      });
-      b2.t=Date.now();b2.por=por||b2.por||me();save();
-      return b2.nome+": "+n+" produto(s) importado(s) de "+(por||"?");
-    }
-    b2.ext={por:por,t:Number(o.t)||0,cont:cont,lan:lan};save();
-    return b2.nome+": resultado de "+(b2.ext.por||"?")+" importado";
-  }
-  throw 0;
-}
-function importText(txt){
-  var m=txt.match(/[#&?]inv=([A-Za-z0-9_-]+)/)||txt.match(/^\s*([A-Za-z0-9_-]{20,})\s*$/);
-  if(!m)throw 0;
-  return imp(dec(m[1]));
-}
-
-/* ---- telas (lista) ---- */
-var V={v:"home"};
-function btn(cls,act,txt,id){return'<button type="button" class="'+cls+'" data-iv="'+act+'"'+(id?' data-id="'+id+'"':'')+'>'+txt+'</button>'}
-function full(h){return h.replace(/class="(primary|secondary|danger)"/,'class="$1" style="width:100%"')}
-function barHtml(p,col){return'<div class="prog"><div style="width:'+p+'%'+(col?';background:'+col:'')+'"></div></div>'}
-function card(b,inner){return'<section class="panel" style="border-left:5px solid '+corOf(b)+'">'+inner+'</section>'}
-
-function swipeBtn(id,txt){return'<div class="ivsw" data-id="'+id+'" style="flex:1"><div class="ivswt">'+esc(txt)+' ›››</div><div class="ivswh" role="button" tabindex="0" aria-label="'+esc(txt)+'">›</div></div>'}
-function vib(n){try{if(navigator.vibrate)navigator.vibrate(n)}catch(e){}}
-function initSwipe(){
-  var els=document.querySelectorAll("#ivMain .ivsw");
-  Array.prototype.forEach.call(els,function(el){
-    var h=el.querySelector(".ivswh"),t=el.querySelector(".ivswt"),x0=0,mx=0,on=false,tick=0,go=false;
-    function lim(){return el.clientWidth-h.offsetWidth-4}
-    function set(x){x=Math.max(0,Math.min(lim(),x));h.style.transform="translateX("+x+"px)";t.style.opacity=String(1-x/Math.max(1,lim())*1.3);return x}
-    function start(){if(go)return;go=true;vib([30,40,30]);var b=S.bancas.filter(function(y){return y.id===el.dataset.id})[0];if(!b)return;b.cont=b.cont||{};V={v:"count",id:b.id,i:nextPending(b,0)};render();window.scrollTo(0,0)}
-    h.addEventListener("pointerdown",function(e){on=true;swiping=true;x0=e.clientX;try{h.setPointerCapture(e.pointerId)}catch(_){}h.style.transition="none";vib(8)});
-    h.addEventListener("pointermove",function(e){if(!on)return;var x=set(e.clientX-x0);mx=x;var k=Math.floor(x/lim()*6);if(k!==tick){tick=k;vib(6)}});
-    function end(){if(!on)return;on=false;swiping=false;if(CL.late){CL.late=false;setTimeout(liveRender,0)}h.style.transition="transform .2s";t.style.opacity="1";if(mx>=lim()*.85){set(lim());start()}else set(0);mx=0;tick=0}
-    h.addEventListener("pointerup",end);h.addEventListener("pointercancel",end);
-    h.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();start()}});
-  });
-}
-
-function qFind(q){
-  q=normS(q);if(!q)return[];var toks=q.split(/\s+/),out=[];
-  S.bancas.forEach(function(b){b.itens.forEach(function(it,i){
-    var n=normS(it.n),sc=0;
-    if(codeEq(q,it.b)||codeEq(q,it.d)||codeEq(q,it.e))sc=100;
-    else if((it.b&&String(it.b).toLowerCase().indexOf(q)===0)||(it.d&&String(it.d).toLowerCase().indexOf(q)===0))sc=60;
-    else if(n.indexOf(q)===0)sc=40;
-    else if(toks.every(function(t){return n.indexOf(t)>=0}))sc=20;
-    if(sc)out.push({b:b,i:i,it:it,sc:sc})
-  })});
-  out.sort(function(a,b){return b.sc-a.sc||a.it.n.localeCompare(b.it.n)});
-  return out.slice(0,8);
-}
-function qRes(){
-  var q=(g("ivQ")||{}).value||"",el=g("ivQRes");if(!el)return;
-  if(!q.trim()){el.innerHTML="";return}
-  var r=qFind(q);
-  el.innerHTML=r.length?r.map(function(x){
-    var ls=lansOf(x.b,x.it.c),c=eff(x.b).cont||{},ok=typeof c[x.it.c]==="number";
-    var st=ok?(c[x.it.c]===0?"sem estoque":fmt3(c[x.it.c])+" "+x.it.u):ls.length?fmt3(sumL(ls))+" "+x.it.u+"…":"";
-    return'<div class="ivli" data-iv="qgo" data-id="'+x.b.id+'" data-i="'+x.i+'"><span><b style="white-space:normal;font-size:16px">'+esc(x.it.n)+'</b><small>'+tag(x.b)+' '+esc(codesTxt(x.it))+'</small></span>'+(st?'<b style="color:var(--g)">'+st+'</b>':'<b style="color:var(--mut)">›</b>')+'</div>';
-  }).join(""):'<small class="note">Nenhum produto das bancas com esse nome ou código.</small>';
-}
-function ring(p,col){return'<div class="ivring'+(p===100?' full':'')+'" style="--p:'+p+';--c:'+col+'">'+(p===100?'<b>✓</b>':'<b>'+p+'<i>%</i></b>')+'</div>'}
-function vHome(){
-  var T=totals(),h='',nb=S.bancas.length;
-  if(nb){
-    var segs=T.rows.map(function(r){return'<i style="flex:'+Math.max(1,r.s.m)+';--c:'+corOf(r.b)+'"><u style="width:'+r.s.pct+'%"></u></i>'}).join("");
-    h+='<section class="ivhero"><div class="ivh-row"><div class="ivh-big"><b>'+fmt(T.kg)+'</b><span>kg contados'+(T.un?' · '+fmt(T.un)+' un':'')+'</span></div><div class="ivh-pct">'+T.pct+'%</div></div>'
-      +'<div class="ivsegs" aria-hidden="true">'+segs+'</div>'
-      +'<p class="ivh-s">'+T.n+' de '+T.m+' produtos contados em '+nb+(nb>1?' bancas':' banca')+'</p></section>'
-      +'<div class="ivfind"><input id="ivQ" class="ivq" type="search" placeholder="Buscar produto para lançar direto" aria-label="Buscar produto para lançar direto" autocomplete="off"><div class="ivqr" id="ivQRes"></div></div>';
-  }else h+='<section class="ivempty"><div class="ive-ico">📦</div><h2>Monte sua primeira banca</h2><p>Uma banca é um grupo de produtos para contar junto, como a bancada das frutas. Busque pelo código ou importe o link que alguém enviou.</p>'+btn("primary big","new","＋ Nova banca")+'</section>';
-  T.rows.forEach(function(r){
-    var b=r.b,s=r.s,ok=s.pct===100,c=corOf(b);
-    h+='<section class="ivb'+(ok?' done':'')+'" style="--c:'+c+'"><div class="ivb-top">'+ring(s.pct,c)+'<div class="ivb-t"><h3>'+esc(b.nome)+'</h3><p>'+s.n+' de '+s.m+' produtos'+(s.kg?' · '+fmt(s.kg)+' kg':'')+(s.un?' · '+fmt(s.un)+' un':'')+'</p>'+(s.por?'<p class="ivb-who">'+esc(s.por)+(s.e&&s.e.t?' às '+hhmm(s.e.t):'')+'</p>':'')+'</div></div>'
-      +'<div class="toolbar ivb-act">'+swipeBtn(b.id,s.n===0?"Começar":ok?"Revisar":"Continuar")+btn("secondary","sendres","Enviar",b.id)+'</div></section>';
-  });
-  h+='<div class="ivtiles">'+btn("ivtile","cfg",'<span>⚙️</span>Bancas')+btn("ivtile","sum",'<span>📊</span>Resumo')+btn("ivtile","chk",'<span>✅</span>Conferir bancas')+btn("ivtile","imp",'<span>📥</span>Importar')+'</div>'
-    +(nb?'<div class="ivsp"></div>'+full(btn("primary","rel","📄 Relatório e códigos de barras")):'');
-  return h;
-}
-
-function ownerBy(m){
-  var nm=normS(m.n),k=toItem(m).c;
-  for(var i=0;i<S.bancas.length;i++){var b=S.bancas[i];
-    for(var j=0;j<b.itens.length;j++){var x=b.itens[j];if(x.c===k||normS(x.n)===nm)return b}}
-  return null;
-}
-function chkData(){
-  var all=merged(),cats={};
-  all.forEach(function(m){var c=m.cat||"Sem categoria";cats[c]=(cats[c]||0)+1});
-  var names=Object.keys(cats).sort();
-  if(V.cat===undefined)V.cat=cats.FLV?"FLV":"";
-  var rows=all.filter(function(m){return!V.cat||(m.cat||"Sem categoria")===V.cat}).map(function(m){return{m:m,b:ownerBy(m)}});
-  rows.sort(function(a,b){return normS(a.m.n)<normS(b.m.n)?-1:1});
-  return{rows:rows,names:names,cats:cats,falta:rows.filter(function(r){return!r.b}),ok:rows.filter(function(r){return r.b})};
-}
-function codesTxt(m){var a=[];if(m.b)a.push("Balança "+m.b);if(m.d)a.push("Cód. interno "+m.d);if(m.e)a.push("EAN "+m.e);return a.join(" · ")||"sem código"}
-function chkText(){
-  var D=chkData();
-  var t="Conferência do inventário"+(V.cat?" — "+V.cat:"")+"\n"+D.ok.length+" de "+D.rows.length+" produtos já estão em uma banca.\n";
-  if(D.falta.length){t+="\nFALTAM em alguma banca ("+D.falta.length+"):\n";D.falta.forEach(function(r){t+="• "+r.m.n+" ("+codesTxt(r.m)+")\n"})}
-  else t+="\nTodos os produtos estão em alguma banca.\n";
-  return t;
-}
-function vChk(){
-  var D=chkData(),tot=D.rows.length,p=tot?Math.round(D.ok.length*100/tot):0;
-  var h='<section class="panel"><div class="toolbar">'+btn("secondary","home","← Voltar")+btn("secondary","cfg","⚙️ Bancas")+'</div></section>';
-  if(!tot)return h+'<section class="panel"><p class="note">Nenhum produto no catálogo do app ainda. Abra a aba de produtos para carregá-lo.</p></section>';
-  h+='<section class="panel"><h2 class="h2">Todos estão em uma banca?</h2><div class="ivchips" style="gap:8px">';
-  D.names.forEach(function(c){h+='<button type="button" class="secondary'+((V.cat||"")===c?' primary':'')+'" data-iv="chkcat" data-c="'+esc(c)+'" style="min-height:40px;padding:0 12px">'+esc(c)+' ('+D.cats[c]+')</button>'});
-  h+='<button type="button" class="secondary'+(!V.cat?' primary':'')+'" data-iv="chkcat" data-c="" style="min-height:40px;padding:0 12px">Todas</button></div>'
-    +'<div class="qh" style="margin-top:12px"><b>'+D.ok.length+' de '+tot+' produtos em banca</b><span class="hbadge">'+p+'%</span></div>'+barHtml(p)+'</section>';
-  if(D.falta.length){
-    h+='<section class="panel"><h2 class="h2" style="color:#e0a000">⚠ Faltam ('+D.falta.length+')</h2><small class="note">Escolha a banca na caixa ao lado de cada produto para incluí-lo.</small>';
-    D.falta.forEach(function(r){
-      var i=D.rows.indexOf(r);
-      h+='<div class="ivli" style="display:block;cursor:default"><b>'+esc(r.m.n)+'</b><small class="note" style="margin:0">'+esc(codesTxt(r.m))+'</small>'
-        +'<select data-chk="'+i+'" style="width:100%;margin-top:6px;min-height:44px"><option value="">Incluir em…</option>'+S.bancas.map(function(b){return'<option value="'+b.id+'">'+esc(b.nome)+'</option>'}).join("")+'</select></div>';
-    });
-    h+='</section>';
-  }else h+='<section class="panel ivok">✔ Todos os produtos estão em alguma banca.</section>';
-  h+='<section class="panel"><h2 class="h2">Já nas bancas ('+D.ok.length+')</h2>';
-  S.bancas.forEach(function(b){
-    var l=D.ok.filter(function(r){return r.b===b});if(!l.length)return;
-    h+='<div style="margin:10px 0 4px">'+tag(b)+' <small class="note" style="display:inline">'+l.length+'</small></div>';
-    l.forEach(function(r){h+='<div class="ivli" style="cursor:default;border-left:5px solid '+corOf(b)+'"><span><b>'+esc(r.m.n)+'</b><br><small class="note" style="margin:0">'+esc(codesTxt(r.m))+'</small></span></div>'});
-  });
-  h+='</section><div class="toolbar"><button type="button" class="primary big" data-iv="chkshare">Enviar lista</button><button type="button" class="secondary big" data-iv="chkcopy">Copiar</button></div>';
-  return h;
-}
-function vCfg(){
-  var h='<section class="panel"><div class="toolbar">'+btn("secondary","home","← Voltar")+btn("primary","new","＋ Nova banca")+'</div></section>';
-  S.bancas.forEach(function(b){
-    h+=card(b,'<div class="qh" style="margin-bottom:8px">'+tag(b,true)+'<span class="hbadge">'+b.itens.length+' produtos</span></div><div class="toolbar">'+btn("secondary","edit","Editar",b.id)+btn("secondary","sendcfg","Enviar p/ contador",b.id)+'</div>');
-  });
-  if(S.bancas.length>1)h+=full(btn("secondary","sendall","Enviar todas as bancas"))+'<div class="ivsp"></div>';
-  if(S.bancas.length)h+='<small class="note">As bancas e os produtos de cada uma ficam salvos para os próximos inventários.</small>'+full(btn("danger","reset","🔄 Novo inventário (zera as contagens)"));
-  return h;
-}
-function vEdit(){
-  var b=V.id?S.bancas.filter(function(x){return x.id===V.id})[0]:null;
-  return'<section class="panel"><h2 class="h2">'+(b?"Editar banca":"Nova banca")+'</h2>'
-    +'<label for="ivNome">Nome da banca</label><input id="ivNome" placeholder="Ex.: Banca das Frutas" maxlength="40" value="'+esc(V.nome||"")+'">'
-    +'<label>Cor da banca</label><div class="ivchips">'+PAL.map(function(c){return'<button type="button" class="ivchip'+(c===V.cor?' sel':'')+'" style="background:'+c+'" data-iv="cor" data-c="'+c+'" aria-label="Cor"></button>'}).join("")+'</div>'
-    +'<div id="ivPrevTag" style="margin:8px 0 2px"></div>'
-    +'<label for="ivBusca">Buscar produto: código de barras, balança, código interno ou nome</label>'
-    +'<input id="ivBusca" type="search" placeholder="Ex.: 123, B1, EAN ou banana" autocomplete="off">'
-    +'<div id="ivRes" class="rows"></div></section>'
-    +'<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">Produtos da banca</h2><span class="hbadge" id="ivECount">0</span></div><div id="ivEList" style="margin-top:6px"></div>'
-    +'<details style="margin-top:10px"><summary>Colar lista de códigos</summary>'
-    +'<textarea id="ivItens" placeholder="123&#10;B1&#10;1003;Abacaxi;un"></textarea>'
-    +'<small class="note">Um por linha. Códigos que existem no cadastro entram com nome e os dois códigos. Para item por unidade, termine com ;un</small>'
-    +'<div class="ivsp"></div>'+full(btn("secondary","addpaste","Adicionar à banca"))+'</details></section>'
-    +'<div class="toolbar">'+btn("secondary big","cfg","Cancelar")+btn("primary big","saveb","Salvar")+'</div>'
-    +(b?'<div class="ivsp"></div>'+full(btn("danger","delb","Excluir banca")):'');
-}
-function renderPrevTag(){
-  var el=g("ivPrevTag");if(!el)return;
-  var c=V.cor||PAL[0];
-  el.innerHTML='<span class="ivtag big" style="background:'+c+';color:'+inkOn(c)+'">'+esc((V.nome||"").trim()||"Nome da banca")+'</span>';
-}
-function renderEList(){
-  var el=g("ivEList");if(!el)return;
-  g("ivECount").textContent=V.items.length+" produtos";
-  el.innerHTML=V.items.length?V.items.map(function(it,i){
-    return'<div class="ivli" style="cursor:default"><span>'+esc(it.n)+'<small>'+codesTxt(it)+'</small></span><span class="ivrow" style="flex:none"><button type="button" class="secondary" style="min-height:36px;padding:0 12px" data-iv="unit" data-i="'+i+'" aria-label="Trocar unidade">'+it.u+'</button><button type="button" class="danger" style="min-height:36px;padding:0 12px" data-iv="rm" data-i="'+i+'" aria-label="Remover">✕</button></span></div>';
-  }).join(""):'<small class="note">Busque um produto acima para adicioná-lo.</small>';
-}
-function renderRes(){
-  var el=g("ivRes");if(!el)return;
-  var q=g("ivBusca").value;V.hits=[];
-  if(!q.trim()){el.innerHTML="";return}
-  if(!merged().length){el.innerHTML='<small class="note">O cadastro de produtos ainda não carregou. Aguarde um instante ou use «Colar lista de códigos».</small>';return}
-  V.hits=search(q);
-  if(!V.hits.length){
-    var d=q.replace(/\D/g,"");
-    if(d===q.trim()&&d.length>=6&&d.length<=13){
-      var sc=window.vmScale&&vmScale.is(d);
-      el.innerHTML='<div class="pick" style="cursor:default"><b>Código '+esc(d)+' não está cadastrado</b><br><small class="muted">Digite o nome para cadastrar e já colocar na banca.</small><input id="ivNewNome" maxlength="60" placeholder="Nome do produto" autocomplete="off" style="margin-top:8px"><button type="button" class="primary big" data-iv="newprod" data-code="'+d+'" style="margin-top:8px;width:100%">Cadastrar e adicionar</button></div>';return}
-    el.innerHTML='<small class="note">Nenhum produto encontrado para «'+esc(q)+'». Para cadastrar por código, digite só os números (6 a 13 dígitos).</small>';return}
-  el.innerHTML=V.hits.map(function(h,i){
-    var it=toItem(h),has=V.items.some(function(x){return x.c===it.c}),own=has?null:ownerOf(it);
-    return'<div class="pick" data-iv="add" data-i="'+i+'"><b>'+esc(h.n)+'</b>'+(has?' <span class="hbadge">✓ na banca</span>':own?' <span class="hbadge" style="background:#fdf0c4;color:#7c5a00">na «'+esc(own.b.nome)+'»</span>':'')+'<br><small class="muted">'+(codesTxt(it)||"sem código")+'</small></div>';
-  }).join("");
-}
-function addHit(i){
-  var h=V.hits&&V.hits[i];if(!h)return;
-  var it=toItem(h);
-  if(V.items.some(function(x){return x.c===it.c})){toast("Já está na banca");return}
-  var own=ownerOf(it);
-  if(own){
-    if(!confirm("«"+it.n+"» já pertence à «"+own.b.nome+"». Mover para esta banca?"))return;
-    V.moved.push({id:own.b.id,c:own.x.c});
-  }
-  V.items.push(it);renderEList();
-  var b=g("ivBusca");b.value="";renderRes();b.focus();toast("Adicionado: "+it.n);
-}
-function sumText(){
-  var T=totals(),t="INVENTÁRIO FLV — "+new Date().toLocaleDateString("pt-BR")+"\n";
-  T.rows.forEach(function(r){t+=r.b.nome+": "+fmt(r.s.kg)+" kg ("+pctOf(r.s.kg,T.kg)+"%) · "+r.s.pct+"% contado"+(r.s.por?" · "+r.s.por:"")+"\n"});
-  return t+"TOTAL: "+fmt(T.kg)+" kg"+(T.un?" + "+fmt(T.un)+" un":"")+" · avanço "+T.pct+"%";
-}
-function vSum(){
-  var T=totals(),h='<section class="panel"><div class="toolbar">'+btn("secondary","home","← Voltar")+btn("primary","rel","📄 Relatório")+'</div></section>';
-  if(!S.bancas.length)return h+'<section class="panel"><p class="note">Nada para mostrar ainda.</p></section>';
-  h+='<section class="panel"><div class="qh"><h2 class="h2" style="margin:0">Avanço geral</h2><span class="hbadge">'+T.pct+'%</span></div>'+barHtml(T.pct)+'</section>';
-  h+='<section class="panel"><div class="rwrap"><table class="ivtbl"><thead><tr><th>Banca</th><th>Avanço</th><th>kg</th><th>% total</th></tr></thead><tbody>';
-  T.rows.forEach(function(r){h+='<tr><td><span class="ivdot" style="background:'+corOf(r.b)+'"></span><b>'+esc(r.b.nome)+'</b>'+(r.s.por?'<small>'+esc(r.s.por)+'</small>':'')+'</td><td>'+r.s.pct+'%</td><td>'+fmt(r.s.kg)+'</td><td>'+pctOf(r.s.kg,T.kg)+'%</td></tr>'});
-  h+='</tbody><tfoot><tr><td>Total</td><td>'+T.pct+'%</td><td>'+fmt(T.kg)+'</td><td>'+(T.kg?'100%':'0%')+'</td></tr></tfoot></table></div>'+(T.un?'<small class="note">Itens por unidade: '+fmt(T.un)+' un</small>':'')+'</section>';
-  if(T.prod.length){
-    h+='<section class="panel"><h2 class="h2">Por produto</h2><div class="rwrap"><table class="ivtbl"><tbody>';
-    T.prod.forEach(function(p){h+='<tr><td>'+esc(p.n)+'<small>'+[codesTxt(p)].filter(Boolean).join(" · ")+'</small><small><span class="ivdot" style="background:'+p.bc+'"></span>'+esc(p.bn||"")+'</small></td><td>'+fmt3(p.v)+' '+p.u+'</td><td>'+(p.u==="kg"?pctOf(p.v,T.kg)+"%":"")+'</td></tr>'});
-    h+='</tbody></table></div></section>';
-  }
-  h+='<div class="toolbar">'+btn("primary big","sharesum","Enviar resumo")+btn("secondary big","copysum","Copiar")+'</div>';
-  if(S.hist&&S.hist.length){
-    h+='<section class="panel" style="margin-top:12px"><h2 class="h2">Inventários anteriores</h2>';
-    S.hist.forEach(function(x,i){h+='<details><summary>'+new Date(x.t).toLocaleDateString("pt-BR")+'</summary><pre style="white-space:pre-wrap;font:inherit;font-size:13px;margin:6px 0">'+esc(x.txt)+'</pre>'+btn("secondary","copyhist","Copiar").replace('data-iv="copyhist"','data-iv="copyhist" data-i="'+i+'"')+'</details>'});
-    h+='</section>';
-  }
-  return h;
-}
-function vImp(){
-  return'<section class="panel"><h2 class="h2">Importar</h2><p class="note">Cole o link (ou código) recebido: pode ser uma banca para contar ou o resultado de outra pessoa.</p>'
-    +'<textarea id="ivImpTxt" style="min-height:120px" placeholder="Cole aqui"></textarea>'
-    +'<div class="toolbar" style="margin-top:10px">'+btn("secondary big","home","Cancelar")+btn("primary big","doimp","Importar")+'</div></section>';
-}
-
-/* ---- relatório de lançamentos + códigos de barras ---- */
-function relData(only){
-  var T=totals(),out=[];
-  S.bancas.forEach(function(b){
-    if(only&&b.id!==only)return;
-    var s=stats(b),e=s.e,items=[];
-    b.itens.forEach(function(it){
-      var ls=lansOf(b,it.c),done=typeof e.cont[it.c]==="number";
-      if(!ls.length&&!done)return;
-      items.push({it:it,ls:ls,total:done?e.cont[it.c]:sumL(ls),done:done});
-    });
-    out.push({b:b,s:s,items:items});
-  });
-  return{T:T,bancas:out};
-}
-function bcList(D){
-  var f=fmtB(),out=[];
-  D.bancas.forEach(function(r){
-    r.items.forEach(function(x){
-      if(!(x.total>0))return;
-      var o={b:r.b,it:x.it,total:x.total};
-      if(!x.done)o.err="Contagem deste produto ainda em andamento (toque em Concluir).";
-      else if(x.it.u==="un")o.err="Item por unidade: informe "+fmt3(x.total)+" un manualmente (não tem código de peso).";
-      else if(!x.it.b||!isNum(String(x.it.b)))o.err="Sem código de balança no cadastro do produto.";
-      else if(f.price&&!(pkFor(x.it)>0)){o.err="Sem o preço do kg deste produto (a etiqueta traz o preço total). Informe abaixo.";o.needPk=true}
-      else{o.pk=f.price?pkFor(x.it):0;var cs=ean13(x.it.b,x.total,f,o.pk);if(!cs)o.err="Código de balança não cabe no formato configurado.";else o.codes=cs}
-      out.push(o);
-    });
-  });
-  return out;
-}
-function relText(only){
-  var D=relData(only),f=fmtB(),t="RELATÓRIO DO INVENTÁRIO FLV — "+new Date().toLocaleDateString("pt-BR")+"\n";
-  D.bancas.forEach(function(r){
-    t+="\n■ "+r.b.nome+" — "+fmt(r.s.kg)+" kg ("+pctOf(r.s.kg,D.T.kg)+"%)"+(r.s.por?" · "+r.s.por:"")+"\n";
-    r.items.forEach(function(x){
-      var ls=x.ls.map(function(l){return fmt3(l[0])}).join(" + ");
-      t+="• "+x.it.n+": "+(x.ls.length>1?ls+" = ":"")+fmt3(x.total)+" "+x.it.u+(x.done?"":" (em andamento)")+"\n";
-    });
-  });
-  t+="\nTOTAL: "+fmt(D.T.kg)+" kg"+(D.T.un?" + "+fmt(D.T.un)+" un":"");
-  var bc=bcList(D).filter(function(o){return o.codes});
-  if(bc.length){
-    t+="\n\nCÓDIGOS DE BARRAS PARA COLETA"+(f.ok?"":" (formato ainda não conferido com etiqueta real)")+"\n";
-    bc.forEach(function(o){o.codes.forEach(function(c){t+=o.it.n+": "+c+"\n"})});
-  }
-  return t.replace(/\s+$/,"");
-}
-function vRel(){
-  var D=relData(V.rb),f=fmtB(),h='';
-  h+='<section class="panel noprint"><div class="toolbar">'+btn("secondary","home","← Voltar")+btn("primary","print","🖨️ Imprimir / PDF")+'</div>'
-    +'<div class="toolbar" style="margin-top:8px">'+btn("secondary","sharerel","💬 Enviar texto")+btn("secondary","copyrel","Copiar texto")+'</div></section>';
-  h+='<div class="ivrel"><h2>Relatório do inventário FLV</h2><p class="sub">'+new Date().toLocaleDateString("pt-BR")+' '+hhmm(Date.now())+' · gerado por '+esc(me())+'</p>';
-  if(!D.bancas.some(function(r){return r.items.length}))h+='<p>Nenhum lançamento ainda.</p>';
-  D.bancas.forEach(function(r){
-    if(!r.items.length)return;
-    var c=corOf(r.b);
-    h+='<div class="ivrb" style="border-left-color:'+c+'"><div class="ivrbh">'+tag(r.b,true)+'<span>'+fmt(r.s.kg)+' kg · '+pctOf(r.s.kg,D.T.kg)+'% do total'+(r.s.por?' · contado por '+esc(r.s.por):'')+'</span></div>'
-      +'<table><thead><tr><th>Produto</th><th>Lançamentos</th><th>Total</th></tr></thead><tbody>';
-    r.items.forEach(function(x){
-      h+='<tr><td>'+esc(x.it.n)+'<small>'+codesTxt(x.it)+'</small></td><td>'
-        +x.ls.map(function(l,i){return'<div>'+(i+1)+') '+fmt3(l[0])+' '+x.it.u+(l[1]?' <small style="display:inline">· '+hhmm(l[1])+'</small>':'')+'</div>'}).join("")
-        +(x.ls.length?'':'<small>sem estoque</small>')+'</td><td class="tot">'+fmt3(x.total)+' '+x.it.u+(x.done?'':'<small>em andamento</small>')+'</td></tr>';
-    });
-    h+='</tbody></table></div>';
-  });
-  h+='<h3>Resumo por banca</h3><table><thead><tr><th>Banca</th><th>Avanço</th><th>kg</th><th>% do total</th></tr></thead><tbody>';
-  D.bancas.forEach(function(r){h+='<tr><td><span class="ivdot" style="background:'+corOf(r.b)+'"></span>'+esc(r.b.nome)+'</td><td>'+r.s.pct+'%</td><td>'+fmt(r.s.kg)+'</td><td>'+pctOf(r.s.kg,D.T.kg)+'%</td></tr>'});
-  h+='<tr><td class="tot">Total</td><td class="tot">'+D.T.pct+'%</td><td class="tot">'+fmt(D.T.kg)+'</td><td class="tot">'+(D.T.kg?'100%':'0%')+'</td></tr></tbody></table>';
-  h+='<h3>Códigos de barras para coleta (um por produto)</h3>';
-  h+='<div class="ivok noprint">Formato da etiqueta PRIX (UPC-A, 12 dígitos, preço total). Informe o preço do kg de cada produto uma única vez.</div>';
-  var bc=bcList(D);
-  if(!bc.length)h+='<p>Conclua ao menos um produto para gerar o código.</p>';
-  h+='<div class="ivbcs">';
-  bc.forEach(function(o){
-    var head='<div class="ivbch">'+tag(o.b)+'</div><div class="ivbch">'+esc(o.it.n)+'</div><small>'+codesTxt(o.it)+'</small>';
-    if(o.err){h+='<div class="ivbc warn">'+head+'<small style="color:#6b4a00;margin-top:6px">'+esc(o.err)+'</small>'+(o.needPk?'<div class="noprint" style="display:flex;gap:6px;margin-top:8px"><input inputmode="decimal" placeholder="R$/kg" style="flex:1;min-width:0"><button type="button" class="secondary" data-iv="setpk" data-n="'+esc(o.it.n)+'">Salvar</button></div>':'')+'</div>';return}
-    o.codes.forEach(function(c,i){
-      var vv=parseInt(c.substr(1+f.cd,f.vd),10),kgp=f.price?vv/100/o.pk:vv/f.div;
-      h+='<div class="ivbc">'+head+eanSvg(c)+'<div class="ivbct">'+fmt3(kgp)+' kg'+(f.price?' <small style="display:inline">· R$ '+(vv/100).toFixed(2).replace('.',',')+'</small>':'')+(o.codes.length>1?' <small style="display:inline">· parte '+(i+1)+'/'+o.codes.length+'</small>':'')+'</div></div>';
-    });
-  });
-  h+='</div></div>';
-  return h;
-}
-
-/* ---- contagem ---- */
-function bcur(){return S.bancas.filter(function(b){return b.id===V.id})[0]}
-function nextPending(b,from){
-  var c=eff(b).cont||{},n=b.itens.length;
-  for(var k=0;k<n;k++){var i=(from+k)%n;if(typeof c[b.itens[i].c]!=="number")return i}
-  return -1;
-}
-function renderCount(keep){
-  var b=bcur();if(!b){V={v:"home"};render();return}
-  if(V.i>=b.itens.length)V.i=nextPending(b,0);
-  var s=stats(b),done=V.i<0,c=eff(b).cont||{},col=corOf(b);
-  var bn=g("ivCBanner");bn.style.background=col;bn.style.color=inkOn(col);
-  g("ivCName").textContent=b.nome;g("ivCPct").textContent=s.pct+"%";
-  var bar=g("ivCBar");bar.style.width=s.pct+"%";bar.style.background=col;
-  g("ivCSeg").innerHTML=b.itens.map(function(it,i){var v=c[it.c],st=typeof v==="number"?"ok":lansOf(b,it.c).length?"wip":"";return'<i class="'+st+(i===V.i?" cur":"")+'" style="--c:'+col+'"></i>'}).join("");
-  g("ivCInfo").textContent=s.n+" de "+s.m+" produtos"+(s.kg?" · "+fmt(s.kg)+" kg":"")+(s.un?" · "+fmt(s.un)+" un":"");
-  g("ivCur").classList.toggle("hidden",done);g("ivDone").classList.toggle("hidden",!done);
-  if(done){g("ivDoneTxt").textContent="Banca concluída"+(s.kg?": "+fmt(s.kg)+" kg":"")+(s.un?" · "+fmt(s.un)+" un":"")}
-  else{
-    var it=b.itens[V.i],ls=lansOf(b,it.c),p=g("ivPeso");
-    g("ivCNum").textContent="Produto "+(V.i+1)+" de "+s.m;
-    g("ivCCode").innerHTML=codesBig(it);g("ivCItem").textContent=it.n;
-    g("ivLans").innerHTML=ls.length?ls.map(function(l,i){
-      return'<div class="ivlan"><span>'+(i+1)+') <b>'+fmt3(l[0])+' '+it.u+'</b> <small class="muted">'+hhmm(l[1])+(l[3]&&l[3]!==me()?' · '+esc(l[3]):'')+'</small></span><button type="button" class="danger" style="min-height:34px;padding:0 12px" data-lan="'+i+'" aria-label="Remover lançamento">✕</button></div>';
-    }).join(""):'<small class="note" style="margin:6px 0;text-align:center">Pese e toque em «Lançar». Pode lançar várias pesagens do mesmo produto; o total é a soma.</small>';
-    g("ivSub").innerHTML=ls.length?'<span>Total do produto</span><span>'+fmt3(sumL(ls))+' '+it.u+'</span>':'';
-    g("ivPesoL").textContent=it.n+" ("+it.u+")";
-    if(!keep)p.value="";
-    p.placeholder=it.u==="un"?"unidades (ex.: 3)":"kg (ex.: 2,5)";
-    p.toggleAttribute("data-np-int",it.u==="un");
-  }
-  var pend=[],fin=[];
-  b.itens.forEach(function(it,i){(typeof c[it.c]==="number"?fin:pend).push(i)});
-  function row(i){
-    var it=b.itens[i],ls=lansOf(b,it.c),v=c[it.c],ok=typeof v==="number",right;
-    if(ok)right='<b>'+(v===0?'sem estoque':fmt3(v)+' '+it.u)+(ls.length>1?'<small>'+ls.length+' lançamentos</small>':'')+'</b>';
-    else if(ls.length)right='<b style="color:var(--amb)">'+fmt3(sumL(ls))+' '+it.u+'…<small>em andamento</small></b>';
-    else right='<b>—</b>';
-    var who=b.pi&&b.pi[it.c];
-    return'<div class="ivli'+(ok?' ok':'')+(i===V.i?' cur':'')+'" data-i="'+i+'"><span>'+esc(it.n)+'<small>'+codesTxt(it)+(who&&who!==me()?' · '+esc(who):'')+'</small></span>'+right+'</div>';
-  }
-  g("ivList").innerHTML=pend.map(row).join("")
-    +(fin.length?'<div class="ivfinh">Concluídos ('+fin.length+') · toque para acrescentar ou remover</div>'+fin.map(row).join(""):"");
-}
-function touch(b,key){b.t=Date.now();b.por=me();b.pi=b.pi||{};b.pi[key]=me()}
-function addLan(v){
-  var b=bcur(),it=b.itens[V.i],a=lanArr(b,it.c),l=[Math.round(v*1000)/1000,Date.now(),lanId(b.id,it.c),me()];
-  a.push(l);
-  if(typeof b.cont[it.c]==="number")b.cont[it.c]=sumL(a);
-  touch(b,it.c);save();pushLan(b,it.c,l);
-}
-function concluir(){
-  var b=bcur(),it=b.itens[V.i],raw=g("ivPeso").value;
-  if(raw){var v=num(raw);if(v===null||v<0){toast("Quantidade inválida");return}addLan(v)}
-  var a=lanArr(b,it.c);
-  if(!a.length){toast("Lance o peso ou toque em «Não tem»");return}
-  b.cont[it.c]=sumL(a);touch(b,it.c);save();pushFin(b,it.c,true);
-  V.i=nextPending(b,V.i+1);renderCount();
-  if(V.i<0&&typeof window.npClose==="function")window.npClose();
-}
-function semEstoque(){
-  var b=bcur(),it=b.itens[V.i];
-  b.lan=b.lan||{};b.cont=b.cont||{};
-  var old=(b.lan[it.c]||[]).slice();
-  b.lan[it.c]=[];b.cont[it.c]=0;touch(b,it.c);save();
-  old.forEach(function(l){if(l[2])cdel("inv_lan",l[2])});pushFin(b,it.c,true);
-  V.i=nextPending(b,V.i+1);renderCount();
-  if(V.i<0&&typeof window.npClose==="function")window.npClose();
-}
-function rmLan(i){
-  var b=bcur(),it=b.itens[V.i],a=lanArr(b,it.c),r=a.splice(i,1)[0];
-  if(typeof b.cont[it.c]==="number"){if(a.length)b.cont[it.c]=sumL(a);else{delete b.cont[it.c];pushFin(b,it.c,false)}}
-  touch(b,it.c);save();
-  if(r&&r[2])cdel("inv_lan",r[2]);
-  renderCount();
-}
-
-/* ---- render ---- */
-function render(){
-  var c=V.v==="count";
-  g("ivMain").classList.toggle("hidden",c);g("ivCount").classList.toggle("hidden",!c);
-  if(c){renderCount();return}
-  var f={home:vHome,cfg:vCfg,edit:vEdit,sum:vSum,imp:vImp,rel:vRel,chk:vChk}[V.v]||vHome;
-  g("ivMain").innerHTML=f();
-  if(V.v==="edit"){renderEList();renderPrevTag()}
-  if(V.v==="home")initSwipe();
-}
-
-g("tabInventario").addEventListener("click",function(e){
-  if(V.v==="count"){
-    var rl=e.target.closest("[data-lan]");if(rl){rmLan(+rl.dataset.lan);return}
-    var li=e.target.closest(".ivli");if(li){V.i=+li.dataset.i;renderCount();return}
-  }
-  var el=e.target.closest("[data-iv]");if(!el)return;
-  var a=el.dataset.iv,id=el.dataset.id,b=S.bancas.filter(function(x){return x.id===id})[0];
-  switch(a){
-    case"home":V={v:"home"};break;
-    case"qgo":{var qb=S.bancas.filter(function(x){return x.id===el.dataset.id})[0];if(!qb)return;qb.cont=qb.cont||{};V={v:"count",id:qb.id,i:+el.dataset.i};break}
-    case"chk":V={v:"chk"};break;
-    case"chkcat":V.cat=el.dataset.c;break;
-    case"chkshare":share(chkText());return;
-    case"chkcopy":copy(chkText());return;
-    case"cfg":V={v:"cfg"};break;
-    case"sum":V={v:"sum"};break;
-    case"imp":V={v:"imp"};break;
-    case"rel":V={v:"rel",rb:null};break;
-    case"print":window.print();return;
-    case"sharerel":share(relText(V.rb));return;
-    case"copyrel":copy(relText(V.rb));return;
-    case"calib":{
-      var r=calibrar(g("ivCal13").value,num(g("ivCalKg").value),num(g("ivCalPkg").value)),m=g("ivCalMsg");
-      if(r.err){m.innerHTML='<div class="ivwarn">'+esc(r.err)+'</div>';return}
-      wr(KBAL,r.f);if(r.price&&r.pkg){wr("validamais-precokg-plu",(function(){var m=rd("validamais-precokg-plu",{});m[r.plu]=r.pkg;return m})())}toast(r.price?"Formato conferido: a etiqueta traz o preço":"Formato conferido e salvo");V={v:"rel",rb:V.rb};break;
-    }
-    case"setpk":{var inp=el.previousElementSibling,pv=num(inp&&inp.value);if(!(pv>0)){toast("Digite o preço do kg, ex.: 16,98");return}if(window.vmPk)window.vmPk.set(el.dataset.n,pv);toast("Preço do kg guardado");V={v:"rel",rb:V.rb};break}
-    case"calibreset":try{localStorage.removeItem(KBAL)}catch(e2){}toast("Formato padrão do app");V={v:"rel",rb:V.rb};break;
-    case"new":V={v:"edit",id:null,nome:"",cor:firstUnused(),items:[],hits:[],moved:[]};break;
-    case"edit":V={v:"edit",id:id,nome:b.nome,cor:corOf(b),items:b.itens.map(function(x){var y={};for(var k in x)y[k]=x[k];return y}),hits:[],moved:[]};break;
-    case"cor":{V.cor=el.dataset.c;var chips=document.querySelectorAll(".ivchip");for(var ci=0;ci<chips.length;ci++)chips[ci].classList.toggle("sel",chips[ci].dataset.c===V.cor);renderPrevTag();return}
-    case"add":addHit(+el.dataset.i);return;
-    case"newprod":{var nm=(g("ivNewNome").value||"").trim().replace(/\s+/g," "),cd=el.dataset.code;
-      if(!nm){toast("Digite o nome do produto");g("ivNewNome").focus();return}
-      var isS=window.vmScale&&vmScale.is(cd),plu=isS?String(Number(vmScale.parse(cd).item)):"";
-      if(typeof window.vmRegister==="function")window.vmRegister({name:nm,category:"FLV",barcode:isS?"":cd,codigo_balanca:plu,codigo_doacao:""});
-      var it=toItem({n:nm,b:plu,d:"",e:isS?"":cd});
-      if(V.items.some(function(x){return x.c===it.c})){toast("Já está na banca");return}
-      V.items.push(it);renderEList();var bb=g("ivBusca");bb.value="";renderRes();bb.focus();toast("Cadastrado e adicionado: "+nm);return}
-    case"rm":V.items.splice(+el.dataset.i,1);renderEList();renderRes();return;
-    case"unit":{var it=V.items[+el.dataset.i];it.u=it.u==="un"?"kg":"un";renderEList();return}
-    case"addpaste":{
-      var novos=parseItens(g("ivItens").value),n=0,fora=0;
-      novos.forEach(function(x){if(V.items.some(function(y){return y.c===x.c}))return;if(ownerOf(x)){fora++;return}V.items.push(x);n++});
-      g("ivItens").value="";renderEList();toast((n?n+" produto(s) adicionado(s)":"Nada novo para adicionar")+(fora?" · "+fora+" já pertence(m) a outra banca (use a busca para mover)":""));return;
-    }
-    case"count":if(!b.itens.length){toast("Esta banca ainda não tem produtos");return}b.cont=b.cont||{};V={v:"count",id:id,i:nextPending(b,0)};break;
-    case"saveb":{
-      var nome=g("ivNome").value.trim();
-      if(!nome){toast("Dê um nome à banca");g("ivNome").focus();return}
-      if(!V.items.length){toast("Adicione ao menos um produto");return}
-      (V.moved||[]).forEach(function(m){var ob=S.bancas.filter(function(y){return y.id===m.id})[0];if(ob)ob.itens=ob.itens.filter(function(x){return x.c!==m.c})});
-      (V.moved||[]).forEach(function(m){var ob=S.bancas.filter(function(y){return y.id===m.id})[0];if(ob)pushBanca(ob)});
-      if(V.id){var x=S.bancas.filter(function(y){return y.id===V.id})[0];x.nome=nome;x.itens=V.items;x.cor=V.cor;pushBanca(x)}
-      else{var nid=uid();while(S.bancas.some(function(y){return y.id===nid}))nid=uid();var nb={id:nid,nome:nome,itens:V.items,cont:{},lan:{},cor:V.cor,ord:Date.now()};S.bancas.push(nb);pushBanca(nb)}
-      save();V={v:"cfg"};toast("Banca salva");break;
-    }
-    case"delb":if(!confirm("Excluir esta banca?"))return;var gone=S.bancas.filter(function(y){return y.id===V.id})[0];if(gone){purgeCounts(gone);cdel("inv_bancas",safeId(gone.id))}S.bancas=S.bancas.filter(function(y){return y.id!==V.id});save();V={v:"cfg"};break;
-    case"reset":if(!confirm("Começar um novo inventário? As contagens serão zeradas, mas as bancas e os produtos de cada uma continuam salvos. O resultado atual fica guardado em «Inventários anteriores», no Resumo."))return;
-      if(totals().n>0){S.hist=S.hist||[];var hh={t:Date.now(),txt:relText(null)};S.hist.unshift(hh);S.hist=S.hist.slice(0,10);cset("inv_hist",String(hh.t),{t:hh.t,txt:hh.txt,por:me()})}
-      S.bancas.forEach(function(y){purgeCounts(y);y.cont={};y.lan={};y.pi={};y.ext=null;y.t=0;y.por=""});save();toast("Novo inventário iniciado");break;
-    case"copyhist":copy(S.hist[+el.dataset.i].txt);return;
-    case"sendcfg":share("Inventário FLV — "+b.nome+"\nAbra o link e comece a contar:\n"+cfgLink([b]));return;
-    case"sendall":share("Inventário FLV — todas as bancas\nAbra o link para carregar as bancas:\n"+cfgLink(S.bancas));return;
-    case"sendres":if(!stats(b).n&&!Object.keys(eff(b).lan||{}).length){toast("Conte ao menos um produto");return}share("Inventário FLV — "+b.nome+" ("+stats(b).pct+"%)\nAbra o link no app para importar o resultado:\n"+resLink(b));return;
-    case"sharesum":share(sumText());return;
-    case"copysum":copy(sumText());return;
-    case"doimp":try{toast(importText(g("ivImpTxt").value));V={v:"home"}}catch(err){toast("Código ou link inválido");return}break;
-    default:return;
-  }
-  render();window.scrollTo(0,0);
-});
-g("tabInventario").addEventListener("change",function(e){
-  var sel=e.target.closest("[data-chk]");if(!sel||!sel.value)return;
-  var D=chkData(),r=D.rows[+sel.dataset.chk],b=S.bancas.filter(function(x){return x.id===sel.value})[0];
-  if(!r||!b||r.b)return;
-  b.itens.push(toItem(r.m));save();pushBanca(b);toast(r.m.n+" → "+b.nome);render();
-});
-g("tabInventario").addEventListener("input",function(e){
-  if(e.target.id==="ivBusca")renderRes();
-  if(e.target.id==="ivQ")qRes();
-  if(e.target.id==="ivNome"){V.nome=e.target.value;renderPrevTag()}
-});
-g("tabInventario").addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="ivBusca"){e.preventDefault();if(V.hits&&V.hits.length)addHit(0)}});
-g("ivAdd").onclick=function(){
-  var v=num(g("ivPeso").value);if(v===null||v<0){toast("Digite a quantidade");return}
-  addLan(v);renderCount();
-};
-g("ivNext").onclick=concluir;
-g("ivZero").onclick=semEstoque;
-g("ivPrev").onclick=function(){var b=bcur();if(!b)return;V.i=Math.max(0,(V.i<0?b.itens.length:V.i)-1);renderCount()};
-function backHome(){if(typeof window.npClose==="function")window.npClose();V={v:"home"};render();window.scrollTo(0,0)}
-g("ivBack").onclick=backHome;g("ivDoneBack").onclick=backHome;
-g("ivDoneRel").onclick=function(){var id=V.id;if(typeof window.npClose==="function")window.npClose();V={v:"rel",rb:id};render();window.scrollTo(0,0)};
-g("ivDoneSend").onclick=function(){var b=bcur();share("Inventário FLV — "+b.nome+" ("+stats(b).pct+"%)\nAbra o link no app para importar o resultado:\n"+resLink(b))};
-g("ivDoneCopy").onclick=function(){copy(resLink(bcur()))};
-
-function doHash(h){
-  try{var msg=imp(dec(h.slice(5)));V={v:"home"};render();var n=g("navInventario");if(n)n.click();toast(msg)}
-  catch(e){toast("Link inválido")}
-}
-function checkHash(){
-  if(location.hash.indexOf("#inv=")!==0)return;
-  var h=location.hash;
-  try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}
-  if(cloudAvail()&&!CL.adopted&&!hashQ){   // espera os dados da nuvem (até 6 s) para não perder a importação
-    hashQ=h;startCloud();
-    setTimeout(function(){if(hashQ){var q=hashQ;hashQ=null;doHash(q)}},6000);
-    var n=g("navInventario");if(n)n.click();return;
-  }
-  doHash(h);
-}
-window.addEventListener("hashchange",checkHash);
-
-/* ================= sincronização em tempo real (Firestore) =================
-   inv_bancas/{id}  → nome, cor, produtos de cada banca
-   inv_lan/{id}     → um documento por lançamento (peso/quantidade) — ninguém sobrescreve o outro
-   inv_fin/{id}     → produto marcado como concluído
-   inv_hist/{t}     → inventários anteriores                                              */
-var KFLAG="validamais-inv-cloud";
-function fdb(){try{return typeof window.vmDb==="function"?window.vmDb():null}catch(e){return null}}
-var FB=window.V||{};
-function cloudAvail(){return!!(fdb()&&FB.onSnapshot&&FB.setDoc&&FB.doc&&FB.collection&&FB.deleteDoc&&FB.query&&FB.orderBy&&FB.limit)}
-function safeId(x){return String(x).replace(/[^A-Za-z0-9]/g,function(ch){return"_"+ch.charCodeAt(0).toString(16)+"_"})}
-function finId(bid,c){return safeId(bid)+"~"+safeId(c)}
-function lanId(bid,c){return finId(bid,c)+"~"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
-function cset(col,id,data){if(!CL.on)return;try{FB.setDoc(FB.doc(fdb(),col,id),data).catch(cfail)}catch(e){cfail(e)}}
-function cdel(col,id){if(!CL.on||!id)return;try{FB.deleteDoc(FB.doc(fdb(),col,id)).catch(cfail)}catch(e){cfail(e)}}
-function bancaDoc(b){return{id:b.id,nome:b.nome,cor:corOf(b),ord:b.ord||0,por:me(),upd:Date.now(),
-  itens:b.itens.map(function(x){return{c:String(x.c),n:String(x.n),u:x.u==="un"?"un":"kg",b:String(x.b||""),d:String(x.d||""),e:String(x.e||"")}})}}
-function pushBanca(b){if(!b.ord)b.ord=Date.now();cset("inv_bancas",safeId(b.id),bancaDoc(b))}
-function pushLan(b,key,l){if(l&&l[2])cset("inv_lan",l[2],{b:b.id,c:String(key),p:l[0],t:l[1]||Date.now(),por:l[3]||me()})}
-function pushFin(b,key,on){if(on)cset("inv_fin",finId(b.id,key),{b:b.id,c:String(key),t:Date.now(),por:me()});else cdel("inv_fin",finId(b.id,key))}
-function purgeCounts(b){   // apaga na nuvem todos os lançamentos e conclusões da banca
-  Object.keys(b.lan||{}).forEach(function(k){(b.lan[k]||[]).forEach(function(l){if(l[2])cdel("inv_lan",l[2])})});
-  Object.keys(b.cont||{}).forEach(function(k){cdel("inv_fin",finId(b.id,k))});
-}
-function cfail(e){
-  console.error(e);
-  var denied=!!e&&(e.code==="permission-denied"||/permission|insufficient/i.test(e.message||""));
-  CL.err=denied?"o Firestore recusou o acesso: atualize as regras (inv_bancas, inv_lan, inv_fin, inv_hist)":"falha ao sincronizar";
-  if(denied){CL.on=false;CL.adopted=false;clearTimeout(CL.tm)}   // volta ao modo local, sem perder o que está na tela
-  ivStatus();
-  if(!CL.warned){CL.warned=true;toast(denied?"O Firestore não permitiu sincronizar o inventário. Ele segue só neste aparelho.":"Falha ao sincronizar o inventário.")}
-}
-function sigNow(){
-  var o=[];
-  S.bancas.forEach(function(b){
-    var x=[b.id,b.nome,corOf(b),b.por||"",b.itens.map(function(i){return i.c+"/"+i.u+"/"+i.n}).join(",")];
-    Object.keys(b.lan||{}).sort().forEach(function(k){x.push(k+":"+b.lan[k].map(function(l){return l[0]+"@"+l[1]}).join("+")+(typeof(b.cont||{})[k]==="number"?"#":""))});
-    o.push(x.join("|"));
-  });
-  return o.join("\n")+"\nH"+((S.hist||[]).length);
-}
-function rebuild(){
-  var arr=Object.keys(CL.bancas).map(function(k){return CL.bancas[k]}).filter(function(d){return d&&d.id});
-  arr.sort(function(a,b){return((a.ord||0)-(b.ord||0))||(String(a.id)<String(b.id)?-1:1)});
-  var by={},ptm={};
-  var out=arr.map(function(d){
-    var b={id:String(d.id),nome:String(d.nome||"").slice(0,40),cor:okCor(d.cor)?d.cor:"",ord:d.ord||0,cont:{},lan:{},pi:{},t:0,por:"",ext:null,
-      itens:(Array.isArray(d.itens)?d.itens:[]).filter(function(x){return x&&x.c}).map(function(x){return{c:String(x.c),n:String(x.n||x.c),u:x.u==="un"?"un":"kg",b:String(x.b||""),d:String(x.d||""),e:String(x.e||"")}})};
-    by[b.id]=b;return b;
-  });
-  function mark(b,c,t,por){t=t||0;var k=b.id+"|"+c;if(t>=(ptm[k]||0)){ptm[k]=t;b.pi[c]=por||""}if(t>=b.t){b.t=t;if(por)b.por=por}}
-  Object.keys(CL.lan).forEach(function(k){
-    var d=CL.lan[k],b=d&&by[d.b];if(!b||typeof d.p!=="number"||!isFinite(d.p))return;
-    (b.lan[d.c]=b.lan[d.c]||[]).push([d.p,d.t||0,k,d.por||""]);mark(b,d.c,d.t,d.por);
-  });
-  Object.keys(CL.fin).forEach(function(k){
-    var d=CL.fin[k],b=d&&by[d.b];if(!b)return;
-    b.cont[d.c]=0;mark(b,d.c,d.t,d.por);
-  });
-  out.forEach(function(b){
-    Object.keys(b.lan).forEach(function(c){b.lan[c].sort(function(x,y){return(x[1]-y[1])||(x[2]<y[2]?-1:1)})});
-    Object.keys(b.cont).forEach(function(c){b.lan[c]=b.lan[c]||[];b.cont[c]=sumL(b.lan[c])});
-  });
-  S.bancas=out;
-  if(CL.hist)S.hist=CL.hist.map(function(x){return{t:x.t,txt:String(x.txt||"")}});
-}
-function cloudChanged(){clearTimeout(CL.tm);CL.tm=setTimeout(applyCloud,60)}
-function applyCloud(){
-  ivStatus();
-  if(!CL.adopted)return;
-  var before=CL.sig;
-  rebuild();save();
-  if(CL.sig!==before||CL.force){CL.force=false;liveRender()}
-  if(hashQ){var q=hashQ;hashQ=null;doHash(q)}
-}
-function liveRender(){   // atualiza a tela na hora sem apagar o que a pessoa está digitando
-  if(swiping){CL.late=true;return}
-  if(V.v==="count"){renderCount(true);return}
-  var ae=document.activeElement,tab=g("tabInventario");
-  if(V.v==="home"){
-    var q=g("ivQ"),val=q?q.value:"",foc=!!q&&ae===q,pos=foc?q.selectionStart:0;
-    render();
-    if(val){q=g("ivQ");if(q){q.value=val;qRes();if(foc){q.focus();try{q.setSelectionRange(pos,pos)}catch(e){}}}}
-    return;
-  }
-  if(V.v==="edit"||V.v==="imp")return;   // formulário aberto: não mexe
-  if(ae&&tab&&tab.contains(ae)&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName))return;
-  render();
-}
-function ivStatus(){
-  var el=g("ivSync");if(!el)return;
-  var t,c="";
-  if(!cloudAvail()){t="Modo local neste aparelho (sem sincronização)"}
-  else if(CL.err){t="Sem sincronização: "+CL.err;c="err"}
-  else if(!CL.on){t="Conectando…";c="wait"}
-  else if(CL.hps.bancas||CL.hps.lan||CL.hps.fin){t="Enviando alterações…";c="wait"}
-  else if(CL.fc){t=navigator.onLine===false?"Offline: salvo no aparelho, envia ao voltar a conexão":"Conectando…";c="wait"}
-  else{t="Sincronizado ao vivo";c="ok"}
-  el.innerHTML='<i class="sdot '+c+'"></i>'+esc(t);
-}
-function onBancas(s){
-  CL.hps.bancas=s.metadata.hasPendingWrites;CL.fc=s.metadata.fromCache;
-  var docs=s.docs;
-  if(s.metadata.fromCache&&!docs.length){ivStatus();return}      // ainda sem resposta do servidor
-  if(!rd(KFLAG,0)){
-    if(!docs.length){cloudMigrate();return}                       // nuvem vazia: sobe o que já existe neste aparelho
-    wr(KEY+"-bkp",S);wr(KFLAG,1);                                  // nuvem já tem inventário: usa o dela (cópia local guardada)
-  }
-  if(!docs.length&&CL.migT&&Date.now()-CL.migT<8000){ivStatus();return}
-  var m={};docs.forEach(function(x){m[x.id]=x.data()});CL.bancas=m;
-  CL.err="";CL.on=true;
-  if(!CL.adopted){CL.adopted=true;CL.force=true}
-  cloudChanged();
-}
-function onMap(key){return function(s){
-  CL.hps[key]=s.metadata.hasPendingWrites;
-  var m={};s.docs.forEach(function(x){m[x.id]=x.data()});CL[key]=m;cloudChanged();
-}}
-function cloudMigrate(){
-  wr(KFLAG,1);CL.migT=Date.now();CL.on=true;
-  if(!S.bancas.length&&!(S.hist&&S.hist.length)){CL.adopted=true;CL.force=true;cloudChanged();return}
-  wr(KEY+"-bkp",S);
-  S.bancas.forEach(function(b,i){
-    b.ord=Date.now()+i;pushBanca(b);
-    var e=eff(b);
-    b.itens.forEach(function(it){
-      lansOf(b,it.c).forEach(function(l,j){pushLan(b,it.c,[l[0],l[1]||Date.now(),l[2]||(lanId(b.id,it.c)+j),l[3]||e.por||me()])});
-      if(typeof e.cont[it.c]==="number")pushFin(b,it.c,true);
-    });
-  });
-  (S.hist||[]).forEach(function(h){cset("inv_hist",String(h.t),{t:h.t,txt:String(h.txt||""),por:me()})});
-  toast("Inventário agora sincroniza em tempo real");
-}
-function startCloud(){
-  if(CL.started||!cloudAvail())return;
-  CL.started=true;
-  var d=fdb(),o={includeMetadataChanges:true};
-  try{
-    FB.onSnapshot(FB.collection(d,"inv_bancas"),o,onBancas,cfail);
-    FB.onSnapshot(FB.collection(d,"inv_lan"),o,onMap("lan"),cfail);
-    FB.onSnapshot(FB.collection(d,"inv_fin"),o,onMap("fin"),cfail);
-    FB.onSnapshot(FB.query(FB.collection(d,"inv_hist"),FB.orderBy("t","desc"),FB.limit(10)),function(s){CL.hist=s.docs.map(function(x){return x.data()});cloudChanged()},cfail);
-  }catch(e){cfail(e)}
-  ivStatus();
-}
-function maybeStart(){var t=g("tabInventario");if(t&&!t.classList.contains("hidden"))startCloud()}
-try{new MutationObserver(maybeStart).observe(g("tabInventario"),{attributes:true,attributeFilter:["class"]})}catch(e){}
-window.addEventListener("online",ivStatus);window.addEventListener("offline",ivStatus);
-ivStatus();maybeStart();
-render();checkHash();
-})();</script>
-<script>/* busca da Doação fica acima do teclado */(function(){
-var d=document,b=d.getElementById("dBusca"),box=d.getElementById("dFindBox"),f=d.getElementById("dFind"),sug=d.getElementById("dSug"),root=d.documentElement,vv=window.visualViewport,t;
-if(!b||!box||!f)return;
-function kb(){var k=0;if(vv)k=Math.max(0,Math.round(window.innerHeight-vv.height-vv.offsetTop));root.style.setProperty("--kb",k+"px")}
-function abre(){clearTimeout(t);if(!d.body.classList.contains("dfocus")){box.style.minHeight=f.offsetHeight+"px";d.body.classList.add("dfocus")}kb()}
-function fecha(){t=setTimeout(function(){if(d.activeElement===b)return;d.body.classList.remove("dfocus");box.style.minHeight="";root.style.removeProperty("--kb")},120)}
-b.addEventListener("focus",abre);b.addEventListener("blur",fecha);
-sug.addEventListener("pointerdown",function(e){e.preventDefault()});   // tocar numa sugestão não fecha antes de escolher
-if(vv){vv.addEventListener("resize",kb);vv.addEventListener("scroll",kb)}
-d.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.activeElement===b)b.blur()});
-})();</script>
 </body></html>
+
