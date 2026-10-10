@@ -662,14 +662,24 @@ header{gap:6px!important;padding-left:12px!important}.onchip{margin-left:3px!imp
 /* ===== Doação: cada botão com um papel (principal / secundário / confirmar / perigo) ===== */
 #dNow.vazio{display:none!important}
 #tabDoacao #dScan{min-height:66px;font-size:19px;font-weight:900;letter-spacing:.02em}
-#tabDoacao #dEan{min-height:66px;background:transparent!important;color:var(--ink)!important;border:2px solid var(--gold3,#c9a227)!important;box-shadow:none!important;font-weight:800}
-#tabDoacao #dLimpar{background:transparent!important;color:#e0525e!important;border:2px solid #e0525e!important;box-shadow:none!important;font-weight:800;flex:0 0 34%}
-#tabDoacao #dFinalizar{min-height:60px;font-size:18px;font-weight:900}
+/* zona 1: lançar (escura, com moldura dourada) */
+#tabDoacao .dlaunch{background:linear-gradient(145deg,#10131a,#1e2332)!important;border:1.5px solid #c9a227!important;box-shadow:0 8px 22px rgba(0,0,0,.28)!important}
+#tabDoacao #dEan{min-height:66px;background:transparent!important;color:#f3d87a!important;border:2px solid #f3d87a!important;box-shadow:none!important;font-weight:800}
+/* zona 2: itens coletados (cartão com topo dourado, cabeçalho com totais) */
+#tabDoacao .dlistp{border-top:5px solid #c9a227!important;padding-top:12px}
+.dlh{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:8px;border-bottom:2px solid var(--ln)}
+.dlh .h2{margin:0!important;font-size:19px}
+.dlh .dsum{margin:0;padding:0;border:0;background:none;gap:12px;justify-content:flex-end;font-size:12px}
+.dlh .dsum b{font-size:20px}
+#tabDoacao .ditem{border-left:4px solid #c9a227;padding-left:10px;margin-top:8px;border-bottom:0;background:var(--lt2);border-radius:12px;padding-right:8px}
+#tabDoacao .dq[data-edit]{border:1.5px dashed var(--mut);border-radius:12px;padding:4px 12px;background:var(--card,#fff)}
+/* zona 3: finalizar (escuro, largo) e limpar (discreto) */
+#tabDoacao #dFinalizar{width:100%;min-height:66px;margin-top:14px;background:#10131a!important;color:#f3d87a!important;border:2px solid #c9a227!important;font-size:19px;font-weight:900;box-shadow:0 6px 16px rgba(0,0,0,.25)!important}
+#tabDoacao #dLimpar{display:block;width:100%;min-height:44px;margin-top:6px;background:transparent!important;border:0!important;box-shadow:none!important;color:#e0525e!important;font-weight:800}
 #tabDoacao .nowrow .utog{background:transparent;border:2px solid var(--ln);padding:3px}
 #tabDoacao .nowrow .utog button{background:transparent!important;color:var(--mut)!important;box-shadow:none!important;font-weight:800}
 #tabDoacao .nowrow .utog button.sel{background:#14171f!important;color:#f3d87a!important;box-shadow:0 0 0 1.5px #c9a227 inset!important}
 #tabDoacao .nowrow #dAdd{min-height:56px;font-size:18px;font-weight:900}
-#tabDoacao .dsum{margin-top:10px;background:transparent;border:0;border-top:1px dashed var(--ln);border-radius:0;padding:10px 0 0}
 /* ===== Doação: item selecionado bem claro (nome inteiro + peso grande) ===== */
 .dhint,.dbig{display:none}
 body.np-doa[data-tab="Doacao"] .nowbar:not(.vazio){display:block!important;padding:10px 12px 12px!important;border-color:var(--gold2,#e5c158)}
@@ -784,15 +794,14 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div id="donaEntrada">
 <div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
 <div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
-<section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div>
-<div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></section>
+<section class="panel dlaunch"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div></section>
 <section class="panel"><h2 class="h2 qh">Produto <button type="button" id="qEditBtn" class="qgear" aria-label="Editar atalhos">✎</button></h2>
 <div id="qBar" class="qbar hidden"><span>Toque num atalho para editar</span><button type="button" class="secondary" id="qReset">Restaurar padrão</button><button type="button" class="primary" id="qDone">Concluir</button></div>
 <div id="qFreq" class="qfreq hidden"></div><div id="qgrid" class="qgrid"></div>
 <div id="dFindBox"><div id="dFind"><input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off" enterkeyhint="search"><div id="dSug" class="rows sug"></div></div></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
-<section class="panel dlistp" id="dListaBox"><h2 class="h2" style="margin:8px 0 0">Itens coletados</h2><div id="dLista"></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
-<div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">🗑 Limpar</button><button class="primary big" id="dFinalizar">✔ Finalizar doação</button></div>
+<section class="panel dlistp" id="dListaBox"><div class="dlh"><h2 class="h2">Itens coletados</h2><div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></div><div id="dLista"></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
+<button class="primary big" id="dFinalizar">✔ Finalizar doação</button><button type="button" id="dLimpar">🗑 Limpar lista</button>
 <small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
 <div id="topDoados" class="topdo hidden" aria-live="polite"></div>
 <section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
@@ -2237,7 +2246,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-73";
+const APP_VERSION = "2026.10.10-74";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
