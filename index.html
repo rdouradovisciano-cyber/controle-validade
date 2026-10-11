@@ -673,7 +673,7 @@ body.np-doa #npTop{min-height:30px;justify-content:flex-end;margin-bottom:4px}
 /* ===== Doação: lista é a tela principal; escolher produto é uma tela à parte ===== */
 #dNow.vazio{display:none!important}
 #donaEntrada[data-dview="lista"] .dpick{display:none!important}
-#donaEntrada[data-dview="pick"] #dNow,#donaEntrada[data-dview="pick"] #dAddItem,#donaEntrada[data-dview="pick"] #dListaBox,#donaEntrada[data-dview="pick"] #topDoados,#donaEntrada[data-dview="pick"] #histBox{display:none!important}
+#donaEntrada[data-dview="pick"] #dFim,#donaEntrada[data-dview="pick"] #dNow,#donaEntrada[data-dview="pick"] #dAddItem,#donaEntrada[data-dview="pick"] #dListaBox,#donaEntrada[data-dview="pick"] #topDoados,#donaEntrada[data-dview="pick"] #histBox{display:none!important}
 #donaEntrada[data-dview="pick"] section:has(#histBox){display:none!important}
 #dBar{position:fixed;left:0;right:0;bottom:0;z-index:21;display:flex;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#10131a;border-top:2px solid #c9a227;box-shadow:0 -8px 22px rgba(0,0,0,.28)}
 body.mao1 #dBar{bottom:var(--tb-h,72px)}
@@ -806,10 +806,11 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
 </div>
 <section class="panel dlistp" id="dListaBox"><div class="dlh"><h2 class="h2" style="margin:0">Itens coletados</h2><div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></div><div id="dLista"></div><div id="dBar"><button type="button" class="primary big" id="dAddItem">＋ Adicionar item</button><button type="button" id="dBarScan">▦ Bipar</button></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
-<div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
-<small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
+</section>
 <div id="topDoados" class="topdo hidden" aria-live="polite"></div>
 <section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
+<section class="panel" id="dFim"><div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
+<small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
 </div>
 <div id="donaRomaneio" class="hidden"><section class="panel"><div id="romHead"></div><div id="romBody"></div>
 <div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rAdd">＋ Bipar item</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
@@ -2259,7 +2260,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-80";
+const APP_VERSION = "2026.10.10-81";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
