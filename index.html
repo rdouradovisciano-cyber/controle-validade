@@ -675,9 +675,13 @@ body.np-doa #npTop{min-height:30px;justify-content:flex-end;margin-bottom:4px}
 #donaEntrada[data-dview="lista"] .dpick{display:none!important}
 #donaEntrada[data-dview="pick"] #dNow,#donaEntrada[data-dview="pick"] #dAddItem,#donaEntrada[data-dview="pick"] #dListaBox,#donaEntrada[data-dview="pick"] #topDoados,#donaEntrada[data-dview="pick"] #histBox{display:none!important}
 #donaEntrada[data-dview="pick"] section:has(#histBox){display:none!important}
-#dAddItem{display:block;width:100%;min-height:68px;font-size:21px;font-weight:900;margin:14px 0 10px;border-radius:18px;box-shadow:0 8px 22px rgba(201,162,39,.4)}
-#dNow:not(.vazio)~#dListaBox #dAddItem{display:none}
-#tabDoacao{padding-bottom:84px}
+#dBar{position:fixed;left:0;right:0;bottom:0;z-index:21;display:flex;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#10131a;border-top:2px solid #c9a227;box-shadow:0 -8px 22px rgba(0,0,0,.28)}
+body.mao1 #dBar{bottom:var(--tb-h,72px)}
+#dAddItem{flex:1.7;min-height:62px;font-size:20px;font-weight:900;margin:0;border-radius:16px}
+#dBarScan{flex:1;min-height:62px;border-radius:16px;font-size:17px;font-weight:900;background:transparent;color:#f3d87a;border:2px solid #f3d87a}
+#dNow:not(.vazio)~#dListaBox #dBar,body.np-open #dBar{display:none!important}
+body[data-tab="Doacao"]:has(#donaEntrada[data-dview="lista"]:not(.hidden) #dNow.vazio) .fabwrap{display:none}
+#tabDoacao{padding-bottom:110px}
 #dPickBar{display:flex;align-items:center;gap:10px;margin:2px 0 12px}
 #dPickBar b{font-size:18px}
 #dVoltar{min-height:50px;padding:0 16px;border-radius:14px;font-weight:800;background:#10131a;color:#f3d87a;border:2px solid #c9a227}
@@ -801,7 +805,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div id="dFindBox"><div id="dFind"><input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off" enterkeyhint="search"><div id="dSug" class="rows sug"></div></div></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
 </div>
-<section class="panel dlistp" id="dListaBox"><div class="dlh"><h2 class="h2" style="margin:0">Itens coletados</h2><div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></div><div id="dLista"></div><button type="button" class="primary big" id="dAddItem">＋ Adicionar item</button><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
+<section class="panel dlistp" id="dListaBox"><div class="dlh"><h2 class="h2" style="margin:0">Itens coletados</h2><div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></div><div id="dLista"></div><div id="dBar"><button type="button" class="primary big" id="dAddItem">＋ Adicionar item</button><button type="button" id="dBarScan">▦ Bipar</button></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
 <div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
 <small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
 <div id="topDoados" class="topdo hidden" aria-live="polite"></div>
@@ -1658,6 +1662,7 @@ function renderDon() {
 }
 function dView(v){ const e=$("donaEntrada"); if(!e) return; e.dataset.dview=v; if(v==="pick"){ if(window.npClose) window.npClose(); window.scrollTo({top:0}); } }
 $("dAddItem").onclick=()=>{ dView("pick"); setTimeout(()=>{ try{ $("dBusca").focus({preventScroll:true}); }catch(e){} },60); };
+$("dBarScan").onclick=()=>$("fab").click();
 $("dVoltar").onclick=()=>dView("lista");
 $("dTrocar").onclick=()=>{ dSel=""; dCodSel=""; $("dPeso").value=""; if(window.npClose) window.npClose(); renderQuick(); renderDon(); dView("pick"); };
 ["dScan","dEan"].forEach(id=>$(id).addEventListener("click",()=>dView("lista"),true));
@@ -2254,7 +2259,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-79";
+const APP_VERSION = "2026.10.10-80";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
