@@ -747,6 +747,8 @@ body.np-open #tabDoacao{padding-bottom:calc(var(--np-h,0px) + 190px)}
 #dFinOk{display:block;width:100%;margin-top:16px;min-height:62px;border-radius:16px;font-size:19px;font-weight:900;background:#10131a;color:#f3d87a;border:2px solid #c9a227}
 #dFinLimpar{display:block;margin:12px auto 0;background:none;border:0;color:var(--mut);text-decoration:underline;font-size:14px;font-weight:700;min-height:40px}
 #mnSair[hidden]{display:none!important}
+.romtop{margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--lt2);border:1px solid var(--ln);font-size:15px;line-height:1.7}
+.romtop>b{display:block;margin-bottom:4px;color:var(--g)}
 #appVer{cursor:pointer;padding:2px 6px;margin-left:2px;border-radius:99px;background:rgba(255,255,255,.14);opacity:1!important;white-space:nowrap}
 .morebg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.28)}
 .moremenu{position:fixed;z-index:61;top:calc(54px + env(safe-area-inset-top));right:10px;width:min(300px,calc(100vw - 20px));padding:6px;border-radius:18px;background:var(--card);border:1px solid var(--ln);box-shadow:0 18px 44px rgba(0,0,0,.35);display:flex;flex-direction:column}
@@ -2038,10 +2040,15 @@ $("dLista").onclick = e => { const q = e.target.closest("[data-edit]"); if (q) r
   store.set(DK, don); renderDon(); toast(`${it.nome} removido.`, "Desfazer", () => { don.itens.splice(x, 0, it); store.set(DK, don); renderDon(); }); };
 $("dLimpar").onclick = () => { if (don.itens.length && confirm("Apagar toda a lista da doação atual?")) { don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); } };
 // romaneio
+function romTop(d) {    // top 3 desta doação: por peso (kg); se não houver kg, por quantidade
+  const its = (d.itens || []).filter(i => Number(i.qtd) > 0), kg = its.filter(i => i.unidade === "kg"), base = kg.length ? kg : its;
+  return [...base].sort((a, b) => b.qtd - a.qtd).slice(0, 3).map((i, x) => ({ pos: x + 1, nome: String(i.nome).replace(/\s+(kg|un)$/i, ""), q: `${fq(i.qtd)} ${i.unidade}` }));
+}
 function romText(d) {   // texto para o WhatsApp + link da tela de conferência (toque risca o item)
   return ["DOAÇÃO FLV", `Data: ${dataBR(d.data)}`, `Loja: ${LOJA}`, "------------------------",
     ...d.itens.map(i => `[ ] ${i.cod || "-"} | ${i.nome} | ${fq(i.qtd)} ${i.unidade}`), "------------------------",
     `TOTAL: ${totTxt(d.totalKg, d.totalUn, d.itens.length)}`, "",
+    "🏆 TOP 3 MAIS DOADOS", ...romTop(d).map(t => `${t.pos}º ${t.nome} — ${t.q}`), "",
     "👉 Toque no link para conferir e riscar os itens:", confUrl(d)].join("\n");
 }
 function romPdf(d) {    // PDF com coluna CONFERIDO (caixinhas vazias para marcar)
@@ -2052,6 +2059,9 @@ function romPdf(d) {    // PDF com coluna CONFERIDO (caixinhas vazias para marca
     head: [["CONFERIDO", "CÓDIGO", "NOME", "QUANTIDADES"]], body: d.itens.map(i => ["", i.cod || "-", i.nome, `${fq(i.qtd)} ${i.unidade}`]),
     foot: [["", "TOTAL", totTxt(d.totalKg, d.totalUn, 0).replace(/ · 0 itens$/, ""), `${d.itens.length} itens`]],
     didDrawCell: h => { if (h.section === "body" && h.column.index === 0) { const c = h.cell; pdf.setDrawColor(60); pdf.setLineWidth(.3); pdf.rect(c.x + 9, c.y + c.height / 2 - 2, 4, 4); } } });
+  let y = (pdf.lastAutoTable ? pdf.lastAutoTable.finalY : 40) + 10; const top = romTop(d);
+  if (top.length) { if (y > 262) { pdf.addPage(); y = 20; } pdf.setFont("helvetica", "bold"); pdf.setFontSize(12); pdf.setTextColor(22, 101, 52); pdf.text("TOP 3 MAIS DOADOS", 14, y); pdf.setTextColor(0); pdf.setFontSize(11);
+    top.forEach((t, x) => { pdf.setFont("helvetica", "bold"); pdf.text(`${t.pos}º`, 14, y + 7 + x * 6.5); pdf.setFont("helvetica", "normal"); pdf.text(`${t.nome} — ${t.q}`, 23, y + 7 + x * 6.5); }); }
   return pdf.output("blob");
 }
 const byName = (a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR", { sensitivity: "base" }) || (a.unidade || "").localeCompare(b.unidade || "");
@@ -2061,7 +2071,8 @@ function showRomaneio(d) {
   $("romHead").innerHTML = `<h3 class="romtitle">DOAÇÃO FLV</h3><p class="note">Data: ${dataBR(d.data)} · Loja: ${esc(LOJA)}${d.editada ? " · editada" : ""}</p>`;
   $("romBody").innerHTML = `<div class="rwrap"><table class="rom"><thead><tr><th>CÓDIGO</th><th>NOME</th><th>QUANTIDADES</th></tr></thead><tbody>` +
     d.itens.map(i => `<tr><td>${esc(i.cod || "—")}</td><td>${esc(i.nome)}</td><td>${fq(i.qtd)} ${esc(i.unidade)}</td></tr>`).join("") +
-    `</tbody></table></div><p class="romtotal">TOTAL: ${totTxt(d.totalKg, d.totalUn, d.itens.length)}</p>`;
+    `</tbody></table></div><p class="romtotal">TOTAL: ${totTxt(d.totalKg, d.totalUn, d.itens.length)}</p>` +
+    (romTop(d).length ? `<div class="romtop"><b>🏆 TOP 3 MAIS DOADOS</b>${romTop(d).map(t => `<div>${t.pos}º ${esc(t.nome)} — <b>${esc(t.q)}</b></div>`).join("")}</div>` : "");
 }
 $("rZap").onclick = async () => { const t = romText(curRom);
   if (navigator.share) { try { await navigator.share({ title: "Romaneio de doação", text: t }); markSent(curRom, true); } catch (e) { if (e.name !== "AbortError") toast("Não foi possível compartilhar."); } }
@@ -2417,7 +2428,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-90";
+const APP_VERSION = "2026.10.10-91";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
