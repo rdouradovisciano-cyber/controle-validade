@@ -700,6 +700,8 @@ body.mao1 #dDock{bottom:var(--tb-h,72px)}
 .dt6{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .dt6 button{min-height:52px;border-radius:12px;border:1.5px solid #3a4157;background:#1e2332;color:#fff;font-weight:800;font-size:14px;line-height:1.15;padding:6px 4px;text-align:center}
 .dt6 button small{display:block;font-weight:600;color:#9aa3b5;font-size:11px;margin-top:2px}
+.dt6.var{grid-template-columns:repeat(2,1fr)}
+.dt6 .dback{grid-column:1/-1;min-height:40px;background:transparent;border:1.5px dashed #3a4157;color:#f3d87a}
 #dBar{display:flex;gap:8px}
 #dAddItem{flex:1;min-height:54px;font-size:17px;font-weight:900;margin:0;border-radius:14px;background:transparent!important;color:#f3d87a!important;border:2px solid #f3d87a!important;box-shadow:none!important}
 #dBarScan{flex:1;min-height:54px;border-radius:14px;font-size:17px;font-weight:900;background:linear-gradient(#f0d56f,#c9a227);color:#10131a;border:0}
@@ -1691,14 +1693,32 @@ function renderDon() {
   $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Toque num produto abaixo para começar.</p>';
   renderKey();
 }
-function dTop6Render(){ const box=$("dTop6"); if(!box) return; let l=[]; try{ const hd=store.get("validamais-doculto",{}), recs=(db?topDb:store.get(HK,[])).filter(r=>r&&!hd[r._id||(typeof r.em==="number"?String(r.em):"")]), m=new Map();
+const dBase = n => String(n || "").replace(/\s+(kg|un)$/i, "").trim();
+const dFamKey = n => norm(dBase(n).split(/\s+/)[0] || "");
+const dTitle = w => w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : "";
+function dTop6Render(){ const box=$("dTop6"); if(!box) return; let rank=[]; try{ const hd=store.get("validamais-doculto",{}), recs=(db?topDb:store.get(HK,[])).filter(r=>r&&!hd[r._id||(typeof r.em==="number"?String(r.em):"")]), m=new Map();
     recs.forEach(r=>{ const seen=new Set(); (r.itens||[]).forEach(i=>{ const k=norm(i.nome)+"|"+i.unidade, o=m.get(k)||{n:i.nome,u:i.unidade,c:i.cod||"",d:0,q:0}; if(!seen.has(k)){ o.d++; seen.add(k); } o.q+=Number(i.qtd)||0; if(i.cod) o.c=i.cod; m.set(k,o); }); });
-    l=[...m.values()].sort((a,b)=>b.d-a.d||b.q-a.q).slice(0,6).map(o=>({n:o.n,c:o.c,u:o.u})); }catch(e){}
-  if(!l.length) l=l.concat(shortcuts.map(x=>({n:x.n,c:x.c,u:x.u})).filter(x=>!l.some(y=>norm(y.n)===norm(x.n))));
-  l=l.slice(0,6); box.classList.toggle("vazio",!l.length);
-  $("dT6").innerHTML=l.map((o,i)=>{ const p=prodFor(o.n), nm=p?p.name:o.n; return `<button type="button" data-t6="${i}">${esc(o.n.replace(/\s+(kg|un)$/i,""))}<small>${o.u}</small></button>`; }).join("");
-  box._l=l; }
-$("dT6").onclick=e=>{ const b=e.target.closest("[data-t6]"); if(!b) return; const o=$("dTop6")._l[Number(b.dataset.t6)]; if(!o) return; buzz(); const p=prodFor(o.n); selectProd(p?p.name:o.n,o.c,o.u); };
+    rank=[...m.values()].sort((a,b)=>b.d-a.d||b.q-a.q); }catch(e){}
+  if(!rank.length) rank=shortcuts.map(x=>({n:x.n,c:x.c,u:x.u,d:0,q:0}));
+  // agrupa por família (primeira palavra): Banana → nanica, prata…
+  const fams=new Map(); rank.forEach(o=>{ const k=dFamKey(o.n); if(!k) return; if(!fams.has(k)) fams.set(k,{k,w:dBase(o.n).split(/\s+/)[0],v:new Map()}); const f=fams.get(k), nk=norm(dBase(o.n)); if(!f.v.has(nk)) f.v.set(nk,{n:o.n,c:o.c,u:o.u,d:o.d}); });
+  const top=[...fams.values()].slice(0,6);
+  top.forEach(f=>{ let cat=""; try{ const p0=products.find(p=>norm(dBase(p.name))===[...f.v.keys()][0]); cat=p0&&p0.category||""; }catch(e){}
+    try{ products.forEach(p=>{ if(!p||!p.name||dFamKey(p.name)!==f.k) return; if(cat&&p.category&&p.category!==cat) return; const nk=norm(dBase(p.name)); if(f.v.has(nk)) return; if(f.v.size>=8) return; f.v.set(nk,{n:p.name,c:p.codigo_doacao||"",u:unitOf(p.name),d:-1}); }); }catch(e){}
+    f.list=[...f.v.values()].sort((a,b)=>b.d-a.d||a.n.localeCompare(b.n,"pt-BR")); });
+  box.classList.toggle("vazio",!top.length); box._f=top; const op=box._open;
+  if(op!=null&&op>=0&&top[op]){ const f=top[op];
+    $("dTop6").querySelector(".dt6h").textContent="⭐ "+dTitle(f.w).toUpperCase()+" — QUAL?";
+    $("dT6").classList.add("var");
+    $("dT6").innerHTML=f.list.map((o,i)=>{ const rest=dBase(o.n).split(/\s+/).slice(1).join(" "); return `<button type="button" data-tv="${i}">${esc(rest?dTitle(rest.split(" ")[0])+(rest.includes(" ")?" "+rest.split(" ").slice(1).join(" ").toLowerCase():""):"Comum")}<small>${o.u}</small></button>`; }).join("")+`<button type="button" class="dback" data-tback="1">← voltar</button>`;
+  } else { box._open=-1; $("dTop6").querySelector(".dt6h").textContent="⭐ MAIS DOADOS"; $("dT6").classList.remove("var");
+    $("dT6").innerHTML=top.map((f,i)=>`<button type="button" data-t6="${i}">${esc(dTitle(f.w))}<small>${f.list.length>1?f.list.length+" tipos ›":f.list[0].u}</small></button>`).join(""); } }
+function dPickVar(o){ const box=$("dTop6"); box._open=-1; buzz(); const p=products.find(x=>norm(dBase(x.name))===norm(dBase(o.n)))||prodFor(o.n); selectProd(p?p.name:o.n,o.c||"",o.u); }
+$("dT6").onclick=e=>{ const box=$("dTop6"), f=box._f||[];
+  if(e.target.closest("[data-tback]")){ box._open=-1; dTop6Render(); return; }
+  const v=e.target.closest("[data-tv]"); if(v){ const o=(f[box._open]||{list:[]}).list[Number(v.dataset.tv)]; if(o) dPickVar(o); return; }
+  const b=e.target.closest("[data-t6]"); if(!b) return; const fam=f[Number(b.dataset.t6)]; if(!fam) return;
+  if(fam.list.length>1){ buzz(); box._open=Number(b.dataset.t6); dTop6Render(); } else dPickVar(fam.list[0]); };
 function dRepRender(){ const b=$("dRep"); if(!b) return; const L=(don.itens.find(i=>i.key===window.dLastKey))||don.itens[don.itens.length-1];
   if(!L){ b.hidden=true; return; } b.hidden=false; b._i=L; b.textContent="＋ mais "+L.nome.replace(/\s+(kg|un)$/i,""); }
 $("dRep").onclick=()=>{ const L=$("dRep")._i; if(!L) return; buzz(); const p=prodFor(L.nome); selectProd(p?p.name:L.nome,L.cod||"",L.unidade); };
@@ -2310,7 +2330,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-84";
+const APP_VERSION = "2026.10.10-85";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
