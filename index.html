@@ -746,6 +746,7 @@ body.np-open #tabDoacao{padding-bottom:calc(var(--np-h,0px) + 190px)}
 #dFinSheet small{display:block;margin-top:12px;color:var(--mut);font-size:12px;text-align:center}
 #dFinOk{display:block;width:100%;margin-top:16px;min-height:62px;border-radius:16px;font-size:19px;font-weight:900;background:#10131a;color:#f3d87a;border:2px solid #c9a227}
 #dFinLimpar{display:block;margin:12px auto 0;background:none;border:0;color:var(--mut);text-decoration:underline;font-size:14px;font-weight:700;min-height:40px}
+#mnSair[hidden]{display:none!important}
 #appVer{cursor:pointer;padding:2px 6px;margin-left:2px;border-radius:99px;background:rgba(255,255,255,.14);opacity:1!important;white-space:nowrap}
 .morebg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.28)}
 .moremenu{position:fixed;z-index:61;top:calc(54px + env(safe-area-inset-top));right:10px;width:min(300px,calc(100vw - 20px));padding:6px;border-radius:18px;background:var(--card);border:1px solid var(--ln);box-shadow:0 18px 44px rgba(0,0,0,.35);display:flex;flex-direction:column}
@@ -937,7 +938,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div class="toolbar" style="margin-top:8px"><button class="secondary" id="impFileBtn">📎 Escolher arquivo</button><button class="secondary" id="impModel">Baixar modelo</button></div><input type="file" id="impFile" accept=".csv,.txt,.tsv,text/plain,text/csv" hidden>
 <div class="toolbar" style="margin-top:8px"><button class="secondary" id="impLimpa">🗑️ Limpar texto</button></div>
 <div class="toolbar" style="margin-top:10px"><button class="secondary big" id="impCheck">Conferir lista</button><button class="primary big" id="impGo" disabled>Cadastrar</button></div><div id="impPrev" class="rows"></div></section></div>
-<div id="moreBg" class="morebg hidden"></div><div id="moreMenu" class="moremenu hidden" role="menu" aria-label="Mais opções"><button type="button" role="menuitem" id="mnCad">🗂️<span>Cadastros</span></button><button type="button" role="menuitem" id="mnInv">📦<span>Inventário</span></button><button type="button" role="menuitem" id="mnHist">📜<span>Histórico</span></button><button type="button" role="menuitem" id="mnBkp">💾<span>Fazer backup</span></button><button type="button" role="menuitem" id="mnRest">♻️<span>Restaurar backup</span></button><button type="button" role="menuitem" id="mnInstall">📲<span>Instalar app</span></button></div>
+<div id="moreBg" class="morebg hidden"></div><div id="moreMenu" class="moremenu hidden" role="menu" aria-label="Mais opções"><button type="button" role="menuitem" id="mnCad">🗂️<span>Cadastros</span></button><button type="button" role="menuitem" id="mnInv">📦<span>Inventário</span></button><button type="button" role="menuitem" id="mnHist">📜<span>Histórico</span></button><button type="button" role="menuitem" id="mnBkp">💾<span>Fazer backup</span></button><button type="button" role="menuitem" id="mnRest">♻️<span>Restaurar backup</span></button><button type="button" role="menuitem" id="mnInstall">📲<span>Instalar app</span></button><button type="button" role="menuitem" id="mnSair" hidden>🔒<span>Sair (pedir senha de novo)</span></button></div>
 <div class="fabwrap" id="fabWrap"><div class="fabrow"><button class="fabscan" id="fab" aria-label="Bipar código de barras">▦ BIPAR</button></div></div>
 <div id="qModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="qTitle"><div class="sheethead"><h2 id="qTitle">Atalho</h2><button class="secondary" id="qClose" aria-label="Fechar">✕</button></div>
 <label for="qNome">Nome do produto</label><input id="qNome" maxlength="40" autocomplete="off" placeholder="Ex.: Chuchu">
@@ -1000,6 +1001,8 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 // Configuração do Valida+. Edite apenas este arquivo.
 window.VALIDA_CONFIG = {
   loja: "Sam's Club Radial Leste",
+  // Login da loja (senha única). null = desligado. Para ligar: login: { email: "loja@validamais.app" }
+  login: null,
   // Dias de antecedência para o aviso "vence em breve" (por categoria ou padrão)
   alertaDias: { padrao: 3, Ovos: 5, FLV: 2, Padaria: 1 },
   // Etiqueta de balança (EAN-13 que começa com 2): 2 + código do item + peso em gramas + dígito.
@@ -1019,9 +1022,31 @@ window.VALIDA_CONFIG = {
 
 </script>
 <script src="vendor.js"></script>
+<script>/* login da loja (opcional): só liga se config.login.email existir */
+(function(){
+  var C=window.VALIDA_CONFIG||{}, L=C.login, V=window.V||{}; window.__LOGIN_WAIT=false;
+  if(!L||!L.email||!V.getAuth||!(C.firebase&&C.firebase.projectId)) return;
+  var FK="validamais-logado", ok=false; try{ ok=localStorage.getItem(FK)===L.email; }catch(e){}
+  var app=V.initializeApp(C.firebase), auth=V.getAuth(app);
+  window.vmSair=function(){ try{ localStorage.removeItem(FK); }catch(e){} V.signOut(auth).catch(function(){}).then(function(){ location.reload(); }); };
+  if(ok){ var first=true; V.onAuthStateChanged(auth,function(u){ if(first){ first=false; if(!u){ try{ localStorage.removeItem(FK); }catch(e){} location.reload(); } } }); return; }
+  window.__LOGIN_WAIT=true;
+  var css=document.createElement("style"); css.textContent="#vmLogin{position:fixed;inset:0;z-index:99999;background:#08090c;color:#ece8dc;display:flex;align-items:center;justify-content:center;padding:24px;font-family:system-ui,sans-serif}#vmLogin .bx{width:100%;max-width:380px;text-align:center}#vmLogin h1{font-size:30px;margin:0 0 4px;color:#f3d87a}#vmLogin p{margin:0 0 22px;color:#a39e8f;font-size:15px}#vmLogin input{width:100%;box-sizing:border-box;min-height:58px;font-size:20px;padding:0 16px;border-radius:14px;border:2px solid #3a4157;background:#14151b;color:#fff;text-align:center}#vmLogin button{width:100%;min-height:60px;margin-top:14px;border-radius:14px;border:0;font-size:19px;font-weight:900;background:linear-gradient(#f0d56f,#c9a227);color:#10131a}#vmLogin .er{min-height:22px;margin-top:12px;color:#ff7b72;font-size:14px;font-weight:700}";
+  document.head.appendChild(css);
+  var d=document.createElement("div"); d.id="vmLogin"; d.innerHTML='<form class="bx" id="vmForm"><h1>Valida+</h1><p>'+String(C.loja||"").replace(/[<>&]/g,"")+'<br>Digite a senha da loja</p><input id="vmPw" type="password" autocomplete="current-password" placeholder="Senha" aria-label="Senha"><button type="submit" id="vmGo">Entrar</button><div class="er" id="vmEr"></div></form>';
+  document.body.appendChild(d);
+  document.getElementById("vmForm").onsubmit=function(e){ e.preventDefault(); var pw=document.getElementById("vmPw").value, er=document.getElementById("vmEr"), go=document.getElementById("vmGo"); if(!pw) return;
+    go.disabled=true; er.textContent=""; go.textContent="Entrando…";
+    V.signInWithEmailAndPassword(auth,L.email,pw).then(function(){ try{ localStorage.setItem(FK,L.email); }catch(x){} location.reload(); })
+    .catch(function(x){ go.disabled=false; go.textContent="Entrar"; var c=(x&&x.code)||""; er.textContent=/wrong-password|invalid-credential|user-not-found|invalid-login/.test(c)?"Senha incorreta.":/network/.test(c)?"Sem internet. Tente de novo.":/too-many/.test(c)?"Muitas tentativas. Aguarde alguns minutos.":"Não foi possível entrar ("+c+")."; });
+  };
+  setTimeout(function(){ var i=document.getElementById("vmPw"); i&&i.focus(); },200);
+})();
+</script>
 <script>/* app.js */
 (() => {
 "use strict";
+if (window.__LOGIN_WAIT) return;
 const C = window.VALIDA_CONFIG || {}, V = window.V || {}, fb = C.firebase || {};
 const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros"];
 const $ = id => document.getElementById(id);
@@ -2392,7 +2417,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-88";
+const APP_VERSION = "2026.10.10-89";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -2617,6 +2642,7 @@ b.onclick=function(){m.classList.contains("hidden")?abre():fecha()}}
 bg.onclick=fecha;document.addEventListener("keydown",function(e){if(e.key==="Escape")fecha()});
 if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)g("mnInstall").classList.add("hidden");
 g("mnCad").onclick=function(){fecha();g("navCadastros").click();window.scrollTo(0,0)};
+if(window.vmSair){g("mnSair").hidden=false;g("mnSair").onclick=function(){fecha();if(confirm("Sair? Este aparelho vai pedir a senha da loja de novo."))window.vmSair()}}
 g("mnInv").onclick=function(){fecha();g("navInventario").click();window.scrollTo(0,0)};
 g("mnHist").onclick=function(){fecha();if(window.phOpen)window.phOpen()};
 g("mnBkp").onclick=function(){fecha();if(window.vmBackup)window.vmBackup()};
