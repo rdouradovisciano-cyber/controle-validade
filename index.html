@@ -1167,8 +1167,8 @@ function render() {
     .sort((a, b) => cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
-    if (p.retirado) return `<article class="product retirado"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">${esc(p.category)}</span></div><div class="vbox"><div class="vd"><small>RETIRADO DA LOJA</small><b>${p.retEm ? new Date(Number(p.retEm)).toLocaleDateString("pt-BR") : "—"}</b></div><div class="vr"><span class="pill">${p.retPor ? "por " + esc(p.retPor) : ""}</span><small>validade era ${fmt(p.expiry)}</small></div></div><div class="actions"><button class="secondary" data-volta="${esc(p.id)}">↩ Voltar para a loja</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
-    return `<article class="product ${cls}"><div class="ctop"><h3>${(p.foto || FM.get(norm(p.name || ""))) ? `<img class="pth" alt="" src="${p.foto || FM.get(norm(p.name || ""))}">` : ""}${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button><button class="danger" data-del="${esc(p.id)}">Excluir</button></div></article>`;
+    if (p.retirado) return `<article class="product retirado"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">${esc(p.category)}</span></div><div class="vbox"><div class="vd"><small>RETIRADO DA LOJA</small><b>${p.retEm ? new Date(Number(p.retEm)).toLocaleDateString("pt-BR") : "—"}</b></div><div class="vr"><span class="pill">${p.retPor ? "por " + esc(p.retPor) : ""}</span><small>validade era ${fmt(p.expiry)}</small></div></div><div class="actions"><button class="secondary" data-volta="${esc(p.id)}">↩ Voltar para a loja</button></div></article>`;
+    return `<article class="product ${cls}"><div class="ctop"><h3>${(p.foto || FM.get(norm(p.name || ""))) ? `<img class="pth" alt="" src="${p.foto || FM.get(norm(p.name || ""))}">` : ""}${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button></div></article>`;
   }).join("") : (cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
 }
 
@@ -1466,7 +1466,7 @@ const fname = () => ($("exportScope").value === "products" ? "produtos-cadastrad
 fillCategories();
 ["search"].forEach(i => $(i).oninput = render);
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
-$("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.del) remove(b.dataset.del); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
+$("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
 $("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = async () => { await stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
@@ -2392,7 +2392,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-87";
+const APP_VERSION = "2026.10.10-88";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
