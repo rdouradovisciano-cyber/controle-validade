@@ -1002,7 +1002,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 window.VALIDA_CONFIG = {
   loja: "Sam's Club Radial Leste",
   // Login da loja (senha única). null = desligado. Para ligar: login: { email: "loja@validamais.app" }
-  login: null,
+  login: { email: "loja@validamais.app" },
   // Dias de antecedência para o aviso "vence em breve" (por categoria ou padrão)
   alertaDias: { padrao: 3, Ovos: 5, FLV: 2, Padaria: 1 },
   // Etiqueta de balança (EAN-13 que começa com 2): 2 + código do item + peso em gramas + dígito.
@@ -2417,7 +2417,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-89";
+const APP_VERSION = "2026.10.10-90";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
