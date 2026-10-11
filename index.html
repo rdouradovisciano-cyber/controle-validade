@@ -720,6 +720,11 @@ body.mao1 #dDock{bottom:var(--tb-h,72px)}
 .dbrow{display:flex;gap:10px;margin-top:16px}
 #dbSalvar{flex:1.5;min-height:56px;border-radius:14px;font-size:18px;font-weight:900;background:#10131a;color:#f3d87a;border:2px solid #c9a227}
 #dbExcluir{flex:1;min-height:56px;border-radius:14px;background:none;border:1.5px solid var(--ln);color:#d9534f;font-weight:800}
+#dDock.col #dT6{display:none}
+#dDock.col #dTop6{margin-bottom:8px}
+.dbmv{display:flex;gap:10px;margin-top:14px}
+.dbmv button{flex:1;min-height:46px;border-radius:12px;border:1.5px solid var(--ln);background:var(--lt2);color:inherit;font-weight:800;font-size:14px}
+.dbmv button:disabled{opacity:.35}
 .dt6.var{grid-template-columns:repeat(2,1fr)}
 .dt6 .dback{grid-column:1/-1;min-height:40px;background:transparent;border:1.5px dashed #3a4157;color:#f3d87a}
 #dBar{display:flex;gap:8px}
@@ -845,7 +850,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div class="panel" id="dStrip" role="button" tabindex="0" aria-label="Ver resumo e finalizar"><span class="dl">📋 Doação de hoje · <span><b id="dItens">0</b> itens</span></span><span class="dtot"><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span><i class="dsp">›</i></span></div>
 <div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
 <button type="button" id="dTrocar" class="dtroca">✕ Trocar produto</button><div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
-<div id="dDock"><button type="button" id="dRep" hidden></button><div id="dTop6" class="vazio"><div class="dt6h"><span id="dT6L">⭐ MAIS DOADOS</span><span class="dt6a"><button type="button" id="dBalAuto" hidden>↺ Automático</button><button type="button" id="dBalEdit">✎ Editar</button></span></div><div class="dt6" id="dT6"></div></div><div id="dBar"><button type="button" id="dAddItem">🔍 Buscar</button><button type="button" id="dBarScan">▦ Bipar</button></div></div>
+<div id="dDock"><button type="button" id="dRep" hidden></button><div id="dTop6" class="vazio"><div class="dt6h"><span id="dT6L">⭐ MAIS DOADOS</span><span class="dt6a"><button type="button" id="dBalCol">▾ Recolher</button><button type="button" id="dBalAuto" hidden>↺ Automático</button><button type="button" id="dBalEdit">✎ Editar</button></span></div><div class="dt6" id="dT6"></div></div><div id="dBar"><button type="button" id="dAddItem">🔍 Buscar</button><button type="button" id="dBarScan">▦ Bipar</button></div></div>
 <div class="dpick"><div id="dPickBar"><button type="button" id="dVoltar">← Voltar à lista</button><b>Escolher produto</b></div>
 <section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div>
 </section>
@@ -864,6 +869,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <label class="dblb" for="dbNome">Nome do balão</label><input id="dbNome" maxlength="24" placeholder="Ex.: Banana" autocomplete="off">
 <label class="dblb">Tipos (o que aparece ao tocar)</label><div id="dbTipos"></div>
 <input id="dbBusca" type="search" placeholder="Buscar produto para adicionar" autocomplete="off"><div id="dbSug"></div>
+<div class="dbmv" id="dbMv"><button type="button" id="dbEsq">◀ Mover antes</button><button type="button" id="dbDir">Mover depois ▶</button></div>
 <div class="dbrow"><button type="button" id="dbSalvar">Salvar</button><button type="button" id="dbExcluir">Excluir balão</button></div></div></div>
 <div id="dFinSheet" class="hidden"><div class="fsc" id="dFinX"></div><div class="fss"><h3>Finalizar doação</h3><div id="dFinBody"></div><button type="button" id="dFinOk">✔ Confirmar doação</button><button type="button" id="dFinLimpar">Limpar lista</button><small>A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio vai para o histórico.</small></div></div>
 </div>
@@ -1733,6 +1739,7 @@ function dTop6Render(){ const box=$("dTop6"); if(!box) return; let rank=[]; try{
     f.list=[...f.v.values()].sort((a,b)=>b.d-a.d||a.n.localeCompare(b.n,"pt-BR")); });
   box._auto=top; const cfg=dBalCfg(); if(cfg) top=cfg.map(c=>({k:norm(c.w),w:c.w,list:c.v.map(o=>({n:o.n,c:o.c||"",u:o.u||"kg",d:0}))}));
   const ed=!!window.dEditBal; box.classList.toggle("vazio",!top.length&&!ed); box._f=top; const op=ed?-1:box._open;
+  const colp=!!store.get("validamais-dcol",false)&&!ed&&op<0; $("dDock").classList.toggle("col",colp); $("dBalCol").textContent=colp?"▴ Mostrar":"▾ Recolher"; $("dBalCol").hidden=(ed||op>=0);
   $("dBalEdit").textContent=ed?"✔ Concluir":"✎ Editar"; $("dBalEdit").hidden=(op>=0); $("dBalAuto").hidden=!(ed&&cfg);
   if(op!=null&&op>=0&&top[op]){ const f=top[op];
     $("dT6L").textContent="⭐ "+dTitle(f.w).toUpperCase()+" — QUAL?";
@@ -1751,7 +1758,7 @@ function dBalCfg(){ const v=store.get("validamais-dbal",null); return Array.isAr
 function dBalEnsure(){ let c=dBalCfg(); if(c) return c; const a=$("dTop6")._auto||[]; c=a.map(f=>({w:dTitle(f.w),v:f.list.map(o=>({n:o.n,c:o.c||"",u:o.u||"kg"}))})); store.set("validamais-dbal",c); return c; }
 let dbIdx=-1, dbDraft=null;
 function dBalOpen(i){ const c=dBalEnsure(); dbIdx=i; dbDraft=i>=0?JSON.parse(JSON.stringify(c[i])):{w:"",v:[]};
-  $("dbTit").textContent=i>=0?"Editar balão":"Novo balão"; $("dbNome").value=dbDraft.w; $("dbBusca").value=""; $("dbSug").innerHTML=""; $("dbExcluir").style.display=i>=0?"":"none"; dbRender(); $("dBalModal").classList.remove("hidden"); }
+  $("dbTit").textContent=i>=0?"Editar balão":"Novo balão"; $("dbNome").value=dbDraft.w; $("dbBusca").value=""; $("dbSug").innerHTML=""; $("dbExcluir").style.display=i>=0?"":"none"; dbRender(); dbMvUpd(); $("dBalModal").classList.remove("hidden"); }
 function dbRender(){ $("dbTipos").innerHTML=dbDraft.v.length?dbDraft.v.map((o,x)=>`<span class="ch">${esc(dBase(o.n))}<button type="button" data-dx="${x}" aria-label="Remover">✕</button></span>`).join(""):'<small style="color:var(--mut)">Nenhum tipo ainda. Busque abaixo para adicionar.</small>'; }
 function dbSug(){ const q=norm($("dbBusca").value.trim()); if(!q){ $("dbSug").innerHTML=""; return; } const seen=new Set(), out=[];
   for(const p of products){ if(!p||!p.name) continue; const nk=norm(dBase(p.name)); if(seen.has(nk)||!nk.includes(q)) continue; if(dbDraft.v.some(o=>norm(dBase(o.n))===nk)) continue; seen.add(nk); out.push(p); if(out.length>=6) break; }
@@ -1763,11 +1770,15 @@ $("dbSug").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; let n
   if(!$("dbNome").value.trim()) $("dbNome").value=dTitle(dBase(n).split(/\s+/)[0]);
   $("dbBusca").value=""; $("dbSug").innerHTML=""; dbRender(); };
 $("dbTipos").onclick=e=>{ const b=e.target.closest("[data-dx]"); if(!b) return; dbDraft.v.splice(Number(b.dataset.dx),1); dbRender(); };
+function dbMvUpd(){ const c=dBalCfg()||[]; $("dbMv").style.display=dbIdx>=0?"":"none"; $("dbEsq").disabled=!(dbIdx>0); $("dbDir").disabled=!(dbIdx>=0&&dbIdx<c.length-1); }
+function dbMove(d){ const c=dBalEnsure(), j=dbIdx+d; if(dbIdx<0||j<0||j>=c.length) return; [c[dbIdx],c[j]]=[c[j],c[dbIdx]]; store.set("validamais-dbal",c); dbIdx=j; dbMvUpd(); dTop6Render(); }
+$("dbEsq").onclick=()=>dbMove(-1); $("dbDir").onclick=()=>dbMove(1);
 function dbClose(){ $("dBalModal").classList.add("hidden"); }
 $("dbX").onclick=dbClose;
 $("dbSalvar").onclick=()=>{ const w=$("dbNome").value.trim().slice(0,24); if(!w) return toast("Dê um nome ao balão."); if(!dbDraft.v.length) return toast("Adicione pelo menos um tipo."); dbDraft.w=w;
   const c=dBalEnsure(); if(dbIdx>=0) c[dbIdx]=dbDraft; else c.push(dbDraft); store.set("validamais-dbal",c.slice(0,9)); dbClose(); dTop6Render(); };
 $("dbExcluir").onclick=()=>{ const c=dBalEnsure(); if(dbIdx<0) return; const rem=c.splice(dbIdx,1)[0]; store.set("validamais-dbal",c.length?c:null); dbClose(); dTop6Render(); toast(`Balão "${rem.w}" excluído.`); };
+$("dBalCol").onclick=()=>{ store.set("validamais-dcol",!store.get("validamais-dcol",false)); dTop6Render(); };
 $("dBalEdit").onclick=()=>{ window.dEditBal=!window.dEditBal; $("dTop6")._open=-1; dTop6Render(); };
 $("dBalAuto").onclick=()=>{ if(!confirm("Voltar aos balões automáticos? Os seus balões serão apagados.")) return; store.set("validamais-dbal",null); dTop6Render(); };
 function dRepRender(){ const b=$("dRep"); if(!b) return; const L=(don.itens.find(i=>i.key===window.dLastKey))||don.itens[don.itens.length-1];
@@ -2381,7 +2392,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-86";
+const APP_VERSION = "2026.10.10-87";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
