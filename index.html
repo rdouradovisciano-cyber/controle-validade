@@ -675,11 +675,9 @@ body.np-doa #npTop{min-height:30px;justify-content:flex-end;margin-bottom:4px}
 #donaEntrada[data-dview="lista"] .dpick{display:none!important}
 #donaEntrada[data-dview="pick"] #dNow,#donaEntrada[data-dview="pick"] #dAddItem,#donaEntrada[data-dview="pick"] #dListaBox,#donaEntrada[data-dview="pick"] #topDoados,#donaEntrada[data-dview="pick"] #histBox{display:none!important}
 #donaEntrada[data-dview="pick"] section:has(#histBox){display:none!important}
-#dNow:not(.vazio)~#dAddItem{display:none}
-#dAddItem{position:fixed;left:14px;right:158px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:21;height:64px;min-height:64px;font-size:20px;font-weight:900;border-radius:32px;box-shadow:0 10px 26px rgba(201,162,39,.5)}
-body.mao1 #dAddItem{bottom:calc(var(--tb-h,72px) + 14px)}
-body.np-open #dAddItem{display:none!important}
-#tabDoacao{padding-bottom:96px}
+#dAddItem{display:block;width:100%;min-height:68px;font-size:21px;font-weight:900;margin:14px 0 10px;border-radius:18px;box-shadow:0 8px 22px rgba(201,162,39,.4)}
+#dNow:not(.vazio)~#dListaBox #dAddItem{display:none}
+#tabDoacao{padding-bottom:84px}
 #dPickBar{display:flex;align-items:center;gap:10px;margin:2px 0 12px}
 #dPickBar b{font-size:18px}
 #dVoltar{min-height:50px;padding:0 16px;border-radius:14px;font-weight:800;background:#10131a;color:#f3d87a;border:2px solid #c9a227}
@@ -690,7 +688,7 @@ body.np-open #dAddItem{display:none!important}
 #dListaBox{border-top:5px solid #c9a227}
 .ditem.novo{animation:dnovo 2.4s ease-out;border-left:5px solid #2e9e5b;padding-left:8px;margin-left:-4px}
 @keyframes dnovo{0%,35%{background:rgba(46,158,91,.28)}100%{background:transparent}}
-#dFinalizar{min-height:62px;font-size:19px;font-weight:900}
+#dFinalizar{min-height:62px;font-size:19px;font-weight:900;background:#10131a!important;color:#f3d87a!important;border:2px solid #c9a227!important;box-shadow:none!important}
 #appVer{cursor:pointer;padding:2px 6px;margin-left:2px;border-radius:99px;background:rgba(255,255,255,.14);opacity:1!important;white-space:nowrap}
 .morebg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.28)}
 .moremenu{position:fixed;z-index:61;top:calc(54px + env(safe-area-inset-top));right:10px;width:min(300px,calc(100vw - 20px));padding:6px;border-radius:18px;background:var(--card);border:1px solid var(--ln);box-shadow:0 18px 44px rgba(0,0,0,.35);display:flex;flex-direction:column}
@@ -794,7 +792,6 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div id="donaEntrada" data-dview="lista">
 <div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
 <button type="button" id="dTrocar" class="dtroca">✕ Trocar produto</button><div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
-<button type="button" class="primary big" id="dAddItem">＋ Adicionar item</button>
 <div class="dpick"><div id="dPickBar"><button type="button" id="dVoltar">← Voltar à lista</button><b>Escolher produto</b></div>
 <section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div>
 </section>
@@ -804,7 +801,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div id="dFindBox"><div id="dFind"><input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off" enterkeyhint="search"><div id="dSug" class="rows sug"></div></div></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
 </div>
-<section class="panel dlistp" id="dListaBox"><div class="dlh"><h2 class="h2" style="margin:0">Itens coletados</h2><div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></div><div id="dLista"></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
+<section class="panel dlistp" id="dListaBox"><div class="dlh"><h2 class="h2" style="margin:0">Itens coletados</h2><div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></div><div id="dLista"></div><button type="button" class="primary big" id="dAddItem">＋ Adicionar item</button><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
 <div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
 <small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
 <div id="topDoados" class="topdo hidden" aria-live="polite"></div>
@@ -2257,7 +2254,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-78";
+const APP_VERSION = "2026.10.10-79";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
