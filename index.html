@@ -681,6 +681,12 @@ body.mao1 #dBar{bottom:var(--tb-h,72px)}
 #dBarScan{flex:1;min-height:62px;border-radius:16px;font-size:17px;font-weight:900;background:transparent;color:#f3d87a;border:2px solid #f3d87a}
 #dNow:not(.vazio)~#dListaBox #dBar,body.np-open #dBar{display:none!important}
 body[data-tab="Doacao"]:has(#donaEntrada[data-dview="lista"]:not(.hidden) #dNow.vazio) .fabwrap{display:none}
+#dTop6{padding:10px 12px 12px}
+.dt6h{font-size:13px;font-weight:800;color:var(--mut);margin-bottom:8px;letter-spacing:.03em}
+.dt6{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dt6 button{min-height:58px;border-radius:14px;border:1.5px solid var(--ln);background:var(--lt2);color:inherit;font-weight:800;font-size:14px;line-height:1.15;padding:6px 4px;text-align:center}
+.dt6 button small{display:block;font-weight:600;opacity:.65;font-size:11px;margin-top:2px}
+#dTop6.vazio,#dNow:not(.vazio)~#dTop6,#donaEntrada[data-dview="pick"] #dTop6{display:none!important}
 #tabDoacao{padding-bottom:110px}
 #dPickBar{display:flex;align-items:center;gap:10px;margin:2px 0 12px}
 #dPickBar b{font-size:18px}
@@ -805,12 +811,12 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div id="dFindBox"><div id="dFind"><input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off" enterkeyhint="search"><div id="dSug" class="rows sug"></div></div></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
 </div>
-<section class="panel dlistp" id="dListaBox"><div class="dlh"><h2 class="h2" style="margin:0">Itens coletados</h2><div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></div><div id="dLista"></div><div id="dBar"><button type="button" class="primary big" id="dAddItem">＋ Adicionar item</button><button type="button" id="dBarScan">▦ Bipar</button></div><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
+<section class="panel dtop6" id="dTop6"><div class="dt6h">⭐ Mais doados</div><div class="dt6" id="dT6"></div></section>
+<section class="panel dlistp" id="dListaBox"><div class="dlh"><h2 class="h2" style="margin:0">Itens coletados</h2><div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></div><div id="dLista"></div><div id="dBar"><button type="button" class="primary big" id="dAddItem">＋ Adicionar item</button><button type="button" id="dBarScan">▦ Bipar</button></div><div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
+<small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
 </section>
 <div id="topDoados" class="topdo hidden" aria-live="polite"></div>
 <section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
-<section class="panel" id="dFim"><div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
-<small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small></section>
 </div>
 <div id="donaRomaneio" class="hidden"><section class="panel"><div id="romHead"></div><div id="romBody"></div>
 <div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rAdd">＋ Bipar item</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
@@ -1657,10 +1663,17 @@ function dCodTxt(i) {   // kg: código de doação · un: código de barras
     : ((pr.codigo_doacao || i.cod) ? "Cód. doação: " + esc(pr.codigo_doacao || i.cod) : "");
 }
 function renderDon() {
+  if (typeof dTop6Render === "function") dTop6Render();
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dKg").parentElement.style.display = sumU("kg") > 0 ? "" : "none"; $("dUn").parentElement.style.display = sumU("un") > 0 ? "" : "none"; $("dItens").textContent = don.itens.length;
   $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Bipe um item para começar.</p>';
   renderKey();
 }
+function dTop6Render(){ const box=$("dTop6"); if(!box) return; let l=[]; try{ l=topUsados().map(o=>({n:o.n,c:o.c,u:o.u})); }catch(e){}
+  if(l.length<3) l=l.concat(shortcuts.map(x=>({n:x.n,c:x.c,u:x.u})).filter(x=>!l.some(y=>norm(y.n)===norm(x.n))));
+  l=l.slice(0,6); box.classList.toggle("vazio",!l.length);
+  $("dT6").innerHTML=l.map((o,i)=>{ const p=prodFor(o.n), nm=p?p.name:o.n; return `<button type="button" data-t6="${i}">${esc(o.n)}<small>${o.u}</small></button>`; }).join("");
+  box._l=l; }
+$("dT6").onclick=e=>{ const b=e.target.closest("[data-t6]"); if(!b) return; const o=$("dTop6")._l[Number(b.dataset.t6)]; if(!o) return; buzz(); const p=prodFor(o.n); selectProd(p?p.name:o.n,o.c,o.u); };
 function dView(v){ const e=$("donaEntrada"); if(!e) return; e.dataset.dview=v; if(v==="pick"){ if(window.npClose) window.npClose(); window.scrollTo({top:0}); } }
 $("dAddItem").onclick=()=>{ dView("pick"); setTimeout(()=>{ try{ $("dBusca").focus({preventScroll:true}); }catch(e){} },60); };
 $("dBarScan").onclick=()=>$("fab").click();
@@ -2260,7 +2273,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-81";
+const APP_VERSION = "2026.10.10-82";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
