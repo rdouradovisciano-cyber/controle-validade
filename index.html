@@ -675,34 +675,50 @@ body.np-doa #npTop{min-height:30px;justify-content:flex-end;margin-bottom:4px}
 #donaEntrada[data-dview="lista"] .dpick{display:none!important}
 #donaEntrada[data-dview="pick"] #dFim,#donaEntrada[data-dview="pick"] #dNow,#donaEntrada[data-dview="pick"] #dAddItem,#donaEntrada[data-dview="pick"] #dListaBox,#donaEntrada[data-dview="pick"] #topDoados,#donaEntrada[data-dview="pick"] #histBox{display:none!important}
 #donaEntrada[data-dview="pick"] section:has(#histBox){display:none!important}
-#dBar{position:fixed;left:0;right:0;bottom:0;z-index:21;display:flex;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#10131a;border-top:2px solid #c9a227;box-shadow:0 -8px 22px rgba(0,0,0,.28)}
-body.mao1 #dBar{bottom:var(--tb-h,72px)}
-#dAddItem{flex:1.7;min-height:62px;font-size:20px;font-weight:900;margin:0;border-radius:16px}
-#dBarScan{flex:1;min-height:62px;border-radius:16px;font-size:17px;font-weight:900;background:transparent;color:#f3d87a;border:2px solid #f3d87a}
-#dNow:not(.vazio)~#dListaBox #dBar,body.np-open #dBar{display:none!important}
 body[data-tab="Doacao"]:has(#donaEntrada[data-dview="lista"]:not(.hidden) #dNow.vazio) .fabwrap{display:none}
-#dTop6{padding:10px 12px 12px}
-.dt6h{font-size:13px;font-weight:800;color:var(--mut);margin-bottom:8px;letter-spacing:.03em}
-.dt6{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.dt6 button{min-height:58px;border-radius:14px;border:1.5px solid var(--ln);background:var(--lt2);color:inherit;font-weight:800;font-size:14px;line-height:1.15;padding:6px 4px;text-align:center}
-.dt6 button small{display:block;font-weight:600;opacity:.65;font-size:11px;margin-top:2px}
-#dTop6.vazio,#dNow:not(.vazio)~#dTop6,#donaEntrada[data-dview="pick"] #dTop6{display:none!important}
-#dListaBox .toolbar{align-items:center;gap:10px;margin-top:8px}
-#dFinalizar{min-height:46px!important;font-size:15px!important;font-weight:800!important;background:transparent!important;color:inherit!important;border:1.5px solid var(--ln)!important;border-radius:12px!important;box-shadow:none!important;flex:1.4}
-#dLimpar{min-height:46px!important;font-size:14px!important;font-weight:700!important;background:transparent!important;color:var(--mut)!important;border:0!important;box-shadow:none!important;flex:1;text-decoration:underline;text-underline-offset:3px}
 #topDoados{display:none!important}
-#tabDoacao{padding-bottom:110px}
 #dPickBar{display:flex;align-items:center;gap:10px;margin:2px 0 12px}
 #dPickBar b{font-size:18px}
 #dVoltar{min-height:50px;padding:0 16px;border-radius:14px;font-weight:800;background:#10131a;color:#f3d87a;border:2px solid #c9a227}
 .dtroca{display:block;margin:0 0 6px auto;min-height:36px;padding:0 12px;border-radius:99px;border:1.5px solid var(--ln);background:transparent;color:var(--mut);font-weight:800;font-size:13px}
-.dlh{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px}
-.dlh .dsum{margin:0;padding:6px 12px;gap:14px;justify-content:flex-end;flex:0 0 auto}
-.dlh .dsum b{font-size:19px}
-#dListaBox{border-top:5px solid #c9a227}
 .ditem.novo{animation:dnovo 2.4s ease-out;border-left:5px solid #2e9e5b;padding-left:8px;margin-left:-4px}
 @keyframes dnovo{0%,35%{background:rgba(46,158,91,.28)}100%{background:transparent}}
-#dFinalizar{min-height:62px;font-size:19px;font-weight:900;background:#10131a!important;color:#f3d87a!important;border:2px solid #c9a227!important;box-shadow:none!important}
+/* ----- v84: tela única: faixa de resumo · lista · doca embaixo ----- */
+#dStrip{position:sticky;top:calc(var(--top-h) + env(safe-area-inset-top));z-index:8;display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 8px;padding:13px 14px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+#dStrip b{font-size:19px;color:var(--g)}
+#dStrip .dtot{display:flex;gap:10px;align-items:center}
+#dStrip .dsp{font-style:normal;font-size:24px;line-height:1;opacity:.45}
+#dListaBox{padding:6px 12px 4px;margin-top:0}
+#dListaBox .toolbar,#dListaBox .note{display:none!important}
+#dDock{position:fixed;left:0;right:0;bottom:0;z-index:21;background:#10131a;border-top:2px solid #c9a227;padding:10px 12px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -8px 22px rgba(0,0,0,.3);color:#fff}
+body.mao1 #dDock{bottom:var(--tb-h,72px)}
+#dRep{display:block;width:100%;margin:0 0 8px;min-height:44px;border:1.5px dashed #c9a227;border-radius:12px;background:rgba(201,162,39,.12);color:#f3d87a;font-weight:800;font-size:15px}
+#dRep[hidden]{display:none}
+#dTop6{margin:0 0 8px}
+#dTop6.vazio{display:none!important}
+.dt6h{font-size:12px;font-weight:800;color:#c9b873;margin-bottom:6px;letter-spacing:.05em}
+.dt6{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dt6 button{min-height:52px;border-radius:12px;border:1.5px solid #3a4157;background:#1e2332;color:#fff;font-weight:800;font-size:14px;line-height:1.15;padding:6px 4px;text-align:center}
+.dt6 button small{display:block;font-weight:600;color:#9aa3b5;font-size:11px;margin-top:2px}
+#dBar{display:flex;gap:8px}
+#dAddItem{flex:1;min-height:54px;font-size:17px;font-weight:900;margin:0;border-radius:14px;background:transparent!important;color:#f3d87a!important;border:2px solid #f3d87a!important;box-shadow:none!important}
+#dBarScan{flex:1;min-height:54px;border-radius:14px;font-size:17px;font-weight:900;background:linear-gradient(#f0d56f,#c9a227);color:#10131a;border:0}
+#dNow:not(.vazio)~#dDock,body.np-open #dDock,#donaEntrada[data-dview="pick"] #dDock,#donaEntrada[data-dview="pick"] #dStrip{display:none!important}
+body[data-tab="Doacao"] #dNow:not(.vazio){position:fixed;left:10px;right:10px;top:auto;bottom:calc(8px + env(safe-area-inset-bottom));margin:0;z-index:35;padding:10px 12px 12px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+body[data-tab="Doacao"].np-open #dNow:not(.vazio){bottom:calc(var(--np-h,0px) + 8px)}
+#dNow .dhint,#dNow #dSelInfo{display:none!important}
+body.np-open #dAdd{display:none!important}
+#tabDoacao{padding-bottom:330px}
+body.np-open #tabDoacao{padding-bottom:calc(var(--np-h,0px) + 190px)}
+#dFinSheet{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end}
+#dFinSheet .fsc{position:absolute;inset:0;background:rgba(0,0,0,.5)}
+#dFinSheet .fss{position:relative;width:100%;background:var(--card);color:var(--ink);border-radius:24px 24px 0 0;padding:20px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 30px rgba(0,0,0,.35)}
+#dFinSheet h3{font-size:21px;margin:0 0 10px}
+#dFinSheet .ft{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--ln);font-weight:700}
+#dFinSheet .ft b{color:var(--g)}
+#dFinSheet small{display:block;margin-top:12px;color:var(--mut);font-size:12px;text-align:center}
+#dFinOk{display:block;width:100%;margin-top:16px;min-height:62px;border-radius:16px;font-size:19px;font-weight:900;background:#10131a;color:#f3d87a;border:2px solid #c9a227}
+#dFinLimpar{display:block;margin:12px auto 0;background:none;border:0;color:var(--mut);text-decoration:underline;font-size:14px;font-weight:700;min-height:40px}
 #appVer{cursor:pointer;padding:2px 6px;margin-left:2px;border-radius:99px;background:rgba(255,255,255,.14);opacity:1!important;white-space:nowrap}
 .morebg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.28)}
 .moremenu{position:fixed;z-index:61;top:calc(54px + env(safe-area-inset-top));right:10px;width:min(300px,calc(100vw - 20px));padding:6px;border-radius:18px;background:var(--card);border:1px solid var(--ln);box-shadow:0 18px 44px rgba(0,0,0,.35);display:flex;flex-direction:column}
@@ -804,8 +820,10 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 </div>
 <div id="tabDoacao" class="hidden">
 <div id="donaEntrada" data-dview="lista">
+<div class="panel" id="dStrip" role="button" tabindex="0" aria-label="Ver resumo e finalizar"><span class="dl">📋 Doação de hoje · <span><b id="dItens">0</b> itens</span></span><span class="dtot"><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span><i class="dsp">›</i></span></div>
 <div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
 <button type="button" id="dTrocar" class="dtroca">✕ Trocar produto</button><div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
+<div id="dDock"><button type="button" id="dRep" hidden></button><div id="dTop6" class="vazio"><div class="dt6h">⭐ MAIS DOADOS</div><div class="dt6" id="dT6"></div></div><div id="dBar"><button type="button" id="dAddItem">🔍 Buscar</button><button type="button" id="dBarScan">▦ Bipar</button></div></div>
 <div class="dpick"><div id="dPickBar"><button type="button" id="dVoltar">← Voltar à lista</button><b>Escolher produto</b></div>
 <section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div>
 </section>
@@ -815,12 +833,12 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div id="dFindBox"><div id="dFind"><input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off" enterkeyhint="search"><div id="dSug" class="rows sug"></div></div></div>
 <details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
 </div>
-<section class="panel dtop6" id="dTop6"><div class="dt6h">⭐ Mais doados</div><div class="dt6" id="dT6"></div></section>
-<section class="panel dlistp" id="dListaBox"><div class="dlh"><h2 class="h2" style="margin:0">Itens coletados</h2><div class="dsum"><span><b id="dItens">0</b> itens</span><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span></div></div><div id="dLista"></div><div id="dBar"><button type="button" class="primary big" id="dAddItem">＋ Adicionar item</button><button type="button" id="dBarScan">▦ Bipar</button></div><div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
+<section class="panel dlistp" id="dListaBox"><div id="dLista"></div><div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
 <small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
 </section>
 <div id="topDoados" class="topdo hidden" aria-live="polite"></div>
 <section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
+<div id="dFinSheet" class="hidden"><div class="fsc" id="dFinX"></div><div class="fss"><h3>Finalizar doação</h3><div id="dFinBody"></div><button type="button" id="dFinOk">✔ Confirmar doação</button><button type="button" id="dFinLimpar">Limpar lista</button><small>A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio vai para o histórico.</small></div></div>
 </div>
 <div id="donaRomaneio" class="hidden"><section class="panel"><div id="romHead"></div><div id="romBody"></div>
 <div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rAdd">＋ Bipar item</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
@@ -1668,8 +1686,9 @@ function dCodTxt(i) {   // kg: código de doação · un: código de barras
 }
 function renderDon() {
   if (typeof dTop6Render === "function") dTop6Render();
+  if (typeof dRepRender === "function") dRepRender();
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dKg").parentElement.style.display = sumU("kg") > 0 ? "" : "none"; $("dUn").parentElement.style.display = sumU("un") > 0 ? "" : "none"; $("dItens").textContent = don.itens.length;
-  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Bipe um item para começar.</p>';
+  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Toque num produto abaixo para começar.</p>';
   renderKey();
 }
 function dTop6Render(){ const box=$("dTop6"); if(!box) return; let l=[]; try{ const hd=store.get("validamais-doculto",{}), recs=(db?topDb:store.get(HK,[])).filter(r=>r&&!hd[r._id||(typeof r.em==="number"?String(r.em):"")]), m=new Map();
@@ -1680,13 +1699,24 @@ function dTop6Render(){ const box=$("dTop6"); if(!box) return; let l=[]; try{ co
   $("dT6").innerHTML=l.map((o,i)=>{ const p=prodFor(o.n), nm=p?p.name:o.n; return `<button type="button" data-t6="${i}">${esc(o.n.replace(/\s+(kg|un)$/i,""))}<small>${o.u}</small></button>`; }).join("");
   box._l=l; }
 $("dT6").onclick=e=>{ const b=e.target.closest("[data-t6]"); if(!b) return; const o=$("dTop6")._l[Number(b.dataset.t6)]; if(!o) return; buzz(); const p=prodFor(o.n); selectProd(p?p.name:o.n,o.c,o.u); };
+function dRepRender(){ const b=$("dRep"); if(!b) return; const L=(don.itens.find(i=>i.key===window.dLastKey))||don.itens[don.itens.length-1];
+  if(!L){ b.hidden=true; return; } b.hidden=false; b._i=L; b.textContent="＋ mais "+L.nome.replace(/\s+(kg|un)$/i,""); }
+$("dRep").onclick=()=>{ const L=$("dRep")._i; if(!L) return; buzz(); const p=prodFor(L.nome); selectProd(p?p.name:L.nome,L.cod||"",L.unidade); };
+function dFinOpen(){ if(!don.itens.length) return toast("Nada lançado ainda."); const nomes=[...don.itens].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR")).map(i=>esc(i.nome.replace(/\s+(kg|un)$/i,""))).join(" · ");
+  $("dFinBody").innerHTML=`<div class="ft"><span>Itens</span><b>${don.itens.length}</b></div><div class="ft"><span>Total</span><b>${[sumU("kg")>0?fq(sumU("kg"))+" kg":"",sumU("un")>0?fq(sumU("un"))+" un":""].filter(Boolean).join(" + ")}</b></div><div class="ft" style="font-weight:600;font-size:13px">${nomes}</div>`;
+  $("dFinSheet").classList.remove("hidden"); }
+function dFinClose(){ $("dFinSheet").classList.add("hidden"); }
+$("dStrip").onclick=dFinOpen; $("dStrip").onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); dFinOpen(); } };
+$("dFinX").onclick=dFinClose;
+$("dFinOk").onclick=()=>{ dFinClose(); $("dFinalizar").click(); };
+$("dFinLimpar").onclick=()=>{ dFinClose(); $("dLimpar").click(); };
 function dView(v){ const e=$("donaEntrada"); if(!e) return; e.dataset.dview=v; if(v==="pick"){ if(window.npClose) window.npClose(); window.scrollTo({top:0}); } }
 $("dAddItem").onclick=()=>{ dView("pick"); setTimeout(()=>{ try{ $("dBusca").focus({preventScroll:true}); }catch(e){} },60); };
 $("dBarScan").onclick=()=>$("fab").click();
 $("dVoltar").onclick=()=>dView("lista");
-$("dTrocar").onclick=()=>{ dSel=""; dCodSel=""; $("dPeso").value=""; if(window.npClose) window.npClose(); renderQuick(); renderDon(); dView("pick"); };
+$("dTrocar").onclick=()=>{ dSel=""; dCodSel=""; $("dPeso").value=""; if(window.npClose) window.npClose(); renderQuick(); renderDon(); };
 ["dScan","dEan"].forEach(id=>$(id).addEventListener("click",()=>dView("lista"),true));
-function dNovoMark(key){ window.dNovo=key; clearTimeout(window.dNovoT); window.dNovoT=setTimeout(()=>{ window.dNovo=""; const n=document.querySelector(".ditem.novo"); if(n) n.classList.remove("novo"); },2600); setTimeout(()=>{ const n=document.querySelector(".ditem.novo"); if(n && !romAberta()) n.scrollIntoView({block:"center",behavior:"smooth"}); },450); }
+function dNovoMark(key){ window.dNovo=key; window.dLastKey=key; clearTimeout(window.dNovoT); window.dNovoT=setTimeout(()=>{ window.dNovo=""; const n=document.querySelector(".ditem.novo"); if(n) n.classList.remove("novo"); },2600); setTimeout(()=>{ const n=document.querySelector(".ditem.novo"); if(n && !romAberta()) n.scrollIntoView({block:"center",behavior:"smooth"}); },450); }
 function addDon(nome, unidade, qtd, cod = "", bar = "") {
   if (romAberta()) return addToRom(nome, unidade, qtd, cod, bar);
   qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0; buzz(); usoLearn(nome, unidade, cod);
@@ -2280,7 +2310,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-83";
+const APP_VERSION = "2026.10.10-84";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
