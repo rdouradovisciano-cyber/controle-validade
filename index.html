@@ -700,6 +700,26 @@ body.mao1 #dDock{bottom:var(--tb-h,72px)}
 .dt6{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .dt6 button{min-height:52px;border-radius:12px;border:1.5px solid #3a4157;background:#1e2332;color:#fff;font-weight:800;font-size:14px;line-height:1.15;padding:6px 4px;text-align:center}
 .dt6 button small{display:block;font-weight:600;color:#9aa3b5;font-size:11px;margin-top:2px}
+.dt6h{display:flex;justify-content:space-between;align-items:center}
+.dt6a{display:flex;gap:6px}
+.dt6a button{min-height:28px;padding:0 10px;border-radius:99px;border:1.5px solid #3a4157;background:transparent;color:#f3d87a;font-size:12px;font-weight:800;letter-spacing:0}
+.dt6a button[hidden]{display:none}
+.dt6 button.ed{border-style:dashed;border-color:#c9a227;position:relative}
+.dt6 button.ed::after{content:"✎";position:absolute;top:3px;right:6px;font-size:11px;color:#f3d87a}
+.dt6 .dnew{border:1.5px dashed #c9a227;color:#f3d87a;background:transparent;font-size:20px}
+#dBalModal{position:fixed;inset:0;z-index:62;display:flex;align-items:flex-end}
+#dBalModal .fsc{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+#dBalModal .fss{position:relative;width:100%;max-height:88vh;overflow:auto;background:var(--card);color:var(--ink);border-radius:24px 24px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+#dBalModal h3{font-size:20px;margin:0 0 8px}
+.dblb{display:block;font-size:12px;font-weight:800;color:var(--mut);margin:12px 0 6px;letter-spacing:.04em}
+#dBalModal input{width:100%;min-height:50px;font-size:17px}
+#dbTipos{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+#dbTipos .ch{display:inline-flex;align-items:center;gap:8px;padding:8px 8px 8px 12px;border-radius:99px;background:var(--lt2);border:1.5px solid var(--ln);font-weight:700;font-size:14px}
+#dbTipos .ch button{border:0;background:none;color:#d9534f;font-size:16px;min-width:28px;min-height:28px}
+#dbSug button{display:block;width:100%;text-align:left;min-height:46px;padding:0 12px;border:0;border-bottom:1px solid var(--ln);background:none;color:inherit;font-size:15px;font-weight:600}
+.dbrow{display:flex;gap:10px;margin-top:16px}
+#dbSalvar{flex:1.5;min-height:56px;border-radius:14px;font-size:18px;font-weight:900;background:#10131a;color:#f3d87a;border:2px solid #c9a227}
+#dbExcluir{flex:1;min-height:56px;border-radius:14px;background:none;border:1.5px solid var(--ln);color:#d9534f;font-weight:800}
 .dt6.var{grid-template-columns:repeat(2,1fr)}
 .dt6 .dback{grid-column:1/-1;min-height:40px;background:transparent;border:1.5px dashed #3a4157;color:#f3d87a}
 #dBar{display:flex;gap:8px}
@@ -825,7 +845,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div class="panel" id="dStrip" role="button" tabindex="0" aria-label="Ver resumo e finalizar"><span class="dl">📋 Doação de hoje · <span><b id="dItens">0</b> itens</span></span><span class="dtot"><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span><i class="dsp">›</i></span></div>
 <div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
 <button type="button" id="dTrocar" class="dtroca">✕ Trocar produto</button><div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
-<div id="dDock"><button type="button" id="dRep" hidden></button><div id="dTop6" class="vazio"><div class="dt6h">⭐ MAIS DOADOS</div><div class="dt6" id="dT6"></div></div><div id="dBar"><button type="button" id="dAddItem">🔍 Buscar</button><button type="button" id="dBarScan">▦ Bipar</button></div></div>
+<div id="dDock"><button type="button" id="dRep" hidden></button><div id="dTop6" class="vazio"><div class="dt6h"><span id="dT6L">⭐ MAIS DOADOS</span><span class="dt6a"><button type="button" id="dBalAuto" hidden>↺ Automático</button><button type="button" id="dBalEdit">✎ Editar</button></span></div><div class="dt6" id="dT6"></div></div><div id="dBar"><button type="button" id="dAddItem">🔍 Buscar</button><button type="button" id="dBarScan">▦ Bipar</button></div></div>
 <div class="dpick"><div id="dPickBar"><button type="button" id="dVoltar">← Voltar à lista</button><b>Escolher produto</b></div>
 <section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div>
 </section>
@@ -840,6 +860,11 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 </section>
 <div id="topDoados" class="topdo hidden" aria-live="polite"></div>
 <section class="panel"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
+<div id="dBalModal" class="hidden"><div class="fsc" id="dbX"></div><div class="fss"><h3 id="dbTit">Editar balão</h3>
+<label class="dblb" for="dbNome">Nome do balão</label><input id="dbNome" maxlength="24" placeholder="Ex.: Banana" autocomplete="off">
+<label class="dblb">Tipos (o que aparece ao tocar)</label><div id="dbTipos"></div>
+<input id="dbBusca" type="search" placeholder="Buscar produto para adicionar" autocomplete="off"><div id="dbSug"></div>
+<div class="dbrow"><button type="button" id="dbSalvar">Salvar</button><button type="button" id="dbExcluir">Excluir balão</button></div></div></div>
 <div id="dFinSheet" class="hidden"><div class="fsc" id="dFinX"></div><div class="fss"><h3>Finalizar doação</h3><div id="dFinBody"></div><button type="button" id="dFinOk">✔ Confirmar doação</button><button type="button" id="dFinLimpar">Limpar lista</button><small>A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio vai para o histórico.</small></div></div>
 </div>
 <div id="donaRomaneio" class="hidden"><section class="panel"><div id="romHead"></div><div id="romBody"></div>
@@ -1702,23 +1727,49 @@ function dTop6Render(){ const box=$("dTop6"); if(!box) return; let rank=[]; try{
   if(!rank.length) rank=shortcuts.map(x=>({n:x.n,c:x.c,u:x.u,d:0,q:0}));
   // agrupa por família (primeira palavra): Banana → nanica, prata…
   const fams=new Map(); rank.forEach(o=>{ const k=dFamKey(o.n); if(!k) return; if(!fams.has(k)) fams.set(k,{k,w:dBase(o.n).split(/\s+/)[0],v:new Map()}); const f=fams.get(k), nk=norm(dBase(o.n)); if(!f.v.has(nk)) f.v.set(nk,{n:o.n,c:o.c,u:o.u,d:o.d}); });
-  const top=[...fams.values()].slice(0,6);
+  let top=[...fams.values()].slice(0,6);
   top.forEach(f=>{ let cat=""; try{ const p0=products.find(p=>norm(dBase(p.name))===[...f.v.keys()][0]); cat=p0&&p0.category||""; }catch(e){}
     try{ products.forEach(p=>{ if(!p||!p.name||dFamKey(p.name)!==f.k) return; if(cat&&p.category&&p.category!==cat) return; const nk=norm(dBase(p.name)); if(f.v.has(nk)) return; if(f.v.size>=8) return; f.v.set(nk,{n:p.name,c:p.codigo_doacao||"",u:unitOf(p.name),d:-1}); }); }catch(e){}
     f.list=[...f.v.values()].sort((a,b)=>b.d-a.d||a.n.localeCompare(b.n,"pt-BR")); });
-  box.classList.toggle("vazio",!top.length); box._f=top; const op=box._open;
+  box._auto=top; const cfg=dBalCfg(); if(cfg) top=cfg.map(c=>({k:norm(c.w),w:c.w,list:c.v.map(o=>({n:o.n,c:o.c||"",u:o.u||"kg",d:0}))}));
+  const ed=!!window.dEditBal; box.classList.toggle("vazio",!top.length&&!ed); box._f=top; const op=ed?-1:box._open;
+  $("dBalEdit").textContent=ed?"✔ Concluir":"✎ Editar"; $("dBalEdit").hidden=(op>=0); $("dBalAuto").hidden=!(ed&&cfg);
   if(op!=null&&op>=0&&top[op]){ const f=top[op];
-    $("dTop6").querySelector(".dt6h").textContent="⭐ "+dTitle(f.w).toUpperCase()+" — QUAL?";
+    $("dT6L").textContent="⭐ "+dTitle(f.w).toUpperCase()+" — QUAL?";
     $("dT6").classList.add("var");
-    $("dT6").innerHTML=f.list.map((o,i)=>{ const rest=dBase(o.n).split(/\s+/).slice(1).join(" "); return `<button type="button" data-tv="${i}">${esc(rest?dTitle(rest.split(" ")[0])+(rest.includes(" ")?" "+rest.split(" ").slice(1).join(" ").toLowerCase():""):"Comum")}<small>${o.u}</small></button>`; }).join("")+`<button type="button" class="dback" data-tback="1">← voltar</button>`;
-  } else { box._open=-1; $("dTop6").querySelector(".dt6h").textContent="⭐ MAIS DOADOS"; $("dT6").classList.remove("var");
-    $("dT6").innerHTML=top.map((f,i)=>`<button type="button" data-t6="${i}">${esc(dTitle(f.w))}<small>${f.list.length>1?f.list.length+" tipos ›":f.list[0].u}</small></button>`).join(""); } }
+    $("dT6").innerHTML=f.list.map((o,i)=>{ const same=dFamKey(o.n)===f.k, rest=(same?dBase(o.n).split(/\s+/).slice(1).join(" "):dBase(o.n)); return `<button type="button" data-tv="${i}">${esc(rest?dTitle(rest.split(" ")[0])+(rest.includes(" ")?" "+rest.split(" ").slice(1).join(" ").toLowerCase():""):"Comum")}<small>${o.u}</small></button>`; }).join("")+`<button type="button" class="dback" data-tback="1">← voltar</button>`;
+  } else { box._open=-1; $("dT6L").textContent=ed?"✎ TOQUE NUM BALÃO PARA EDITAR":(cfg?"⭐ MEUS BALÕES":"⭐ MAIS DOADOS"); $("dT6").classList.remove("var");
+    $("dT6").innerHTML=top.map((f,i)=>`<button type="button" class="${ed?"ed":""}" data-t6="${i}">${esc(dTitle(f.w))}<small>${f.list.length>1?f.list.length+" tipos"+(ed?"":" ›"):(f.list[0]?f.list[0].u:"")}</small></button>`).join("")+(ed&&top.length<9?'<button type="button" class="dnew" data-tnew="1">＋ Novo</button>':""); } }
 function dPickVar(o){ const box=$("dTop6"); box._open=-1; buzz(); const p=products.find(x=>norm(dBase(x.name))===norm(dBase(o.n)))||prodFor(o.n); selectProd(p?p.name:o.n,o.c||"",o.u); }
 $("dT6").onclick=e=>{ const box=$("dTop6"), f=box._f||[];
+  if(window.dEditBal){ if(e.target.closest("[data-tnew]")) return dBalOpen(-1); const b=e.target.closest("[data-t6]"); if(b) dBalOpen(Number(b.dataset.t6)); return; }
   if(e.target.closest("[data-tback]")){ box._open=-1; dTop6Render(); return; }
   const v=e.target.closest("[data-tv]"); if(v){ const o=(f[box._open]||{list:[]}).list[Number(v.dataset.tv)]; if(o) dPickVar(o); return; }
   const b=e.target.closest("[data-t6]"); if(!b) return; const fam=f[Number(b.dataset.t6)]; if(!fam) return;
   if(fam.list.length>1){ buzz(); box._open=Number(b.dataset.t6); dTop6Render(); } else dPickVar(fam.list[0]); };
+function dBalCfg(){ const v=store.get("validamais-dbal",null); return Array.isArray(v)&&v.length?v:null; }
+function dBalEnsure(){ let c=dBalCfg(); if(c) return c; const a=$("dTop6")._auto||[]; c=a.map(f=>({w:dTitle(f.w),v:f.list.map(o=>({n:o.n,c:o.c||"",u:o.u||"kg"}))})); store.set("validamais-dbal",c); return c; }
+let dbIdx=-1, dbDraft=null;
+function dBalOpen(i){ const c=dBalEnsure(); dbIdx=i; dbDraft=i>=0?JSON.parse(JSON.stringify(c[i])):{w:"",v:[]};
+  $("dbTit").textContent=i>=0?"Editar balão":"Novo balão"; $("dbNome").value=dbDraft.w; $("dbBusca").value=""; $("dbSug").innerHTML=""; $("dbExcluir").style.display=i>=0?"":"none"; dbRender(); $("dBalModal").classList.remove("hidden"); }
+function dbRender(){ $("dbTipos").innerHTML=dbDraft.v.length?dbDraft.v.map((o,x)=>`<span class="ch">${esc(dBase(o.n))}<button type="button" data-dx="${x}" aria-label="Remover">✕</button></span>`).join(""):'<small style="color:var(--mut)">Nenhum tipo ainda. Busque abaixo para adicionar.</small>'; }
+function dbSug(){ const q=norm($("dbBusca").value.trim()); if(!q){ $("dbSug").innerHTML=""; return; } const seen=new Set(), out=[];
+  for(const p of products){ if(!p||!p.name) continue; const nk=norm(dBase(p.name)); if(seen.has(nk)||!nk.includes(q)) continue; if(dbDraft.v.some(o=>norm(dBase(o.n))===nk)) continue; seen.add(nk); out.push(p); if(out.length>=6) break; }
+  $("dbSug").innerHTML=out.map((p,x)=>`<button type="button" data-sx="${esc(p.name)}">${esc(dBase(p.name))}</button>`).join("")+`<button type="button" data-sfree="1">＋ Adicionar "${esc($("dbBusca").value.trim())}"</button>`; }
+$("dbBusca").oninput=dbSug;
+$("dbSug").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; let n;
+  if(b.dataset.sx) n=b.dataset.sx; else if(b.dataset.sfree) n=$("dbBusca").value.trim().toUpperCase(); if(!n) return;
+  const p=products.find(x=>x.name===n); dbDraft.v.push({n,c:(p&&p.codigo_doacao)||"",u:unitOf(n)});
+  if(!$("dbNome").value.trim()) $("dbNome").value=dTitle(dBase(n).split(/\s+/)[0]);
+  $("dbBusca").value=""; $("dbSug").innerHTML=""; dbRender(); };
+$("dbTipos").onclick=e=>{ const b=e.target.closest("[data-dx]"); if(!b) return; dbDraft.v.splice(Number(b.dataset.dx),1); dbRender(); };
+function dbClose(){ $("dBalModal").classList.add("hidden"); }
+$("dbX").onclick=dbClose;
+$("dbSalvar").onclick=()=>{ const w=$("dbNome").value.trim().slice(0,24); if(!w) return toast("Dê um nome ao balão."); if(!dbDraft.v.length) return toast("Adicione pelo menos um tipo."); dbDraft.w=w;
+  const c=dBalEnsure(); if(dbIdx>=0) c[dbIdx]=dbDraft; else c.push(dbDraft); store.set("validamais-dbal",c.slice(0,9)); dbClose(); dTop6Render(); };
+$("dbExcluir").onclick=()=>{ const c=dBalEnsure(); if(dbIdx<0) return; const rem=c.splice(dbIdx,1)[0]; store.set("validamais-dbal",c.length?c:null); dbClose(); dTop6Render(); toast(`Balão "${rem.w}" excluído.`); };
+$("dBalEdit").onclick=()=>{ window.dEditBal=!window.dEditBal; $("dTop6")._open=-1; dTop6Render(); };
+$("dBalAuto").onclick=()=>{ if(!confirm("Voltar aos balões automáticos? Os seus balões serão apagados.")) return; store.set("validamais-dbal",null); dTop6Render(); };
 function dRepRender(){ const b=$("dRep"); if(!b) return; const L=(don.itens.find(i=>i.key===window.dLastKey))||don.itens[don.itens.length-1];
   if(!L){ b.hidden=true; return; } b.hidden=false; b._i=L; b.textContent="＋ mais "+L.nome.replace(/\s+(kg|un)$/i,""); }
 $("dRep").onclick=()=>{ const L=$("dRep")._i; if(!L) return; buzz(); const p=prodFor(L.nome); selectProd(p?p.name:L.nome,L.cod||"",L.unidade); };
@@ -2330,7 +2381,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-85";
+const APP_VERSION = "2026.10.10-86";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
