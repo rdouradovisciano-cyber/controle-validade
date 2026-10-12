@@ -152,6 +152,7 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .toast{position:fixed;left:12px;right:12px;bottom:calc(92px + env(safe-area-inset-bottom));max-width:520px;margin:auto;background:#14201a;color:#fff;
   padding:12px 14px;border-radius:14px;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600;font-size:14px;
   box-shadow:0 10px 28px rgba(0,0,0,.3);animation:vm-rise .2s ease}
+.toast.toast-top{top:calc(var(--top-h,108px) + 8px + env(safe-area-inset-top))!important;bottom:auto!important;pointer-events:none;padding:8px 14px;font-size:13px}
 .toast button{background:#dcf3e4;color:var(--g-d);min-height:36px;padding:6px 14px;border-radius:10px}
 
 /* ===== grades e teclados ===== */
@@ -1189,10 +1190,10 @@ const when = d => d === null ? "Sem validade" : d < 0 ? `Vencido há ${-d} dia${
 const fmt = e => daysLeft(e) === null ? "Sem validade" : new Date(e + "T00:00:00").toLocaleDateString("pt-BR");
 const stLabel = p => daysLeft(p.expiry) === null ? "Sem validade" : ({ expired: "Vencido", soon: "A vencer", ok: "No prazo" })[status(p)];
 
-function toast(msg, action, fn) {
-  const t = $("toast"); t.textContent = msg + " ";
+function toast(msg, action, fn, o) {   // o = { top: true, ms: 1800 } -> aviso discreto no topo, que não cobre os botões e some rápido
+  const t = $("toast"); t.textContent = msg + " "; t.classList.toggle("toast-top", !!(o && o.top));
   if (action) { const b = document.createElement("button"); b.textContent = action; b.onclick = () => { fn(); t.classList.add("hidden"); }; t.append(b); }
-  t.classList.remove("hidden"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add("hidden"), 6000);
+  t.classList.remove("hidden"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add("hidden"), (o && o.ms) || 6000);
 }
 const persist = () => { if (!db) store.set(LK, products); };
 
@@ -2191,7 +2192,7 @@ $("dEditOk").onclick = dEditSave;
 document.addEventListener("pointerdown", e => { if (dEditing >= 0 && !e.target.closest(".dq, #np")) { dEditing = -1; renderDon(); } }, true);
 $("dLista").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("[data-edit]")) { e.preventDefault(); dEditOpen(e.target); } });
 $("dLista").onclick = e => { const q = e.target.closest("[data-edit]"); if (q) return dEditOpen(q); const b = e.target.closest("[data-drop]"); if (!b) return; const x = Number(b.dataset.drop), it = don.itens.splice(x, 1)[0];
-  store.set(DK, don); renderDon(); toast(`${it.nome} removido.`); };
+  store.set(DK, don); renderDon(); toast(`${it.nome} removido.`, null, null, { top: true, ms: 1800 }); };
 $("dLimpar").onclick = () => { if (don.itens.length && confirm("Apagar toda a lista da doação atual?")) { don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); } };
 // romaneio
 function romTop(d) {    // top 3 dos 30 dias até a data desta doação (inclui ela mesma); por peso (kg), senão por quantidade
@@ -2642,7 +2643,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.12-115";
+const APP_VERSION = "2026.10.12-116";
 $("appVer").textContent = "v" + APP_VERSION.split("-").pop();
 $("rodVer").textContent = "VERSÃO " + APP_VERSION;
 $("rodOn").onclick = () => $("onChip").click();
