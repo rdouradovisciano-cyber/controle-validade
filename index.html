@@ -441,6 +441,7 @@ body.np-open .toast{bottom:auto;top:calc(var(--top-h) + 8px + env(safe-area-inse
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
+#dRep{display:none!important}
 /* ===== tara da caixa (Doação) ===== */
 .tararow{display:flex;align-items:center;gap:6px;margin:0 0 8px;flex-wrap:wrap}
 .nowbar.vazio .tararow{display:none}
@@ -1833,7 +1834,7 @@ $("dbExcluir").onclick=()=>{ const c=dBalEnsure(); if(dbIdx<0) return; const rem
 $("dBalCol").onclick=()=>{ store.set("validamais-dcol",!store.get("validamais-dcol",false)); dTop6Render(); };
 $("dBalEdit").onclick=()=>{ window.dEditBal=!window.dEditBal; $("dTop6")._open=-1; dTop6Render(); };
 $("dBalAuto").onclick=()=>{ if(!confirm("Voltar aos balões automáticos? Os seus balões serão apagados.")) return; store.set("validamais-dbal",null); dTop6Render(); };
-function dRepRender(){ const b=$("dRep"); if(!b) return; const L=(don.itens.find(i=>i.key===window.dLastKey))||don.itens[don.itens.length-1];
+function dRepRender(){ const b=$("dRep"); if(!b) return; b.hidden=true; return; const L=(don.itens.find(i=>i.key===window.dLastKey))||don.itens[don.itens.length-1];
   if(!L){ b.hidden=true; return; } b.hidden=false; b._i=L; b.textContent="＋ mais "+L.nome.replace(/\s+(kg|un)$/i,""); }
 $("dRep").onclick=()=>{ const L=$("dRep")._i; if(!L) return; buzz(); const p=prodFor(L.nome); selectProd(p?p.name:L.nome,L.cod||"",L.unidade); };
 function dFinOpen(){ if(!don.itens.length) return toast("Nada lançado ainda."); const nomes=[...don.itens].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR")).map(i=>esc(i.nome.replace(/\s+(kg|un)$/i,""))).join(" · ");
@@ -2490,7 +2491,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.12-102";
+const APP_VERSION = "2026.10.12-103";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
