@@ -465,6 +465,8 @@ html[data-tema=dark] #dLiq.bad{color:#ff9a9a}
   70%{color:#c2410c;text-shadow:0 0 6px rgba(227,43,0,.5)}
   100%{opacity:1;transform:none;text-shadow:0 0 0 rgba(255,120,0,0)}
 }
+.bnum{display:inline-block;position:relative;z-index:3;transform-origin:100% 60%;animation:dnum 2.1s ease-out both}
+@keyframes dnum{0%{transform:scale(2.7)}55%{transform:scale(2.4)}100%{transform:none}}
 .dn b.burn{display:inline-block;position:relative}
 .dn b.burn::after{content:"";position:absolute;top:-3px;bottom:-3px;left:-14px;width:28px;pointer-events:none;border-radius:10px;
   background:radial-gradient(closest-side,rgba(255,247,200,.95),rgba(255,138,31,.7) 45%,rgba(255,60,0,0));
@@ -1790,7 +1792,7 @@ function renderDon() {
   if (typeof dTop6Render === "function") dTop6Render();
   if (typeof dRepRender === "function") dRepRender();
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dKg").parentElement.style.display = sumU("kg") > 0 ? "" : "none"; $("dUn").parentElement.style.display = sumU("un") > 0 ? "" : "none"; $("dItens").textContent = don.itens.length;
-  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b${window.dBurn===i.key?` class="burn" style="--n:${[...i.nome].length}"`:""}>${window.dBurn===i.key?burnTxt(i.nome,350):esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)${(i.cx || i.sem) ? `<span class="dtara">${i.cx ? i.cx + " com TARA" : ""}${i.cx && i.sem ? " · " : ""}${i.sem ? i.sem + " sem TARA" : ""}</span>` : ""}</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${window.dBurn===i.key?burnTxt(fq(i.qtd),350+[...i.nome].length*38+80):fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Toque num produto abaixo para começar.</p>';
+  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b${window.dBurn===i.key?` class="burn" style="--n:${[...i.nome].length}"`:""}>${window.dBurn===i.key?burnTxt(i.nome,350):esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)${(i.cx || i.sem) ? `<span class="dtara">${i.cx ? i.cx + " com TARA" : ""}${i.cx && i.sem ? " · " : ""}${i.sem ? i.sem + " sem TARA" : ""}</span>` : ""}</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${window.dBurn===i.key?`<span class="bnum" style="animation-delay:${350+[...i.nome].length*38+80}ms">${burnTxt(fq(i.qtd),350+[...i.nome].length*38+80)}</span>`:fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Toque num produto abaixo para começar.</p>';
   window.dBurn = ""; renderKey();
 }
 const dBase = n => String(n || "").replace(/\s+(kg|un)$/i, "").trim();
@@ -2560,7 +2562,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.12-107";
+const APP_VERSION = "2026.10.12-108";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
