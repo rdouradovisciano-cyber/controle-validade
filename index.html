@@ -152,7 +152,6 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .toast{position:fixed;left:12px;right:12px;bottom:calc(92px + env(safe-area-inset-bottom));max-width:520px;margin:auto;background:#14201a;color:#fff;
   padding:12px 14px;border-radius:14px;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600;font-size:14px;
   box-shadow:0 10px 28px rgba(0,0,0,.3);animation:vm-rise .2s ease}
-.toast.toast-top{top:calc(var(--top-h,108px) + 8px + env(safe-area-inset-top))!important;bottom:auto!important;pointer-events:none;padding:8px 14px;font-size:13px}
 .toast button{background:#dcf3e4;color:var(--g-d);min-height:36px;padding:6px 14px;border-radius:10px}
 
 /* ===== grades e teclados ===== */
@@ -1010,8 +1009,11 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div class="toolbar" style="margin-top:10px"><button class="secondary" id="csvBtn">Excel (.csv)</button><button class="secondary" id="pdfBtn">Gerar PDF</button><button class="primary" id="shareBtn">Compartilhar</button></div>
 <small class="note">O compartilhamento usa a janela nativa do celular quando disponível; se não houver, o PDF é baixado.</small></section>
 <button class="secondary" id="installBtn" hidden style="width:100%;margin-top:10px">Instalar app</button></aside>
+<div id="ehModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="ehTitle"><div class="sheethead"><h2 id="ehTitle">Histórico de etiquetas</h2><button class="secondary" id="ehClose" aria-label="Fechar">✕</button></div>
+<p class="note">Cada vez que você usa <b>Remover todos (já imprimi)</b>, a lista fica guardada aqui por <b>3 dias</b>, com data e quem imprimiu.</p>
+<div id="ehList" class="rows"></div></section></div>
 <div id="phModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="phTitle"><div class="sheethead"><h2 id="phTitle">Histórico de produtos</h2><button class="secondary" id="phClose" aria-label="Fechar">✕</button></div>
-<p class="note">Tudo que entra, muda ou sai da lista, com data e quem fez. Se algo sumiu, toque em <b>Restaurar</b>. Este histórico vale para este aparelho: ele registra o que ele viu acontecer.</p>
+<p class="note">Tudo que entra, muda ou sai da lista, com data e quem fez. Se algo sumiu, toque em <b>Restaurar</b>. Este histórico vale para este aparelho e guarda só os <b>últimos 3 dias</b>.</p>
 <input id="phBusca" type="search" placeholder="Buscar produto no histórico" autocomplete="off"><div id="phList" class="rows"></div></section></div>
 <div id="impModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="impTitle"><div class="sheethead"><h2 id="impTitle">Importar lista de produtos</h2><button class="secondary" id="impClose" aria-label="Fechar">✕</button></div>
 <p class="note">Uma linha por produto. Separe as colunas com <b>;</b> (ponto e vírgula), tabulação (ao colar do Excel) ou <b>|</b>. Ordem: <b>nome; código de balança; código de doação; EAN; categoria</b>. Só o nome é obrigatório. Quem já existe (pelo EAN ou pelo nome) é atualizado; os novos entram como FLV, sem validade, se você não informar a categoria.</p>
@@ -1019,7 +1021,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div class="toolbar" style="margin-top:8px"><button class="secondary" id="impFileBtn">📎 Escolher arquivo</button><button class="secondary" id="impModel">Baixar modelo</button></div><input type="file" id="impFile" accept=".csv,.txt,.tsv,text/plain,text/csv" hidden>
 <div class="toolbar" style="margin-top:8px"><button class="secondary" id="impLimpa">🗑️ Limpar texto</button></div>
 <div class="toolbar" style="margin-top:10px"><button class="secondary big" id="impCheck">Conferir lista</button><button class="primary big" id="impGo" disabled>Cadastrar</button></div><div id="impPrev" class="rows"></div></section></div>
-<div id="moreBg" class="morebg hidden"></div><div id="moreMenu" class="moremenu hidden" role="menu" aria-label="Mais opções"><button type="button" role="menuitem" id="mnCad">🗂️<span>Cadastros</span></button><button type="button" role="menuitem" id="mnInv">📦<span>Inventário</span></button><button type="button" role="menuitem" id="mnDoaAnt">🧾<span>Doações anteriores</span></button><button type="button" role="menuitem" id="mnHist">📜<span>Histórico</span></button><button type="button" role="menuitem" id="mnBkp">💾<span>Fazer backup</span></button><button type="button" role="menuitem" id="mnRest">♻️<span>Restaurar backup</span></button><button type="button" role="menuitem" id="mnInstall">📲<span>Instalar app</span></button><button type="button" role="menuitem" id="mnSair" hidden>🔒<span>Sair (pedir senha de novo)</span></button></div>
+<div id="moreBg" class="morebg hidden"></div><div id="moreMenu" class="moremenu hidden" role="menu" aria-label="Mais opções"><button type="button" role="menuitem" id="mnCad">🗂️<span>Cadastros</span></button><button type="button" role="menuitem" id="mnInv">📦<span>Inventário</span></button><button type="button" role="menuitem" id="mnDoaAnt">🧾<span>Doações anteriores</span></button><button type="button" role="menuitem" id="mnEtqHist">🏷️<span>Histórico de etiquetas</span></button><button type="button" role="menuitem" id="mnHist">📜<span>Histórico de produtos</span></button><button type="button" role="menuitem" id="mnBkp">💾<span>Fazer backup</span></button><button type="button" role="menuitem" id="mnRest">♻️<span>Restaurar backup</span></button><button type="button" role="menuitem" id="mnInstall">📲<span>Instalar app</span></button><button type="button" role="menuitem" id="mnSair" hidden>🔒<span>Sair (pedir senha de novo)</span></button></div>
 <div class="fabwrap" id="fabWrap"><div class="fabrow"><button class="fabscan" id="fab" aria-label="Bipar código de barras">▦ BIPAR</button></div></div>
 <div id="qModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="qTitle"><div class="sheethead"><h2 id="qTitle">Atalho</h2><button class="secondary" id="qClose" aria-label="Fechar">✕</button></div>
 <label for="qNome">Nome do produto</label><input id="qNome" maxlength="40" autocomplete="off" placeholder="Ex.: Chuchu">
@@ -1190,10 +1192,10 @@ const when = d => d === null ? "Sem validade" : d < 0 ? `Vencido há ${-d} dia${
 const fmt = e => daysLeft(e) === null ? "Sem validade" : new Date(e + "T00:00:00").toLocaleDateString("pt-BR");
 const stLabel = p => daysLeft(p.expiry) === null ? "Sem validade" : ({ expired: "Vencido", soon: "A vencer", ok: "No prazo" })[status(p)];
 
-function toast(msg, action, fn, o) {   // o = { top: true, ms: 1800 } -> aviso discreto no topo, que não cobre os botões e some rápido
-  const t = $("toast"); t.textContent = msg + " "; t.classList.toggle("toast-top", !!(o && o.top));
+function toast(msg, action, fn) {
+  const t = $("toast"); t.textContent = msg + " ";
   if (action) { const b = document.createElement("button"); b.textContent = action; b.onclick = () => { fn(); t.classList.add("hidden"); }; t.append(b); }
-  t.classList.remove("hidden"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add("hidden"), (o && o.ms) || 6000);
+  t.classList.remove("hidden"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add("hidden"), 6000);
 }
 const persist = () => { if (!db) store.set(LK, products); };
 
@@ -1209,7 +1211,8 @@ function sirene() {   // aba Validades pisca vermelho/azul só quando há produt
 setInterval(() => { if (typeof sirene === "function") sirene(); }, 60000);
 // ---------- histórico de produtos (o que entrou, mudou ou saiu — e quem) ----------
 const PHK = "validamais-phbase", PLK = "validamais-phlog", PHF = ["name", "expiry", "quantity", "category", "barcode", "codigo_balanca", "codigo_doacao", "retirado"];
-let phBase = store.get(PHK, null), phLog = store.get(PLK, []), lastAct = 0;
+const HIST_MS = 3 * 864e5;   // históricos (produtos e etiquetas) guardam no máximo 3 dias
+let phBase = store.get(PHK, null), phLog = (store.get(PLK, []) || []).filter(e => Date.now() - (e.t || 0) < HIST_MS), lastAct = 0;
 ["pointerdown", "keydown"].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); }, true));
 const phLite = p => { const r = {}; Object.keys(p).forEach(k => { if (k === "foto" || k === "createdAt" || k === "updatedAt") return; r[k] = p[k]; }); return r; };
 function phDiff() {
@@ -1224,6 +1227,7 @@ function phDiff() {
   if (add.length) ev.push({ t, who, k: "add", n: add.length, it: add.slice(0, 40).map(i => ({ n: cur[i].name, d: cur[i].expiry ? "validade " + fmt(cur[i].expiry) : "" })) });
   if (del.length) ev.push({ t, who, k: "del", n: del.length, it: del.slice(0, 300).map(i => phBase[i]) });
   if (chg.length) ev.push({ t, who, k: "chg", n: chg.length, it: chg.slice(0, 40) });
+  phLog = phLog.filter(e => Date.now() - (e.t || 0) < HIST_MS); store.set(PLK, phLog);
   if (ev.length) { phLog = ev.concat(phLog).slice(0, 300); while (phLog.length > 1 && JSON.stringify(phLog).length > 900000) phLog.pop(); store.set(PLK, phLog); phBase = cur; store.set(PHK, cur); if (!$("phModal").classList.contains("hidden")) phDraw(); }
 }
 const phWhen = t => new Date(t).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
@@ -1236,7 +1240,7 @@ function phDraw() {
     return `<div class="phe ${e.k}"><b>${tit}</b><small class="muted">${phWhen(e.t)} · ${esc(e.who)}</small>${lines}${e.k === "del" ? (e.rest ? '<small class="muted">✓ já restaurado</small>' : `<button type="button" class="secondary" data-phr="${i}">↩ Restaurar ${e.it.length > 1 ? "estes " + e.it.length : "este"}</button>`) : ""}</div>`;
   }).join("") : '<p class="muted">Nada registrado ainda. A partir de agora, o que entrar, mudar ou sair aparece aqui.</p>';
 }
-window.phOpen = () => { $("phBusca").value = ""; phDraw(); $("phModal").classList.remove("hidden"); };
+window.phOpen = () => { phLog = phLog.filter(e => Date.now() - (e.t || 0) < HIST_MS); store.set(PLK, phLog); $("phBusca").value = ""; phDraw(); $("phModal").classList.remove("hidden"); };
 async function phRestore(i) {
   const e = phLog[i]; if (!e || e.rest) return;
   const ok = await askConfirm({ icon: "↩", title: "Restaurar produtos?", text: e.it.length + " produto(s)", sub: "Eles voltam para a lista com os dados de antes (a foto não é recuperada).", ok: "Restaurar", cancel: "Cancelar" });
@@ -2192,7 +2196,7 @@ $("dEditOk").onclick = dEditSave;
 document.addEventListener("pointerdown", e => { if (dEditing >= 0 && !e.target.closest(".dq, #np")) { dEditing = -1; renderDon(); } }, true);
 $("dLista").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("[data-edit]")) { e.preventDefault(); dEditOpen(e.target); } });
 $("dLista").onclick = e => { const q = e.target.closest("[data-edit]"); if (q) return dEditOpen(q); const b = e.target.closest("[data-drop]"); if (!b) return; const x = Number(b.dataset.drop), it = don.itens.splice(x, 1)[0];
-  store.set(DK, don); renderDon(); toast(`${it.nome} removido.`, null, null, { top: true, ms: 1800 }); };
+  store.set(DK, don); renderDon(); toast(`${it.nome} removido.`); };
 $("dLimpar").onclick = () => { if (don.itens.length && confirm("Apagar toda a lista da doação atual?")) { don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); } };
 // romaneio
 function romTop(d) {    // top 3 dos 30 dias até a data desta doação (inclui ela mesma); por peso (kg), senão por quantidade
@@ -2449,9 +2453,25 @@ async function labelScan(code) {
   labelPick(p);
 }
 $("eScan").onclick = () => openScan("etiqueta");
+
+// ---------- histórico de etiquetas já impressas (3 dias) ----------
+const EHK = "validamais-etqhist";
+const ehLoad = () => (store.get(EHK, []) || []).filter(e => Date.now() - (e.t || 0) < HIST_MS);
+function ehAdd(lista) {
+  if (!lista.length) return;
+  const log = ehLoad(); log.unshift({ t: Date.now(), por: myName(), n: lista.length, q: lista.reduce((s, l) => s + (Number(l.qtd) || 0), 0), it: lista.slice(0, 300).map(l => ({ n: l.nome, c: l.code || "", tam: l.tam || "M", q: Number(l.qtd) || 0, ok: !!l.ok })) });
+  store.set(EHK, log.slice(0, 60));
+}
+function ehDraw() {
+  const log = ehLoad(); store.set(EHK, log);
+  $("ehList").innerHTML = log.length ? log.map(e => `<div class="phe add"><b>🏷️ ${e.n} produto(s) · ${e.q} etiqueta(s)</b><small class="muted">${phWhen(e.t)} · ${esc(e.por || "")}</small>${e.it.slice(0, 40).map(x => `<div>• ${esc(x.n)} <small class="muted">${x.q}× ${esc(x.tam)}${x.c ? " · " + esc(x.c) : ""}${x.ok ? " · ✓ colocada" : ""}</small></div>`).join("")}${e.n > 40 ? `<div class="muted">… e mais ${e.n - 40}</div>` : ""}</div>`).join("") : '<p class="muted">Nada guardado. Ao usar «Remover todos (já imprimi)» na aba Etiquetas, a lista aparece aqui por 3 dias.</p>';
+}
+window.ehOpen = () => { ehDraw(); $("ehModal").classList.remove("hidden"); };
+$("ehClose").onclick = () => $("ehModal").classList.add("hidden");
+store.set(EHK, ehLoad());
 $("eLimpa").onclick = async () => { if (!labels.length) return;
   const ok = await askConfirm({ icon: "🗑", title: "Remover todas as etiquetas?", text: labels.length + " produtos · " + labels.reduce((t, l) => t + (Number(l.qtd) || 0), 0) + " etiquetas", sub: (labels.filter(l => l.ok).length ? labels.filter(l => l.ok).length + " já marcadas. " : "") + "Use depois de imprimir. A lista ficará vazia.", ok: "Remover todos", cancel: "Cancelar" });
-  if (!ok) return; labels = []; store.set(EK, labels); pend = null; renderLabels(); toast("Lista de etiquetas limpa."); };
+  if (!ok) return; ehAdd(labels); labels = []; store.set(EK, labels); pend = null; renderLabels(); toast("Lista de etiquetas limpa e guardada no histórico (3 dias)."); };
 $("eBusca").oninput = () => { const q = norm($("eBusca").value); if (q.length < 2) { $("eRes").innerHTML = ""; return; }
   const seen = new Set();
   eHits = products.filter(p => norm(p.name || "").includes(q) || (p.barcode || "").includes(q)).filter(p => { const k = p.barcode || p.codigo_balanca || norm(p.name); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 8);
@@ -2644,6 +2664,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
 const APP_VERSION = "2026.10.12-116";
+window.vmVersion = APP_VERSION;
 $("appVer").textContent = "v" + APP_VERSION.split("-").pop();
 $("rodVer").textContent = "VERSÃO " + APP_VERSION;
 $("rodOn").onclick = () => $("onChip").click();
@@ -2726,12 +2747,12 @@ $("rodOn").onclick = () => $("onChip").click();
 })();
 (function () {
   let shown = false;
-  function banner(nova) {
+  function banner(nova, nota) {
     if (shown) return; shown = true;
     const b = document.createElement("div");
     b.setAttribute("role", "alert");
     b.style.cssText = "position:fixed;left:12px;right:12px;top:12px;z-index:99999;background:#166534;color:#fff;border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.45);font:600 15px system-ui,sans-serif";
-    b.innerHTML = `<span style="flex:1">Nova versão disponível${nova ? " (v" + esc(nova) + ")" : ""}</span><button style="background:#fff;color:#166534;border:0;border-radius:10px;padding:9px 14px;font-weight:800;font-size:15px">Atualizar</button>`;
+    b.innerHTML = `<span style="flex:1">Nova versão disponível${nova ? " (v" + esc(nova.split("-").pop()) + ")" : ""}${nota ? `<small style="display:block;font-weight:500;font-size:13px;opacity:.92;margin-top:3px;line-height:1.3">${esc(nota)}</small>` : ""}</span><button style="background:#fff;color:#166534;border:0;border-radius:10px;padding:9px 14px;font-weight:800;font-size:15px">Atualizar</button>`;
     b.querySelector("button").onclick = async () => {
       b.firstChild.textContent = "Atualizando…";
       try { const rs = await navigator.serviceWorker.getRegistrations(); await Promise.all(rs.map(r => r.unregister())); } catch (e) {}
@@ -2744,7 +2765,11 @@ $("rodOn").onclick = () => $("onChip").click();
     try {
       const t = await (await fetch("./index.html?chk=" + Date.now(), { cache: "no-store" })).text();
       const m = t.match(/const APP_VERSION = "([^"]+)"/);
-      if (m && m[1] !== APP_VERSION) banner(m[1]);
+      if (m && m[1] !== APP_VERSION) {
+        let nota = ""; const n = t.match(/var UPDATES=\[\{t:"[^"]*",itens:\["((?:[^"\\]|\\.)*)"/);
+        if (n) { try { nota = JSON.parse('"' + n[1] + '"'); } catch (e) { nota = n[1]; } }
+        banner(m[1], nota);
+      }
     } catch (e) {}
   }
   window.addEventListener("load", () => setTimeout(check, 1500));
@@ -2771,7 +2796,7 @@ if(n<0||n>=T.length)return;g("nav"+T[n]).click();window.scrollTo(0,0)},{passive:
 <script>/* operador, acessos e atualizações */(function(){
 var g=function(i){return document.getElementById(i)},OPK="validamais-operador",ACK="validamais-acessos",FIRSTK="validamais-primeiro-acesso";
 // >>> Para registrar uma nova atualização, acrescente um item NO TOPO desta lista <<<
-var UPDATES=[{t:"2026-10-12T05:00:00-03:00",itens:["Doação: tirada a legenda «Bipar» da bolinha (fica só o desenho do ícone)"]},{t:"2026-10-12T04:45:00-03:00",itens:["«Doações anteriores» saiu da tela de Doação e foi para o menu dos três pontinhos"]},{t:"2026-10-12T04:30:00-03:00",itens:["Doação: o botão Bipar agora usa o desenho do ícone do app (leitor de código de barras com laser e check)"]},{t:"2026-10-12T04:15:00-03:00",itens:["Doação: Buscar e Bipar viraram bolinhas no canto direito; o online ficou discreto no rodapé e só a versão aparece no topo"]},{t:"2026-10-12T04:00:00-03:00",itens:["O «online» saiu do topo e foi para o rodapé, junto com a versão completa; o topo mostra o número da versão (ex.: v111)"]},{t:"2026-10-12T03:45:00-03:00",itens:["Doação: novo efeito ao lançar (a linha entra com mola e brilho, o número sobe e a fruta «explode» em volta) e o último item lançado fica com o número maior"]},{t:"2026-10-12T03:30:00-03:00",itens:["Doação: removido o desconto da TARA do resumo ao finalizar"]},{t:"2026-10-08T11:30:00-03:00",itens:["Inventário em tempo real: o que cada pessoa lança ou conclui aparece na hora em todos os aparelhos, com o nome de quem contou"]},{t:"2026-10-08T09:50:00-03:00",itens:["Inventário: busca na tela inicial para lançar direto num produto (abre na banca certa) e nome do produto em destaque com códigos menores"]},{t:"2026-10-08T09:30:00-03:00",itens:["Inventário: produtos concluídos vão para o fim da lista em tom mais escuro e continuam editáveis (acrescentar ou remover lançamentos)"]},{t:"2026-10-08T05:40:00-03:00",itens:["Inventário: botão Começar agora é deslizante, com vibração e menor; cores das bancas mais suaves"]},{t:"2026-10-08T05:20:00-03:00",itens:["Inventário: nova lista para conferir quais produtos ainda não estão em nenhuma banca, com opção de incluir direto"]},{t:"2026-10-08T05:00:00-03:00",itens:["Inventário: cada banca com sua cor, lançamentos por pesagem, relatório e código de barras único por produto"]},{t:"2026-10-07T21:10:00-03:00",itens:["Inventário: cada produto pertence a uma única banca (o app avisa e pergunta antes de mover) e o botão Novo inventário zera as contagens mantendo as bancas"]},{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código interno ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
+var UPDATES=[{t:"2026-10-12T17:10:00-03:00",itens:["Novo «Histórico de etiquetas» no menu ⋮ e históricos de produtos e etiquetas guardando só 3 dias; o aviso de atualização agora diz o que mudou"]},{t:"2026-10-12T05:00:00-03:00",itens:["Doação: tirada a legenda «Bipar» da bolinha (fica só o desenho do ícone)"]},{t:"2026-10-12T04:45:00-03:00",itens:["«Doações anteriores» saiu da tela de Doação e foi para o menu dos três pontinhos"]},{t:"2026-10-12T04:30:00-03:00",itens:["Doação: o botão Bipar agora usa o desenho do ícone do app (leitor de código de barras com laser e check)"]},{t:"2026-10-12T04:15:00-03:00",itens:["Doação: Buscar e Bipar viraram bolinhas no canto direito; o online ficou discreto no rodapé e só a versão aparece no topo"]},{t:"2026-10-12T04:00:00-03:00",itens:["O «online» saiu do topo e foi para o rodapé, junto com a versão completa; o topo mostra o número da versão (ex.: v111)"]},{t:"2026-10-12T03:45:00-03:00",itens:["Doação: novo efeito ao lançar (a linha entra com mola e brilho, o número sobe e a fruta «explode» em volta) e o último item lançado fica com o número maior"]},{t:"2026-10-12T03:30:00-03:00",itens:["Doação: removido o desconto da TARA do resumo ao finalizar"]},{t:"2026-10-08T11:30:00-03:00",itens:["Inventário em tempo real: o que cada pessoa lança ou conclui aparece na hora em todos os aparelhos, com o nome de quem contou"]},{t:"2026-10-08T09:50:00-03:00",itens:["Inventário: busca na tela inicial para lançar direto num produto (abre na banca certa) e nome do produto em destaque com códigos menores"]},{t:"2026-10-08T09:30:00-03:00",itens:["Inventário: produtos concluídos vão para o fim da lista em tom mais escuro e continuam editáveis (acrescentar ou remover lançamentos)"]},{t:"2026-10-08T05:40:00-03:00",itens:["Inventário: botão Começar agora é deslizante, com vibração e menor; cores das bancas mais suaves"]},{t:"2026-10-08T05:20:00-03:00",itens:["Inventário: nova lista para conferir quais produtos ainda não estão em nenhuma banca, com opção de incluir direto"]},{t:"2026-10-08T05:00:00-03:00",itens:["Inventário: cada banca com sua cor, lançamentos por pesagem, relatório e código de barras único por produto"]},{t:"2026-10-07T21:10:00-03:00",itens:["Inventário: cada produto pertence a uma única banca (o app avisa e pergunta antes de mover) e o botão Novo inventário zera as contagens mantendo as bancas"]},{t:"2026-10-07T20:45:00-03:00",itens:["Inventário: as bancas são montadas buscando o produto pelo código de balança, código interno ou nome"]},{t:"2026-10-07T16:30:00-03:00",itens:["Nova aba Inventário: contagem de FLV por banca, avanço em % e resumo com a porcentagem de cada banca"]},{t:"2026-10-04T08:00:00-03:00",itens:["Doação: botão + com «Lançar por EAN» (cadastra o produto e pergunta a quantidade) e código de doação visível"]},{t:"2026-10-03T18:10:00-03:00",itens:["Leitor: campo para digitar o código de barras quando a câmera não conseguir ler"]},{t:"2026-10-03T18:00:00-03:00",itens:["Doação: ao bipar um item por unidade, informe a quantidade em vez de bipar várias vezes"]},{t:"2026-10-03T17:50:00-03:00",itens:["Ao bipar um produto não cadastrado (Loja, Doação ou Etiquetas), qualquer usuário cadastra na hora","Produto já cadastrado: o formulário pede só validade e quantidade"]},{t:"2026-10-03T06:45:00-03:00",itens:["Doação: barra fixa mostra o item escolhido e o total coletado; o teclado não rola mais a tela"]},{t:"2026-10-03T06:30:00-03:00",itens:["Novo visual: cabeçalho, abas, cartões, botões e janelas renovados"]},{t:"2026-10-02T22:30:00-03:00",itens:["Operador identificado no aparelho e menu «Últimos acessos»","Atalhos de produtos (balões) editáveis, em ordem alfabética","Navegação por gestos: deslize para trocar entre Loja, Doação e Etiquetas","Doação: unidades un/kg corretas, sem nota fiscal, excluir e marcar enviadas","Etiquetas: toque adiciona o item; segure para mudar tamanho (P/M/G) e quantidade"]}];
 function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function fmt(iso,full){var d=new Date(iso);if(isNaN(d))return"";var p=function(n){return String(n).padStart(2,"0")};
@@ -2781,6 +2806,9 @@ function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp
 function renderUpd(){var u=UPDATES[0];if(!u)return;g("updSum").textContent="Atualizado em "+fmt(u.t)+" · ver novidades";
 g("updBody").innerHTML=UPDATES.slice(0,5).map(function(x,i){return(i?'<h4>'+fmt(x.t)+'</h4>':'')+'<ul>'+x.itens.map(function(t){return'<li>'+esc(t)+'</li>'}).join("")+'</ul>'}).join("")}
 renderUpd();
+try{var LV="validamais-lastver",ant=JSON.parse(localStorage.getItem(LV)||'""');localStorage.setItem(LV,JSON.stringify(window.vmVersion));   // depois de atualizar: uma linha com o que mudou
+var un=UPDATES[0]&&UPDATES[0].itens&&UPDATES[0].itens[0];
+if(ant&&ant!==window.vmVersion&&un)setTimeout(function(){var e=g("toast");if(!e)return;e.textContent="Atualizado para v"+window.vmVersion.split("-").pop()+" · "+un;e.classList.remove("hidden");setTimeout(function(){e.classList.add("hidden")},9000)},1500)}catch(e){}
 if(location.hash.indexOf("#conf=")===0)return;      // tela de conferência (link): sem identificação
 // ---- acessos ----
 function whenDb(cb){var k=0,i=setInterval(function(){k++;if(typeof db!=="undefined"&&db&&window.V){clearInterval(i);cb()}else if(k>40)clearInterval(i)},500)}
@@ -2873,6 +2901,7 @@ g("mnCad").onclick=function(){fecha();g("navCadastros").click();window.scrollTo(
 if(window.vmSair){g("mnSair").hidden=false;g("mnSair").onclick=function(){fecha();if(confirm("Sair? Este aparelho vai pedir a senha da loja de novo."))window.vmSair()}}
 g("mnInv").onclick=function(){fecha();g("navInventario").click();window.scrollTo(0,0)};
 g("mnDoaAnt").onclick=function(){fecha();g("navHist").click()};
+g("mnEtqHist").onclick=function(){fecha();if(window.ehOpen)window.ehOpen()};
 g("mnHist").onclick=function(){fecha();if(window.phOpen)window.phOpen()};
 g("mnBkp").onclick=function(){fecha();if(window.vmBackup)window.vmBackup()};
 g("mnRest").onclick=function(){fecha();if(window.vmRestaurar)window.vmRestaurar()};
