@@ -2071,7 +2071,6 @@ async function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",",
   const nome = dSel, un = dUnit, total = addDon(dSel, dUnit, q, dCodSel, "", meta);
   taraOn = true;
   $("dPeso").value = ""; $("dPeso").blur(); if (window.npClose) window.npClose();
-  if (!romAberta()) toast(`✓ ${nome}: +${fq(q)} ${un}${meta && meta.tara ? " (líquido, TARA de " + fq(meta.tara) + " kg descontada)" : ""} → total ${fq(total)} ${un}`);
   dSel = ""; dCodSel = ""; $("dCod").value = ""; renderQuick(); renderKey(); window.scrollTo({ top: 0, behavior: "smooth" }); }
 $("dAdd").onclick = dPesoAdd; $("dPeso").onkeydown = e => { if (e.key === "Enter") dPesoAdd(); };
 // editar a quantidade de um item já coletado (toque no "5 kg")
@@ -2491,7 +2490,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.12-101";
+const APP_VERSION = "2026.10.12-102";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
