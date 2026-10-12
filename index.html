@@ -2408,16 +2408,16 @@ $("lmMenos").onclick = () => lmQ((labels[lmI] || {}).qtd - 1); $("lmMais").oncli
 $("lmOk").onclick = $("lmClose").onclick = () => $("lModal").classList.add("hidden");
 $("lmDup").onclick = () => { const i = lmI; $("lModal").classList.add("hidden"); labelDup(i); };
 $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden"); labelUnify(i); };
-// ---------- Etiquetas compartilhadas: todos os aparelhos veem a mesma lista (coleção "etiquetas" no Firestore) ----------
+// ---------- Etiquetas compartilhadas: todos os aparelhos veem a mesma lista (coleção "sh_etiquetas" no Firestore) ----------
 (function () {
   if (typeof db === "undefined" || !db || !V.setDoc || !V.deleteDoc || !V.onSnapshot || !V.doc || !V.collection) return;   // sem nuvem: segue só local
-  const COL = "etiquetas", FLAG = "validamais-etq-cloud", baseSet = store.set.bind(store);
+  const COL = "sh_etiquetas", FLAG = "validamais-etq-cloud", baseSet = store.set.bind(store);
   const last = new Map();                 // id -> conteúdo que a nuvem já tem (para só enviar o que mudou)
   let ready = false, warned = false;
   const newId = () => "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const body = l => { const o = JSON.parse(JSON.stringify(l)); delete o.id; return o; };
   const canon = o => JSON.stringify(Object.keys(o).sort().reduce((a, k) => (a[k] = o[k], a), {}));
-  const fail = e => { console.error(e); if (!warned) { warned = true; toast("Etiquetas: não consegui sincronizar com a nuvem (confira as regras da coleção «etiquetas»). Ficou só neste aparelho."); } };
+  const fail = e => { console.error(e); if (!warned) { warned = true; toast("Etiquetas: não consegui sincronizar com a nuvem (confira as regras da coleção «sh_etiquetas»). Ficou só neste aparelho."); } };
   function ensure() {                     // todo item precisa de id próprio e de posição (ord) para ficar na mesma ordem em todos os aparelhos
     labels.forEach(l => { if (!l.id) l.id = newId(); });
     for (let i = 0; i < labels.length; i++) {
@@ -2544,7 +2544,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.12-104";
+const APP_VERSION = "2026.10.12-105";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
