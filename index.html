@@ -120,7 +120,7 @@ html[data-tema=dark] .vbox{background:#14281c;border-color:#24493a}html[data-tem
 html[data-tema=dark] .product.soon .vbox{background:#2a2410;border-color:#5a4a14}html[data-tema=dark] .product.soon .vd b{color:#ffd666}
 html[data-tema=dark] .product.expired .vbox{background:#2a1415;border-color:#5a2a2a}html[data-tema=dark] .product.expired .vd b{color:#ff9a9a}
 html[data-tema=dark] .product.none .vbox{background:#181a22}html[data-tema=dark] .product.none .vd b{color:#b6c2bb}
-.pills{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px}
+
 .pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:4px 11px;font-size:12px;font-weight:800;background:#dcf3e4;color:#14633d}
 .pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .expired .pill{background:#fde2e0;color:#b32d22}
@@ -155,22 +155,22 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .toast button{background:#dcf3e4;color:var(--g-d);min-height:36px;padding:6px 14px;border-radius:10px}
 
 /* ===== grades e teclados ===== */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.grid button{min-height:60px;font-size:15px;background:var(--lt);color:var(--g-d);border-radius:14px}
-.grid .sel{background:linear-gradient(180deg,var(--g2),var(--g));color:#fff}
+
+
+
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .grid3 button{min-height:62px;font-size:24px;background:var(--lt);color:var(--g-d);border-radius:14px}
 .grid3 small{display:block;font-size:11px;font-weight:600}
 .grid3 .sel{background:linear-gradient(180deg,var(--g2),var(--g));color:#fff}
-.kpdisplay{display:flex;justify-content:space-between;align-items:baseline;background:var(--lt2);border:1px solid var(--ln);border-radius:12px;padding:11px 12px;margin-top:10px;font-weight:700}
-.kpdisplay b{font-size:30px;color:var(--g)}
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
-.keypad button{min-height:54px;font-size:22px;background:#fff;border:1px solid #d9e0e6;color:var(--ink)}
-.keypad .add{grid-column:1/-1;background:var(--g);color:#fff;font-size:17px;border:0}
-.drow{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--ln);padding:9px 0}
-.drow>div{flex:1}
-.drow small{display:block;color:var(--mut);font-size:12px}
-.drow button{min-height:36px;padding:4px 10px}
+
+
+
+
+
+
+
+
+
 
 /* ===== menu lateral ===== */
 .side{position:fixed;top:0;bottom:0;right:0;width:min(86vw,340px);background:#fff;z-index:50;padding:calc(14px + env(safe-area-inset-top)) 14px 14px;overflow:auto;
@@ -242,8 +242,8 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .cdel{border:0;background:transparent;color:#d98a8a;min-width:34px;min-height:34px;padding:0;font-size:16px}
 
 /* ===== doação ===== */
-.dsum{display:flex;justify-content:space-around;margin-top:12px;font-size:13px;color:var(--mut);background:var(--lt2);border:1px solid var(--ln);border-radius:14px;padding:10px}
-.dsum b{font-size:22px;color:var(--g);margin-right:3px;font-weight:800}
+
+
 .dlistp{padding:6px 14px 14px}
 .ditem{display:flex;align-items:center;gap:8px;padding:11px 0;border-bottom:1px solid var(--ln)}
 .dn{flex:1;min-width:0}
@@ -304,8 +304,8 @@ body.mao1 .hrow button{min-height:54px;min-width:54px}
 body.mao1 .fabwrap{bottom:calc(var(--tb-h,72px) + 14px)}
 body.mao1[data-tab="Doacao"] .fabwrap{bottom:calc(var(--tb-h,72px) + var(--nb-h,150px) + 24px)}
 body.mao1 .fabscan{height:64px;font-size:18px;padding:0 28px}
-body.mao1 .fabmain{width:64px;height:64px}
-body.mao1 .fabitem{min-height:56px;font-size:16px}
+
+
 .dupg{border:1px solid var(--ln);background:var(--lt2);border-radius:14px;padding:6px 10px;margin:10px 0}
 .dupr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0}
 .dupr+.dupr{border-top:1px dashed var(--ln)}
@@ -322,9 +322,9 @@ body.mao1 .fabitem{min-height:56px;font-size:16px}
 .topdo::-webkit-scrollbar{display:none}
 .tdl{flex:none;font-weight:800;color:var(--mut);letter-spacing:.02em}
 .tdc{flex:none;color:var(--ink)}.tdc em{font-style:normal;font-weight:800;color:var(--g-d)}
-.tgh{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:14px 0 4px;padding:6px 10px;border-radius:10px;background:var(--lt);color:var(--g-d)}
-.tgh:first-child{margin-top:4px}
-.tgh b{font-size:15px;font-weight:800;letter-spacing:.02em}.tgh small{font-size:12px;font-weight:600;color:var(--mut)}
+
+
+
 .unib{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;background:var(--lt);color:var(--g-d);font-size:11px;font-weight:800;vertical-align:middle;letter-spacing:0}
 .lkres{margin-top:8px}.lkres .pick{padding:10px;border:1px solid var(--ln);border-radius:12px;margin-top:6px;background:var(--lt2);cursor:pointer}
 .lmuni{display:block;margin:8px auto 0;background:none;border:0;color:var(--mut);font-size:13px;font-weight:600;text-decoration:underline;min-height:36px;padding:0 12px}
@@ -366,7 +366,7 @@ body.mao1 .fabitem{min-height:56px;font-size:16px}
 .hrow .hi{flex:1;font-size:14px;min-width:0}
 .hrow>button{min-height:38px;padding:0 12px;font-size:13px}
 .hbadge{background:#dcf3e4;color:var(--g-d);border-radius:99px;padding:2px 9px;font-size:11px;font-weight:800;white-space:nowrap}
-.lm-note{font-size:12px}
+
 
 /* ===== doação: barra fixa "coletando agora" ===== */
 .nowbar{position:sticky;top:calc(var(--top-h) + env(safe-area-inset-top) + 8px);z-index:9;margin:10px 0 12px;background:#fff;border:1.5px solid var(--g2);border-radius:18px;padding:10px 12px 12px;
@@ -404,14 +404,13 @@ body[data-tab="Doacao"].np-open .toast{top:auto;bottom:calc(var(--np-h,0px) + 10
 .fabrow{display:flex;align-items:center;gap:10px}
 .fabscan{height:56px;border-radius:28px;padding:0 24px;background:linear-gradient(135deg,var(--g2),var(--g-d));color:#fff;font-size:16px;font-weight:700;
   box-shadow:0 10px 24px rgba(14,74,48,.38),0 2px 6px rgba(14,74,48,.3)}
-.fabmain{width:56px;height:56px;border-radius:50%;padding:0;background:#fff;color:var(--g);border:1px solid var(--ln);font-size:30px;line-height:1;
-  box-shadow:0 8px 20px rgba(16,40,28,.22);transition:transform .2s ease}
-.fabwrap.open .fabmain{transform:rotate(45deg)}
-.fabmenu{display:none;flex-direction:column;align-items:flex-end;gap:8px}
-.fabwrap.open .fabmenu{display:flex}
-.fabitem{background:#fff;color:var(--g-d);border:1px solid var(--ln);border-radius:99px;padding:0 18px;min-height:46px;box-shadow:0 6px 16px rgba(16,40,28,.18);white-space:nowrap}
-body:not([data-tab="Loja"]) .loja-only{display:none}
-.fabscrim{position:fixed;inset:0;z-index:19;background:rgba(10,24,17,.35);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+
+
+
+
+
+
+
 
 /* ===== teclado numérico integrado ===== */
 html{scroll-padding-bottom:var(--np-h,0px)}
@@ -421,7 +420,7 @@ body{overscroll-behavior-y:contain}
 .modal{padding-bottom:calc(10px + var(--np-h,0px))}
 .sheet{max-height:calc(92dvh - var(--np-h,0px))}
 body.np-open .app{padding-bottom:calc(var(--np-h) + 16px)}
-body.np-open .fabwrap,body.np-open .fabscrim{display:none}
+body.np-open .fabwrap{display:none}
 body.np-open .toast{bottom:auto;top:calc(var(--top-h) + 8px + env(safe-area-inset-top))}
 #np{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;background:rgba(238,243,240,.97);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
   border-top:1px solid #cdd7d1;box-shadow:0 -10px 28px rgba(0,0,0,.14);border-radius:20px 20px 0 0;padding:8px 10px calc(10px + env(safe-area-inset-bottom));
@@ -454,13 +453,13 @@ html[data-tema=dark] .danger{background:#2c1516;color:#ff8f8f}
 @media(hover:hover){html[data-tema=dark] .secondary:hover{background:#1d3226}html[data-tema=dark] .danger:hover{background:#3a1b1c}}
 html[data-tema=dark] input,html[data-tema=dark] select,html[data-tema=dark] textarea{background-color:#0b0d12;border-color:#2c303c;color:var(--ink)}
 html[data-tema=dark] input::placeholder,html[data-tema=dark] textarea::placeholder{color:#767a86}
-html[data-tema=dark] .keypad button,html[data-tema=dark] .ltam button,html[data-tema=dark] .crr .ltam button,html[data-tema=dark] .qbtn.qadd,html[data-tema=dark] #npGrid button,html[data-tema=dark] #npClose{background:#0b0d12;border-color:#2c303c;color:var(--ink)}
+html[data-tema=dark] .ltam button,html[data-tema=dark] .crr .ltam button,html[data-tema=dark] .qbtn.qadd,html[data-tema=dark] #npGrid button,html[data-tema=dark] #npClose{background:#0b0d12;border-color:#2c303c;color:var(--ink)}
 html[data-tema=dark] .crr .ltam .cdel{background:transparent;border:0;color:#d98a8a}
 html[data-tema=dark] .crr .ltam .cdup{background:transparent;border:0;color:#e5c158}
 html[data-tema=dark] #npGrid .del{background:#2c1516;color:#ff8f8f;border-color:#4a2325}
-html[data-tema=dark] .primary,html[data-tema=dark] .grid .sel,html[data-tema=dark] .grid3 .sel,html[data-tema=dark] .qbtn.sel,html[data-tema=dark] .ltam .sel,html[data-tema=dark] .crr .ltam .sel,html[data-tema=dark] .keypad .add,html[data-tema=dark] .rom th,html[data-tema=dark] .fabscan,html[data-tema=dark] .menu .active,html[data-tema=dark] .utog .sel,html[data-tema=dark] #npGrid .ok{background:linear-gradient(180deg,#228456,#1a6a45);color:#fff;border-color:#1a6a45}
+html[data-tema=dark] .primary,html[data-tema=dark] .grid3 .sel,html[data-tema=dark] .qbtn.sel,html[data-tema=dark] .ltam .sel,html[data-tema=dark] .crr .ltam .sel,html[data-tema=dark] .rom th,html[data-tema=dark] .fabscan,html[data-tema=dark] .menu .active,html[data-tema=dark] .utog .sel,html[data-tema=dark] #npGrid .ok{background:linear-gradient(180deg,#228456,#1a6a45);color:#fff;border-color:#1a6a45}
 html[data-tema=dark] .tbadge,html[data-tema=dark] .plus{background:#1f7a49;color:#fff}
-html[data-tema=dark] .panel,html[data-tema=dark] .stat,html[data-tema=dark] .product,html[data-tema=dark] .tam,html[data-tema=dark] .side,html[data-tema=dark] .crow,html[data-tema=dark] .csum,html[data-tema=dark] .clist,html[data-tema=dark] .nowbar,html[data-tema=dark] .fabmain,html[data-tema=dark] .fabitem,html[data-tema=dark] .impl{background:#111814;border-color:var(--ln)}
+html[data-tema=dark] .panel,html[data-tema=dark] .stat,html[data-tema=dark] .product,html[data-tema=dark] .tam,html[data-tema=dark] .side,html[data-tema=dark] .crow,html[data-tema=dark] .csum,html[data-tema=dark] .clist,html[data-tema=dark] .nowbar,html[data-tema=dark] .impl{background:#111814;border-color:var(--ln)}
 html[data-tema=dark] .crow.done{background:var(--lt2)}
 html[data-tema=dark] .product.expired{background:linear-gradient(90deg,#2a1415,#111814 45%);border-left-color:#ff6b6b}
 html[data-tema=dark] .product.soon{background:linear-gradient(90deg,#2a2410,#111814 45%);border-left-color:#f0b429}
@@ -472,7 +471,7 @@ html[data-tema=dark] .none .pill{background:#222530;color:#b6c2bb}
 html[data-tema=dark] .sheet{background:#0d0f14}
 html[data-tema=dark] .sheet::before{background:#3a3f4d}
 html[data-tema=dark] .modal,html[data-tema=dark] .bg{background:rgba(0,0,0,.7)}
-html[data-tema=dark] .fabscrim{background:rgba(0,0,0,.6)}
+
 html[data-tema=dark] .toast{background:#1a1d26;color:#e3eae5;border:1px solid #3a3f4d}
 html[data-tema=dark] .toast button{background:#1f7a49;color:#fff}
 html[data-tema=dark] .qbtn{border-color:#24402f}
@@ -501,7 +500,7 @@ ap(document.documentElement.dataset.tema||"dark")});
 #tabLoja .stats .stat{cursor:pointer}.stat.on{outline:2px solid var(--g2);outline-offset:-2px}
 #productForm.lote .hide-lote{display:none}
 #productForm.lote .formgrid>div:not(.hide-lote){grid-column:1/-1}
-body:not([data-tab="Doacao"]) .doacao-only{display:none}
+
 .codbox{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--lt2);border:1px solid var(--ln);border-radius:14px;padding:10px 14px;margin:10px 0}
 .codbox small{display:block;font-size:10.5px;color:var(--mut);font-weight:800;letter-spacing:.06em}
 .codbox span{display:block;font-size:15px;font-weight:700;color:var(--ink);line-height:1.2}
@@ -512,7 +511,7 @@ body:has(#eanModal:not(.hidden),#nrModal:not(.hidden),#qtModal:not(.hidden),#pkM
 </style>
 <style id="inv-css">
 .tabbar button{padding:0 2px;font-size:12px;white-space:nowrap}
-body[data-tab="Inventario"] .fabwrap,body[data-tab="Inventario"] .fabscrim{display:none}
+body[data-tab="Inventario"] .fabwrap{display:none}
 .tabbar{gap:3px!important;padding:0 8px 12px!important}.tabbar button{flex:1 1 0!important;min-width:0;font-size:10.5px!important;padding:0 1px!important;overflow:hidden;text-overflow:ellipsis}
 .cadrow{display:flex;align-items:center;gap:6px;padding:10px 0;border-bottom:1px solid var(--ln)}.cadrow .ci{flex:1;min-width:0;font-size:14px}.cadrow .ci small{display:block;color:var(--mut,#667);margin-top:2px;word-break:break-all}.cadrow>button{min-height:38px;padding:0 12px;font-size:13px}.cadcnt{float:right;font-weight:600;font-size:12px;opacity:.7}
 .ivcode{font-size:32px;font-weight:800;color:var(--g-d);text-align:center;letter-spacing:.5px;font-variant-numeric:tabular-nums;line-height:1.15;word-break:break-all;margin-top:6px}
@@ -521,7 +520,7 @@ body[data-tab="Inventario"] .fabwrap,body[data-tab="Inventario"] .fabscrim{displ
 .ivcodes small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--mut)}
 .ivcodes b{font-size:30px;font-weight:800;color:var(--g-d);font-variant-numeric:tabular-nums;line-height:1.15;word-break:break-all}
 .ivname{text-align:center;font-size:17px;font-weight:700;text-transform:uppercase;color:var(--ink);margin:2px 0 6px;line-height:1.25}
-.ivcard .qh{margin-bottom:8px}
+
 .ivli{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--ln);cursor:pointer}
 .ivli:last-child{border-bottom:0}
 .ivli small{display:block;color:var(--mut);font-size:12px}
@@ -652,10 +651,10 @@ html[data-tema=dark] .ivhero{box-shadow:none;border:1px solid rgba(255,255,255,.
 
 /* ===== v51: 3 abas, Ferramentas, ⋮ e botão BIPAR ===== */
 .tabbar button{font-size:13.5px!important;padding:0 4px!important}
-.ferrnav{display:flex;gap:6px;padding:0 10px 10px}
-.ferrnav button{flex:1 1 0;min-width:0;min-height:38px;border-radius:11px;padding:0 4px;font-size:12.5px;font-weight:700;white-space:nowrap;background:transparent;color:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.28)}
-.ferrnav button.on{background:rgba(255,255,255,.95);color:var(--g-d,#0e4a30);border-color:transparent}
-html[data-tema=dark] .ferrnav button.on{background:#2a8f5d;color:#fff}
+
+
+
+
 #moreBtn{flex:none;min-width:40px;height:44px;padding:0;border-radius:12px;background:rgba(255,255,255,.14);color:#fff;font-size:24px;font-weight:800;line-height:1}
 header h1{min-width:0;flex:1;overflow:hidden}
 header{gap:6px!important;padding-left:12px!important}.onchip{margin-left:3px!important;padding:3px 7px!important}
@@ -779,9 +778,9 @@ button:focus-visible,summary:focus-visible{outline-color:rgba(201,162,39,.55)}
 input:focus,select:focus,textarea:focus,[data-np].np-on{border-color:var(--gold3);box-shadow:0 0 0 4px rgba(201,162,39,.2)}
 .top,html[data-tema=dark] .top{background:linear-gradient(135deg,#08090c 0%,#1a1e29 100%);box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .tabbar .active,html[data-tema=dark] .tabbar .active{background:linear-gradient(180deg,var(--gold1),var(--gold3));color:var(--onGold);box-shadow:0 3px 10px rgba(0,0,0,.35)}
-.ferrnav button.on,html[data-tema=dark] .ferrnav button.on{background:linear-gradient(180deg,var(--gold1),var(--gold3));color:var(--onGold)}
-.primary,.grid .sel,.grid3 .sel,.qbtn.sel,.qbtn.fav.sel,.keypad .add,#npGrid .ok,.fabscan,.fabwrap .fabscan,
-html[data-tema=dark] .primary,html[data-tema=dark] .grid .sel,html[data-tema=dark] .grid3 .sel,html[data-tema=dark] .qbtn.sel,html[data-tema=dark] .keypad .add,html[data-tema=dark] #npGrid .ok,html[data-tema=dark] .fabscan{background:linear-gradient(180deg,var(--gold1),var(--gold3));color:var(--onGold);border-color:var(--gold4);box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 4px 10px rgba(158,122,28,.32)}
+
+.primary,.grid3 .sel,.qbtn.sel,.qbtn.fav.sel,#npGrid .ok,.fabscan,.fabwrap .fabscan,
+html[data-tema=dark] .primary,html[data-tema=dark] .grid3 .sel,html[data-tema=dark] .qbtn.sel,html[data-tema=dark] #npGrid .ok,html[data-tema=dark] .fabscan{background:linear-gradient(180deg,var(--gold1),var(--gold3));color:var(--onGold);border-color:var(--gold4);box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 4px 10px rgba(158,122,28,.32)}
 .qbtn.sel small{color:#4a3a0c}
 .fabwrap .fabscan{box-shadow:0 10px 26px rgba(0,0,0,.45),0 0 0 1px rgba(243,216,122,.5) inset}
 .ltam .sel,.crr .ltam .sel,html[data-tema=dark] .ltam .sel,html[data-tema=dark] .crr .ltam .sel{background:linear-gradient(180deg,var(--gold1),var(--gold3));color:var(--onGold);border-color:var(--gold4)}
@@ -794,7 +793,7 @@ html[data-tema=dark] .expired .pill{background:#4a1c1c;color:#ffa3a3}
 html[data-tema=dark] .soon .pill{background:#4a3a0a;color:#ffd666}
 html[data-tema=dark] .none .pill{background:#222530;color:#b6c2bb}
 html[data-tema=dark] .tbadge,html[data-tema=dark] .plus{background:var(--gold3);color:var(--onGold)}
-html[data-tema=dark] .panel,html[data-tema=dark] .stat,html[data-tema=dark] .product,html[data-tema=dark] .tam,html[data-tema=dark] .side,html[data-tema=dark] .crow,html[data-tema=dark] .csum,html[data-tema=dark] .clist,html[data-tema=dark] .nowbar,html[data-tema=dark] .fabmain,html[data-tema=dark] .fabitem,html[data-tema=dark] .impl{background:#12141b;border-color:var(--ln)}
+html[data-tema=dark] .panel,html[data-tema=dark] .stat,html[data-tema=dark] .product,html[data-tema=dark] .tam,html[data-tema=dark] .side,html[data-tema=dark] .crow,html[data-tema=dark] .csum,html[data-tema=dark] .clist,html[data-tema=dark] .nowbar,html[data-tema=dark] .impl{background:#12141b;border-color:var(--ln)}
 html[data-tema=dark] .product.expired{background:linear-gradient(90deg,#2a1415,#12141b 45%)}
 html[data-tema=dark] .product.soon{background:linear-gradient(90deg,#2a2410,#12141b 45%)}
 html[data-tema=dark] .sheet{background:#0d0f14}
@@ -1379,18 +1378,6 @@ async function retirar(id, sai, semPerguntar) {
   } else { salvarLocal(); fim(true); }
 }
 $("verRet").onclick = () => { retView = !retView; render(); window.scrollTo(0, 0); };
-function remove(id) {
-  const p = products.find(x => x.id === id); if (!p) return;
-  const { id: _i, createdAt, updatedAt, ...data } = p;
-  const outros = products.filter(x => x.id !== id && (p.barcode ? x.barcode === p.barcode : norm(x.name || "") === norm(p.name || ""))).length;
-  if (!confirm(`Excluir «${p.name}»?\n\n${outros ? "Os outros lotes deste produto continuam cadastrados." : "Este é o ÚNICO registro: o cadastro do produto (códigos e foto) também será apagado."}\n\nPara só tirar da loja e guardar o registro, use «Retirar da loja».`)) return;
-  if (db) V.deleteDoc(V.doc(db, "products", id)).catch(() => toast("Não foi possível excluir."));
-  else { products = products.filter(x => x.id !== id); persist(); render(); }
-  toast("Produto excluído.", "Desfazer", () => {
-    if (db) { const ts = V.serverTimestamp(); V.addDoc(V.collection(db, "products"), { ...data, createdAt: ts, updatedAt: ts }); }
-    else { products.push(p); persist(); render(); }
-  });
-}
 
 // ---------- scanner ----------
 const buzz = () => { try { if (navigator.vibrate) navigator.vibrate(50); } catch {} }; // pulso tátil de 50 ms
@@ -1927,7 +1914,6 @@ function renderKey() {
   const plus = lastAdd && lastAdd.k === norm(dSel) + "|" + dUnit && Date.now() - lastAdd.t < 2500 ? `<i class="plus">+${fq(lastAdd.q)}</i>` : "";
   $("dSelInfo").innerHTML = !dSel ? "" : it ? `<b>${plus}${fq(it.qtd)} ${esc(it.unidade)}</b>${it.lanc} lançamento${it.lanc > 1 ? "s" : ""}` : `<b>0 ${dUnit}</b>ainda não lançado`;
 }
-function flashNow() { const n = $("dNow"); n.classList.remove("ok"); void n.offsetWidth; n.classList.add("ok"); clearTimeout(addTimer); addTimer = setTimeout(renderKey, 2600); }
 const DEFN = ["Mamão", "Banana", "Tomate", "Pão Francês", "Laranja", "Batata", "Cebola", "Maçã", "Cenoura", "Alface"];
 function dSuggest() {
   const raw = $("dBusca").value.trim(), q = norm(raw); if (!q) { $("dSug").innerHTML = ""; return; }
@@ -2457,7 +2443,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.10-92";
+const APP_VERSION = "2026.10.12-98";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
