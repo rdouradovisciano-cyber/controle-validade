@@ -894,7 +894,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rAdd">＋ Bipar item</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
 </div>
 <div id="tabEtiquetas" class="hidden">
-<details class="etqinfo"><summary>ℹ️ Como usar esta aba</summary><span>Use esta aba para <b>coletar os códigos de barras dos produtos que precisam de etiquetas na loja</b>.</span><ol><li>Bipe o código ou pesquise o produto pelo nome.</li><li>Segure o item para escolher o tamanho (P, M ou G) e a quantidade.</li><li>Toque no quadrado ao lado do item para marcar as que <b>já foram colocadas para impressão</b>.</li><li>Toque no <b>⧉</b> para <b>duplicar</b> o código e escolher outro tamanho (ex.: 2 P e 1 G do mesmo produto).</li><li>Quando terminar, use <b>Remover todos</b> para limpar a lista.</li></ol><span class="etqnote">O cadastro de produtos pode ser feito por qualquer usuário: se o código ainda não existir, o app pede o nome e cadastra na hora.</span></details>
+<details class="etqinfo"><summary>ℹ️ Como usar esta aba</summary><span>Use esta aba para <b>coletar os códigos de barras dos produtos que precisam de etiquetas na loja</b>.</span><ol><li>Bipe o código ou pesquise o produto pelo nome.</li><li>Segure o item para escolher o tamanho (P, M ou G) e a quantidade.</li><li>Toque no quadrado ao lado do item para marcar as que <b>já foram colocadas para impressão</b>.</li><li>Toque no <b>⧉</b> para <b>duplicar</b> o código e escolher outro tamanho (ex.: 2 P e 1 G do mesmo produto).</li><li>Quando terminar, use <b>Remover todos</b> para limpar a lista.</li></ol><span class="etqnote">A lista é compartilhada: todos os aparelhos veem as mesmas etiquetas e as marcações de “já imprimi”.</span><span class="etqnote">O cadastro de produtos pode ser feito por qualquer usuário: se o código ainda não existir, o app pede o nome e cadastra na hora.</span></details>
 <section class="panel"><div class="toolbar"><button class="primary big" id="eScan">▦ Bipar EAN</button></div>
 <input id="eBusca" type="search" placeholder="Ou pesquise o produto pelo nome" style="margin-top:12px"><div id="eRes" class="rows"></div></section>
 <section class="panel hidden" id="ePend"><h2 class="h2" id="eNome"></h2><p class="note" id="eCod"></p>
@@ -2408,6 +2408,59 @@ $("lmMenos").onclick = () => lmQ((labels[lmI] || {}).qtd - 1); $("lmMais").oncli
 $("lmOk").onclick = $("lmClose").onclick = () => $("lModal").classList.add("hidden");
 $("lmDup").onclick = () => { const i = lmI; $("lModal").classList.add("hidden"); labelDup(i); };
 $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden"); labelUnify(i); };
+// ---------- Etiquetas compartilhadas: todos os aparelhos veem a mesma lista (coleção "etiquetas" no Firestore) ----------
+(function () {
+  if (typeof db === "undefined" || !db || !V.setDoc || !V.deleteDoc || !V.onSnapshot || !V.doc || !V.collection) return;   // sem nuvem: segue só local
+  const COL = "etiquetas", FLAG = "validamais-etq-cloud", baseSet = store.set.bind(store);
+  const last = new Map();                 // id -> conteúdo que a nuvem já tem (para só enviar o que mudou)
+  let ready = false, warned = false;
+  const newId = () => "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const body = l => { const o = JSON.parse(JSON.stringify(l)); delete o.id; return o; };
+  const canon = o => JSON.stringify(Object.keys(o).sort().reduce((a, k) => (a[k] = o[k], a), {}));
+  const fail = e => { console.error(e); if (!warned) { warned = true; toast("Etiquetas: não consegui sincronizar com a nuvem (confira as regras da coleção «etiquetas»). Ficou só neste aparelho."); } };
+  function ensure() {                     // todo item precisa de id próprio e de posição (ord) para ficar na mesma ordem em todos os aparelhos
+    labels.forEach(l => { if (!l.id) l.id = newId(); });
+    for (let i = 0; i < labels.length; i++) {
+      if (typeof labels[i].ord === "number" && isFinite(labels[i].ord)) continue;
+      let prev = 0, next = null;
+      for (let j = i - 1; j >= 0; j--) if (typeof labels[j].ord === "number") { prev = labels[j].ord; break; }
+      for (let j = i + 1; j < labels.length; j++) if (typeof labels[j].ord === "number") { next = labels[j].ord; break; }
+      labels[i].ord = next === null ? prev + 1 : (prev + next) / 2;
+    }
+  }
+  function push() {
+    ensure(); if (!ready) return;
+    const ids = new Set();
+    labels.forEach(l => {
+      ids.add(l.id); const j = canon(body(l));
+      if (last.get(l.id) === j) return;
+      last.set(l.id, j); V.setDoc(V.doc(db, COL, l.id), JSON.parse(j)).catch(fail);
+    });
+    [...last.keys()].forEach(id => { if (!ids.has(id)) { last.delete(id); V.deleteDoc(V.doc(db, COL, id)).catch(fail); } });
+  }
+  store.set = (k, v) => { baseSet(k, v); if (k === EK) push(); };
+  function adopt(snap) {
+    if (!ready && snap.metadata.fromCache && !snap.docs.length) return;      // ainda sem resposta do servidor
+    const remote = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+    if (!ready) {
+      ready = true;
+      if (!remote.length && labels.length && !localStorage.getItem(FLAG)) {  // nuvem vazia e este aparelho tem lista: sobe a dele
+        baseSet(FLAG, 1); push(); return;
+      }
+      baseSet(FLAG, 1);
+      if (labels.length && remote.length) baseSet(EK + "-bkp", labels);       // guarda cópia da lista antiga deste aparelho
+    }
+    remote.sort((a, b) => ((a.ord || 0) - (b.ord || 0)) || (a.id < b.id ? -1 : 1));
+    last.clear(); remote.forEach(r => last.set(r.id, canon(body(r))));
+    const sig = a => a.map(x => x.id + canon(body(x))).join("|");
+    if (sig(remote) === sig(labels)) return;                                  // nada mudou (eco da nossa própria escrita)
+    const modal = $("lModal"), aberto = modal && !modal.classList.contains("hidden"), cur = aberto && labels[lmI] ? labels[lmI].id : null;
+    labels = remote; baseSet(EK, labels);
+    if (aberto) { const ni = cur ? labels.findIndex(l => l.id === cur) : -1; if (ni < 0) modal.classList.add("hidden"); else lmI = ni; }
+    renderLabels(); if (aberto && lmI >= 0 && labels[lmI]) lmDraw();
+  }
+  try { V.onSnapshot(V.collection(db, COL), { includeMetadataChanges: true }, adopt, fail); } catch (e) { fail(e); }
+})();
 (function () { const box = $("eLista"); let t = null, x0 = 0, y0 = 0;
   const stop = () => { clearTimeout(t); t = null; };
   box.addEventListener("pointerdown", e => { const r = e.target.closest(".crw"); if (!r || e.target.closest("[data-ldrop],[data-lchk],[data-ldup]")) return; x0 = e.clientX; y0 = e.clientY;
@@ -2491,7 +2544,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.12-103";
+const APP_VERSION = "2026.10.12-104";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
