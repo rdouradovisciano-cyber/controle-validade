@@ -456,13 +456,20 @@ html[data-tema=dark] .tararow button.on{background:#14281c;color:#8ee6ae}
 html[data-tema=dark] #dLiq{color:#8ee6ae}
 html[data-tema=dark] #dLiq.bad{color:#ff9a9a}
 
-/* ===== efeito ao lançar item na doação ===== */
-@keyframes dpop{0%{transform:translateY(-18px) scale(.94);opacity:0}55%{transform:translateY(2px) scale(1.02);opacity:1}100%{transform:none;opacity:1}}
-@keyframes dbump{0%{transform:scale(1)}35%{transform:scale(1.045);box-shadow:0 0 0 5px rgba(46,158,91,.38)}100%{transform:scale(1)}}
-@keyframes dqpulse{0%{transform:scale(1)}40%{transform:scale(1.22);color:var(--g)}100%{transform:scale(1)}}
-#dStrip.dbump{animation:dbump .55s ease-out}
-.ditem.novo .dq{animation:dqpulse .6s ease-out .15s}
-.dfly{position:fixed;left:0;top:0;z-index:9999;pointer-events:none;padding:8px 16px;border-radius:99px;font-weight:900;font-size:19px;letter-spacing:.01em;color:#1d1600;background:linear-gradient(180deg,#f6dc78,#d4ac2e);box-shadow:0 8px 22px rgba(0,0,0,.35);white-space:nowrap;will-change:transform,opacity}
+/* ===== item lançado: letras "marcadas a fogo" na própria lista ===== */
+.bc{display:inline-block;animation:dburn 1.6s ease-out both}
+@keyframes dburn{
+  0%{opacity:0;transform:scale(1.8);color:#fff;text-shadow:0 0 0 rgba(255,120,0,0)}
+  9%{opacity:1;transform:scale(1.22);color:#fff7c8;text-shadow:0 0 5px #ffe066,0 0 12px #ff9a00,0 0 26px #ff4d00}
+  38%{transform:scale(1.05);color:#ff8a1f;text-shadow:0 0 8px #ff6a00,0 0 18px #e32b00}
+  70%{color:#c2410c;text-shadow:0 0 6px rgba(227,43,0,.5)}
+  100%{opacity:1;transform:none;text-shadow:0 0 0 rgba(255,120,0,0)}
+}
+.dn b.burn{display:inline-block;position:relative}
+.dn b.burn::after{content:"";position:absolute;top:-3px;bottom:-3px;left:-14px;width:28px;pointer-events:none;border-radius:10px;
+  background:radial-gradient(closest-side,rgba(255,247,200,.95),rgba(255,138,31,.7) 45%,rgba(255,60,0,0));
+  animation:dsear calc(var(--n,8)*38ms + 120ms) linear 350ms both}
+@keyframes dsear{0%{left:-14px;opacity:0}8%{opacity:1}92%{opacity:1}100%{left:calc(100% - 14px);opacity:0}}
 </style>
 <title>Valida+ | Controle de validade</title>
 <style id="tema-escuro">
@@ -703,8 +710,8 @@ body[data-tab="Doacao"]:has(#donaEntrada[data-dview="lista"]:not(.hidden) #dNow.
 #dPickBar b{font-size:18px}
 #dVoltar{min-height:50px;padding:0 16px;border-radius:14px;font-weight:800;background:#10131a;color:#f3d87a;border:2px solid #c9a227}
 .dtroca{display:block;margin:0 0 6px auto;min-height:36px;padding:0 12px;border-radius:99px;border:1.5px solid var(--ln);background:transparent;color:var(--mut);font-weight:800;font-size:13px}
-.ditem.novo{animation:dnovo 2.4s ease-out,dpop .6s cubic-bezier(.2,1.3,.4,1);border-left:5px solid #2e9e5b;padding-left:8px;margin-left:-4px}
-@keyframes dnovo{0%,35%{background:rgba(46,158,91,.28)}100%{background:transparent}}
+.ditem.novo{animation:dnovo 2.4s ease-out;border-left:5px solid #2e9e5b;padding-left:8px;margin-left:-4px}
+@keyframes dnovo{0%,35%{background:rgba(255,128,32,.22)}100%{background:transparent}}
 /* ----- v84: tela única: faixa de resumo · lista · doca embaixo ----- */
 #dStrip{position:sticky;top:calc(var(--top-h) + env(safe-area-inset-top));z-index:8;display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 8px;padding:13px 14px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.1)}
 #dStrip b{font-size:19px;color:var(--g)}
@@ -1778,12 +1785,13 @@ function dCodTxt(i) {   // kg: código de doação · un: código de barras
     ? (pr.barcode ? "Cód. barras: " + esc(pr.barcode) : i.bar ? "Cód. barras: " + esc(i.bar) : i.cod ? "Cód.: " + esc(i.cod) : "")
     : ((pr.codigo_doacao || i.cod) ? "Cód. doação: " + esc(pr.codigo_doacao || i.cod) : "");
 }
+const burnTxt = (t, off) => [...String(t)].map((c, k) => c === " " ? " " : `<span class="bc" style="animation-delay:${off + k * 38}ms">${esc(c)}</span>`).join("");
 function renderDon() {
   if (typeof dTop6Render === "function") dTop6Render();
   if (typeof dRepRender === "function") dRepRender();
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dKg").parentElement.style.display = sumU("kg") > 0 ? "" : "none"; $("dUn").parentElement.style.display = sumU("un") > 0 ? "" : "none"; $("dItens").textContent = don.itens.length;
-  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)${(i.cx || i.sem) ? `<span class="dtara">${i.cx ? i.cx + " com TARA" : ""}${i.cx && i.sem ? " · " : ""}${i.sem ? i.sem + " sem TARA" : ""}</span>` : ""}</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Toque num produto abaixo para começar.</p>';
-  renderKey();
+  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b${window.dBurn===i.key?` class="burn" style="--n:${[...i.nome].length}"`:""}>${window.dBurn===i.key?burnTxt(i.nome,350):esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)${(i.cx || i.sem) ? `<span class="dtara">${i.cx ? i.cx + " com TARA" : ""}${i.cx && i.sem ? " · " : ""}${i.sem ? i.sem + " sem TARA" : ""}</span>` : ""}</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${window.dBurn===i.key?burnTxt(fq(i.qtd),350+[...i.nome].length*38+80):fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Toque num produto abaixo para começar.</p>';
+  window.dBurn = ""; renderKey();
 }
 const dBase = n => String(n || "").replace(/\s+(kg|un)$/i, "").trim();
 const dFamKey = n => norm(dBase(n).split(/\s+/)[0] || "");
@@ -1859,7 +1867,7 @@ $("dBarScan").onclick=()=>$("fab").click();
 $("dVoltar").onclick=()=>dView("lista");
 $("dTrocar").onclick=()=>{ dSel=""; dCodSel=""; $("dPeso").value=""; if(window.npClose) window.npClose(); renderQuick(); renderDon(); };
 ["dScan","dEan"].forEach(id=>$(id).addEventListener("click",()=>dView("lista"),true));
-function dNovoMark(key){ window.dNovo=key; window.dLastKey=key; clearTimeout(window.dNovoT); window.dNovoT=setTimeout(()=>{ window.dNovo=""; const n=document.querySelector(".ditem.novo"); if(n) n.classList.remove("novo"); },2600); setTimeout(()=>{ const n=document.querySelector(".ditem.novo"); if(n && !romAberta()) n.scrollIntoView({block:"center",behavior:"smooth"}); },450); }
+function dNovoMark(key){ window.dNovo=key; window.dBurn=key; window.dLastKey=key; clearTimeout(window.dNovoT); window.dNovoT=setTimeout(()=>{ window.dNovo=""; const n=document.querySelector(".ditem.novo"); if(n) n.classList.remove("novo"); },2600); setTimeout(()=>{ const n=document.querySelector(".ditem.novo"); if(n && !romAberta()) n.scrollIntoView({block:"center",behavior:"smooth"}); },450); }
 function addDon(nome, unidade, qtd, cod = "", bar = "", meta = null) {
   if (romAberta()) return addToRom(nome, unidade, qtd, cod, bar);
   qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0; buzz(); usoLearn(nome, unidade, cod);
@@ -2063,30 +2071,6 @@ async function dOddOk(n, u, q) {
     sub: o && o.n >= 3 ? `O usual é cerca de ${fq(o.sum / o.n)} ${u} por lançamento.` : "Confira se não faltou uma vírgula.",
     ok: "Está certo", cancel: "Corrigir" });
 }
-// efeito: o peso lançado "voa" até o total da doação e o contador dá um pulso
-function dFly(txt, alvo) {
-  try {
-    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const strip = $("dStrip"), np = $("np");
-    if (!strip || !strip.getClientRects().length || !el_ok(alvo)) return;
-    const pad = np && np.classList.contains("show") ? np.getBoundingClientRect() : null;
-    const x0 = pad ? pad.left + pad.width / 2 : innerWidth / 2, y0 = pad ? pad.top + 30 : innerHeight * .62;
-    const t = (alvo && alvo.getClientRects().length ? alvo : strip).getBoundingClientRect(), x1 = t.left + t.width / 2, y1 = t.top + t.height / 2;
-    const f = document.createElement("div"); f.className = "dfly"; f.textContent = txt; document.body.appendChild(f);
-    const w = f.offsetWidth / 2, h = f.offsetHeight / 2, m = (a, b) => (a + b) / 2;
-    const a = f.animate([
-      { transform: `translate(${x0 - w}px,${y0 - h}px) scale(.6)`, opacity: 0 },
-      { transform: `translate(${x0 - w}px,${y0 - h - 24}px) scale(1.15)`, opacity: 1, offset: .22 },
-      { transform: `translate(${m(x0, x1) - w}px,${m(y0, y1) - h - 40}px) scale(1)`, opacity: 1, offset: .6 },
-      { transform: `translate(${x1 - w}px,${y1 - h}px) scale(.45)`, opacity: .15 }
-    ], { duration: 820, easing: "cubic-bezier(.4,0,.2,1)" });
-    a.onfinish = a.oncancel = () => {
-      f.remove(); strip.classList.remove("dbump"); void strip.offsetWidth; strip.classList.add("dbump");
-      setTimeout(() => strip.classList.remove("dbump"), 700);
-    };
-  } catch (e) {}
-}
-const el_ok = e => !!e;
 async function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",", "."));
   if (!dSel) return toast("Pesquise o produto."); if (!(q > 0)) return toast(dUnit === "un" ? "Digite a quantidade." : "Digite o peso em kg.");
   if (dUnit === "un") q = Math.round(q); if (!(q > 0)) return toast("Digite a quantidade.");
@@ -2102,7 +2086,6 @@ async function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",",
   if (!(await dOddOk(dSel, dUnit, q))) return;
   dStatLearn(dSel, dUnit, q);
   const nome = dSel, un = dUnit, total = addDon(dSel, dUnit, q, dCodSel, "", meta);
-  if (!romAberta()) dFly("＋" + fq(q) + " " + un, un === "un" ? $("dUn") : $("dKg"));
   taraOn = true;
   $("dPeso").value = ""; $("dPeso").blur(); if (window.npClose) window.npClose();
   dSel = ""; dCodSel = ""; $("dCod").value = ""; renderQuick(); renderKey(); window.scrollTo({ top: 0, behavior: "smooth" }); }
@@ -2577,7 +2560,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.12-106";
+const APP_VERSION = "2026.10.12-107";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
