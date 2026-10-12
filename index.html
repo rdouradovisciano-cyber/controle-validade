@@ -865,7 +865,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div id="donaEntrada" data-dview="lista">
 <div class="panel" id="dStrip" role="button" tabindex="0" aria-label="Ver resumo e finalizar"><span class="dl">📋 Doação de hoje · <span><b id="dItens">0</b> itens</span></span><span class="dtot"><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span><i class="dsp">›</i></span></div>
 <div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
-<button type="button" id="dTrocar" class="dtroca">✕ Trocar produto</button><div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="tararow" id="dTara"><button type="button" id="tCx" class="on" aria-pressed="true">📦 Com caixa</button><button type="button" id="tEdit" aria-label="Alterar peso da caixa">✎</button><span id="dLiq"></span></div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
+<button type="button" id="dTrocar" class="dtroca">✕ Trocar produto</button><div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="tararow" id="dTara"><button type="button" id="tCx" class="on" aria-pressed="true">Com TARA</button><button type="button" id="tEdit" aria-label="Alterar peso da caixa">✎</button><span id="dLiq"></span></div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
 <div id="dDock"><button type="button" id="dRep" hidden></button><div id="dTop6" class="vazio"><div class="dt6h"><span id="dT6L">⭐ MAIS DOADOS</span><span class="dt6a"><button type="button" id="dBalCol">▾ Recolher</button><button type="button" id="dBalAuto" hidden>↺ Automático</button><button type="button" id="dBalEdit">✎ Editar</button></span></div><div class="dt6" id="dT6"></div></div><div id="dBar"><button type="button" id="dAddItem">🔍 Buscar</button><button type="button" id="dBarScan">▦ Bipar</button></div></div>
 <div class="dpick"><div id="dPickBar"><button type="button" id="dVoltar">← Voltar à lista</button><b>Escolher produto</b></div>
 <section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div>
@@ -1773,7 +1773,7 @@ function renderDon() {
   if (typeof dTop6Render === "function") dTop6Render();
   if (typeof dRepRender === "function") dRepRender();
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dKg").parentElement.style.display = sumU("kg") > 0 ? "" : "none"; $("dUn").parentElement.style.display = sumU("un") > 0 ? "" : "none"; $("dItens").textContent = don.itens.length;
-  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)${(i.cx || i.sem) ? `<span class="dtara">${i.cx ? "📦 " + i.cx + " com caixa" : ""}${i.cx && i.sem ? " · " : ""}${i.sem ? i.sem + " sem caixa" : ""}</span>` : ""}</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Toque num produto abaixo para começar.</p>';
+  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)${(i.cx || i.sem) ? `<span class="dtara">${i.cx ? i.cx + " com TARA" : ""}${i.cx && i.sem ? " · " : ""}${i.sem ? i.sem + " sem TARA" : ""}</span>` : ""}</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Toque num produto abaixo para começar.</p>';
   renderKey();
 }
 const dBase = n => String(n || "").replace(/\s+(kg|un)$/i, "").trim();
@@ -1837,7 +1837,7 @@ function dRepRender(){ const b=$("dRep"); if(!b) return; const L=(don.itens.find
   if(!L){ b.hidden=true; return; } b.hidden=false; b._i=L; b.textContent="＋ mais "+L.nome.replace(/\s+(kg|un)$/i,""); }
 $("dRep").onclick=()=>{ const L=$("dRep")._i; if(!L) return; buzz(); const p=prodFor(L.nome); selectProd(p?p.name:L.nome,L.cod||"",L.unidade); };
 function dFinOpen(){ if(!don.itens.length) return toast("Nada lançado ainda."); const nomes=[...don.itens].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR")).map(i=>esc(i.nome.replace(/\s+(kg|un)$/i,""))).join(" · ");
-  $("dFinBody").innerHTML=`<div class="ft"><span>Itens</span><b>${don.itens.length}</b></div><div class="ft"><span>Total</span><b>${[sumU("kg")>0?fq(sumU("kg"))+" kg":"",sumU("un")>0?fq(sumU("un"))+" un":""].filter(Boolean).join(" + ")}</b></div>${don.itens.some(i=>i.cx)?`<div class="ft"><span>Caixas descontadas</span><b>${don.itens.reduce((a,i)=>a+(i.cx||0),0)} (−${fq(don.itens.reduce((a,i)=>a+(i.tara||0),0))} kg)</b></div>`:""}<div class="ft" style="font-weight:600;font-size:13px">${nomes}</div>`;
+  $("dFinBody").innerHTML=`<div class="ft"><span>Itens</span><b>${don.itens.length}</b></div><div class="ft"><span>Total</span><b>${[sumU("kg")>0?fq(sumU("kg"))+" kg":"",sumU("un")>0?fq(sumU("un"))+" un":""].filter(Boolean).join(" + ")}</b></div>${don.itens.some(i=>i.cx)?`<div class="ft"><span>TARA descontada</span><b>−${fq(don.itens.reduce((a,i)=>a+(i.tara||0),0))} kg (${don.itens.reduce((a,i)=>a+(i.cx||0),0)}×)</b></div>`:""}<div class="ft" style="font-weight:600;font-size:13px">${nomes}</div>`;
   $("dFinSheet").classList.remove("hidden"); }
 function dFinClose(){ $("dFinSheet").classList.add("hidden"); }
 $("dStrip").onclick=dFinOpen; $("dStrip").onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); dFinOpen(); } };
@@ -1923,7 +1923,7 @@ async function donationScan(code) {
   if (!romAbertaAntes) toast(`${nome}${donCod ? " (cód. " + donCod + ")" : ""}: +${fq(qtd)} ${unidade}${notaPeso} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
 }
 // pesagem manual
-// ---------- tara da caixa: padrão 2 kg, dá para pesar sem caixa ----------
+// ---------- TARA: padrão 2 kg, dá para pesar sem TARA ----------
 var taraOn;   // undefined ou true = com caixa; false = sem caixa (volta a "com caixa" após cada lançamento)
 function taraKg() { var v = Number((store.get("validamais-tara", {}) || {}).kg); return isFinite(v) && v >= 0 && v < 50 ? v : 2; }
 function taraRefresh() {
@@ -1931,7 +1931,7 @@ function taraRefresh() {
   var tem = dUnit === "kg" && taraKg() > 0; row.classList.toggle("hidden", !tem); if (!tem) return;
   var on = taraOn !== false, b = $("tCx");
   b.classList.toggle("on", on); b.setAttribute("aria-pressed", on ? "true" : "false");
-  b.textContent = on ? "📦 Com caixa (−" + fq(taraKg()) + " kg)" : "Sem caixa";
+  b.textContent = on ? "Com TARA (−" + fq(taraKg()) + " kg)" : "Sem TARA";
   var raw = Number(String($("dPeso").value || "").replace(",", ".")), el = $("dLiq"), bad = false, t = "";
   if (raw > 0) { if (on) { var l = raw - taraKg(); bad = l <= 0; t = "Balança " + fq(raw) + " → líquido " + (bad ? "—" : fq(l) + " kg"); } else t = "Sem desconto: " + fq(raw) + " kg"; }
   else t = on ? "Digite o peso da balança" : "";
@@ -1940,10 +1940,10 @@ function taraRefresh() {
 window.taraRefresh = taraRefresh;
 $("tCx").onclick = () => { taraOn = taraOn === false; taraRefresh(); };
 $("tEdit").onclick = () => {
-  const r = prompt("Peso da caixa vazia, em kg (0 desliga a tara):", String(taraKg()).replace(".", ","));
+  const r = prompt("Peso da TARA (caixa vazia), em kg (0 desliga):", String(taraKg()).replace(".", ","));
   if (r === null) return; const n = Number(String(r).replace(",", ".").trim());
   if (!(n >= 0 && n < 50)) return toast("Valor inválido.");
-  store.set("validamais-tara", { kg: Math.round(n * 1000) / 1000 }); taraRefresh(); toast(n > 0 ? "Caixa: " + fq(n) + " kg" : "Tara desligada.");
+  store.set("validamais-tara", { kg: Math.round(n * 1000) / 1000 }); taraRefresh(); toast(n > 0 ? "TARA: " + fq(n) + " kg" : "TARA desligada.");
 };
 function renderKey() {
   $("dNome").textContent = dSel || "Pesquise o produto"; $("dNow").classList.toggle("vazio", !dSel);
@@ -2062,7 +2062,7 @@ async function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",",
     const t = taraKg(); meta = { bruto: q, tara: 0, sem: false };
     if (taraOn === false) meta.sem = true;
     else if (q <= t) {
-      const r = await askConfirm({ icon: "📦", title: "Menor que a caixa", big: fq(q), bigUnit: "kg", text: dSel, sub: `A caixa vazia pesa ${fq(t)} kg. Este peso é sem caixa?`, ok: "Sim, sem caixa", cancel: "Corrigir" });
+      const r = await askConfirm({ icon: "📦", title: "Menor que a TARA", big: fq(q), bigUnit: "kg", text: dSel, sub: `A TARA é de ${fq(t)} kg. Este peso é sem TARA?`, ok: "Sim, sem TARA", cancel: "Corrigir" });
       if (!r) return; meta.sem = true;
     } else { meta.tara = t; q = Math.round((q - t) * 1000) / 1000; }
   }
@@ -2071,7 +2071,7 @@ async function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",",
   const nome = dSel, un = dUnit, total = addDon(dSel, dUnit, q, dCodSel, "", meta);
   taraOn = true;
   $("dPeso").value = ""; $("dPeso").blur(); if (window.npClose) window.npClose();
-  if (!romAberta()) toast(`✓ ${nome}: +${fq(q)} ${un}${meta && meta.tara ? " (líquido, caixa " + fq(meta.tara) + " kg descontada)" : ""} → total ${fq(total)} ${un}`);
+  if (!romAberta()) toast(`✓ ${nome}: +${fq(q)} ${un}${meta && meta.tara ? " (líquido, TARA de " + fq(meta.tara) + " kg descontada)" : ""} → total ${fq(total)} ${un}`);
   dSel = ""; dCodSel = ""; $("dCod").value = ""; renderQuick(); renderKey(); window.scrollTo({ top: 0, behavior: "smooth" }); }
 $("dAdd").onclick = dPesoAdd; $("dPeso").onkeydown = e => { if (e.key === "Enter") dPesoAdd(); };
 // editar a quantidade de um item já coletado (toque no "5 kg")
@@ -2491,7 +2491,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.12-99";
+const APP_VERSION = "2026.10.12-100";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
