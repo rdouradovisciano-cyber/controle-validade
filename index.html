@@ -440,6 +440,20 @@ body.np-open .toast{bottom:auto;top:calc(var(--top-h) + 8px + env(safe-area-inse
 #npGrid button:disabled{opacity:.3}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ===== tara da caixa (Doação) ===== */
+.tararow{display:flex;align-items:center;gap:6px;margin:0 0 8px;flex-wrap:wrap}
+.nowbar.vazio .tararow{display:none}
+.tararow button{min-height:34px;padding:0 12px;border-radius:99px;font-size:13px;font-weight:800;background:#eef1f3;color:var(--mut)}
+.tararow button.on{background:var(--lt);color:var(--g-d)}
+.tararow #tEdit{min-width:34px;padding:0;background:transparent;color:var(--mut)}
+#dLiq{flex:1;min-width:0;font-size:13px;font-weight:800;color:var(--g-d);text-align:right;font-variant-numeric:tabular-nums}
+#dLiq.bad{color:var(--red)}
+.dtara{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;color:var(--mut)}
+html[data-tema=dark] .tararow button{background:#1b231e;color:#b6c2bb}
+html[data-tema=dark] .tararow button.on{background:#14281c;color:#8ee6ae}
+html[data-tema=dark] #dLiq{color:#8ee6ae}
+html[data-tema=dark] #dLiq.bad{color:#ff9a9a}
 </style>
 <title>Valida+ | Controle de validade</title>
 <style id="tema-escuro">
@@ -851,7 +865,7 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 <div id="donaEntrada" data-dview="lista">
 <div class="panel" id="dStrip" role="button" tabindex="0" aria-label="Ver resumo e finalizar"><span class="dl">📋 Doação de hoje · <span><b id="dItens">0</b> itens</span></span><span class="dtot"><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span><i class="dsp">›</i></span></div>
 <div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
-<button type="button" id="dTrocar" class="dtroca">✕ Trocar produto</button><div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
+<button type="button" id="dTrocar" class="dtroca">✕ Trocar produto</button><div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="tararow" id="dTara"><button type="button" id="tCx" class="on" aria-pressed="true">📦 Com caixa</button><button type="button" id="tEdit" aria-label="Alterar peso da caixa">✎</button><span id="dLiq"></span></div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
 <div id="dDock"><button type="button" id="dRep" hidden></button><div id="dTop6" class="vazio"><div class="dt6h"><span id="dT6L">⭐ MAIS DOADOS</span><span class="dt6a"><button type="button" id="dBalCol">▾ Recolher</button><button type="button" id="dBalAuto" hidden>↺ Automático</button><button type="button" id="dBalEdit">✎ Editar</button></span></div><div class="dt6" id="dT6"></div></div><div id="dBar"><button type="button" id="dAddItem">🔍 Buscar</button><button type="button" id="dBarScan">▦ Bipar</button></div></div>
 <div class="dpick"><div id="dPickBar"><button type="button" id="dVoltar">← Voltar à lista</button><b>Escolher produto</b></div>
 <section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div>
@@ -1759,7 +1773,7 @@ function renderDon() {
   if (typeof dTop6Render === "function") dTop6Render();
   if (typeof dRepRender === "function") dRepRender();
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dKg").parentElement.style.display = sumU("kg") > 0 ? "" : "none"; $("dUn").parentElement.style.display = sumU("un") > 0 ? "" : "none"; $("dItens").textContent = don.itens.length;
-  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Toque num produto abaixo para começar.</p>';
+  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}"><div class="dn"><b>${esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)${(i.cx || i.sem) ? `<span class="dtara">${i.cx ? "📦 " + i.cx + " com caixa" : ""}${i.cx && i.sem ? " · " : ""}${i.sem ? i.sem + " sem caixa" : ""}</span>` : ""}</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade">${fq(i.qtd)} <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Toque num produto abaixo para começar.</p>';
   renderKey();
 }
 const dBase = n => String(n || "").replace(/\s+(kg|un)$/i, "").trim();
@@ -1823,7 +1837,7 @@ function dRepRender(){ const b=$("dRep"); if(!b) return; const L=(don.itens.find
   if(!L){ b.hidden=true; return; } b.hidden=false; b._i=L; b.textContent="＋ mais "+L.nome.replace(/\s+(kg|un)$/i,""); }
 $("dRep").onclick=()=>{ const L=$("dRep")._i; if(!L) return; buzz(); const p=prodFor(L.nome); selectProd(p?p.name:L.nome,L.cod||"",L.unidade); };
 function dFinOpen(){ if(!don.itens.length) return toast("Nada lançado ainda."); const nomes=[...don.itens].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR")).map(i=>esc(i.nome.replace(/\s+(kg|un)$/i,""))).join(" · ");
-  $("dFinBody").innerHTML=`<div class="ft"><span>Itens</span><b>${don.itens.length}</b></div><div class="ft"><span>Total</span><b>${[sumU("kg")>0?fq(sumU("kg"))+" kg":"",sumU("un")>0?fq(sumU("un"))+" un":""].filter(Boolean).join(" + ")}</b></div><div class="ft" style="font-weight:600;font-size:13px">${nomes}</div>`;
+  $("dFinBody").innerHTML=`<div class="ft"><span>Itens</span><b>${don.itens.length}</b></div><div class="ft"><span>Total</span><b>${[sumU("kg")>0?fq(sumU("kg"))+" kg":"",sumU("un")>0?fq(sumU("un"))+" un":""].filter(Boolean).join(" + ")}</b></div>${don.itens.some(i=>i.cx)?`<div class="ft"><span>Caixas descontadas</span><b>${don.itens.reduce((a,i)=>a+(i.cx||0),0)} (−${fq(don.itens.reduce((a,i)=>a+(i.tara||0),0))} kg)</b></div>`:""}<div class="ft" style="font-weight:600;font-size:13px">${nomes}</div>`;
   $("dFinSheet").classList.remove("hidden"); }
 function dFinClose(){ $("dFinSheet").classList.add("hidden"); }
 $("dStrip").onclick=dFinOpen; $("dStrip").onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); dFinOpen(); } };
@@ -1837,12 +1851,13 @@ $("dVoltar").onclick=()=>dView("lista");
 $("dTrocar").onclick=()=>{ dSel=""; dCodSel=""; $("dPeso").value=""; if(window.npClose) window.npClose(); renderQuick(); renderDon(); };
 ["dScan","dEan"].forEach(id=>$(id).addEventListener("click",()=>dView("lista"),true));
 function dNovoMark(key){ window.dNovo=key; window.dLastKey=key; clearTimeout(window.dNovoT); window.dNovoT=setTimeout(()=>{ window.dNovo=""; const n=document.querySelector(".ditem.novo"); if(n) n.classList.remove("novo"); },2600); setTimeout(()=>{ const n=document.querySelector(".ditem.novo"); if(n && !romAberta()) n.scrollIntoView({block:"center",behavior:"smooth"}); },450); }
-function addDon(nome, unidade, qtd, cod = "", bar = "") {
+function addDon(nome, unidade, qtd, cod = "", bar = "", meta = null) {
   if (romAberta()) return addToRom(nome, unidade, qtd, cod, bar);
   qtd = Math.round(qtd * 1000) / 1000; if (!(qtd > 0)) return 0; buzz(); usoLearn(nome, unidade, cod);
   const key = norm(nome) + "|" + unidade; let it = don.itens.find(i => i.key === key);
   if (it) { it.qtd = Math.round((it.qtd + qtd) * 1000) / 1000; it.lanc++; } else { it = { key, nome: nome.trim().slice(0, 60), unidade, qtd, lanc: 1 }; don.itens.push(it); }
   if (bar && !it.bar) it.bar = bar;
+  if (meta) { if (meta.sem) it.sem = (it.sem || 0) + 1; else if (meta.tara) { it.cx = (it.cx || 0) + 1; it.tara = Math.round(((it.tara || 0) + meta.tara) * 1000) / 1000; } }
   const pr = products.find(x => norm(x.name) === norm(nome)); it.cod =it.cod || cod || (pr && (pr.codigo_doacao || pr.barcode || pr.codigo_balanca)) || "";
   dNovoMark(it.key); store.set(DK, don); renderDon(); return it.qtd;
 }
@@ -1908,11 +1923,34 @@ async function donationScan(code) {
   if (!romAbertaAntes) toast(`${nome}${donCod ? " (cód. " + donCod + ")" : ""}: +${fq(qtd)} ${unidade}${notaPeso} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
 }
 // pesagem manual
+// ---------- tara da caixa: padrão 2 kg, dá para pesar sem caixa ----------
+var taraOn;   // undefined ou true = com caixa; false = sem caixa (volta a "com caixa" após cada lançamento)
+function taraKg() { var v = Number((store.get("validamais-tara", {}) || {}).kg); return isFinite(v) && v >= 0 && v < 50 ? v : 2; }
+function taraRefresh() {
+  var row = $("dTara"); if (!row) return;
+  var tem = dUnit === "kg" && taraKg() > 0; row.classList.toggle("hidden", !tem); if (!tem) return;
+  var on = taraOn !== false, b = $("tCx");
+  b.classList.toggle("on", on); b.setAttribute("aria-pressed", on ? "true" : "false");
+  b.textContent = on ? "📦 Com caixa (−" + fq(taraKg()) + " kg)" : "Sem caixa";
+  var raw = Number(String($("dPeso").value || "").replace(",", ".")), el = $("dLiq"), bad = false, t = "";
+  if (raw > 0) { if (on) { var l = raw - taraKg(); bad = l <= 0; t = "Balança " + fq(raw) + " → líquido " + (bad ? "—" : fq(l) + " kg"); } else t = "Sem desconto: " + fq(raw) + " kg"; }
+  else t = on ? "Digite o peso da balança" : "";
+  el.textContent = t; el.classList.toggle("bad", bad);
+}
+window.taraRefresh = taraRefresh;
+$("tCx").onclick = () => { taraOn = taraOn === false; taraRefresh(); };
+$("tEdit").onclick = () => {
+  const r = prompt("Peso da caixa vazia, em kg (0 desliga a tara):", String(taraKg()).replace(".", ","));
+  if (r === null) return; const n = Number(String(r).replace(",", ".").trim());
+  if (!(n >= 0 && n < 50)) return toast("Valor inválido.");
+  store.set("validamais-tara", { kg: Math.round(n * 1000) / 1000 }); taraRefresh(); toast(n > 0 ? "Caixa: " + fq(n) + " kg" : "Tara desligada.");
+};
 function renderKey() {
   $("dNome").textContent = dSel || "Pesquise o produto"; $("dNow").classList.toggle("vazio", !dSel);
   const it = dSel && don.itens.find(i => i.key === norm(dSel) + "|" + dUnit);
   const plus = lastAdd && lastAdd.k === norm(dSel) + "|" + dUnit && Date.now() - lastAdd.t < 2500 ? `<i class="plus">+${fq(lastAdd.q)}</i>` : "";
   $("dSelInfo").innerHTML = !dSel ? "" : it ? `<b>${plus}${fq(it.qtd)} ${esc(it.unidade)}</b>${it.lanc} lançamento${it.lanc > 1 ? "s" : ""}` : `<b>0 ${dUnit}</b>ainda não lançado`;
+  taraRefresh();
 }
 const DEFN = ["Mamão", "Banana", "Tomate", "Pão Francês", "Laranja", "Batata", "Cebola", "Maçã", "Cenoura", "Alface"];
 function dSuggest() {
@@ -2019,11 +2057,21 @@ async function dOddOk(n, u, q) {
 async function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",", "."));
   if (!dSel) return toast("Pesquise o produto."); if (!(q > 0)) return toast(dUnit === "un" ? "Digite a quantidade." : "Digite o peso em kg.");
   if (dUnit === "un") q = Math.round(q); if (!(q > 0)) return toast("Digite a quantidade.");
+  let meta = null;
+  if (dUnit === "kg" && taraKg() > 0) {
+    const t = taraKg(); meta = { bruto: q, tara: 0, sem: false };
+    if (taraOn === false) meta.sem = true;
+    else if (q <= t) {
+      const r = await askConfirm({ icon: "📦", title: "Menor que a caixa", big: fq(q), bigUnit: "kg", text: dSel, sub: `A caixa vazia pesa ${fq(t)} kg. Este peso é sem caixa?`, ok: "Sim, sem caixa", cancel: "Corrigir" });
+      if (!r) return; meta.sem = true;
+    } else { meta.tara = t; q = Math.round((q - t) * 1000) / 1000; }
+  }
   if (!(await dOddOk(dSel, dUnit, q))) return;
   dStatLearn(dSel, dUnit, q);
-  const nome = dSel, un = dUnit, total = addDon(dSel, dUnit, q, dCodSel);
+  const nome = dSel, un = dUnit, total = addDon(dSel, dUnit, q, dCodSel, "", meta);
+  taraOn = true;
   $("dPeso").value = ""; $("dPeso").blur(); if (window.npClose) window.npClose();
-  if (!romAberta()) toast(`✓ ${nome}: +${fq(q)} ${un} → total ${fq(total)} ${un}`);
+  if (!romAberta()) toast(`✓ ${nome}: +${fq(q)} ${un}${meta && meta.tara ? " (líquido, caixa " + fq(meta.tara) + " kg descontada)" : ""} → total ${fq(total)} ${un}`);
   dSel = ""; dCodSel = ""; $("dCod").value = ""; renderQuick(); renderKey(); window.scrollTo({ top: 0, behavior: "smooth" }); }
 $("dAdd").onclick = dPesoAdd; $("dPeso").onkeydown = e => { if (e.key === "Enter") dPesoAdd(); };
 // editar a quantidade de um item já coletado (toque no "5 kg")
@@ -2443,7 +2491,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
-const APP_VERSION = "2026.10.12-98";
+const APP_VERSION = "2026.10.12-99";
 $("appVer").textContent = APP_VERSION.split("-").pop();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
 (function () {
@@ -2610,7 +2658,7 @@ var hiddenAt=0;document.addEventListener("visibilitychange",function(){if(docume
     if (el.id === "dPeso") { var n = document.getElementById("dNome"), u = document.getElementById("uUn").classList.contains("sel") ? "un" : "kg"; return ((n && n.textContent) || "Peso") + " (" + u + ")"; }
     var l = el.id && document.querySelector('label[for="' + el.id + '"]'); return l ? l.textContent.replace("*", "").trim() : "Quantidade";
   }
-  function paint() { val.textContent = act ? (act.value || "0") : "";
+  function paint() { val.textContent = act ? (act.value || "0") : ""; if (window.taraRefresh) window.taraRefresh();
     var bg = document.getElementById("dBig"); if (bg && act && act.id === "dPeso") bg.innerHTML = (act.value || "0") + "<small>" + (document.getElementById("uUn").classList.contains("sel") ? "un" : "kg") + "</small>"; }
   window.npPaint = paint;
   function measure() { root.style.setProperty("--np-h", pad.offsetHeight + "px"); }
