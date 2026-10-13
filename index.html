@@ -240,6 +240,22 @@ summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:
 .crr .ltam .cdup{border:0;background:transparent;color:var(--g);min-width:30px;font-size:19px;font-weight:700;padding:0}
 .tbadge{display:inline-block;margin-left:6px;background:var(--g);color:#fff;border-radius:99px;font-size:11px;font-weight:800;padding:2px 8px;vertical-align:middle}
 .cdel{border:0;background:transparent;color:#d98a8a;min-width:34px;min-height:34px;padding:0;font-size:16px}
+/* Etiquetas: deslizar para apagar + alvos de toque maiores */
+.crwrap{position:relative;overflow:hidden;border-bottom:1px solid var(--ln);transition:height .2s ease,opacity .2s ease}
+.crwrap:last-child{border-bottom:0}
+.crwrap.gone{opacity:0}
+.crwrap .crw{position:relative;z-index:1;background:#fff;border-bottom:0;touch-action:pan-y;will-change:transform;align-items:center}
+.crwrap .crw.snap{transition:transform .2s ease}
+.crwrap .crw:active{background:var(--lt2)}
+.crbg{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:#d64545;color:#fff;font-weight:800;font-size:14px;letter-spacing:.02em;transition:background-color .12s}
+.crbg span{opacity:0;transition:opacity .1s}
+.crwrap.sw-r .crbg .l,.crwrap.sw-l .crbg .r{opacity:1}
+.crwrap.ready .crbg{background:#b32d22}
+.crw .lchk{width:44px;min-width:44px;max-width:44px;height:44px;min-height:44px;border-radius:12px}
+.crr{align-self:stretch}
+.crr .ltam .cdup{width:48px;min-width:48px;height:44px;min-height:44px;font-size:24px;border-radius:12px}
+html[data-tema=dark] .crwrap .crw{background:#111814}
+html[data-tema=dark] .crwrap .crw:active{background:#16201a}
 
 /* ===== doação ===== */
 
@@ -2486,7 +2502,7 @@ const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.categ
 function renderLabels() {
   $("eLimpa").classList.toggle("hidden", labels.length <= 5); { const n = labels.filter(l => l.ok).length; $("eMarc").textContent = labels.length ? `✓ ${n} de ${labels.length} já colocadas para impressão` : ""; } $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
   const ord = { P: 0, M: 1, G: 2 };   // lista única: primeiro os P, depois M, depois G (mantém a ordem de inclusão dentro de cada tamanho)
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crw${l.ok ? " done" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdup" data-ldup="${i}" aria-label="Duplicar ${esc(l.nome)} com outro tamanho" title="Duplicar com outro tamanho">⧉</button><button class="cdel" data-ldrop="${i}" aria-label="Remover ${esc(l.nome)}">✕</button></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crwrap"><div class="crbg" aria-hidden="true"><span class="l">🗑 Apagar</span><span class="r">Apagar 🗑</span></div><div class="crw${l.ok ? " done" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div><div class="ltam"><button class="cdup" data-ldup="${i}" aria-label="Duplicar ${esc(l.nome)} com outro tamanho" title="Duplicar com outro tamanho">⧉</button></div></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 function labelPick(p) {
   buzz();
@@ -2543,8 +2559,9 @@ function labelDup(i) { const l = labels[i]; if (!l) return; const ord = ["P", "M
   labels.splice(i + 1, 0, { ...l, tam: novo, qtd: 1, ok: false, dup: true }); store.set(EK, labels); renderLabels(); lmOpen(i + 1); toast("Duplicado: escolha o tamanho e a quantidade."); }
 $("eLista").onclick = e => { const dp = e.target.closest("[data-ldup]"); if (dp) { labelDup(Number(dp.dataset.ldup)); return; }
   const k = e.target.closest("[data-lchk]"); if (k) { const l = labels[Number(k.dataset.lchk)]; if (l) { l.ok = !l.ok; store.set(EK, labels); renderLabels(); } return; }
-  const b = e.target.closest("[data-ldrop]"); if (!b) return; const x = Number(b.dataset.ldrop), it = labels.splice(x, 1)[0];
-  store.set(EK, labels); renderLabels(); toast("Etiqueta removida.", "Desfazer", () => { labels.splice(x, 0, it); store.set(EK, labels); renderLabels(); }); };
+};
+function labelDrop(x) { const it = labels.splice(x, 1)[0]; if (!it) return; store.set(EK, labels); renderLabels();
+  toast("Etiqueta removida.", "Desfazer", () => { labels.splice(Math.min(x, labels.length), 0, it); store.set(EK, labels); renderLabels(); }); }
 renderLabels();
 
 // segurar o CÓDIGO do item abre "unificar com o código do sistema" (vale só para a lista de etiquetas)
@@ -2639,6 +2656,27 @@ $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden");
   box.addEventListener("pointermove", e => { if (t && (Math.abs(e.clientX - x0) > 10 || Math.abs(e.clientY - y0) > 10)) stop(); });
   ["pointerup", "pointercancel", "pointerleave"].forEach(n => box.addEventListener(n, stop));
   box.addEventListener("contextmenu", e => { if (e.target.closest(".crw")) e.preventDefault(); }); })();
+
+// deslizar a linha para o lado apaga a etiqueta (com "Desfazer"); não troca de aba
+(function () { const box = $("eLista"); let row = null, wrap = null, pid = -1, x0 = 0, y0 = 0, dx = 0, mode = 0, w = 0, was = false, swiped = 0;   // mode: 0 decidindo · 1 arrastando · 2 rolagem
+  const TH = () => Math.max(90, w * 0.35);
+  const clear = wp => wp.classList.remove("sw-r", "sw-l", "ready");
+  box.addEventListener("pointerdown", e => { if (e.pointerType === "mouse" && e.button !== 0) return; const r = e.target.closest(".crw"); if (!r || r.parentNode.classList.contains("gone")) return;
+    row = r; wrap = r.parentNode; pid = e.pointerId; x0 = e.clientX; y0 = e.clientY; dx = 0; mode = 0; was = false; w = r.offsetWidth; r.classList.remove("snap"); });
+  box.addEventListener("pointermove", e => { if (!row || e.pointerId !== pid) return; const mx = e.clientX - x0, my = e.clientY - y0;
+    if (mode === 0) { if (Math.abs(mx) < 10 && Math.abs(my) < 10) return; if (Math.abs(mx) > Math.abs(my) * 1.5) { mode = 1; try { row.setPointerCapture(pid); } catch (_) {} } else { mode = 2; return; } }
+    if (mode !== 1) return; dx = mx; row.style.transform = "translateX(" + dx + "px)";
+    wrap.classList.toggle("sw-r", dx > 0); wrap.classList.toggle("sw-l", dx < 0);
+    const ready = Math.abs(dx) >= TH(); wrap.classList.toggle("ready", ready); if (ready && !was) buzz(); was = ready; });
+  const end = e => { if (!row || e.pointerId !== pid) return; const r = row, wp = wrap, d = dx, dragged = mode === 1, go = dragged && e.type === "pointerup" && Math.abs(d) >= TH();
+    row = wrap = null; mode = 0; dx = 0; if (dragged) swiped = Date.now(); if (!r.isConnected) return;
+    if (!go) { if (dragged) { r.classList.add("snap"); r.style.transform = ""; clear(wp); } return; }
+    const item = labels[Number(r.dataset.li)]; if (!item) return;
+    r.classList.add("snap"); r.style.transform = "translateX(" + (d > 0 ? "110%" : "-110%") + ")"; wp.style.height = wp.offsetHeight + "px";
+    setTimeout(() => { wp.classList.add("gone"); wp.style.height = "0px"; }, 160);
+    setTimeout(() => { let x = labels.indexOf(item); if (x < 0 && item.id) x = labels.findIndex(l => l.id === item.id); if (x < 0) { renderLabels(); return; } labelDrop(x); }, 400); };
+  box.addEventListener("pointerup", end); box.addEventListener("pointercancel", end);
+  box.addEventListener("click", e => { if (Date.now() - swiped < 400) { e.stopPropagation(); e.preventDefault(); } }, true); })();
 
 // ---------- importar lista de produtos (nome + códigos) ----------
 const HDR = { nome: /^(nome|produto|descri)/, bal: /(balan|plu)/, doa: /doa/, ean: /(ean|barra|gtin)/, cat: /(categ|setor)/ };
@@ -2839,7 +2877,7 @@ if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) $("iosHint").c
 <script>(function(){var $=function(i){return document.getElementById(i)};
 ["Loja","Doacao","Etiquetas"].forEach(function(n){$("tb"+n).onclick=function(){$("nav"+n).click()}});})();</script>
 <script>(function(){var T=["Doacao","Etiquetas","Loja"],x0=0,y0=0,ok=false,g=function(i){return document.getElementById(i)};
-function blocked(t){if(t.closest&&t.closest("input,textarea,select,.ivsw,.rwrap,#reader,.side,.modal,#confView,.fabwrap,.topdo,.askbg,.cropbg,.redit"))return true;
+function blocked(t){if(t.closest&&t.closest("input,textarea,select,.ivsw,.rwrap,#reader,.side,.modal,#confView,.fabwrap,.topdo,.askbg,.cropbg,.redit,.crw"))return true;
 var m=document.querySelectorAll(".modal,#confView,.side.open");for(var i=0;i<m.length;i++){if(!m[i].classList.contains("hidden")&&getComputedStyle(m[i]).display!=="none")return true}return false}
 document.addEventListener("touchstart",function(e){if(e.touches.length!==1){ok=false;return}var t=e.touches[0];x0=t.clientX;y0=t.clientY;ok=!blocked(e.target)},{passive:true});
 document.addEventListener("touchend",function(e){if(!ok)return;ok=false;var t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;
