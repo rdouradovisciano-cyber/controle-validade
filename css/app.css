@@ -886,3 +886,14 @@ body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
 /* ✕ para remover a etiqueta: discreto, sem fundo; área de toque de 36px */
 .crw .crx{flex:none;align-self:center;width:36px;min-width:36px;height:36px;min-height:36px;margin:0 -6px 0 2px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--mut);font-size:14px;line-height:1;opacity:.5;-webkit-tap-highlight-color:transparent}
 .crw .crx:active{opacity:1;color:#d64545;background:rgba(214,69,69,.14)}
+
+/* carregando: silhuetas pulsando enquanto o Firebase conecta */
+.product.skelc{border-left-color:var(--ln);pointer-events:none;box-shadow:none}
+.skelc .sk{border-radius:8px;background:linear-gradient(90deg,rgba(128,128,128,.13) 0%,rgba(128,128,128,.28) 50%,rgba(128,128,128,.13) 100%);background-size:220% 100%;animation:skpulse 1.5s ease-in-out infinite;animation-delay:var(--d,0s)}
+.skelc .sk-t{height:15px;margin-bottom:9px}
+.skelc .sk-m{height:11px;width:82%;margin:6px 0 12px}
+.skelc .sk-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.skelc .sk-d{height:36px;width:42%;border-radius:12px}
+.skelc .sk-p{height:28px;width:27%;border-radius:99px}
+@keyframes skpulse{0%{background-position:110% 0;opacity:.75}50%{opacity:1}100%{background-position:-110% 0;opacity:.75}}
+@media (prefers-reduced-motion:reduce){.skelc .sk{animation:none}}
