@@ -502,7 +502,7 @@ $("scansBox").ontoggle = () => {
   else if (unsubScan) { unsubScan(); unsubScan = null; }
 };
 
-// ---------- setor, menu lateral, voz e foto da validade ----------
+// ---------- setor, menu lateral e voz ----------
 const SETOR = "FLV"; $("categoryFilter").value = SETOR; store.set(LC, SETOR); render();
 { const sf = $("statusFilter"), stt = document.querySelectorAll("#tabLoja .stats .stat");
   stt[0].onclick = () => { sf.value = ""; render(); }; stt[1].onclick = () => { sf.value = sf.value === "soon" ? "" : "soon"; render(); }; stt[2].onclick = () => { sf.value = sf.value === "expired" ? "" : "expired"; render(); }; }
@@ -519,27 +519,6 @@ $("micBtn").onclick = () => {
   r.onresult = e => { const t = e.results[0][0].transcript.trim(); $("name").value = (t.charAt(0).toUpperCase() + t.slice(1)).slice(0, 120); };
   r.onerror = e => toast(e.error === "not-allowed" ? "Permita o microfone para ditar." : "Não entendi, tente de novo.");
   r.onend = () => $("micBtn").classList.remove("on"); $("micBtn").classList.add("on"); toast("Fale o nome do produto…"); try { r.start(); } catch {} };
-const MES = { jan: 1, fev: 2, mar: 3, abr: 4, mai: 5, jun: 6, jul: 7, ago: 8, set: 9, out: 10, nov: 11, dez: 12 };
-function parseDate(txt) {
-  const f = [], add = (d, m, y) => { y = y < 100 ? 2000 + y : y; m = +m; d = +d;
-    if (m >= 1 && m <= 12 && y >= 2024 && y <= 2040) { d = d || new Date(y, m, 0).getDate(); if (d >= 1 && d <= 31) f.push(`${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`); } };
-  let t = String(txt).toLowerCase();
-  t = t.replace(/(\d{1,2})\s*[\/.\-]\s*(\d{1,2})\s*[\/.\-]\s*(\d{4}|\d{2})(?!\d)/g, (_, d, m, y) => { add(d, m, +y); return " "; });
-  t = t.replace(/(\d{1,2})?\s*([a-zç]{3})[a-z]*\.?\s*[\/.\-]?\s*(\d{4}|\d{2})(?!\d)/g, (s, d, mo, y) => { if (!MES[mo]) return s; add(d, MES[mo], +y); return " "; });
-  t.replace(/(\d{1,2})\s*[\/.\-]\s*(\d{4}|\d{2})(?!\d)/g, (_, m, y) => { add(0, m, +y); return " "; });
-  return f.sort().pop() || "";
-}
-const loadTess = () => window.Tesseract ? Promise.resolve() : new Promise((ok, no) => { const s = document.createElement("script");
-  s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"; s.onload = ok; s.onerror = () => no(new Error("offline")); document.head.append(s); });
-async function shrink(file) { try { const bmp = await createImageBitmap(file), k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height)), c = document.createElement("canvas");
-  c.width = bmp.width * k; c.height = bmp.height * k; c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height); return await new Promise(r => c.toBlob(r, "image/jpeg", .9)); } catch { return file; } }
-$("ocrBtn").onclick = () => $("ocrFile").click();
-$("ocrFile").onchange = async () => {
-  const f = $("ocrFile").files[0]; if (!f) return; toast("Lendo a data… (precisa de internet)");
-  try { await loadTess(); const r = await Tesseract.recognize(await shrink(f), "por"), d = parseDate(r.data.text);
-    if (d) { $("expiry").value = d; toast("Validade lida: " + fmt(d) + ". Confira antes de salvar."); } else toast("Não achei a data. Tente uma foto mais perto e com luz.");
-  } catch (e) { console.error(e); toast("Não foi possível ler a foto (verifique a internet)."); }
-  $("ocrFile").value = ""; };
 document.addEventListener("keydown", e => { if (e.key === "Escape") side(false); });
 
 // ---------- códigos internos editáveis (balança / doação) ----------
