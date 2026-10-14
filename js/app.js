@@ -1186,27 +1186,15 @@ let labels = store.get(EK, []), pend = null, eHits = [];
 // itens pesados (FLV/Padaria) usam o código de balança; os demais usam o EAN
 const codeText = c => c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.code}` : "⚠ Sem código cadastrado para este produto.";
 const labelCode = p => (p.codigo_balanca && (["FLV", "Padaria"].includes(p.category) || !p.barcode)) ? { code: String(p.codigo_balanca), kg: true } : { code: p.barcode || "", kg: false };
-const eSel = new Set(); let eSelOn = false;   // seleção para apagar várias etiquetas de uma vez
-function eSelPaint() {
-  [...eSel].forEach(l => { if (!labels.includes(l)) eSel.delete(l); });
-  if (!labels.length) eSelOn = false;
-  document.body.classList.toggle("esel-on", eSelOn); $("eLista").classList.toggle("selmode", eSelOn);
-  $("eSelBar").classList.toggle("hidden", !eSelOn); $("eSelBtn").classList.toggle("hidden", !labels.length || eSelOn);
-  $("eSelN").textContent = eSel.size ? eSel.size + (eSel.size > 1 ? " marcadas" : " marcada") : "Marque as etiquetas";
-  $("eSelDel").disabled = !eSel.size; $("eSelDel").textContent = "🗑 Apagar" + (eSel.size ? " (" + eSel.size + ")" : "");
-  $("eSelAll").textContent = eSel.size === labels.length && labels.length ? "Limpar" : "Todas";
-}
-function eSelSet(on) { eSelOn = !!on; if (!on) eSel.clear(); renderLabels(); }
 function labelDropMany(its) {
   const idx = its.map(l => ({ l, x: labels.indexOf(l) })).filter(o => o.x >= 0).sort((a, b) => a.x - b.x); if (!idx.length) return;
-  idx.slice().reverse().forEach(o => labels.splice(o.x, 1)); store.set(EK, labels); eSelOn = false; eSel.clear(); renderLabels();
+  idx.slice().reverse().forEach(o => labels.splice(o.x, 1)); store.set(EK, labels); renderLabels();
   toast(idx.length > 1 ? idx.length + " etiquetas removidas." : "Etiqueta removida.", "Desfazer", () => { idx.forEach(o => labels.splice(Math.min(o.x, labels.length), 0, o.l)); store.set(EK, labels); renderLabels(); });
 }
 function renderLabels() {
   $("eLimpa").classList.toggle("hidden", labels.length <= 5); { const n = labels.filter(l => l.ok).length; $("eMarc").textContent = labels.length ? `✓ ${n} de ${labels.length} já colocadas para impressão` : ""; } $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
   const ord = { P: 0, M: 1, G: 2 };   // lista única: primeiro os P, depois M, depois G (mantém a ordem de inclusão dentro de cada tamanho)
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crwrap"><div class="crw${l.ok ? " done" : ""}${eSel.has(l) ? " esel" : ""}" data-li="${i}"><span class="selc" aria-hidden="true"></span><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div></div></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
-  eSelPaint();
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crwrap"><div class="crw${l.ok ? " done" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div></div><button type="button" class="crx" data-ldrop="${i}" aria-label="Remover etiqueta: ${esc(l.nome)}">✕</button></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 // efeito: o item novo é escrito à mão, devagar — uma mão (✍️) vai riscando o código e depois o nome, com tinta vermelha que seca
 function etqEscrever(row) {
@@ -1301,16 +1289,11 @@ $("eAdd").onclick = () => {
 function labelDup(i) { const l = labels[i]; if (!l) return; const ord = ["P", "M", "G"], atual = l.tam || "M", novo = ord[(ord.indexOf(atual) + 1) % 3];
   labels.splice(i + 1, 0, { ...l, tam: novo, qtd: 1, ok: false, dup: true }); store.set(EK, labels); renderLabels(); lmOpen(i + 1); toast("Duplicado: escolha o tamanho e a quantidade."); }
 $("eLista").onclick = e => {
-  if (eSelOn) { const r = e.target.closest(".crw"); if (r) { const l = labels[Number(r.dataset.li)]; if (l) { eSel.has(l) ? eSel.delete(l) : eSel.add(l); try { if (navigator.vibrate) navigator.vibrate(8); } catch (_) {} renderLabels(); } } return; }
+  const dd = e.target.closest("[data-ldrop]"); if (dd) { const l = labels[Number(dd.dataset.ldrop)]; if (l) labelDropMany([l]); return; }   // ✕: remove já, com «Desfazer»
   const dp = e.target.closest("[data-ldup]"); if (dp) { labelDup(Number(dp.dataset.ldup)); return; }
   const k = e.target.closest("[data-lchk]"); if (k) { const l = labels[Number(k.dataset.lchk)]; if (l) { l.ok = !l.ok; store.set(EK, labels); renderLabels(); } return; }
   const rw = e.target.closest(".crw"); if (rw) lmOpen(Number(rw.dataset.li));   // toque na linha abre a folha: tamanho, quantidade, duplicar e apagar
 };
-$("eSelBtn").onclick = () => eSelSet(true);
-$("eSelCancel").onclick = () => eSelSet(false);
-$("eSelAll").onclick = () => { if (eSel.size === labels.length) eSel.clear(); else labels.forEach(l => eSel.add(l)); renderLabels(); };
-$("eSelDel").onclick = () => { if (eSel.size) labelDropMany([...eSel]); };
-new MutationObserver(() => { if (eSelOn && document.body.dataset.tab !== "Etiquetas") eSelSet(false); }).observe(document.body, { attributes: true, attributeFilter: ["data-tab"] });
 $("lmDel").onclick = () => { const l = labels[lmI]; $("lModal").classList.add("hidden"); if (l) labelDropMany([l]); };
 function labelDrop(x) { const it = labels.splice(x, 1)[0]; if (!it) return; store.set(EK, labels); renderLabels();
   toast("Etiqueta removida.", "Desfazer", () => { labels.splice(Math.min(x, labels.length), 0, it); store.set(EK, labels); renderLabels(); }); }
@@ -1403,13 +1386,13 @@ $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden");
 })();
 (function () { const box = $("eLista"); let t = null, x0 = 0, y0 = 0;
   const stop = () => { clearTimeout(t); t = null; };
-  box.addEventListener("pointerdown", e => { const r = e.target.closest(".crw"); if (eSelOn || !r || e.target.closest("[data-ldrop],[data-lchk],[data-ldup]")) return; x0 = e.clientX; y0 = e.clientY;
+  box.addEventListener("pointerdown", e => { const r = e.target.closest(".crw"); if (!r || e.target.closest("[data-ldrop],[data-lchk],[data-ldup]")) return; x0 = e.clientX; y0 = e.clientY;
     const i = Number(r.dataset.li); t = setTimeout(() => { t = null; lmOpen(i); }, 500); });
   box.addEventListener("pointermove", e => { if (t && (Math.abs(e.clientX - x0) > 10 || Math.abs(e.clientY - y0) > 10)) stop(); });
   ["pointerup", "pointercancel", "pointerleave"].forEach(n => box.addEventListener(n, stop));
   box.addEventListener("contextmenu", e => { if (e.target.closest(".crw")) e.preventDefault(); }); })();
 
-// (apagar etiqueta: botão 🗑 em cada linha, com confirmação em dois toques e «Desfazer»)
+// (apagar etiqueta: ✕ em cada linha, direto e com «Desfazer»; também na folha da etiqueta)
 
 // ---------- importar lista de produtos (nome + códigos) ----------
 const HDR = { nome: /^(nome|produto|descri)/, bal: /(balan|plu)/, doa: /doa/, ean: /(ean|barra|gtin)/, cat: /(categ|setor)/ };

@@ -532,23 +532,7 @@ body .tabbar button.siren{animation:piscaBranco 1.1s ease-in-out infinite!import
 .tabbar button.siren .sirn{background:#fff!important;color:#10131a!important}
 @media (prefers-reduced-motion:reduce){body .tabbar button.siren{animation:none!important;background:rgba(255,255,255,.34)!important;box-shadow:0 0 0 2px #fff inset!important}}
 /* v147: etiquetas — linha limpa; toque abre a folha (com Apagar); seleção para apagar várias */
-.emodo{display:flex;justify-content:flex-end;margin:0 0 8px}
-#eSelBtn{min-height:34px;padding:0 14px;border-radius:99px;font-size:12.5px;font-weight:700;background:rgba(255,255,255,.07);color:var(--mut);border:1px solid var(--ln)}
-#eSelBtn.hidden{display:none}
-.crw .selc{display:none}
-#eLista.selmode .lchk{display:none}
-#eLista.selmode .selc{display:block;flex:none;width:26px;height:26px;border-radius:50%;border:2px solid #7a8190;align-self:center;margin:0 9px 0 9px;box-sizing:border-box}
-#eLista.selmode .crw.esel .selc{background:#d64545;border-color:#d64545;box-shadow:inset 0 0 0 4px #111814}
-#eLista.selmode .crw.esel{background:rgba(214,69,69,.14)!important}
 .lmdel{display:block;width:100%;margin-top:10px;min-height:48px;border-radius:14px;font-size:15px;font-weight:800;background:transparent;color:#e08a8a;border:1.5px solid #5a2a2a}
-#eSelBar{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:18px;background:#14181f;border:1px solid #3a4050;box-shadow:0 12px 30px rgba(0,0,0,.5)}
-#eSelBar.hidden{display:none}
-#eSelBar #eSelN{flex:1;min-width:0;font-size:13px;font-weight:700;color:#ece8dc;line-height:1.2}
-#eSelBar button{min-height:42px;padding:0 12px;border-radius:12px;font-size:13px;font-weight:800;background:#232833;color:#ece8dc;border:1px solid #3a4050;white-space:nowrap}
-#eSelBar #eSelDel{background:#b32d22;border-color:#ff8a80;color:#fff}
-#eSelBar #eSelDel:disabled{opacity:.4}
-body.esel-on .fabwrap{display:none}
-body.esel-on .toast{bottom:calc(86px + env(safe-area-inset-bottom))!important}
 /* ===================== tema escuro ===================== */
 html[data-tema=dark]{color-scheme:dark;--red:#ff7b72;--amb:#f0b429;--sh1:0 1px 2px rgba(0,0,0,.5);--sh2:0 6px 18px rgba(0,0,0,.5)}
 html[data-tema=dark] .top{background:linear-gradient(135deg,#0f2418,#15321f);box-shadow:0 8px 24px rgba(0,0,0,.5)}
@@ -898,3 +882,7 @@ body.np-open[data-tab="Doacao"] .nowbar #dPeso,body.np-open[data-tab="Doacao"] .
 body.np-open[data-tab="Doacao"] .nowbar{position:sticky}
 body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog{width:92px}
 body.np-open[data-tab="Doacao"] .nowbar .nowrow .utog button{min-height:34px}
+
+/* ✕ para remover a etiqueta: discreto, sem fundo; área de toque de 36px */
+.crw .crx{flex:none;align-self:center;width:36px;min-width:36px;height:36px;min-height:36px;margin:0 -6px 0 2px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--mut);font-size:14px;line-height:1;opacity:.5;-webkit-tap-highlight-color:transparent}
+.crw .crx:active{opacity:1;color:#d64545;background:rgba(214,69,69,.14)}
