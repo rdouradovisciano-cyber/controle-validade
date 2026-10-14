@@ -831,8 +831,8 @@ async function donationScan(code) {
   // item bipado por código de barras: no relatório e na lista fica o código de balança (PLU) do cadastro; sem PLU, mantém o código antigo
   const prodPlu = (!scaleLbl && unidade === "un") ? (regd || products.find(p => p.barcode === code) || products.find(p => norm(p.name || "") === norm(nome)) || {}) : {};
   const plu = prodPlu.codigo_balanca ? String(Number(prodPlu.codigo_balanca)) : "";
-  const total = addDon(nome, unidade, qtd, (!scaleLbl && unidade === "un") ? (plu || donCod || code) : "", (!scaleLbl && unidade === "un") ? code : "");
-  if (!romAbertaAntes) toast(`${nome}${donCod ? " (cód. " + donCod + ")" : ""}: +${fq(qtd)} ${unidade}${notaPeso} → total ${fq(total)} ${unidade}`); lastScan.t = Date.now();
+  addDon(nome, unidade, qtd, (!scaleLbl && unidade === "un") ? (plu || donCod || code) : "", (!scaleLbl && unidade === "un") ? code : "");
+  lastScan.t = Date.now();
 }
 // pesagem manual
 // ---------- TARA: padrão 2 kg, dá para pesar sem TARA ----------
@@ -933,9 +933,8 @@ async function dPesoAdd() { let q = Number(($("dPeso").value || "").replace(",",
   }
   if (!(await dOddOk(dSel, dUnit, q))) return;
   dStatLearn(dSel, dUnit, q);
-  const nome = dSel, un = dUnit, total = addDon(dSel, dUnit, q, dCodSel, "", meta);
-  taraOn = true;
-  if (meta) toast(`${nome}: +${fq(q)} ${un}` + (meta.tara ? ` · com TARA (bruto ${fq(meta.bruto)} − ${fq(meta.tara)} kg)` : " · sem TARA") + ` → total ${fq(total)} ${un}`);
+  addDon(dSel, dUnit, q, dCodSel, "", meta);
+  taraOn = true;   // sem aviso preto: a lista já mostra o item, o +peso e o total
   $("dPeso").value = ""; $("dPeso").blur(); if (window.npClose) window.npClose();
   dSel = ""; dCodSel = ""; $("dCod").value = ""; renderKey(); window.scrollTo({ top: 0, behavior: "smooth" }); }
 $("dAdd").onclick = dPesoAdd; $("dPeso").onkeydown = e => { if (e.key === "Enter") dPesoAdd(); };
