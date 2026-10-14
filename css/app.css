@@ -243,14 +243,6 @@ html[data-tema=dark] .crwrap .crw:active{background:#16201a}
 .dcod{display:block;font-variant-numeric:tabular-nums;margin-top:1px}
 .dq{white-space:nowrap}
 .dq span{font-size:13px;color:var(--mut);font-weight:600}
-.cropbg{position:fixed;inset:0;z-index:100001;background:rgba(5,14,10,.85);display:flex;align-items:center;justify-content:center;padding:14px}
-.crop{background:var(--card);color:var(--ink);border:1px solid var(--ln);border-radius:20px;padding:16px;width:min(100%,400px);text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.5)}
-.crop h3{margin:0 0 4px;font-size:18px}.crop p{margin:0 0 12px;font-size:12.5px;line-height:1.4;color:var(--mut)}
-.cropv{position:relative;margin:0 auto;border-radius:14px;overflow:hidden;border:2px solid var(--g);background:#fff;touch-action:none}
-.cropv canvas{display:block;touch-action:none}
-.cropv::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 33%,rgba(255,255,255,.45) 33%,rgba(255,255,255,.45) calc(33% + 1px),transparent calc(33% + 1px),transparent 66%,rgba(255,255,255,.45) 66%,rgba(255,255,255,.45) calc(66% + 1px),transparent calc(66% + 1px)),linear-gradient(0deg,transparent 33%,rgba(255,255,255,.45) 33%,rgba(255,255,255,.45) calc(33% + 1px),transparent calc(33% + 1px),transparent 66%,rgba(255,255,255,.45) 66%,rgba(255,255,255,.45) calc(66% + 1px),transparent calc(66% + 1px))}
-.cropz{width:100%;margin:14px 0 4px;accent-color:var(--g)}
-.crop .arow{display:flex;gap:10px;margin-top:10px}.crop .arow button{flex:1;min-height:50px;border-radius:14px;border:1px solid var(--ln);background:var(--lt);color:var(--g-d);font-weight:800;font-size:16px}.crop .arow .ok{background:var(--g);color:#fff;border-color:var(--g)}
 .crw .lchk{flex:none;width:34px;min-width:34px;max-width:34px;height:34px;min-height:34px;align-self:center;margin-right:2px;border-radius:10px;border:2px solid var(--ln);background:var(--card);color:#fff;font-size:20px;font-weight:900;line-height:1;padding:0}
 .crw.done .lchk{background:var(--g);border-color:var(--g)}
 .crw.done .crl{opacity:.7}
@@ -300,10 +292,6 @@ body.mao1 .fabscan{height:64px;font-size:18px;padding:0 28px}
 .dupr+.dupr{border-top:1px dashed var(--ln)}
 .dupr span{min-width:0;overflow-wrap:anywhere}.dupr small{color:var(--mut)}
 .dupr button{flex:none;min-height:44px;padding:0 14px;border-radius:12px;border:0;background:var(--g);color:#fff;font-weight:800}
-.foto{width:72px;height:72px;border-radius:14px;object-fit:cover;border:1px solid var(--ln);flex:none}
-.fotorow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.fotobtn{display:inline-flex;align-items:center;min-height:48px;padding:0 16px;border-radius:14px;background:var(--lt);color:var(--g-d);font-weight:800;cursor:pointer;border:1px solid var(--ln)}
-.pth{width:40px;height:40px;border-radius:10px;object-fit:cover;vertical-align:middle;margin-right:8px;border:1px solid var(--ln)}
 .onchip{font-size:11px;font-weight:700;min-height:0;border-radius:99px;background:rgba(255,255,255,.16);color:#fff;border:0;white-space:nowrap}
 .onchip.on{color:#b9f6ca}
 .topdo{touch-action:pan-x;overscroll-behavior-x:contain;display:flex;align-items:center;gap:6px;overflow-x:auto;white-space:nowrap;margin:8px 0;padding:6px 10px;border:1px solid var(--ln);border-radius:12px;background:var(--lt2);font-size:12.5px;scrollbar-width:none}

@@ -123,7 +123,7 @@ function phDraw() {
 window.phOpen = () => { phLog = phLog.filter(e => Date.now() - (e.t || 0) < HIST_MS); store.set(PLK, phLog); $("phBusca").value = ""; phDraw(); $("phModal").classList.remove("hidden"); };
 async function phRestore(i) {
   const e = phLog[i]; if (!e || e.rest) return;
-  const ok = await askConfirm({ icon: "↩", title: "Restaurar produtos?", text: e.it.length + " produto(s)", sub: "Eles voltam para a lista com os dados de antes (a foto não é recuperada).", ok: "Restaurar", cancel: "Cancelar" });
+  const ok = await askConfirm({ icon: "↩", title: "Restaurar produtos?", text: e.it.length + " produto(s)", sub: "Eles voltam para a lista com os dados de antes.", ok: "Restaurar", cancel: "Cancelar" });
   if (!ok) return; const ts = db ? V.serverTimestamp() : null;
   e.it.forEach(d => { const data = { ...d }; delete data.id;
     if (db) V.addDoc(V.collection(db, "products"), { ...data, createdAt: ts, updatedAt: ts }).catch(() => toast("Não foi possível restaurar na nuvem."));
@@ -146,7 +146,7 @@ function render() {
     $("outAlert").classList.toggle("hidden", !fora); $("outAlert").textContent = `⚠ ${fora} produto(s) de OUTROS setores vencem em até 1 dia — toque para ver todos`; }
   $("topAlert").classList.toggle("hidden", !(ex || so));
   $("topAlert").textContent = `Atenção: ${ex} vencido(s) e ${so} vencendo em breve.`;
-  sirene(); FM = fotoMap();
+  sirene();
   const cnt = {}; products.forEach(p => { if (p.barcode) cnt[p.barcode] = (cnt[p.barcode] || 0) + 1; });
   const hoje = products.filter(p => !p.retirado && daysLeft(p.expiry) === 0 && (!cat || p.category === cat));
   $("todayBanner").classList.toggle("hidden", !hoje.length);
@@ -158,7 +158,7 @@ function render() {
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
     if (p.retirado) return `<article class="product retirado"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">${esc(p.category)}</span></div><div class="vbox"><div class="vd"><small>RETIRADO DA LOJA</small><b>${p.retEm ? new Date(Number(p.retEm)).toLocaleDateString("pt-BR") : "—"}</b></div><div class="vr"><span class="pill">${p.retPor ? "por " + esc(p.retPor) : ""}</span><small>validade era ${fmt(p.expiry)}</small></div></div><div class="actions"><button class="secondary" data-volta="${esc(p.id)}">↩ Voltar para a loja</button></div></article>`;
-    return `<article class="product ${cls}"><div class="ctop"><h3>${(fotoDe(p) || FM.get(norm(p.name || ""))) ? `<img class="pth" alt="" loading="lazy" decoding="async" src="${fotoDe(p) || FM.get(norm(p.name || ""))}">` : ""}${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button></div></article>`;
+    return `<article class="product ${cls}"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button></div></article>`;
   }).join("") : (cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
 }
 
@@ -167,73 +167,33 @@ function show(title, scan) {
   $("modalTitle").textContent = title; $("modal").classList.remove("hidden");
   $("scannerArea").classList.toggle("hidden", !scan); $("productForm").classList.toggle("hidden", !!scan);
 }
-// ----- foto do produto (miniatura 160 px, guardada no próprio cadastro) -----
-let curFoto = "", FM = new Map();
-const FOK = "validamais-fotos";   // cópia das fotos neste aparelho (vale mesmo se o Firebase recusar o campo foto)
-const fotoDe = p => p.foto || "";   // formato antigo (dentro do cadastro); o novo fica na coleção "fotos"
-const fotoMap = () => { const m = new Map(Object.entries(store.get(FOK, {}))); fotosDb.forEach((d, k) => m.set(k, d)); products.forEach(p => { if (fotoDe(p)) m.set(norm(p.name || ""), fotoDe(p)); }); return m; };
-// ----- fotos numa coleção própria ("fotos"): 1 miniatura por nome de produto, fora do cadastro (grátis, sem Storage) -----
-let fotosDb = new Map(), fotosOk = false;
-async function fotoKey(nome) {
-  const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(norm(nome)));
-  return [...new Uint8Array(h)].slice(0, 12).map(x => x.toString(16).padStart(2, "0")).join("");
+// ----- fotos de produto: recurso removido. Limpeza única das que já estavam salvas (cadastros ficam) -----
+const FOTO_LIMPA = "validamais-fotos-limpas";
+let fotosLimpando = false;
+function limparFotosLocal() { try { localStorage.removeItem("validamais-fotos"); } catch (e) {} }
+limparFotosLocal();   // cópia de fotos guardada neste aparelho
+function limparFotosNuvem() {   // coleção "fotos" + campo foto dentro dos cadastros; conclui 1 vez por aparelho
+  if (!db || fotosLimpando || store.get(FOTO_LIMPA, false)) return; fotosLimpando = true;
+  const legados = products.filter(p => typeof p.foto === "string" && p.foto !== "");
+  let falhou = false, lido = false;
+  Promise.all(legados.map(p => V.updateDoc(V.doc(db, "products", p.id), { foto: V.deleteField() }).catch(e => { falhou = true; console.warn("foto do cadastro", e); })))
+    .then(() => new Promise(res => { let fim = false, un = null;
+      const encerra = () => { if (fim) return; fim = true; try { un && un(); } catch (e) {} res(); };
+      un = V.onSnapshot(V.collection(db, "fotos"), snap => {
+        if (snap.metadata.fromCache) return;   // só vale a resposta da nuvem (o cache pode estar vazio)
+        lido = true;
+        Promise.all(snap.docs.map(d => V.deleteDoc(V.doc(db, "fotos", d.id)).catch(e => { falhou = true; console.warn("foto", e); }))).then(encerra);
+      }, () => { lido = true; encerra(); });   // sem permissão de leitura: o app nunca enxergou essas fotos
+      setTimeout(encerra, 15000); }))
+    .then(() => {
+      if (falhou) toast("Não consegui apagar todas as fotos da nuvem. Confira as regras do Firestore (coleção «fotos»).");
+      else if (lido) store.set(FOTO_LIMPA, true);   // sem internet: tenta de novo na próxima abertura
+      fotosLimpando = false; });
 }
-let migRodando = false;
-async function migrarFotos() {   // tira as fotos de dentro dos cadastros e guarda na coleção "fotos"
-  if (!db || migRodando || !window.__hReady || !fotosOk) return; migRodando = true;
-  try {
-    const grupos = new Map(); products.forEach(p => { if (typeof p.foto === "string" && p.foto.startsWith("data:")) { const k = norm(p.name || ""); if (!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(p); } });
-    let n = 0;
-    for (const [k, ps] of grupos) {
-      try { if (!fotosDb.has(k)) await V.setDoc(V.doc(db, "fotos", await fotoKey(ps[0].name)), { n: k, d: ps[0].foto, t: Date.now() });
-        for (const p of ps) await V.updateDoc(V.doc(db, "products", p.id), { foto: "" });
-        n++; } catch (e) { console.warn("migração de foto falhou", e); toast("Não consegui mover as fotos. Confira a regra da coleção «fotos» no Firestore."); break; }
-    }
-    if (n) toast(n + " foto(s) movida(s) para fora do cadastro.");
-  } finally { migRodando = false; }
-}
-function fotoSet(d) { curFoto = d || ""; const im = $("fotoPrev"); im.src = curFoto; im.classList.toggle("hidden", !curFoto); $("fotoDel").classList.toggle("hidden", !curFoto); $("fotoBtn").textContent = curFoto ? "📷 Trocar foto" : "📷 Tirar foto"; }
-$("fotoDel").onclick = () => fotoSet("");
-// recorte da foto: arraste para mover, use o controle (ou a pinça) para ampliar e deixar só o produto no quadrado
-function fotoCrop(bmp) {
-  return new Promise(res => {
-    if (window.npClose) window.npClose();
-    const V = Math.min(window.innerWidth - 60, 340), bg = document.createElement("div"); bg.className = "cropbg";
-    bg.innerHTML = `<div class="crop" role="dialog" aria-modal="true"><h3>✂️ Recortar foto</h3><p>Arraste para mover e amplie para tirar o fundo. Deixe só o produto dentro do quadrado.</p><div class="cropv" style="width:${V}px;height:${V}px"><canvas width="${V}" height="${V}"></canvas></div><input type="range" class="cropz" min="1" max="4" step="0.01" value="1" aria-label="Ampliar"><div class="arow"><button type="button" data-a="0">Cancelar</button><button type="button" class="ok" data-a="1">Usar foto</button></div></div>`;
-    document.body.appendChild(bg);
-    const cv = bg.querySelector("canvas"), g = cv.getContext("2d"), z = bg.querySelector(".cropz"), base = Math.max(V / bmp.width, V / bmp.height);
-    let k = 1, ox = (V - bmp.width * base) / 2, oy = (V - bmp.height * base) / 2;
-    const draw = () => { const w = bmp.width * base * k, h = bmp.height * base * k; ox = Math.min(0, Math.max(V - w, ox)); oy = Math.min(0, Math.max(V - h, oy));
-      g.fillStyle = "#fff"; g.fillRect(0, 0, V, V); g.drawImage(bmp, ox, oy, w, h); };
-    const zoomTo = (nk, cx, cy) => { nk = Math.min(4, Math.max(1, nk)); const r = nk / k; ox = cx - (cx - ox) * r; oy = cy - (cy - oy) * r; k = nk; z.value = k; draw(); };
-    z.oninput = () => zoomTo(Number(z.value), V / 2, V / 2);
-    const pts = new Map(); let d0 = 0, k0 = 1; const dist = () => { const [a, b] = [...pts.values()]; return Math.hypot(a[0] - b[0], a[1] - b[1]); };
-    cv.onpointerdown = e => { try { cv.setPointerCapture(e.pointerId); } catch (x) {} pts.set(e.pointerId, [e.clientX, e.clientY]); if (pts.size === 2) { d0 = dist(); k0 = k; } };
-    cv.onpointermove = e => { const p = pts.get(e.pointerId); if (!p) return;
-      if (pts.size === 1) { ox += e.clientX - p[0]; oy += e.clientY - p[1]; pts.set(e.pointerId, [e.clientX, e.clientY]); draw(); }
-      else if (pts.size === 2) { pts.set(e.pointerId, [e.clientX, e.clientY]); const [a, b] = [...pts.values()], r = cv.getBoundingClientRect(); if (d0) zoomTo(k0 * dist() / d0, (a[0] + b[0]) / 2 - r.left, (a[1] + b[1]) / 2 - r.top); } };
-    const up = e => { pts.delete(e.pointerId); d0 = 0; }; cv.onpointerup = up; cv.onpointercancel = up;
-    cv.onwheel = e => { e.preventDefault(); const r = cv.getBoundingClientRect(); zoomTo(k * (e.deltaY < 0 ? 1.1 : 0.9), e.clientX - r.left, e.clientY - r.top); };
-    draw();
-    bg.onclick = e => { const b = e.target.closest("[data-a]"); if (!b) return;
-      if (b.dataset.a === "1") { const S = 144, o = document.createElement("canvas"); o.width = o.height = S; const sc = S / V, og = o.getContext("2d");
-        og.fillStyle = "#fff"; og.fillRect(0, 0, S, S); og.drawImage(bmp, ox * sc, oy * sc, bmp.width * base * k * sc, bmp.height * base * k * sc); bg.remove(); res(o.toDataURL("image/jpeg", 0.65)); }
-      else { bg.remove(); res(null); } };
-  });
-}
-$("fotoIn").onchange = async () => {
-  const f = $("fotoIn").files[0]; $("fotoIn").value = ""; if (!f) return;
-  try {
-    let bmp; try { bmp = await createImageBitmap(f, { imageOrientation: "from-image" }); } catch (e) { bmp = await createImageBitmap(f); }
-    const m = Math.min(1, 1200 / Math.max(bmp.width, bmp.height)), sm = document.createElement("canvas");   // cópia reduzida: o recorte fica fluido
-    sm.width = Math.round(bmp.width * m); sm.height = Math.round(bmp.height * m); sm.getContext("2d").drawImage(bmp, 0, 0, sm.width, sm.height);
-    const out = await fotoCrop(sm); if (out) fotoSet(out);
-  } catch (e) { console.error(e); toast("Não foi possível ler a foto."); }
-};
 function resetForm() {
   $("productForm").reset(); $("docId").value = ""; $("quantity").value = 1;
   $("category").value = "FLV"; $("saveNext").classList.remove("hidden"); toggleCodes();
-  $("productForm").classList.remove("lote"); $("loteInfo").classList.add("hidden"); $("loteEdit").classList.add("hidden"); fotoSet("");
+  $("productForm").classList.remove("lote"); $("loteInfo").classList.add("hidden"); $("loteEdit").classList.add("hidden");
 }
 function toggleCodes() {
   const flv = $("category").value === "FLV"; $("expiry").required = !flv; $("expLabel").textContent = flv ? "Data de validade (opcional)" : "Data de validade *"; $("semCodigo").classList.toggle("hidden", !!$("barcode").value.trim() && !["FLV", "Padaria"].includes($("category").value)); }
@@ -255,7 +215,7 @@ function edit(id) {
   resetForm(); show("Editar produto"); $("saveNext").classList.add("hidden");
   $("docId").value = id; $("barcode").value = p.barcode || ""; $("name").value = p.name || "";
   $("category").value = p.category || ""; $("quantity").value = p.quantity; $("expiry").value = p.expiry || "";
-  $("cBalanca").value = p.codigo_balanca || ""; $("cDoacao").value = p.codigo_doacao || ""; toggleCodes(); fotoSet(fotoMap().get(norm(p.name || "")) || "");
+  $("cBalanca").value = p.codigo_balanca || ""; $("cDoacao").value = p.codigo_doacao || ""; toggleCodes();
 }
 // ----- nomes parecidos / duplicados -----
 const nameKey = n => norm(n || "").replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(w => w && !/^(kg|un|und|unid|unidade|unidades|g|gr|grs|kilo|quilo)$/.test(w)).map(w => w.length > 3 && w.endsWith("s") ? w.slice(0, -1) : w).sort().join(" ");
@@ -303,23 +263,12 @@ async function save(next) {
       if (r === false) { data.name = sim[0].slice(0, 120); $("name").value = data.name; }
     }
   }
-  const fotoNova = curFoto && curFoto !== fotoMap().get(norm(data.name)) ? curFoto : "";   // só envia se a foto mudou
-  if (db && id) data.foto = "";   // limpa a foto antiga de dentro do cadastro
-  if (!db && curFoto) data.foto = curFoto;
   store.set(LC, data.category);
-  { const fm = store.get(FOK, {}), fk = norm(data.name), ft = curFoto; if (ft) fm[fk] = ft; else if (id) delete fm[fk]; try { store.set(FOK, fm); } catch (e) { console.error(e); } }
   if (db) {
     const ts = V.serverTimestamp();
-    fotoKey(data.name).then(k => { const r = V.doc(db, "fotos", k);
-      if (fotoNova) V.setDoc(r, { n: norm(data.name), d: fotoNova, t: Date.now() }).catch(e => { console.error(e); toast("Cadastro salvo, mas a foto não foi para a nuvem (regra da coleção «fotos»). Ficou só neste aparelho."); });
-      else if (!curFoto && id) V.deleteDoc(r).catch(() => {}); });
     const p = id ? V.updateDoc(V.doc(db, "products", id), { ...data, updatedAt: ts })
                  : V.addDoc(V.collection(db, "products"), { ...data, createdAt: ts, updatedAt: ts });
-    p.catch(e => { console.error(e);
-      const { foto, ...semFoto } = data;   // as regras podem recusar o campo foto: grava o cadastro sem ela e mantém a foto neste aparelho
-      (id ? V.updateDoc(V.doc(db, "products", id), { ...semFoto, updatedAt: ts }) : V.addDoc(V.collection(db, "products"), { ...semFoto, createdAt: ts, updatedAt: ts }))
-        .then(() => toast("Cadastro salvo."))
-        .catch(e2 => { console.error(e2); toast("Erro ao salvar na nuvem. Confira as regras do Firestore."); }); });
+    p.catch(e => { console.error(e); toast("Erro ao salvar na nuvem. Confira as regras do Firestore."); });
   } else {
     if (id) products = products.map(x => x.id === id ? { ...x, ...data, updatedAt: Date.now() } : x); else products.push({ ...data, id: uid(), updatedAt: Date.now() });
     persist(); render();
@@ -496,12 +445,11 @@ if (cloud && V.initializeApp) {
     const app = V.initializeApp(fb);
     db = V.initializeFirestore(app, { localCache: V.persistentLocalCache({ tabManager: V.persistentMultipleTabManager() }) });
     V.onSnapshot(V.collection(db, "products"), { includeMetadataChanges: true }, snap => {
-      products = snap.docs.map(d => ({ id: d.id, ...d.data() })); window.__hReady = !snap.metadata.fromCache; render();
+      products = snap.docs.map(d => ({ id: d.id, ...d.data() })); window.__hReady = !snap.metadata.fromCache; render(); if (window.__hReady) setTimeout(() => { try { limparFotosNuvem(); } catch (e) { console.warn(e); } }, 2000);
       setSync(snap.metadata.hasPendingWrites ? "alterações aguardando envio…" : snap.metadata.fromCache ? (navigator.onLine ? "conectando…" : "offline (dados salvos no aparelho)") : "sincronizado");
     }, err => { console.error(err); setSync("erro de sincronização (confira as regras do Firestore)"); toast("Erro ao ler os dados da nuvem."); });
-    V.onSnapshot(V.collection(db, "fotos"), snap => { fotosDb = new Map(snap.docs.map(d => [d.data().n, d.data().d])); fotosOk = true; render(); if (!snap.metadata.fromCache) setTimeout(() => { try { migrarFotos(); } catch (e) { console.warn(e); } }, 1500); }, err => console.warn("fotos:", err));
   } catch (e) { console.error(e); db = null; setSync("falha ao iniciar o Firebase"); }
-} else { products = store.get(LK, []); setSync("modo local neste aparelho (configure o Firebase para sincronizar)"); render(); }
+} else { products = store.get(LK, []); if (products.some(p => p.foto)) { products = products.map(({ foto, ...r }) => r); store.set(LK, products); } setSync("modo local neste aparelho (configure o Firebase para sincronizar)"); render(); }
 
 // ---------- aparelho, contadores (visitas/online) e histórico de leituras ----------
 const myId = store.get("validamais-device", null) || (() => { const i = uid().slice(0, 8); store.set("validamais-device", i); return i; })();
