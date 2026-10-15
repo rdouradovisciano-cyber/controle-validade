@@ -915,3 +915,6 @@ html body .toast{left:0!important;right:0!important;width:max-content!important;
 html body[data-tab="Etiquetas"] .toast{right:84px!important}   /* fora do botão de bipar */
 html body .toast button{min-height:30px!important;padding:3px 13px!important;border-radius:99px!important;background:transparent!important;color:var(--gold1)!important;border:1px solid rgba(243,216,122,.55)!important;font-size:12.5px;font-weight:800}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){html body .toast{background:rgba(22,24,32,.94)!important}}
+
+/* algarismos de largura igual: pesos e totais da Doação, quantidade nas Etiquetas */
+#dItens,#dKg,#dUn,.cnum,.cqty{font-variant-numeric:tabular-nums}
