@@ -29,7 +29,7 @@ var g=function(i){return document.getElementById(i)};
 function lab(){var mao=g("maoBtn"),on=document.body.classList.contains("mao1"),dk=document.documentElement.dataset.tema==="dark";
 var a=g("mnMao"),b=g("mnTema");
 if(a)a.lastChild.textContent="Modo mão única: "+(on?"ligado":"desligado");
-if(b){b.firstChild.textContent=dk?"☀️":"🌙";b.lastChild.textContent=dk?"Mudar para tema claro":"Mudar para tema escuro"}}
+if(b){var u=b.querySelector("use");if(u)u.setAttribute("href",dk?"#i-sol":"#i-lua");b.lastChild.textContent=dk?"Mudar para tema claro":"Mudar para tema escuro"}}
 function clk(id){var m=g("moreMenu"),bg=g("moreBg");if(m)m.classList.add("hidden");if(bg)bg.classList.add("hidden");var e=g(id);if(e)e.click();setTimeout(lab,80)}
 var a=g("mnMao"),b=g("mnTema");
 if(a)a.onclick=function(){clk("maoBtn")};

@@ -76,7 +76,8 @@ window.vmOk = vmOk;
 function toast(msg, action, fn) {
   const t = $("toast"); t.textContent = msg + " "; t.classList.remove("pop"); void t.offsetWidth; t.classList.add("pop");
   if (action) { const b = document.createElement("button"); b.textContent = action; b.onclick = () => { fn(); t.classList.add("hidden"); }; t.append(b); }
-  t.classList.remove("hidden"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add("hidden"), 6000);
+  t.classList.remove("hidden"); clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.add("hidden"), action ? 6000 : Math.max(2500, Math.min(7000, 1800 + String(msg).length * 55)));   // some sozinho; texto longo fica mais tempo; com «Desfazer», 6 s
 }
 const persist = () => { if (!db) store.set(LK, products); };
 
