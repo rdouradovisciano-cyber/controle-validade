@@ -918,3 +918,12 @@ html body .toast button{min-height:30px!important;padding:3px 13px!important;bor
 
 /* algarismos de largura igual: pesos e totais da Doação, quantidade nas Etiquetas */
 #dItens,#dKg,#dUn,.cnum,.cqty{font-variant-numeric:tabular-nums}
+
+/* fundo preto (OLED): só vale no tema escuro */
+html[data-tema=dark][data-oled=on]{--bg:#000;--card:#0a0b0e;--lt2:#0a0b0e;--lt:#14110a;--ln:#1c1f28}
+html[data-tema=dark][data-oled=on] body{background:#000}
+html[data-tema=dark][data-oled=on] .top{background:#000;box-shadow:0 1px 0 #1c1f28}
+html[data-tema=dark][data-oled=on] .panel,html[data-tema=dark][data-oled=on] .stat,html[data-tema=dark][data-oled=on] .product,html[data-tema=dark][data-oled=on] .tam,html[data-tema=dark][data-oled=on] .side,html[data-tema=dark][data-oled=on] .crow,html[data-tema=dark][data-oled=on] .csum,html[data-tema=dark][data-oled=on] .clist,html[data-tema=dark][data-oled=on] .nowbar,html[data-tema=dark][data-oled=on] .impl{background:#0a0b0e}
+html[data-tema=dark][data-oled=on] .product.expired{background:linear-gradient(90deg,#241012,#0a0b0e 45%)}
+html[data-tema=dark][data-oled=on] .product.soon{background:linear-gradient(90deg,#221d0c,#0a0b0e 45%)}
+html[data-tema=dark][data-oled=on] #dDock{background:#000}

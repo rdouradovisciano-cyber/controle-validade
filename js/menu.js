@@ -35,5 +35,11 @@ var a=g("mnMao"),b=g("mnTema");
 if(a)a.onclick=function(){clk("maoBtn")};
 if(b)b.onclick=function(){clk("temaBtn")};
 var mb=g("moreBtn");if(mb)mb.addEventListener("click",lab);
+var o=g("mnOled");
+function labO(){if(!o)return;var dk=document.documentElement.dataset.tema==="dark",on=document.documentElement.dataset.oled==="on";o.hidden=!dk;o.lastChild.textContent="Fundo preto (OLED): "+(on?"ligado":"desligado")}
+if(o)o.onclick=function(){var d=document.documentElement,on=d.dataset.oled!=="on";if(on)d.dataset.oled="on";else delete d.dataset.oled;try{localStorage.setItem("validamais-oled",on?"1":"0")}catch(e){}
+var mt=document.querySelector("meta[name=theme-color]");if(mt&&d.dataset.tema==="dark")mt.content=on?"#000000":"#08090c";labO();var m=g("moreMenu"),bg=g("moreBg");if(m)m.classList.add("hidden");if(bg)bg.classList.add("hidden")};
+if(mb)mb.addEventListener("click",labO);
+var _l=lab;lab=function(){_l();labO()};
 lab();setTimeout(lab,500);
 })();
