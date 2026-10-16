@@ -942,3 +942,4 @@ html[data-tema=dark][data-oled=on] .cadlt{background:#14161c}
 :root{--fd:"Outfit",Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--fb:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
 h1,h2,h3,h4,.h2,.vmsr,.dl,.dbig,#dItens,#dKg,#dUn,#eSumP,#eSumQ,#countAll,#countSoon,#countExpired,.cnum,.cqty,.menu button,.tabbar .tl,.ditem .dn b,.cadlt,.cadrow .ci b{font-family:var(--fd)}
 .menu button small{font-family:var(--fb)}
+.crl .ccode{font-size:min(30px,6.4vw)!important;white-space:nowrap;word-break:normal;overflow:hidden}
