@@ -638,29 +638,35 @@ const fq = q => (Math.round(q * 1000) / 1000).toLocaleString("pt-BR", { maximumF
 const sumU = u => don.itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0);
 const dataBR = d => new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 const FERR = ["Etiquetas", "Inventario", "Cadastros"], FK = "validamais-ferr";
-// transição entre abas: o conteúdo novo entra deslizando do lado para onde você foi, em cascata (some se o aparelho pede menos movimento)
-const TORD = ["Doacao", "Etiquetas", "Loja"], REDUZ = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
-function tabFx(de, para) {
-  if (REDUZ.matches || !de || de === para) return;
-  const painel = $("tab" + para); if (!painel || !painel.animate) return;
-  const i0 = TORD.indexOf(de), i1 = TORD.indexOf(para), dx = i0 < 0 || i1 < 0 ? 0 : (i1 > i0 ? 1 : -1) * 38, dy = dx ? 0 : 20;
-  const fixo = e => getComputedStyle(e).position === "fixed";
-  const temFixo = e => [...e.querySelectorAll("*")].some(fixo);
-  let alvos = [];   // elementos com position:fixed (ou que os contêm) não podem receber transform; desce um nível neles
-  const coleta = (box, nivel) => [...box.children].forEach(c => { if (c.classList.contains("hidden") || fixo(c)) return; if (nivel < 2 && temFixo(c)) coleta(c, nivel + 1); else alvos.push(c); });
-  coleta(painel, 0);
-  painel.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: "ease-out" });
-  alvos.slice(0, 7).forEach((e, k) => e.animate(
-    [{ opacity: 0, transform: `translate(${dx}px,${dy}px) scale(.985)`, filter: "blur(5px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
-    { duration: 380, delay: k * 45, easing: "cubic-bezier(.2,.8,.2,1)", fill: "backwards" }));
+// transição entre abas: cubo 3D. A aba que sai e a que entra giram juntas como duas faces; no aparelho com "reduzir movimento" a troca é seca.
+const TORD = ["Doacao", "Etiquetas", "Loja", "Inventario", "Cadastros"], REDUZ = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
+let cuboSai = null;
+function cuboFim() { if (cuboSai) { cuboSai.remove(); cuboSai = null; } const m = document.querySelector("main.app"); if (m) { m.style.perspective = m.style.position = ""; } document.documentElement.style.overflowX = ""; }
+function tabFx(de, para, clone) {
+  if (REDUZ.matches || !clone || de === para) return;
+  const painel = $("tab" + para), main = painel && painel.parentElement; if (!painel || !painel.animate) return;
+  const dir = TORD.indexOf(para) > TORD.indexOf(de) ? 1 : -1, W = Math.max(main.clientWidth, 280), P = W / 2, DUR = 560, EAS = "cubic-bezier(.65,0,.25,1)";
+  const face = a => `translateZ(${-P}px) rotateY(${a}deg) translateZ(${P}px)`;
+  cuboFim();
+  main.style.position = "relative"; main.style.perspective = "1500px"; document.documentElement.style.overflowX = "clip";
+  clone.querySelectorAll("#dDock,.modal,.cadindex").forEach(e => e.remove());
+  Object.assign(clone.style, { position: "absolute", left: "0", top: painel.offsetTop + "px", width: painel.offsetWidth + "px", pointerEvents: "none", backfaceVisibility: "hidden", zIndex: 2 });
+  clone.classList.remove("hidden"); main.appendChild(clone); cuboSai = clone;
+  painel.style.backfaceVisibility = "hidden";
+  const sai = clone.animate([{ transform: face(0), filter: "brightness(1)" }, { transform: face(-90 * dir), filter: "brightness(.35)" }], { duration: DUR, easing: EAS, fill: "forwards" });
+  painel.animate([{ transform: face(90 * dir), filter: "brightness(.35)" }, { transform: face(0), filter: "brightness(1)" }], { duration: DUR, easing: EAS, fill: "backwards" });
+  // elementos fixos (barra da Doação, índice A–Z, janelas) não acompanham a rotação: entram por fade no fim
+  [...painel.querySelectorAll("*")].filter(e => getComputedStyle(e).position === "fixed").forEach(e => e.animate([{ opacity: 0 }, { opacity: 0, offset: .7 }, { opacity: 1 }], { duration: DUR, easing: "linear", fill: "backwards" }));
+  sai.onfinish = cuboFim; setTimeout(cuboFim, DUR + 250);
 }
 function tab(t) {
   const de = curTab; curTab = t;
+  const velho = de !== t && !REDUZ.matches && $("tab" + de) ? $("tab" + de).cloneNode(true) : null;
   ["Loja", "Doacao", "Etiquetas", "Inventario", "Cadastros"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); });
   [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Etiquetas", t === "Etiquetas"]].forEach(([n, on]) => $("tb" + n).classList.toggle("active", on));
   document.body.dataset.tab = t; document.body.dataset.grp = t;
   if (t === "Doacao" && typeof dView === "function") dView("lista");
-  tabFx(de, t);
+  tabFx(de, t, velho);
 }
 function dCodTxt(i) {   // kg: código de doação · un: código de barras
   const pr = products.find(x => norm(x.name || "") === norm(i.nome)) || {};
