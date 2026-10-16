@@ -638,33 +638,12 @@ const fq = q => (Math.round(q * 1000) / 1000).toLocaleString("pt-BR", { maximumF
 const sumU = u => don.itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0);
 const dataBR = d => new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 const FERR = ["Etiquetas", "Inventario", "Cadastros"], FK = "validamais-ferr";
-// transição entre abas: mergulho. A tela atual se aproxima e se desfaz em desfoque enquanto a nova se abre como uma janela a partir do centro.
-const REDUZ = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
-let ondaSai = null;
-function ondaFim() { [ondaSai].flat().forEach(e => e && e.remove()); ondaSai = null; const p = document.querySelector("main.app > [data-onda]"); if (p) { p.style.position = p.style.zIndex = ""; p.removeAttribute("data-onda"); } const m = document.querySelector("main.app"); if (m) m.style.position = ""; document.documentElement.style.overflowX = ""; }
-function tabFx(de, para, clone) {
-  if (REDUZ.matches || !clone || de === para) return;
-  const painel = $("tab" + para), main = painel && painel.parentElement; if (!painel || !painel.animate) return;
-  ondaFim();
-  main.style.position = "relative"; document.documentElement.style.overflowX = "clip";
-  clone.querySelectorAll("#dDock,.modal,.cadindex").forEach(e => e.remove());
-  Object.assign(clone.style, { position: "absolute", left: "0", top: painel.offsetTop + "px", width: painel.offsetWidth + "px", pointerEvents: "none", zIndex: 1, transformOrigin: "50% " + Math.round(innerHeight * .4) + "px" });
-  clone.classList.remove("hidden"); main.appendChild(clone); ondaSai = clone;
-  painel.style.position = "relative"; painel.style.zIndex = 2; painel.setAttribute("data-onda", "1");
-  const r = painel.getBoundingClientRect(), W = r.width, H = Math.max(r.height, innerHeight), cy = innerHeight * .4 - r.top, DUR = 640, EAS = "cubic-bezier(.3,.7,.2,1)";
-  const jan = (w, h, rad) => `inset(${Math.max(0, cy - h / 2)}px ${Math.max(0, W / 2 - w / 2)}px ${Math.max(0, H - cy - h / 2)}px ${Math.max(0, W / 2 - w / 2)}px round ${rad}px)`;
-  const fim = painel.animate([{ clipPath: jan(140, 170, 36), opacity: 0 }, { clipPath: jan(W * .85, innerHeight * .75, 28), opacity: 1, offset: .3 }, { clipPath: jan(W, H, 0), opacity: 1 }], { duration: DUR, easing: EAS, fill: "backwards" });
-  clone.animate([{ transform: "scale(1)", filter: "blur(0)", opacity: 1 }, { transform: "scale(1.22)", filter: "blur(9px)", opacity: 0 }], { duration: DUR * .85, easing: "cubic-bezier(.5,0,.8,.4)", fill: "forwards" });
-  fim.onfinish = ondaFim; setTimeout(ondaFim, DUR + 250);
-}
 function tab(t) {
-  const de = curTab; curTab = t;
-  const velho = de !== t && !REDUZ.matches && $("tab" + de) ? $("tab" + de).cloneNode(true) : null;
+  curTab = t;
   ["Loja", "Doacao", "Etiquetas", "Inventario", "Cadastros"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); });
   [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Etiquetas", t === "Etiquetas"]].forEach(([n, on]) => $("tb" + n).classList.toggle("active", on));
   document.body.dataset.tab = t; document.body.dataset.grp = t;
   if (t === "Doacao" && typeof dView === "function") dView("lista");
-  tabFx(de, t, velho);
 }
 function dCodTxt(i) {   // kg: código de doação · un: código de barras
   const pr = products.find(x => norm(x.name || "") === norm(i.nome)) || {};
