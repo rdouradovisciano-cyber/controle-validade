@@ -954,3 +954,11 @@ h1,h2,h3,h4,.h2,.vmsr,.dl,.dbig,#dItens,#dKg,#dUn,#eSumP,#eSumQ,#countAll,#count
 .rvtag{background:#fdf0cf;color:#8a5a00}.duptag{background:#fde2e0;color:#b3261e;cursor:pointer}
 html[data-tema=dark] .rvtag{background:#3a2e0d;color:#f0b429}html[data-tema=dark] .duptag{background:#40181a;color:#ff7b72}
 .duptxt{display:block;margin-top:2px;color:#b3261e;font-size:12px;font-weight:700}html[data-tema=dark] .duptxt{color:#ff7b72}
+
+.dpres{width:auto;margin:6px 0 0;min-height:32px;padding:3px 12px;border-radius:99px;border:1px solid #b3261e;background:transparent;color:#b3261e;font-size:12px;font-weight:700}
+html[data-tema=dark] .dpres{border-color:#ff7b72;color:#ff7b72}
+#dupModal{z-index:110}#dupModal .sheet{max-height:86vh;overflow:auto}
+.dprow{padding:12px 0;border-top:1px solid var(--ln)}.dprow b{font-family:var(--fd);font-size:16px}
+.dprow small{display:block;margin:3px 0 10px;color:var(--mut);font-size:13px}.dprow mark{background:#fdf0cf;color:#8a5a00;border-radius:4px;padding:0 4px;font-weight:800}
+html[data-tema=dark] .dprow mark{background:#3a2e0d;color:#f0b429}
+.dpbtns{display:flex;gap:8px;flex-wrap:wrap}.dpbtns button{width:auto;margin:0;min-height:40px;padding:6px 14px;font-size:13px}

@@ -1081,14 +1081,13 @@ function dupLabel(l, mapa) {   // etiqueta: o código mostrado também é de out
 function dupGrupo(x, mapa) {   // cadastro: algum código (EAN, balança, doação) também é de outro produto?
   const nomes = new Set(x.l.map(r => norm(r.name))), cods = []; x.l.forEach(r => cods.push(["ean", r.barcode], ["plu", r.codigo_balanca], ["doa", r.codigo_doacao]));
   const r = repetidosDe(nomes, cods, mapa);
-  if (nomes.size > 1) { const o = [...new Set(x.l.map(z => z.name))].filter(nm => nm !== x.name); if (o.length) r.unshift({ t: "ean", c: x.barcode, outros: o }); }
   return r; }
 function filtBar(el, ativo, nRev, nDup) {
   el.hidden = !ativo && !nRev && !nDup;
   el.innerHTML = el.hidden ? "" : `<button type="button" class="fpill${ativo === "rev" ? " on" : ""}" data-f="rev">🚩 Revisar <b>${nRev}</b></button><button type="button" class="fpill${ativo === "dup" ? " on" : ""}" data-f="dup">⚠ Repetidos <b>${nDup}</b></button>`; }
 // ---------- aba Cadastros: cadastrar e editar produtos digitando (EAN até 13 dígitos) ----------
 let cadEdit = null, cFiltro = "";   // chave do produto em edição
-const cadKey = p => p.barcode ? "b" + p.barcode : "n" + norm(p.name || "");
+const cadKey = p => p.barcode ? "b" + p.barcode + "|" + norm(p.name || "") : "n" + norm(p.name || "");   // mesmo EAN com nomes diferentes = produtos diferentes (linhas separadas)
 function cadGroups() { const m = new Map(); products.forEach(p => { if (!p.name) return; const k = cadKey(p); if (!m.has(k)) m.set(k, []); m.get(k).push(p); });
   return [...m.entries()].map(([k, l]) => ({ k, l, p: l[0], name: l[0].name, barcode: l.map(x => x.barcode).find(Boolean) || "", plu: l.map(x => x.codigo_balanca).find(Boolean) || "", don: l.map(x => x.codigo_doacao).find(Boolean) || "" })).sort((a, b) => a.name.localeCompare(b.name, "pt-BR")); }
 function cadPaint() {
@@ -1099,7 +1098,7 @@ function cadPaint() {
   $("cCount").textContent = all.length + (q ? " · " + g.length + " achados" : "");
   const ini = x => { const c = x.name.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").charAt(0).toUpperCase(); return /[A-Z]/.test(c) ? c : "#"; };
   let ult = "", letras = [];
-  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · Doação ${x.don ? esc(x.don) : "—"}</small>${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
+  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · Doação ${x.don ? esc(x.don) : "—"}</small>${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small><button type="button" class="dpres" data-cres="${esc(x.k)}">Resolver código repetido</button>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
   $("cLista").innerHTML = g.length ? g.map(x => { const l = ini(x); let h = ""; if (l !== ult) { ult = l; letras.push(l); h = `<div class="cadlt" id="cl-${l === "#" ? "num" : l}">${l}</div>`; } return h + row(x); }).join("") : '<p class="empty">Nenhum produto encontrado.</p>';
   const rail = $("cIdx"); rail.hidden = g.length < 12 || letras.length < 2; $("cLista").classList.toggle("cadidx", !rail.hidden);
   rail.innerHTML = rail.hidden ? "" : letras.map(l => `<button type="button" tabindex="-1" data-l="${l}">${l}</button>`).join("");
@@ -1141,16 +1140,43 @@ $("cSalvar").onclick = () => {
   cadReset(); setTimeout(cadPaint, db ? 600 : 0);
 };
 $("cFilt").onclick = e => { const b = e.target.closest("[data-f]"); if (!b) return; cFiltro = cFiltro === b.dataset.f ? "" : b.dataset.f; cadPaint(); };
-$("cLista").onclick = e => { const b = e.target.closest("[data-ced],[data-cdel],[data-crev]"); if (!b) return;
+$("cLista").onclick = e => { const b = e.target.closest("[data-ced],[data-cdel],[data-crev],[data-cres]"); if (!b) return;
+  if (b.dataset.cres !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.cres); if (x) dupResolver(x); return; }
   if (b.dataset.crev !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.crev); if (!x) return; const on = !revOn(x.name); revSet(x.name, on); cadPaint(); toast(on ? "Marcado para revisar." : "Marca de revisão removida."); return; }
-  if (b.dataset.ced !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.ced); if (!x) return; cadEdit = x.k;
-    $("cNome").value = x.name; $("cEan").value = x.barcode; $("cPlu").value = x.plu; $("cDon").value = x.don; $("cEanN").textContent = x.barcode.length + "/13";
-    $("cTitulo").textContent = "Editando cadastro"; $("cSalvar").textContent = "Salvar alterações"; $("cCancela").hidden = false; window.scrollTo(0, 0); return; }
-  const x = cadGroups().find(y => y.k === b.dataset.cdel); if (!x) return;
-  if (!confirm(`Excluir «${x.name}»${x.l.length > 1 ? " e seus " + x.l.length + " lotes" : ""}?`)) return;
+  if (b.dataset.ced !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.ced); if (x) cadAbrir(x); return; }
+  const x = cadGroups().find(y => y.k === b.dataset.cdel); if (x) cadExcluir(x); };
+function cadAbrir(x) { cadEdit = x.k;
+  $("cNome").value = x.name; $("cEan").value = x.barcode; $("cPlu").value = x.plu; $("cDon").value = x.don; $("cEanN").textContent = x.barcode.length + "/13";
+  $("cTitulo").textContent = "Editando cadastro"; $("cSalvar").textContent = "Salvar alterações"; $("cCancela").hidden = false; window.scrollTo(0, 0); }
+function cadExcluir(x) {
+  if (!confirm(`Excluir «${x.name}»${x.l.length > 1 ? " e seus " + x.l.length + " lotes" : ""}?`)) return false;
   x.l.forEach(p => { if (db) V.deleteDoc(V.doc(db, "products", p.id)).catch(() => toast("Não foi possível excluir.")); });
   if (!db) { products = products.filter(p => !x.l.includes(p)); persist(); render(); }
-  toast("Cadastro excluído."); if (cadEdit === x.k) cadReset(); setTimeout(cadPaint, db ? 600 : 0); };
+  toast("Cadastro excluído."); if (cadEdit === x.k) cadReset(); setTimeout(cadPaint, db ? 600 : 0); return true; }
+// código repetido: mostra todos os produtos que usam o código e deixa escolher onde ele fica
+const CAMPO = { ean: "barcode", plu: "codigo_balanca", doa: "codigo_doacao" };
+function cadLimpaCampo(x, campo) {   // tira o código do produto e marca para revisar
+  if (db) { const ts = V.serverTimestamp(); x.l.forEach(p => V.updateDoc(V.doc(db, "products", p.id), { [campo]: "", updatedAt: ts }).catch(() => toast("Erro ao salvar na nuvem."))); }
+  else { x.l.forEach(p => { p[campo] = ""; }); persist(); render(); }
+  revSet(x.name, true); }
+function dupResolver(x) {
+  const mapa = codMapa(), dups = dupGrupo(x, mapa); if (!dups.length) { toast("Esse código não está mais repetido."); return; }
+  const d = dups[0], campo = CAMPO[d.t], chave = codChave(d.t, d.c), nomes = new Set([x.name, ...d.outros].map(norm));
+  const itens = cadGroups().filter(g => nomes.has(norm(g.name)) && g.l.some(r => codChave(d.t, r[campo]) === chave));
+  if (itens.length < 2) { toast("Esse código não está mais repetido."); return; }
+  const linha = g => `<div class="dprow" data-g="${esc(g.k)}"><b>${esc(g.name)}</b><small>EAN ${g.barcode ? (d.t === "ean" ? `<mark>${esc(g.barcode)}</mark>` : esc(g.barcode)) : "—"} · PLU ${g.plu ? (d.t === "plu" ? `<mark>${esc(g.plu)}</mark>` : esc(g.plu)) : "—"} · Doação ${g.don ? (d.t === "doa" ? `<mark>${esc(g.don)}</mark>` : esc(g.don)) : "—"}</small>
+    <div class="dpbtns"><button type="button" class="primary" data-keep="${esc(g.k)}">Manter o código aqui</button><button type="button" class="secondary" data-edit="${esc(g.k)}">Editar</button><button type="button" class="secondary" data-del="${esc(g.k)}">Excluir</button></div></div>`;
+  const bg = document.createElement("div"); bg.className = "modal"; bg.id = "dupModal";
+  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Código repetido"><div class="sheethead"><h2>${TNOME[d.t]} ${esc(d.c)} repetido</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
+    <p class="note">Este código está em ${itens.length} produtos. Escolha em qual ele fica: nos outros o código é removido e eles ficam marcados 🚩 para revisar.${dups.length > 1 ? ` Este produto tem mais ${dups.length - 1} código(s) repetido(s).` : ""}</p>${itens.map(linha).join("")}</section>`;
+  document.body.appendChild(bg);
+  const fecha = () => { bg.remove(); setTimeout(cadPaint, db ? 600 : 0); };
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) return fecha();
+    const k = (e.target.closest("[data-keep],[data-edit],[data-del]") || {}).dataset; if (!k) return;
+    const find = id => itens.find(g => g.k === id);
+    if (k.keep !== undefined) { const fica = find(k.keep); itens.filter(g => g !== fica).forEach(g => cadLimpaCampo(g, campo)); toast("Código mantido em «" + fica.name + "». Os outros ficaram marcados para revisar."); return fecha(); }
+    if (k.edit !== undefined) { const g = find(k.edit); bg.remove(); cadAbrir(g); return; }
+    if (k.del !== undefined) { const g = find(k.del); if (cadExcluir(g)) bg.remove(); } }; }
 $("navCadastros").addEventListener("click", cadPaint);
 // ---------- Cadastros: preencher o código lendo com a câmera ----------
 async function cadScan(code) {
