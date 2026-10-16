@@ -1,1 +1,1 @@
-{"versao":"2026.10.16-168","nota":"Cadastros: produtos com o mesmo EAN agora aparecem cada um na sua linha, com o botão Resolver código repetido para escolher em qual produto o código fica"}
+{"versao":"2026.10.16-169","nota":"Cadastros: ao resolver um código repetido, os outros cadastros agora são excluídos (com confirmação), em vez de ficarem sem código"}

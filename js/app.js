@@ -1148,33 +1148,34 @@ $("cLista").onclick = e => { const b = e.target.closest("[data-ced],[data-cdel],
 function cadAbrir(x) { cadEdit = x.k;
   $("cNome").value = x.name; $("cEan").value = x.barcode; $("cPlu").value = x.plu; $("cDon").value = x.don; $("cEanN").textContent = x.barcode.length + "/13";
   $("cTitulo").textContent = "Editando cadastro"; $("cSalvar").textContent = "Salvar alterações"; $("cCancela").hidden = false; window.scrollTo(0, 0); }
-function cadExcluir(x) {
-  if (!confirm(`Excluir «${x.name}»${x.l.length > 1 ? " e seus " + x.l.length + " lotes" : ""}?`)) return false;
+function cadApagar(x) {   // apaga o cadastro e todos os lotes (sem perguntar) e tira a marca de revisar
   x.l.forEach(p => { if (db) V.deleteDoc(V.doc(db, "products", p.id)).catch(() => toast("Não foi possível excluir.")); });
   if (!db) { products = products.filter(p => !x.l.includes(p)); persist(); render(); }
-  toast("Cadastro excluído."); if (cadEdit === x.k) cadReset(); setTimeout(cadPaint, db ? 600 : 0); return true; }
+  if (!products.some(p => p.name && norm(p.name) === norm(x.name) && !x.l.includes(p))) revSet(x.name, false);
+  if (cadEdit === x.k) cadReset(); }
+function cadExcluir(x) {
+  if (!confirm(`Excluir «${x.name}»${x.l.length > 1 ? " e seus " + x.l.length + " lotes" : ""}?`)) return false;
+  cadApagar(x); toast("Cadastro excluído."); setTimeout(cadPaint, db ? 600 : 0); return true; }
 // código repetido: mostra todos os produtos que usam o código e deixa escolher onde ele fica
 const CAMPO = { ean: "barcode", plu: "codigo_balanca", doa: "codigo_doacao" };
-function cadLimpaCampo(x, campo) {   // tira o código do produto e marca para revisar
-  if (db) { const ts = V.serverTimestamp(); x.l.forEach(p => V.updateDoc(V.doc(db, "products", p.id), { [campo]: "", updatedAt: ts }).catch(() => toast("Erro ao salvar na nuvem."))); }
-  else { x.l.forEach(p => { p[campo] = ""; }); persist(); render(); }
-  revSet(x.name, true); }
 function dupResolver(x) {
   const mapa = codMapa(), dups = dupGrupo(x, mapa); if (!dups.length) { toast("Esse código não está mais repetido."); return; }
   const d = dups[0], campo = CAMPO[d.t], chave = codChave(d.t, d.c), nomes = new Set([x.name, ...d.outros].map(norm));
   const itens = cadGroups().filter(g => nomes.has(norm(g.name)) && g.l.some(r => codChave(d.t, r[campo]) === chave));
   if (itens.length < 2) { toast("Esse código não está mais repetido."); return; }
   const linha = g => `<div class="dprow" data-g="${esc(g.k)}"><b>${esc(g.name)}</b><small>EAN ${g.barcode ? (d.t === "ean" ? `<mark>${esc(g.barcode)}</mark>` : esc(g.barcode)) : "—"} · PLU ${g.plu ? (d.t === "plu" ? `<mark>${esc(g.plu)}</mark>` : esc(g.plu)) : "—"} · Doação ${g.don ? (d.t === "doa" ? `<mark>${esc(g.don)}</mark>` : esc(g.don)) : "—"}</small>
-    <div class="dpbtns"><button type="button" class="primary" data-keep="${esc(g.k)}">Manter o código aqui</button><button type="button" class="secondary" data-edit="${esc(g.k)}">Editar</button><button type="button" class="secondary" data-del="${esc(g.k)}">Excluir</button></div></div>`;
+    <div class="dpbtns"><button type="button" class="primary" data-keep="${esc(g.k)}">Manter este e excluir os outros</button><button type="button" class="secondary" data-edit="${esc(g.k)}">Editar</button><button type="button" class="secondary" data-del="${esc(g.k)}">Excluir</button></div></div>`;
   const bg = document.createElement("div"); bg.className = "modal"; bg.id = "dupModal";
   bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Código repetido"><div class="sheethead"><h2>${TNOME[d.t]} ${esc(d.c)} repetido</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
-    <p class="note">Este código está em ${itens.length} produtos. Escolha em qual ele fica: nos outros o código é removido e eles ficam marcados 🚩 para revisar.${dups.length > 1 ? ` Este produto tem mais ${dups.length - 1} código(s) repetido(s).` : ""}</p>${itens.map(linha).join("")}</section>`;
+    <p class="note">Este código está em ${itens.length} produtos. Escolha qual cadastro fica: <b>os outros são excluídos</b> (com os lotes deles).${dups.length > 1 ? ` Este produto tem mais ${dups.length - 1} código(s) repetido(s).` : ""}</p>${itens.map(linha).join("")}</section>`;
   document.body.appendChild(bg);
   const fecha = () => { bg.remove(); setTimeout(cadPaint, db ? 600 : 0); };
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) return fecha();
     const k = (e.target.closest("[data-keep],[data-edit],[data-del]") || {}).dataset; if (!k) return;
     const find = id => itens.find(g => g.k === id);
-    if (k.keep !== undefined) { const fica = find(k.keep); itens.filter(g => g !== fica).forEach(g => cadLimpaCampo(g, campo)); toast("Código mantido em «" + fica.name + "». Os outros ficaram marcados para revisar."); return fecha(); }
+    if (k.keep !== undefined) { const fica = find(k.keep), fora = itens.filter(g => g !== fica);
+      if (!confirm(`Manter «${fica.name}» e EXCLUIR ${fora.length > 1 ? "estes " + fora.length + " cadastros" : "este cadastro"}?\n\n${fora.map(g => "• " + g.name + (g.l.length > 1 ? " (" + g.l.length + " lotes)" : "")).join("\n")}\n\nNão dá para desfazer.`)) return;
+      fora.forEach(cadApagar); toast(fora.length > 1 ? fora.length + " cadastros excluídos. Ficou «" + fica.name + "»." : "Cadastro excluído. Ficou «" + fica.name + "»."); return fecha(); }
     if (k.edit !== undefined) { const g = find(k.edit); bg.remove(); cadAbrir(g); return; }
     if (k.del !== undefined) { const g = find(k.del); if (cadExcluir(g)) bg.remove(); } }; }
 $("navCadastros").addEventListener("click", cadPaint);
