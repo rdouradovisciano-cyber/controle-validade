@@ -1,1 +1,1 @@
-{"versao":"2026.10.16-165","nota":"Etiquetas: o código é sempre o EAN do cadastro (nunca o de balança ou de doação); etiquetas antigas foram corrigidas e produto sem EAN aparece como SEM EAN"}
+{"versao":"2026.10.16-166","nota":"Etiquetas: aparece o EAN do cadastro quando o produto tem; sem EAN, o código de balança (nunca o de doação)"}

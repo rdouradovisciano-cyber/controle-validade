@@ -1200,28 +1200,29 @@ const uniCode = c => (c && store.get(EUK, {})[c]) || c;
 const SZ = { P: { w: 63, h: 30, cols: 3, rows: 9, nome: 8, preco: 15, cod: 6, bar: 6 }, M: { w: 95, h: 50, cols: 2, rows: 5, nome: 12, preco: 26, cod: 8, bar: 12 }, G: { w: 190, h: 90, cols: 1, rows: 3, nome: 20, preco: 52, cod: 11, bar: 24 } };
 let labels = store.get(EK, []), pend = null, eHits = [];
 // itens pesados (FLV/Padaria) usam o código de balança; os demais usam o EAN
-const codeText = c => c.code ? `EAN: ${c.code}` : "⚠ Este produto não tem EAN cadastrado.";
-const labelCode = p => ({ code: String(p.barcode || ""), kg: false });   // etiqueta: sempre o EAN do cadastro (nunca código de balança nem de doação)
+const codeText = c => c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.code}` : "⚠ Sem EAN nem código de balança cadastrado para este produto.";
+const labelCode = p => p.barcode ? { code: String(p.barcode), kg: false } : p.codigo_balanca ? { code: String(p.codigo_balanca), kg: true } : { code: "", kg: false };   // etiqueta: EAN se o produto tem; senão o código de balança; nunca o de doação
 function labelDropMany(its) {
   const idx = its.map(l => ({ l, x: labels.indexOf(l) })).filter(o => o.x >= 0).sort((a, b) => a.x - b.x); if (!idx.length) return;
   idx.slice().reverse().forEach(o => labels.splice(o.x, 1)); store.set(EK, labels); renderLabels();
   toast(idx.length > 1 ? idx.length + " etiquetas removidas." : "Etiqueta removida.", "Desfazer", () => { idx.forEach(o => labels.splice(Math.min(o.x, labels.length), 0, o.l)); store.set(EK, labels); renderLabels(); });
 }
-// etiquetas antigas que ficaram com código de balança/doação: trocam pelo EAN do cadastro (sem EAN cadastrado, ficam sem código)
+// etiquetas já na lista: se o produto tem EAN, mostra o EAN (em vez do código de balança); sem EAN, volta o código de balança
 function etqFixEan() {
   if (!products.length) return; let mud = false;
   labels.forEach(l => {
-    if (!l.kg) return;
-    const p = products.find(x => x.barcode && (pkey(x) === l.key || norm(x.name || "") === norm(l.nome)));
-    if (p) { l.orig = String(p.barcode); l.code = uniCode(l.orig); } else { l.plu = l.orig || l.code; l.orig = ""; l.code = ""; }
-    l.kg = false; mud = true; });
+    if (!l.kg && l.code) return;
+    const p = products.find(x => pkey(x) === l.key || norm(x.name || "") === norm(l.nome)); if (!p) return;
+    const c = labelCode(p), ant = l.plu || l.orig || l.code; if (!c.code && !ant) return;
+    const cod = c.code || ant, kg = c.code ? c.kg : true;
+    if (l.orig !== cod || l.kg !== kg) { l.orig = cod; l.code = uniCode(cod); l.kg = kg; mud = true; } });
   if (mud) store.set(EK, labels);
 }
 function renderLabels() {
   etqFixEan();
   $("eLimpa").classList.toggle("hidden", labels.length <= 5); { const n = labels.filter(l => l.ok).length; $("eMarc").textContent = labels.length ? `✓ ${n} de ${labels.length} já colocadas para impressão` : ""; } $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
   const ord = { P: 0, M: 1, G: 2 };   // lista única: primeiro os P, depois M, depois G (mantém a ordem de inclusão dentro de cada tamanho)
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crwrap"><div class="crw${l.ok ? " done" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM EAN"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div></div><button type="button" class="crx" data-ldrop="${i}" aria-label="Remover etiqueta: ${esc(l.nome)}">✕</button></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crwrap"><div class="crw${l.ok ? " done" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div></div><button type="button" class="crx" data-ldrop="${i}" aria-label="Remover etiqueta: ${esc(l.nome)}">✕</button></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 // efeito: o item novo é escrito à mão, devagar — uma mão (✍️) vai riscando o código e depois o nome, com tinta vermelha que seca
 function etqEscrever(row) {
@@ -1344,13 +1345,13 @@ function labelUnify(i) {
     toast(m[orig] ? `Unificado: ${orig} → ${m[orig]}` : "Código original restaurado."); };
   const bu = bg.querySelector("#unBusca"); bu.oninput = () => { const q = norm(bu.value), seen = new Set(); if (q.length < 2) { bg.querySelector("#unRes").innerHTML = ""; hits = []; return; }
     hits = products.filter(p => norm(p.name || "").includes(q) || (p.barcode || "").includes(q) || String(p.codigo_balanca || "").includes(q)).filter(p => { const k = pkey(p); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 8);
-    bg.querySelector("#unRes").innerHTML = hits.length ? hits.map((p, n) => `<div class="pick" data-k="${n}"><b>${esc(p.name)}</b> <small class="muted">${esc(labelCode(p).code || "sem EAN")}</small></div>`).join("") : '<p class="muted">Nada encontrado.</p>'; };
+    bg.querySelector("#unRes").innerHTML = hits.length ? hits.map((p, n) => `<div class="pick" data-k="${n}"><b>${esc(p.name)}</b> <small class="muted">${esc(labelCode(p).code || "sem código")}</small></div>`).join("") : '<p class="muted">Nada encontrado.</p>'; };
   document.body.appendChild(bg); setTimeout(() => { const c = cod(); c.focus(); c.select(); }, 80);
 }
 // segurar o item da lista abre tamanho (P/M/G) e quantidade
 let lmI = -1;
 function lmDraw() { const l = labels[lmI]; if (!l) return; document.querySelectorAll("#lmTam button").forEach(b => b.classList.toggle("sel", b.dataset.t === (l.tam || "M"))); $("lmQtd").value = l.qtd; }
-function lmOpen(i) { const l = labels[i]; if (!l) return; lmI = i; $("lmNome").textContent = l.nome; $("lmCod").textContent = l.code ? "EAN: " + l.code : "Sem EAN"; lmDraw(); $("lModal").classList.remove("hidden"); if (navigator.vibrate) navigator.vibrate(40); }
+function lmOpen(i) { const l = labels[i]; if (!l) return; lmI = i; $("lmNome").textContent = l.nome; $("lmCod").textContent = l.code ? (l.kg ? "Código de balança: " : "EAN: ") + l.code : "Sem código"; lmDraw(); $("lModal").classList.remove("hidden"); if (navigator.vibrate) navigator.vibrate(40); }
 const lmSave = () => { store.set(EK, labels); renderLabels(); };
 $("lmTam").onclick = e => { const b = e.target.closest("button"); const l = labels[lmI]; if (!b || !l) return; l.tam = b.dataset.t; if (l.key && !l.dup) { const m = store.get(TK, {}); m[l.key] = l.tam; store.set(TK, m); } lmSave(); lmDraw(); };
 const lmQ = n => { const l = labels[lmI]; if (!l) return; l.qtd = Math.max(1, Math.round(n) || 1); lmSave(); lmDraw(); };
