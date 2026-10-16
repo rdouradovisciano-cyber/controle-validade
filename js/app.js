@@ -638,12 +638,29 @@ const fq = q => (Math.round(q * 1000) / 1000).toLocaleString("pt-BR", { maximumF
 const sumU = u => don.itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0);
 const dataBR = d => new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 const FERR = ["Etiquetas", "Inventario", "Cadastros"], FK = "validamais-ferr";
+// transição entre abas: o conteúdo novo entra deslizando do lado para onde você foi, em cascata (some se o aparelho pede menos movimento)
+const TORD = ["Doacao", "Etiquetas", "Loja"], REDUZ = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
+function tabFx(de, para) {
+  if (REDUZ.matches || !de || de === para) return;
+  const painel = $("tab" + para); if (!painel || !painel.animate) return;
+  const i0 = TORD.indexOf(de), i1 = TORD.indexOf(para), dx = i0 < 0 || i1 < 0 ? 0 : (i1 > i0 ? 1 : -1) * 38, dy = dx ? 0 : 20;
+  const fixo = e => getComputedStyle(e).position === "fixed";
+  const temFixo = e => [...e.querySelectorAll("*")].some(fixo);
+  let alvos = [];   // elementos com position:fixed (ou que os contêm) não podem receber transform; desce um nível neles
+  const coleta = (box, nivel) => [...box.children].forEach(c => { if (c.classList.contains("hidden") || fixo(c)) return; if (nivel < 2 && temFixo(c)) coleta(c, nivel + 1); else alvos.push(c); });
+  coleta(painel, 0);
+  painel.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: "ease-out" });
+  alvos.slice(0, 7).forEach((e, k) => e.animate(
+    [{ opacity: 0, transform: `translate(${dx}px,${dy}px) scale(.985)`, filter: "blur(5px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
+    { duration: 380, delay: k * 45, easing: "cubic-bezier(.2,.8,.2,1)", fill: "backwards" }));
+}
 function tab(t) {
-  curTab = t;
+  const de = curTab; curTab = t;
   ["Loja", "Doacao", "Etiquetas", "Inventario", "Cadastros"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); });
   [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Etiquetas", t === "Etiquetas"]].forEach(([n, on]) => $("tb" + n).classList.toggle("active", on));
   document.body.dataset.tab = t; document.body.dataset.grp = t;
   if (t === "Doacao" && typeof dView === "function") dView("lista");
+  tabFx(de, t);
 }
 function dCodTxt(i) {   // kg: código de doação · un: código de barras
   const pr = products.find(x => norm(x.name || "") === norm(i.nome)) || {};
