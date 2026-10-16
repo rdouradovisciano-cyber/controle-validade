@@ -1066,8 +1066,20 @@ function cadGroups() { const m = new Map(); products.forEach(p => { if (!p.name)
 function cadPaint() {
   const q = norm($("cBusca").value.trim()), all = cadGroups(), g = all.filter(x => !q || norm(x.name).includes(q) || x.barcode.includes(q) || x.plu === q || x.don.toLowerCase() === q);
   $("cCount").textContent = all.length + (q ? " · " + g.length + " achados" : "");
-  $("cLista").innerHTML = g.length ? g.map(x => `<div class="cadrow"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · Doação ${x.don ? esc(x.don) : "—"}</small></div><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`).join("") : '<p class="empty">Nenhum produto encontrado.</p>';
+  const ini = x => { const c = x.name.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").charAt(0).toUpperCase(); return /[A-Z]/.test(c) ? c : "#"; };
+  let ult = "", letras = [];
+  const row = x => `<div class="cadrow"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · Doação ${x.don ? esc(x.don) : "—"}</small></div><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
+  $("cLista").innerHTML = g.length ? g.map(x => { const l = ini(x); let h = ""; if (l !== ult) { ult = l; letras.push(l); h = `<div class="cadlt" id="cl-${l === "#" ? "num" : l}">${l}</div>`; } return h + row(x); }).join("") : '<p class="empty">Nenhum produto encontrado.</p>';
+  const rail = $("cIdx"); rail.hidden = g.length < 12 || letras.length < 2; $("cLista").classList.toggle("cadidx", !rail.hidden);
+  rail.innerHTML = rail.hidden ? "" : letras.map(l => `<button type="button" tabindex="-1" data-l="${l}">${l}</button>`).join("");
 }
+function cadPula(l) { const e = $("cl-" + (l === "#" ? "num" : l)); if (!e) return; const h = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--top-h")) || 0;
+  window.scrollTo(0, e.getBoundingClientRect().top + window.scrollY - h - 4); }
+(function () { const r = $("cIdx"); let ativo = false;
+  const letraEm = (x, y) => { const e = document.elementFromPoint(x, y); return e && e.closest && e.closest("#cIdx button") ? e.closest("#cIdx button").dataset.l : null; };
+  r.addEventListener("pointerdown", ev => { ativo = true; try { r.setPointerCapture(ev.pointerId) } catch (e) {} const l = letraEm(ev.clientX, ev.clientY); if (l) cadPula(l); ev.preventDefault(); });
+  r.addEventListener("pointermove", ev => { if (!ativo) return; const l = letraEm(ev.clientX, ev.clientY); if (l) cadPula(l); });
+  const fim = () => { ativo = false; }; r.addEventListener("pointerup", fim); r.addEventListener("pointercancel", fim); })();
 function cadReset() { cadEdit = null; ["cNome", "cEan", "cPlu", "cDon"].forEach(i => $(i).value = ""); $("cTitulo").textContent = "Novo cadastro"; $("cSalvar").textContent = "Cadastrar"; $("cCancela").hidden = true; $("cEanN").textContent = "0/13"; }
 $("cEan").oninput = () => { const v = $("cEan").value.replace(/\D/g, "").slice(0, 13); $("cEan").value = v; $("cEanN").textContent = v.length + "/13"; };
 $("cPlu").oninput = () => { $("cPlu").value = $("cPlu").value.replace(/\D/g, "").slice(0, 6); };
