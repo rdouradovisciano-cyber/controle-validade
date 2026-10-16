@@ -936,3 +936,9 @@ html[data-tema=dark][data-oled=on] .cadlt{background:#14161c}
 .cadindex{position:fixed;right:1px;top:calc(var(--top-h,0px) + 14px);bottom:100px;width:18px;z-index:30;display:flex;flex-direction:column;justify-content:space-between;align-items:center;touch-action:none;user-select:none;-webkit-user-select:none}
 .cadindex[hidden]{display:none}
 .cadindex button{flex:1 1 0;min-height:0;width:18px;padding:0;margin:0;border:0;background:none;box-shadow:none;font-size:10px;font-weight:800;line-height:1;color:var(--g);display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+
+/* fonte dos títulos e números: Outfit (hospedada no app, funciona offline). O texto corrido continua na fonte de antes. */
+@font-face{font-family:"Outfit";src:url(../fonts/outfit-latin-wght-normal.woff2) format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+:root{--fd:"Outfit",Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--fb:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+h1,h2,h3,h4,.h2,.vmsr,.dl,.dbig,#dItens,#dKg,#dUn,#eSumP,#eSumQ,#countAll,#countSoon,#countExpired,.cnum,.cqty,.menu button,.tabbar .tl,.ditem .dn b,.cadlt,.cadrow .ci b{font-family:var(--fd)}
+.menu button small{font-family:var(--fb)}
