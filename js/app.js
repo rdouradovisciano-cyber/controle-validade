@@ -638,30 +638,34 @@ const fq = q => (Math.round(q * 1000) / 1000).toLocaleString("pt-BR", { maximumF
 const sumU = u => don.itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0);
 const dataBR = d => new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 const FERR = ["Etiquetas", "Inventario", "Cadastros"], FK = "validamais-ferr";
-// transição entre abas: revelação circular. A aba nova se abre como uma onda a partir do botão da aba, com um anel dourado na borda; a antiga fica por baixo até a onda passar.
-const REDUZ = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
+// transição entre abas: cortina diagonal. Uma borda inclinada varre a tela revelando a aba nova, com uma faixa de luz dourada; o lado segue a ordem das abas.
+const TORD = ["Doacao", "Etiquetas", "Loja", "Inventario", "Cadastros"], REDUZ = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
 let ondaSai = null;
 function ondaFim() { [ondaSai].flat().forEach(e => e && e.remove()); ondaSai = null; const p = document.querySelector("main.app > [data-onda]"); if (p) { p.style.position = p.style.zIndex = ""; p.removeAttribute("data-onda"); } const m = document.querySelector("main.app"); if (m) m.style.position = ""; }
 function tabFx(de, para, clone) {
   if (REDUZ.matches || !clone || de === para) return;
   const painel = $("tab" + para), main = painel && painel.parentElement; if (!painel || !painel.animate) return;
   ondaFim();
-  const alvo = [$("tb" + para), $("nav" + para)].find(e => e && e.offsetParent !== null), rb = alvo ? alvo.getBoundingClientRect() : null;
-  const cx = rb ? rb.left + rb.width / 2 : innerWidth / 2, cy = rb ? rb.top + rb.height / 2 : 80;   // centro da onda, em coordenadas da tela
+  const dir = TORD.indexOf(para) > TORD.indexOf(de) ? 1 : -1, SL = 0.3;   // SL: inclinação da borda
   main.style.position = "relative";
   clone.querySelectorAll("#dDock,.modal,.cadindex").forEach(e => e.remove());
   Object.assign(clone.style, { position: "absolute", left: "0", top: painel.offsetTop + "px", width: painel.offsetWidth + "px", pointerEvents: "none", zIndex: 1 });
   clone.classList.remove("hidden"); main.appendChild(clone);
   painel.style.position = "relative"; painel.style.zIndex = 2; painel.setAttribute("data-onda", "1");
-  const r = painel.getBoundingClientRect(), x = cx - r.left, y = cy - r.top, H = Math.max(r.height, innerHeight);
-  const R = Math.ceil(Math.hypot(Math.max(x, r.width - x), Math.max(y, H - y))) + 40, DUR = 720, EAS = "cubic-bezier(.45,.05,.2,1)";
-  const anel = document.createElement("div");
-  Object.assign(anel.style, { position: "fixed", left: cx - 100 + "px", top: cy - 100 + "px", width: "200px", height: "200px", borderRadius: "50%", pointerEvents: "none", zIndex: 90,
-    background: "radial-gradient(circle,transparent 60%,rgba(243,216,122,.0) 62%,rgba(243,216,122,.55) 66%,rgba(229,193,88,.9) 68%,rgba(243,216,122,0) 72%,transparent 74%)" });
-  document.body.appendChild(anel); ondaSai = [clone, anel];
-  const fim = painel.animate([{ clipPath: `circle(0px at ${x}px ${y}px)` }, { clipPath: `circle(${R}px at ${x}px ${y}px)` }], { duration: DUR, easing: EAS, fill: "backwards" });
-  anel.animate([{ transform: "scale(0)", opacity: 1 }, { transform: `scale(${2 * R / 200})`, opacity: 0.9, offset: .8 }, { transform: `scale(${2 * R / 200})`, opacity: 0 }], { duration: DUR, easing: EAS, fill: "forwards" });
-  clone.animate([{ opacity: 1, transform: "scale(1)" }, { opacity: .5, transform: "scale(.97)" }], { duration: DUR, easing: EAS, fill: "forwards" });
+  const r = painel.getBoundingClientRect(), W = r.width, H = Math.max(r.height, innerHeight), k = SL * H, DUR = 680, EAS = "cubic-bezier(.65,0,.3,1)";
+  // polígono da área revelada para a borda em e (topo em e+k, base em e); espelhado quando a direção é para a esquerda
+  const poly = e => dir > 0 ? `polygon(0px 0px,${e + k}px 0px,${e}px ${H}px,0px ${H}px)` : `polygon(${W}px 0px,${W - e - k}px 0px,${W - e}px ${H}px,${W}px ${H}px)`;
+  const faixa = document.createElement("div"), LARG = 90;
+  Object.assign(faixa.style, { position: "fixed", left: "0", top: "0", width: LARG + "px", height: "100vh", pointerEvents: "none", zIndex: 90, transformOrigin: "0 0",
+    background: dir > 0 ? "linear-gradient(90deg,transparent,rgba(229,193,88,.18) 55%,rgba(243,216,122,.95) 97%,#fff6cf 100%)" : "linear-gradient(270deg,transparent,rgba(229,193,88,.18) 55%,rgba(243,216,122,.95) 97%,#fff6cf 100%)" });
+  document.body.appendChild(faixa); ondaSai = [clone, faixa];
+  // x da borda na altura y=0 da tela, para cada e
+  const x0 = e => dir > 0 ? e + SL * (H + r.top) : W - e - SL * (H + r.top);
+  const pos = e => dir > 0 ? `translateX(${x0(e) - LARG}px) skewX(${-Math.atan(SL)}rad)` : `translateX(${x0(e)}px) skewX(${Math.atan(SL)}rad)`;
+  const e0 = -k - 4, e1 = W + 4;
+  const fim = painel.animate([{ clipPath: poly(e0) }, { clipPath: poly(e1) }], { duration: DUR, easing: EAS, fill: "backwards" });
+  faixa.animate([{ transform: pos(e0), opacity: 1 }, { transform: pos(e1), opacity: 1, offset: .92 }, { transform: pos(e1), opacity: 0 }], { duration: DUR, easing: EAS, fill: "forwards" });
+  clone.animate([{ filter: "brightness(1)" }, { filter: "brightness(.45)" }], { duration: DUR, easing: EAS, fill: "forwards" });
   fim.onfinish = ondaFim; setTimeout(ondaFim, DUR + 250);
 }
 function tab(t) {
