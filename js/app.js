@@ -638,26 +638,31 @@ const fq = q => (Math.round(q * 1000) / 1000).toLocaleString("pt-BR", { maximumF
 const sumU = u => don.itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0);
 const dataBR = d => new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 const FERR = ["Etiquetas", "Inventario", "Cadastros"], FK = "validamais-ferr";
-// transição entre abas: cubo 3D. A aba que sai e a que entra giram juntas como duas faces; no aparelho com "reduzir movimento" a troca é seca.
-const TORD = ["Doacao", "Etiquetas", "Loja", "Inventario", "Cadastros"], REDUZ = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
-let cuboSai = null;
-function cuboFim() { if (cuboSai) { cuboSai.remove(); cuboSai = null; } const m = document.querySelector("main.app"); if (m) { m.style.perspective = m.style.position = ""; } document.documentElement.style.overflowX = ""; }
+// transição entre abas: revelação circular. A aba nova se abre como uma onda a partir do botão da aba, com um anel dourado na borda; a antiga fica por baixo até a onda passar.
+const REDUZ = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
+let ondaSai = null;
+function ondaFim() { [ondaSai].flat().forEach(e => e && e.remove()); ondaSai = null; const p = document.querySelector("main.app > [data-onda]"); if (p) { p.style.position = p.style.zIndex = ""; p.removeAttribute("data-onda"); } const m = document.querySelector("main.app"); if (m) m.style.position = ""; }
 function tabFx(de, para, clone) {
   if (REDUZ.matches || !clone || de === para) return;
   const painel = $("tab" + para), main = painel && painel.parentElement; if (!painel || !painel.animate) return;
-  const dir = TORD.indexOf(para) > TORD.indexOf(de) ? 1 : -1, W = Math.max(main.clientWidth, 280), P = W / 2, DUR = 560, EAS = "cubic-bezier(.65,0,.25,1)";
-  const face = a => `translateZ(${-P}px) rotateY(${a}deg) translateZ(${P}px)`;
-  cuboFim();
-  main.style.position = "relative"; main.style.perspective = "1500px"; document.documentElement.style.overflowX = "clip";
+  ondaFim();
+  const alvo = [$("tb" + para), $("nav" + para)].find(e => e && e.offsetParent !== null), rb = alvo ? alvo.getBoundingClientRect() : null;
+  const cx = rb ? rb.left + rb.width / 2 : innerWidth / 2, cy = rb ? rb.top + rb.height / 2 : 80;   // centro da onda, em coordenadas da tela
+  main.style.position = "relative";
   clone.querySelectorAll("#dDock,.modal,.cadindex").forEach(e => e.remove());
-  Object.assign(clone.style, { position: "absolute", left: "0", top: painel.offsetTop + "px", width: painel.offsetWidth + "px", pointerEvents: "none", backfaceVisibility: "hidden", zIndex: 2 });
-  clone.classList.remove("hidden"); main.appendChild(clone); cuboSai = clone;
-  painel.style.backfaceVisibility = "hidden";
-  const sai = clone.animate([{ transform: face(0), filter: "brightness(1)" }, { transform: face(-90 * dir), filter: "brightness(.35)" }], { duration: DUR, easing: EAS, fill: "forwards" });
-  painel.animate([{ transform: face(90 * dir), filter: "brightness(.35)" }, { transform: face(0), filter: "brightness(1)" }], { duration: DUR, easing: EAS, fill: "backwards" });
-  // elementos fixos (barra da Doação, índice A–Z, janelas) não acompanham a rotação: entram por fade no fim
-  [...painel.querySelectorAll("*")].filter(e => getComputedStyle(e).position === "fixed").forEach(e => e.animate([{ opacity: 0 }, { opacity: 0, offset: .7 }, { opacity: 1 }], { duration: DUR, easing: "linear", fill: "backwards" }));
-  sai.onfinish = cuboFim; setTimeout(cuboFim, DUR + 250);
+  Object.assign(clone.style, { position: "absolute", left: "0", top: painel.offsetTop + "px", width: painel.offsetWidth + "px", pointerEvents: "none", zIndex: 1 });
+  clone.classList.remove("hidden"); main.appendChild(clone);
+  painel.style.position = "relative"; painel.style.zIndex = 2; painel.setAttribute("data-onda", "1");
+  const r = painel.getBoundingClientRect(), x = cx - r.left, y = cy - r.top, H = Math.max(r.height, innerHeight);
+  const R = Math.ceil(Math.hypot(Math.max(x, r.width - x), Math.max(y, H - y))) + 40, DUR = 720, EAS = "cubic-bezier(.45,.05,.2,1)";
+  const anel = document.createElement("div");
+  Object.assign(anel.style, { position: "fixed", left: cx - 100 + "px", top: cy - 100 + "px", width: "200px", height: "200px", borderRadius: "50%", pointerEvents: "none", zIndex: 90,
+    background: "radial-gradient(circle,transparent 60%,rgba(243,216,122,.0) 62%,rgba(243,216,122,.55) 66%,rgba(229,193,88,.9) 68%,rgba(243,216,122,0) 72%,transparent 74%)" });
+  document.body.appendChild(anel); ondaSai = [clone, anel];
+  const fim = painel.animate([{ clipPath: `circle(0px at ${x}px ${y}px)` }, { clipPath: `circle(${R}px at ${x}px ${y}px)` }], { duration: DUR, easing: EAS, fill: "backwards" });
+  anel.animate([{ transform: "scale(0)", opacity: 1 }, { transform: `scale(${2 * R / 200})`, opacity: 0.9, offset: .8 }, { transform: `scale(${2 * R / 200})`, opacity: 0 }], { duration: DUR, easing: EAS, fill: "forwards" });
+  clone.animate([{ opacity: 1, transform: "scale(1)" }, { opacity: .5, transform: "scale(.97)" }], { duration: DUR, easing: EAS, fill: "forwards" });
+  fim.onfinish = ondaFim; setTimeout(ondaFim, DUR + 250);
 }
 function tab(t) {
   const de = curTab; curTab = t;
