@@ -11,10 +11,10 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=166">
+<link rel="stylesheet" href="css/app.css?v=167">
 <title>Valida+ | Controle de validade</title>
-<script src="js/tema.js?v=166"></script>
-<!-- const APP_VERSION = "2026.10.16-166" -->
+<script src="js/tema.js?v=167"></script>
+<!-- const APP_VERSION = "2026.10.16-167" -->
 </head>
 <body data-tab="Loja">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
@@ -85,7 +85,7 @@
 <label>Tamanho da etiqueta</label><div class="grid3" id="eTam"><button type="button" data-t="P">P<small>Pequena</small></button><button type="button" data-t="M">M<small>Média</small></button><button type="button" data-t="G">G<small>Grande</small></button></div>
 <label for="eQtd">Cópias</label><div class="stepper"><button type="button" class="secondary" id="eMenos" aria-label="Diminuir">−</button><input id="eQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-submit="#eAdd" data-np-label="Adicionar" value="1"><button type="button" class="secondary" id="eMais" aria-label="Aumentar">＋</button></div>
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="eAdd">Adicionar à lista</button><button class="secondary" id="eCancela">Cancelar</button></div></section>
-<div class="csum"><div><span>PRODUTOS</span><b id="eSumP">0</b></div><div><span>QUANTIDADE TOTAL</span><b id="eSumQ">0</b></div></div><div id="eLista" class="clist"></div><p class="emarc" id="eMarc"></p><button type="button" id="eLimpa" class="secondary hidden" style="display:block;width:auto;min-height:32px;margin:8px 0 0 auto;padding:4px 12px;font-size:12px;font-weight:600;border-radius:10px">🗑 Remover todos (já imprimi)</button>
+<div class="csum"><div><span>PRODUTOS</span><b id="eSumP">0</b></div><div><span>QUANTIDADE TOTAL</span><b id="eSumQ">0</b></div></div><div id="eFilt" class="fbar" hidden></div><div id="eLista" class="clist"></div><p class="emarc" id="eMarc"></p><button type="button" id="eLimpa" class="secondary hidden" style="display:block;width:auto;min-height:32px;margin:8px 0 0 auto;padding:4px 12px;font-size:12px;font-weight:600;border-radius:10px">🗑 Remover todos (já imprimi)</button>
 </div>
 <div id="tabCadastros" class="hidden">
 <section class="panel"><h2 class="h2" id="cTitulo">Novo cadastro</h2><p class="note">Cadastro sem foto: digite ou bipe o código de barras (no máximo 13 dígitos).</p>
@@ -94,7 +94,7 @@
 <label for="cPlu">Código de balança (PLU)</label><input id="cPlu" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Opcional, até 6 números">
 <label for="cDon">Código de doação</label><input id="cDon" maxlength="12" autocomplete="off" placeholder="Opcional, ex.: B1" style="text-transform:uppercase">
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="cSalvar">Cadastrar</button><button class="secondary" id="cCancela" hidden>Cancelar</button></div></section>
-<section class="panel"><h2 class="h2">Produtos cadastrados <span class="cadcnt" id="cCount"></span></h2><input id="cBusca" type="search" placeholder="Buscar por nome ou código" autocomplete="off"><div id="cLista"></div></section>
+<section class="panel"><h2 class="h2">Produtos cadastrados <span class="cadcnt" id="cCount"></span></h2><input id="cBusca" type="search" placeholder="Buscar por nome ou código" autocomplete="off"><div id="cFilt" class="fbar" hidden></div><div id="cLista"></div></section>
 <div id="cIdx" class="cadindex" hidden aria-label="Índice A a Z"></div>
 </div>
 <div id="tabInventario" class="hidden">
@@ -146,7 +146,7 @@
 <div id="lModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="lmNome"><div class="sheethead"><h2 id="lmNome"></h2><button class="secondary" id="lmClose" aria-label="Fechar">✕</button></div>
 <p class="note" id="lmCod"></p><label>Tamanho da etiqueta</label><div class="utog" id="lmTam"><button type="button" data-t="P">P</button><button type="button" data-t="M">M</button><button type="button" data-t="G">G</button></div>
 <label>Quantidade</label><div class="stepper"><button type="button" class="secondary" id="lmMenos" aria-label="Diminuir">−</button><input id="lmQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-label="OK" value="1"><button type="button" class="secondary" id="lmMais" aria-label="Aumentar">＋</button></div>
-<div class="toolbar" style="margin-top:14px"><button class="primary big" id="lmOk">Pronto</button></div><button type="button" id="lmDup" class="lmuni">⧉ Duplicar com outro tamanho</button><button type="button" id="lmUni" class="lmuni">Unificar código</button><button type="button" id="lmDel" class="lmdel">🗑 Apagar esta etiqueta</button></section></div>
+<div class="toolbar" style="margin-top:14px"><button class="primary big" id="lmOk">Pronto</button></div><button type="button" id="lmDup" class="lmuni">⧉ Duplicar com outro tamanho</button><button type="button" id="lmUni" class="lmuni">Unificar código</button><button type="button" id="lmRev" class="lmuni"></button><button type="button" id="lmDel" class="lmdel">🗑 Apagar esta etiqueta</button></section></div>
 <div id="opModal" class="modal hidden" style="z-index:100;align-items:center"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="opTitle"><h2 id="opTitle" class="h2" style="font-size:18px">Nome do Operador</h2>
 <p class="note">Digite o seu nome para começar. <b>Atenção: depois de salvo, o nome não poderá ser alterado neste aparelho.</b></p>
 <input id="opNome" maxlength="40" autocomplete="off" placeholder="Ex.: Rodrigo Dourado"><div class="toolbar" style="margin-top:12px"><button class="primary big" id="opOk">Entrar</button></div></section></div>
@@ -195,16 +195,16 @@
 </div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
-<script src="js/config.js?v=166"></script>
+<script src="js/config.js?v=167"></script>
 <script src="vendor.js"></script>
-<script src="js/version.js?v=166"></script>
-<script src="js/login.js?v=166"></script>
-<script src="js/app.js?v=166"></script>
-<script src="js/nav.js?v=166"></script>
-<script src="js/operador.js?v=166"></script>
-<script src="js/teclado.js?v=166"></script>
-<script src="js/menu.js?v=166"></script>
-<script src="js/status.js?v=166"></script>
-<script src="js/inventario.js?v=166"></script>
-<script src="js/doacao-busca.js?v=166"></script>
+<script src="js/version.js?v=167"></script>
+<script src="js/login.js?v=167"></script>
+<script src="js/app.js?v=167"></script>
+<script src="js/nav.js?v=167"></script>
+<script src="js/operador.js?v=167"></script>
+<script src="js/teclado.js?v=167"></script>
+<script src="js/menu.js?v=167"></script>
+<script src="js/status.js?v=167"></script>
+<script src="js/inventario.js?v=167"></script>
+<script src="js/doacao-busca.js?v=167"></script>
 </body></html>

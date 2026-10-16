@@ -1058,17 +1058,48 @@ $("romBody").addEventListener("click", async e => { if (!romEdit) return; const 
       toast("Salvo só neste aparelho: o Firebase não permite alterar doações na nuvem."); romEditEnd(); renderTop(); return; }
     Object.assign(curRom, campos); toast("Doação atualizada."); romEditEnd(); if (!db) reloadLocalHist(); renderTop(); } });
 
+// ---------- revisão de códigos: marca "revisar" (guardada neste aparelho) e aviso de código repetido ----------
+const RVK = "validamais-revisar", TNOME = { ean: "EAN", plu: "Balança", doa: "Doação" };
+const revOn = n => !!store.get(RVK, {})[norm(n || "")];
+function revSet(n, on) { const m = store.get(RVK, {}), k = norm(n || ""); if (!k) return; if (on) m[k] = Date.now(); else delete m[k]; store.set(RVK, m); }
+function codMapa() {   // "tipo:código" -> nomes (sem repetir) que usam esse código
+  const m = new Map(), add = (t, c, n) => { c = String(c || "").trim(); if (!c) return; if (t === "plu" && /^\d+$/.test(c)) c = String(Number(c)); if (t === "doa") c = c.toUpperCase();
+    const k = t + ":" + c; if (!m.has(k)) m.set(k, new Map()); m.get(k).set(norm(n), n); };
+  products.forEach(p => { if (!p.name) return; add("ean", p.barcode, p.name); add("plu", p.codigo_balanca, p.name); add("doa", p.codigo_doacao, p.name); });
+  return m; }
+const codChave = (t, c) => { c = String(c || "").trim(); if (!c) return ""; if (t === "plu" && /^\d+$/.test(c)) c = String(Number(c)); if (t === "doa") c = c.toUpperCase(); return t + ":" + c; };
+function repetidosDe(nomes, cods, mapa) {   // nomes: nomes (normalizados) do próprio produto; devolve [{t, c, outros}] dos códigos que outro produto também usa
+  const r = [], vistos = new Set(); cods.forEach(([t, c]) => { const k = codChave(t, c); if (!k || vistos.has(k)) return; vistos.add(k);
+    const o = [...(mapa.get(k) || new Map())].filter(([nk]) => !nomes.has(nk)).map(([, nm]) => nm); if (o.length) r.push({ t, c: String(c).trim(), outros: o }); });
+  return r; }
+const dupTxt = l => l.map(d => `${TNOME[d.t]} ${d.c} também em ${d.outros.slice(0, 3).join(", ")}${d.outros.length > 3 ? " +" + (d.outros.length - 3) : ""}`).join(" · ");
+function dupLabel(l, mapa) {   // etiqueta: o código mostrado também é de outro produto (no cadastro ou em outra etiqueta da lista)?
+  const t = l.kg ? "plu" : "ean", c = l.orig || l.code; if (!c) return [];
+  const r = repetidosDe(new Set([norm(l.nome)]), [[t, c]], mapa || codMapa()), outros = new Set(r.flatMap(x => x.outros));
+  labels.forEach(o => { if (o !== l && !l.dup && !o.dup && (o.orig || o.code) === c && norm(o.nome) !== norm(l.nome)) outros.add(o.nome); });
+  return outros.size ? [{ t, c, outros: [...outros] }] : []; }
+function dupGrupo(x, mapa) {   // cadastro: algum código (EAN, balança, doação) também é de outro produto?
+  const nomes = new Set(x.l.map(r => norm(r.name))), cods = []; x.l.forEach(r => cods.push(["ean", r.barcode], ["plu", r.codigo_balanca], ["doa", r.codigo_doacao]));
+  const r = repetidosDe(nomes, cods, mapa);
+  if (nomes.size > 1) { const o = [...new Set(x.l.map(z => z.name))].filter(nm => nm !== x.name); if (o.length) r.unshift({ t: "ean", c: x.barcode, outros: o }); }
+  return r; }
+function filtBar(el, ativo, nRev, nDup) {
+  el.hidden = !ativo && !nRev && !nDup;
+  el.innerHTML = el.hidden ? "" : `<button type="button" class="fpill${ativo === "rev" ? " on" : ""}" data-f="rev">🚩 Revisar <b>${nRev}</b></button><button type="button" class="fpill${ativo === "dup" ? " on" : ""}" data-f="dup">⚠ Repetidos <b>${nDup}</b></button>`; }
 // ---------- aba Cadastros: cadastrar e editar produtos digitando (EAN até 13 dígitos) ----------
-let cadEdit = null;   // chave do produto em edição
+let cadEdit = null, cFiltro = "";   // chave do produto em edição
 const cadKey = p => p.barcode ? "b" + p.barcode : "n" + norm(p.name || "");
 function cadGroups() { const m = new Map(); products.forEach(p => { if (!p.name) return; const k = cadKey(p); if (!m.has(k)) m.set(k, []); m.get(k).push(p); });
   return [...m.entries()].map(([k, l]) => ({ k, l, p: l[0], name: l[0].name, barcode: l.map(x => x.barcode).find(Boolean) || "", plu: l.map(x => x.codigo_balanca).find(Boolean) || "", don: l.map(x => x.codigo_doacao).find(Boolean) || "" })).sort((a, b) => a.name.localeCompare(b.name, "pt-BR")); }
 function cadPaint() {
-  const q = norm($("cBusca").value.trim()), all = cadGroups(), g = all.filter(x => !q || norm(x.name).includes(q) || x.barcode.includes(q) || x.plu === q || x.don.toLowerCase() === q);
+  const q = norm($("cBusca").value.trim()), all = cadGroups(), mapa = codMapa();
+  all.forEach(x => { x.dup = dupGrupo(x, mapa); x.rev = revOn(x.name); });
+  filtBar($("cFilt"), cFiltro, all.filter(x => x.rev).length, all.filter(x => x.dup.length).length);
+  const g = all.filter(x => !q || norm(x.name).includes(q) || x.barcode.includes(q) || x.plu === q || x.don.toLowerCase() === q).filter(x => !cFiltro || (cFiltro === "rev" ? x.rev : x.dup.length));
   $("cCount").textContent = all.length + (q ? " · " + g.length + " achados" : "");
   const ini = x => { const c = x.name.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").charAt(0).toUpperCase(); return /[A-Z]/.test(c) ? c : "#"; };
   let ult = "", letras = [];
-  const row = x => `<div class="cadrow"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · Doação ${x.don ? esc(x.don) : "—"}</small></div><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
+  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · Doação ${x.don ? esc(x.don) : "—"}</small>${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
   $("cLista").innerHTML = g.length ? g.map(x => { const l = ini(x); let h = ""; if (l !== ult) { ult = l; letras.push(l); h = `<div class="cadlt" id="cl-${l === "#" ? "num" : l}">${l}</div>`; } return h + row(x); }).join("") : '<p class="empty">Nenhum produto encontrado.</p>';
   const rail = $("cIdx"); rail.hidden = g.length < 12 || letras.length < 2; $("cLista").classList.toggle("cadidx", !rail.hidden);
   rail.innerHTML = rail.hidden ? "" : letras.map(l => `<button type="button" tabindex="-1" data-l="${l}">${l}</button>`).join("");
@@ -1109,7 +1140,9 @@ $("cSalvar").onclick = () => {
   }
   cadReset(); setTimeout(cadPaint, db ? 600 : 0);
 };
-$("cLista").onclick = e => { const b = e.target.closest("[data-ced],[data-cdel]"); if (!b) return;
+$("cFilt").onclick = e => { const b = e.target.closest("[data-f]"); if (!b) return; cFiltro = cFiltro === b.dataset.f ? "" : b.dataset.f; cadPaint(); };
+$("cLista").onclick = e => { const b = e.target.closest("[data-ced],[data-cdel],[data-crev]"); if (!b) return;
+  if (b.dataset.crev !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.crev); if (!x) return; const on = !revOn(x.name); revSet(x.name, on); cadPaint(); toast(on ? "Marcado para revisar." : "Marca de revisão removida."); return; }
   if (b.dataset.ced !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.ced); if (!x) return; cadEdit = x.k;
     $("cNome").value = x.name; $("cEan").value = x.barcode; $("cPlu").value = x.plu; $("cDon").value = x.don; $("cEanN").textContent = x.barcode.length + "/13";
     $("cTitulo").textContent = "Editando cadastro"; $("cSalvar").textContent = "Salvar alterações"; $("cCancela").hidden = false; window.scrollTo(0, 0); return; }
@@ -1198,7 +1231,7 @@ tab("Doacao");
 const EK = "validamais-etiquetas", EUK = "validamais-etq-uni";   // EUK: código original -> código do sistema (só para a lista de etiquetas)
 const uniCode = c => (c && store.get(EUK, {})[c]) || c;
 const SZ = { P: { w: 63, h: 30, cols: 3, rows: 9, nome: 8, preco: 15, cod: 6, bar: 6 }, M: { w: 95, h: 50, cols: 2, rows: 5, nome: 12, preco: 26, cod: 8, bar: 12 }, G: { w: 190, h: 90, cols: 1, rows: 3, nome: 20, preco: 52, cod: 11, bar: 24 } };
-let labels = store.get(EK, []), pend = null, eHits = [];
+let labels = store.get(EK, []), pend = null, eHits = [], eFiltro = "";
 // itens pesados (FLV/Padaria) usam o código de balança; os demais usam o EAN
 const codeText = c => c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.code}` : "⚠ Sem EAN nem código de balança cadastrado para este produto.";
 const labelCode = p => p.barcode ? { code: String(p.barcode), kg: false } : p.codigo_balanca ? { code: String(p.codigo_balanca), kg: true } : { code: "", kg: false };   // etiqueta: EAN se o produto tem; senão o código de balança; nunca o de doação
@@ -1221,8 +1254,10 @@ function etqFixEan() {
 function renderLabels() {
   etqFixEan();
   $("eLimpa").classList.toggle("hidden", labels.length <= 5); { const n = labels.filter(l => l.ok).length; $("eMarc").textContent = labels.length ? `✓ ${n} de ${labels.length} já colocadas para impressão` : ""; } $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
+  const mapaE = codMapa(), infoE = labels.map(l => ({ rev: revOn(l.nome), dup: dupLabel(l, mapaE) }));
+  filtBar($("eFilt"), eFiltro, infoE.filter(o => o.rev).length, infoE.filter(o => o.dup.length).length);
   const ord = { P: 0, M: 1, G: 2 };   // lista única: primeiro os P, depois M, depois G (mantém a ordem de inclusão dentro de cada tamanho)
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).map(({ l, i }) => `<div class="crwrap"><div class="crw${l.ok ? " done" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div></div><button type="button" class="crx" data-ldrop="${i}" aria-label="Remover etiqueta: ${esc(l.nome)}">✕</button></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).filter(({ i }) => !eFiltro || (eFiltro === "rev" ? infoE[i].rev : infoE[i].dup.length)).map(({ l, i }) => `<div class="crwrap"><div class="crw${l.ok ? " done" : ""}${infoE[i].rev ? " rv" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}${infoE[i].rev ? ` <span class="rvtag">🚩 revisar</span>` : ""}${infoE[i].dup.length ? ` <span class="duptag" data-dupi="${i}">⚠ repetido</span>` : ""}</div><div class="cname">${esc(l.nome)}</div></div><div class="crr"><div class="cqty">${l.qtd}${(l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div></div><button type="button" class="crx" data-ldrop="${i}" aria-label="Remover etiqueta: ${esc(l.nome)}">✕</button></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 // efeito: o item novo é escrito à mão, devagar — uma mão (✍️) vai riscando o código e depois o nome, com tinta vermelha que seca
 function etqEscrever(row) {
@@ -1316,12 +1351,15 @@ $("eAdd").onclick = () => {
 };
 function labelDup(i) { const l = labels[i]; if (!l) return; const ord = ["P", "M", "G"], atual = l.tam || "M", novo = ord[(ord.indexOf(atual) + 1) % 3];
   labels.splice(i + 1, 0, { ...l, tam: novo, qtd: 1, ok: false, dup: true }); store.set(EK, labels); renderLabels(); lmOpen(i + 1); toast("Duplicado: escolha o tamanho e a quantidade."); }
+$("eFilt").onclick = e => { const b = e.target.closest("[data-f]"); if (!b) return; eFiltro = eFiltro === b.dataset.f ? "" : b.dataset.f; renderLabels(); };
 $("eLista").onclick = e => {
+  const di = e.target.closest("[data-dupi]"); if (di) { const l = labels[Number(di.dataset.dupi)]; if (l) toast("⚠ " + dupTxt(dupLabel(l))); return; }
   const dd = e.target.closest("[data-ldrop]"); if (dd) { const l = labels[Number(dd.dataset.ldrop)]; if (l) labelDropMany([l]); return; }   // ✕: remove já, com «Desfazer»
   const dp = e.target.closest("[data-ldup]"); if (dp) { labelDup(Number(dp.dataset.ldup)); return; }
   const k = e.target.closest("[data-lchk]"); if (k) { const l = labels[Number(k.dataset.lchk)]; if (l) { l.ok = !l.ok; store.set(EK, labels); renderLabels(); } return; }
   const rw = e.target.closest(".crw"); if (rw) lmOpen(Number(rw.dataset.li));   // toque na linha abre a folha: tamanho, quantidade, duplicar e apagar
 };
+$("lmRev").onclick = () => { const l = labels[lmI]; if (!l) return; const on = !revOn(l.nome); revSet(l.nome, on); $("lmRev").textContent = on ? "🚩 Tirar a marca de revisar" : "🚩 Marcar para revisar"; renderLabels(); toast(on ? "Marcado para revisar (também aparece nos Cadastros)." : "Marca de revisão removida."); };
 $("lmDel").onclick = () => { const l = labels[lmI]; $("lModal").classList.add("hidden"); if (l) labelDropMany([l]); };
 function labelDrop(x) { const it = labels.splice(x, 1)[0]; if (!it) return; store.set(EK, labels); renderLabels();
   toast("Etiqueta removida.", "Desfazer", () => { labels.splice(Math.min(x, labels.length), 0, it); store.set(EK, labels); renderLabels(); }); }
@@ -1351,7 +1389,7 @@ function labelUnify(i) {
 // segurar o item da lista abre tamanho (P/M/G) e quantidade
 let lmI = -1;
 function lmDraw() { const l = labels[lmI]; if (!l) return; document.querySelectorAll("#lmTam button").forEach(b => b.classList.toggle("sel", b.dataset.t === (l.tam || "M"))); $("lmQtd").value = l.qtd; }
-function lmOpen(i) { const l = labels[i]; if (!l) return; lmI = i; $("lmNome").textContent = l.nome; $("lmCod").textContent = l.code ? (l.kg ? "Código de balança: " : "EAN: ") + l.code : "Sem código"; lmDraw(); $("lModal").classList.remove("hidden"); if (navigator.vibrate) navigator.vibrate(40); }
+function lmOpen(i) { const l = labels[i]; if (!l) return; lmI = i; $("lmNome").textContent = l.nome; $("lmCod").textContent = (l.code ? (l.kg ? "Código de balança: " : "EAN: ") + l.code : "Sem código") + (dupLabel(l).length ? " · ⚠ " + dupTxt(dupLabel(l)) : ""); $("lmRev").textContent = revOn(l.nome) ? "🚩 Tirar a marca de revisar" : "🚩 Marcar para revisar"; lmDraw(); $("lModal").classList.remove("hidden"); if (navigator.vibrate) navigator.vibrate(40); }
 const lmSave = () => { store.set(EK, labels); renderLabels(); };
 $("lmTam").onclick = e => { const b = e.target.closest("button"); const l = labels[lmI]; if (!b || !l) return; l.tam = b.dataset.t; if (l.key && !l.dup) { const m = store.get(TK, {}); m[l.key] = l.tam; store.set(TK, m); } lmSave(); lmDraw(); };
 const lmQ = n => { const l = labels[lmI]; if (!l) return; l.qtd = Math.max(1, Math.round(n) || 1); lmSave(); lmDraw(); };

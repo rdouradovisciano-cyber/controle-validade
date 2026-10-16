@@ -1,1 +1,1 @@
-{"versao":"2026.10.16-166","nota":"Etiquetas: aparece o EAN do cadastro quando o produto tem; sem EAN, o código de balança (nunca o de doação)"}
+{"versao":"2026.10.16-167","nota":"Códigos: marque um produto como 🚩 revisar (na etiqueta ou nos Cadastros) e filtre depois; avisos de código repetido (EAN, balança ou doação usado por outro produto)"}
