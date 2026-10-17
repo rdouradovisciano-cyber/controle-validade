@@ -1219,6 +1219,27 @@ function finalizeDon() {
   if (db) V.addDoc(V.collection(db, "doacoes"), { ...rec, em: V.serverTimestamp() }).then(r => { rec._id = r.id; }).catch(e => { console.error(e); toast("Erro ao salvar na nuvem (confira as regras). O romaneio foi gerado."); });
   else { const hh = store.get(HK, []), em = Date.now(); rec.em = em; hh.unshift({ ...rec }); store.set(HK, hh.slice(0, 50)); }
   don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); showRomaneio(rec); renderTop();
+  setTimeout(doaFesta, 150);
+}
+// confete dourado ao finalizar a doação: um jato curto sai do TOTAL do romaneio e o total dá um pequeno pulo (some com "reduzir movimento")
+function doaFesta() {
+  try {
+    const alvo = document.querySelector("#romBody .romtotal"); if (!alvo || !alvo.animate || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+    const r = alvo.getBoundingClientRect(), ox = Math.min(innerWidth - 20, Math.max(20, r.left + r.width / 2)), oy = Math.min(innerHeight - 90, Math.max(90, r.top + r.height / 2));
+    const cores = ["#f3d87a", "#e5c158", "#c9a227", "#fff6cf", "#b8860b"], box = document.createElement("div");
+    box.setAttribute("aria-hidden", "true"); Object.assign(box.style, { position: "fixed", left: "0", top: "0", width: "0", height: "0", zIndex: 130, pointerEvents: "none" });
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    for (let i = 0; i < 34; i++) {
+      const p = document.createElement("i"), ang = rnd(-165, -15) * Math.PI / 180, dist = rnd(140, 320), dur = rnd(1000, 1600), g = rnd(110, 200), w = rnd(5, 9), redondo = Math.random() < .3;
+      Object.assign(p.style, { position: "absolute", left: ox + "px", top: oy + "px", width: w + "px", height: (redondo ? w : w * rnd(1.4, 2.2)) + "px", background: cores[i % cores.length], borderRadius: redondo ? "50%" : "2px", opacity: "0" });
+      const dx = Math.cos(ang) * dist, dy = Math.sin(ang) * dist, giro = rnd(-540, 540), fr = [];
+      for (let k = 0; k <= 8; k++) { const t = k / 8; fr.push({ offset: t, opacity: t < .08 ? t / .08 : t > .7 ? Math.max(0, 1 - (t - .7) / .3) : 1,
+        transform: `translate(${(dx * t).toFixed(1)}px,${(dy * Math.sqrt(t) * (1 - t * .15) + g * t * t).toFixed(1)}px) rotate(${(giro * t).toFixed(0)}deg)` }); }
+      p.animate(fr, { duration: dur, delay: rnd(0, 120), easing: "cubic-bezier(.2,.7,.4,1)", fill: "both" }); box.appendChild(p);
+    }
+    document.body.appendChild(box); setTimeout(() => box.remove(), 1900);
+    alvo.animate([{ transform: "scale(1)", textShadow: "0 0 0 rgba(229,193,88,0)" }, { transform: "scale(1.14)", textShadow: "0 0 18px rgba(229,193,88,.9)", offset: .35 }, { transform: "scale(1)", textShadow: "0 0 0 rgba(229,193,88,0)" }], { duration: 560, delay: 120, easing: "cubic-bezier(.3,1.4,.5,1)" });
+  } catch (_) {}
 }
 $("dFinalizar").onclick = () => { if (!don.itens.length) return toast("A lista está vazia."); finalizeDon(); };
 const ENV = "validamais-denv", hid = x => x._id || (x.em && typeof x.em === "number" ? String(x.em) : ""), isSent = x => !!(x.enviada || store.get(ENV, {})[hid(x)]);
