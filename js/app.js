@@ -353,7 +353,7 @@ async function openScan(mode = "loja") {
   scanner = s;
   try {
     await s.start({ facingMode: "environment" }, {
-      fps: 10,
+      fps: scanMode === "doacao" ? 8 : 10,
       qrbox: (w, h) => ({ width: Math.floor(w * .85), height: Math.floor(Math.min(w, h) * .4) }),
       videoConstraints: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 }, advanced: [{ focusMode: "continuous" }] }
     }, onCode, () => {});
@@ -813,7 +813,13 @@ function pkDone(ok) {
   else { pkResolve = null; $("pkModal").classList.add("hidden"); if (window.npClose) window.npClose(); res(null); }
 }
 $("pkOk").onclick = () => pkDone(true); $("pkCancel").onclick = $("pkClose").onclick = () => pkDone(false);
-async function donationScan(code) {
+async function donationScan(code) {          // pausa a leitura enquanto processa (a câmera contínua pesava o aparelho)
+  const s = scanner; let pausou = false;
+  try { if (s && !(Date.now() - lastScan.t < 2500 && code === lastScan.c)) { s.pause(false); pausou = true; } } catch {}
+  try { return await donationScanRun(code); }
+  finally { if (pausou) { setTimeout(() => { try { if (scanner === s) s.resume(); } catch {} }, 350); } }
+}
+async function donationScanRun(code) {
   const now = Date.now(); if (code === lastScan.c && now - lastScan.t < 2500) return;   // ignora leitura repetida do mesmo código
   lastScan = { c: code, t: now };
   if (nrResolve || qtResolve || pkResolve) return;   // há um cadastro ou uma pergunta aberta
