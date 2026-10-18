@@ -200,10 +200,18 @@ function resetForm() {
 }
 function toggleCodes() {
   const flv = $("category").value === "FLV"; $("expiry").required = !flv; $("expLabel").textContent = flv ? "Data de validade (opcional)" : "Data de validade *"; $("semCodigo").classList.toggle("hidden", !!$("barcode").value.trim() && !["FLV", "Padaria"].includes($("category").value)); }
-async function stopScanner() {
-  const s = scanner; scanner = null;
+let scanBusy = Promise.resolve();
+async function liberaCamera(s) {
   if (s) { try { await s.stop(); } catch {} try { s.clear(); } catch {} }
+  // garantia: solta a câmera mesmo se stop() falhar (senão ela segue ligada e deixa o app lento)
+  try { document.querySelectorAll("#reader video").forEach(v => { const m = v.srcObject; if (m && m.getTracks) m.getTracks().forEach(k => { try { k.stop(); } catch {} }); v.srcObject = null; v.remove(); }); } catch {}
+  try { const r = $("reader"); if (r && !scanner) r.innerHTML = ""; } catch {}
+}
+function stopScanner() {                                  // volta na hora; a câmera é solta em segundo plano
+  const s = scanner; scanner = null;
   $("torchBtn").classList.add("hidden");
+  scanBusy = scanBusy.then(() => liberaCamera(s)).catch(() => {});
+  return scanBusy;
 }
 function closeModal() { stopScanner(); $("modal").classList.add("hidden"); resetForm(); }
 function openForm(code = "") { resetForm(); show("Cadastrar produto"); $("barcode").value = code; fillKnown(code); $("name").focus(); }
@@ -314,7 +322,7 @@ async function onCode(code) {
   if (scanMode === "etiqueta") return labelScan(code);
   if (scanMode === "cadastro") return cadScan(code);
   if (navigator.vibrate) navigator.vibrate(100);
-  beep(); await stopScanner(); resetForm();
+  beep(); stopScanner(); resetForm();
   if (isScale(code)) {                                   // etiqueta de balança: o código de balança identifica o produto
     const plu = String(Number(parseScale(code).item)), k = products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(plu));
     logScan(code, k); show(k ? `Novo lote de «${k.name}»` : "Produto novo: cadastre agora");
@@ -349,7 +357,7 @@ async function openScan(mode = "loja") {
       qrbox: (w, h) => ({ width: Math.floor(w * .85), height: Math.floor(Math.min(w, h) * .4) }),
       videoConstraints: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 }, advanced: [{ focusMode: "continuous" }] }
     }, onCode, () => {});
-    if (scanner !== s) { try { await s.stop(); s.clear(); } catch {} return; }  // modal fechado durante a abertura
+    if (scanner !== s) { scanBusy = scanBusy.then(() => liberaCamera(s)).catch(() => {}); return; }  // modal fechado durante a abertura
     try { const t = s.getRunningTrackCameraCapabilities().torchFeature();
       if (t.isSupported()) { let on = false; $("torchBtn").classList.remove("hidden");
         $("torchBtn").onclick = async () => { on = !on; try { await t.apply(on); } catch { on = !on; } }; } } catch {}
@@ -421,7 +429,7 @@ fillCategories();
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
 $("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
 $("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
-$("scanManual").onclick = async () => { await stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
+$("scanManual").onclick = () => { stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("modal").classList.contains("hidden")) closeModal(); });
 $("productForm").onsubmit = e => { e.preventDefault(); save(false); };
@@ -1181,7 +1189,7 @@ function dupResolver(x) {
 $("navCadastros").addEventListener("click", cadPaint);
 // ---------- Cadastros: preencher o código lendo com a câmera ----------
 async function cadScan(code) {
-  if (navigator.vibrate) navigator.vibrate(100); beep(); await stopScanner(); closeModal();
+  if (navigator.vibrate) navigator.vibrate(100); beep(); stopScanner(); closeModal();
   const d = String(code).replace(/\D/g, "");
   if (!d) return toast("Esse código não é só de números. Digite-o no campo.");
   if (isScale(d)) { $("cPlu").value = String(Number(parseScale(d).item)).slice(0, 6); toast("Etiqueta de balança: preenchi o código de balança (PLU)."); }
@@ -1355,7 +1363,7 @@ function labelPick(p, ean) {   // ean: código de barras que foi bipado (item po
   toast((c.code ? c.code + " · " : "") + p.name + " adicionado.");
 }
 async function labelScan(code) {
-  buzz(); beep(); await stopScanner(); closeModal();
+  buzz(); beep(); stopScanner(); closeModal();
   const scale = isScale(code), item = scale ? Number(parseScale(code).item) : 0;
   let p = scale ? products.find(x => x.codigo_balanca && Number(x.codigo_balanca) === item) : products.find(x => x.barcode === code);
   if (!p) { const r = await askNewProduct(code, scale, scale ? String(item) : ""); if (!r) return;
