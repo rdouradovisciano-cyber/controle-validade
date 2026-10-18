@@ -1,1 +1,1 @@
-{"versao":"2026.10.18-172","nota":"Doação: a câmera pausa a leitura enquanto o item é processado e volta sozinha, deixando o app mais leve ao bipar vários itens"}
+{"versao":"2026.10.18-173","nota":"Cadastros: lixeira de 3 dias. Cadastro excluído (inclusive ao resolver código repetido) vai para a lixeira, onde dá para restaurar ou excluir de vez; depois de 3 dias some sozinho"}

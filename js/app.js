@@ -10,7 +10,7 @@ let curTab = "Loja";
 const LOJA = C.loja || "Sam's Club Radial Leste";
 const EMPTY_FLV = '<div class="empty"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="#9db8a4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 28h44l-5 22a4 4 0 0 1-4 3H19a4 4 0 0 1-4-3z"/><path d="M22 28c0-9 4-16 10-16s10 7 10 16"/><path d="M32 12c0-4 3-7 8-7 0 5-3 8-8 7z"/></svg><p>Nenhum produto do FLV com validade para vencer no momento.</p></div>';
 const SKEL = '<div class="skel" role="status" aria-label="Carregando produtos">' + [58, 72, 46, 64].map((w, k) => `<div class="product skelc" aria-hidden="true" style="--d:${k * 0.15}s"><div class="sk sk-t" style="width:${w}%"></div><div class="sk sk-m"></div><div class="sk-row"><div class="sk sk-d"></div><div class="sk sk-p"></div></div></div>`).join("") + '</div>';
-let products = [], db = null, scanner = null, toastTimer, carregando = false;   // carregando: Firebase ainda não respondeu (mostra silhuetas)
+let products = [], lixeira = [], db = null, scanner = null, toastTimer, carregando = false;   // carregando: Firebase ainda não respondeu (mostra silhuetas)
 window.vmProducts = () => products;
 window.vmRegister = o => registerProduct(o);
 window.vmDb = () => db;
@@ -79,7 +79,13 @@ function toast(msg, action, fn) {
   t.classList.remove("hidden"); clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.add("hidden"), action ? 6000 : Math.max(2500, Math.min(7000, 1800 + String(msg).length * 55)));   // some sozinho; texto longo fica mais tempo; com «Desfazer», 6 s
 }
-const persist = () => { if (!db) store.set(LK, products); };
+const LIXO_MS = 3 * 864e5;   // lixeira: cadastros excluídos ficam 3 dias e depois somem de vez
+const persist = () => { if (!db) store.set(LK, products.concat(lixeira)); };
+function separaLixo(arr) {
+  const agora = Date.now(), venc = arr.filter(p => p.lixo && agora - Number(p.lixo) > LIXO_MS);
+  products = arr.filter(p => !p.lixo); lixeira = arr.filter(p => p.lixo && !venc.includes(p));
+  if (venc.length) { if (db) venc.forEach(p => V.deleteDoc(V.doc(db, "products", p.id)).catch(() => {})); else persist(); }
+}
 
 // ---------- lista ----------
 function fillCategories() {
@@ -458,11 +464,11 @@ if (cloud && V.initializeApp) {
     carregando = true; $("list").innerHTML = SKEL;   // silhuetas até chegar o primeiro dado (no máximo 6 s, para não ficar preso sem internet)
     setTimeout(() => { if (carregando) { carregando = false; render(); } }, 6000);
     V.onSnapshot(V.collection(db, "products"), { includeMetadataChanges: true }, snap => {
-      products = snap.docs.map(d => ({ id: d.id, ...d.data() })); window.__hReady = !snap.metadata.fromCache; if (window.__hReady || products.length) carregando = false; render(); if (window.__hReady) setTimeout(() => { try { limparFotosNuvem(); } catch (e) { console.warn(e); } }, 2000);
+      separaLixo(snap.docs.map(d => ({ id: d.id, ...d.data() }))); lixoBtn(); window.__hReady = !snap.metadata.fromCache; if (window.__hReady || products.length) carregando = false; render(); if (window.__hReady) setTimeout(() => { try { limparFotosNuvem(); } catch (e) { console.warn(e); } }, 2000);
       setSync(snap.metadata.hasPendingWrites ? "alterações aguardando envio…" : snap.metadata.fromCache ? (navigator.onLine ? "conectando…" : "offline (dados salvos no aparelho)") : "sincronizado");
     }, err => { console.error(err); carregando = false; render(); setSync("erro de sincronização (confira as regras do Firestore)"); toast("Erro ao ler os dados da nuvem."); });
   } catch (e) { console.error(e); db = null; setSync("falha ao iniciar o Firebase"); }
-} else { products = store.get(LK, []); if (products.some(p => p.foto)) { products = products.map(({ foto, ...r }) => r); store.set(LK, products); } setSync("modo local neste aparelho (configure o Firebase para sincronizar)"); render(); }
+} else { separaLixo(store.get(LK, []).map(({ foto, ...r }) => r)); persist(); setSync("modo local neste aparelho (configure o Firebase para sincronizar)"); render(); }
 
 // ---------- aparelho, contadores (visitas/online) e histórico de leituras ----------
 const myId = store.get("validamais-device", null) || (() => { const i = uid().slice(0, 8); store.set("validamais-device", i); return i; })();
@@ -1109,7 +1115,7 @@ function cadPaint() {
   all.forEach(x => { x.dup = dupGrupo(x, mapa); x.rev = revOn(x.name); });
   filtBar($("cFilt"), cFiltro, all.filter(x => x.rev).length, all.filter(x => x.dup.length).length);
   const g = all.filter(x => !q || norm(x.name).includes(q) || x.barcode.includes(q) || x.plu === q || x.don.toLowerCase() === q).filter(x => !cFiltro || (cFiltro === "rev" ? x.rev : x.dup.length));
-  $("cCount").textContent = all.length + (q ? " · " + g.length + " achados" : "");
+  lixoBtn(); $("cCount").textContent = all.length + (q ? " · " + g.length + " achados" : "");
   const ini = x => { const c = x.name.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").charAt(0).toUpperCase(); return /[A-Z]/.test(c) ? c : "#"; };
   let ult = "", letras = [];
   const row = x => `<div class="cadrow${x.rev ? " rv" : ""}"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · Doação ${x.don ? esc(x.don) : "—"}</small>${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small><button type="button" class="dpres" data-cres="${esc(x.k)}">Resolver código repetido</button>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
@@ -1162,14 +1168,44 @@ $("cLista").onclick = e => { const b = e.target.closest("[data-ced],[data-cdel],
 function cadAbrir(x) { cadEdit = x.k;
   $("cNome").value = x.name; $("cEan").value = x.barcode; $("cPlu").value = x.plu; $("cDon").value = x.don; $("cEanN").textContent = x.barcode.length + "/13";
   $("cTitulo").textContent = "Editando cadastro"; $("cSalvar").textContent = "Salvar alterações"; $("cCancela").hidden = false; window.scrollTo(0, 0); }
-function cadApagar(x) {   // apaga o cadastro e todos os lotes (sem perguntar) e tira a marca de revisar
-  x.l.forEach(p => { if (db) V.deleteDoc(V.doc(db, "products", p.id)).catch(() => toast("Não foi possível excluir.")); });
-  if (!db) { products = products.filter(p => !x.l.includes(p)); persist(); render(); }
+function cadApagar(x) {   // manda o cadastro e todos os lotes para a lixeira (3 dias) e tira a marca de revisar
+  const agora = Date.now();
+  x.l.forEach(p => { if (db) V.updateDoc(V.doc(db, "products", p.id), { lixo: agora, updatedAt: V.serverTimestamp() }).catch(() => toast("Não foi possível excluir.")); });
+  if (!db) { x.l.forEach(p => { p.lixo = agora; }); lixeira = lixeira.concat(x.l); products = products.filter(p => !x.l.includes(p)); persist(); render(); lixoBtn(); }
   if (!products.some(p => p.name && norm(p.name) === norm(x.name) && !x.l.includes(p))) revSet(x.name, false);
   if (cadEdit === x.k) cadReset(); }
+function lixoBtn() { const b = $("cLixo"); if (!b) return; b.hidden = !lixeira.length; b.textContent = "🗑 Lixeira (" + lixoGrupos().length + ")"; }
+function lixoGrupos() {
+  const m = new Map(); lixeira.forEach(p => { const k = norm(p.name || "") + "|" + (p.barcode || ""); const g = m.get(k) || { k, name: p.name || "(sem nome)", barcode: p.barcode || "", l: [], t: 0 }; g.l.push(p); g.t = Math.max(g.t, Number(p.lixo) || 0); m.set(k, g); });
+  return [...m.values()].sort((a, b) => b.t - a.t);
+}
+function lixoRestaurar(g) {
+  if (db) g.l.forEach(p => V.updateDoc(V.doc(db, "products", p.id), { lixo: V.deleteField(), updatedAt: V.serverTimestamp() }).catch(() => toast("Não foi possível restaurar.")));
+  else { g.l.forEach(p => { delete p.lixo; }); lixeira = lixeira.filter(p => !g.l.includes(p)); products = products.concat(g.l); persist(); render(); }
+}
+function lixoApagar(g) {
+  if (db) g.l.forEach(p => V.deleteDoc(V.doc(db, "products", p.id)).catch(() => toast("Não foi possível excluir.")));
+  else { lixeira = lixeira.filter(p => !g.l.includes(p)); persist(); }
+}
+function lixoAbrir() {
+  if (!lixeira.length) { toast("A lixeira está vazia."); return; }
+  const bg = document.createElement("div"); bg.className = "modal"; bg.id = "lixoModal";
+  const desenha = () => { const gs = lixoGrupos();
+    bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Lixeira"><div class="sheethead"><h2>🗑 Lixeira</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
+      <p class="note">Cadastros excluídos ficam aqui por <b>3 dias</b>. Depois somem de vez.</p>
+      ${gs.map((g, i) => { const dias = Math.max(1, Math.ceil((g.t + LIXO_MS - Date.now()) / 864e5));
+        return `<div class="dprow"><b>${esc(g.name)}</b><small>${g.barcode ? "EAN " + esc(g.barcode) + " · " : ""}${g.l.length > 1 ? g.l.length + " lotes · " : ""}some em ${dias} dia${dias > 1 ? "s" : ""}</small>
+        <div class="dpbtns"><button type="button" class="primary" data-rest="${i}">Restaurar</button><button type="button" class="secondary" data-del="${i}">Excluir de vez</button></div></div>`; }).join("") || '<p class="note">Lixeira vazia.</p>'}</section>`; return gs; };
+  let gs = desenha(); document.body.appendChild(bg);
+  const fecha = () => { bg.remove(); setTimeout(() => { lixoBtn(); cadPaint(); }, db ? 600 : 0); };
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) return fecha();
+    const b = e.target.closest("[data-rest],[data-del]"); if (!b) return; const g = gs[Number(b.dataset.rest ?? b.dataset.del)]; if (!g) return;
+    if (b.dataset.rest !== undefined) { lixoRestaurar(g); toast("«" + g.name + "» restaurado."); }
+    else { if (!confirm(`Excluir «${g.name}» de vez?\n\nIsto não pode ser desfeito.`)) return; lixoApagar(g); toast("Excluído de vez."); }
+    lixeira = lixeira.filter(p => !g.l.includes(p)); gs = desenha(); if (!gs.length) fecha(); }; }
 function cadExcluir(x) {
-  if (!confirm(`Excluir «${x.name}»${x.l.length > 1 ? " e seus " + x.l.length + " lotes" : ""}?`)) return false;
-  cadApagar(x); toast("Cadastro excluído."); setTimeout(cadPaint, db ? 600 : 0); return true; }
+  if (!confirm(`Excluir «${x.name}»${x.l.length > 1 ? " e seus " + x.l.length + " lotes" : ""}?\n\nFica 3 dias na lixeira, onde dá para restaurar.`)) return false;
+  cadApagar(x); toast("Cadastro enviado para a lixeira."); setTimeout(cadPaint, db ? 600 : 0); return true; }
 // código repetido: mostra todos os produtos que usam o código e deixa escolher onde ele fica
 const CAMPO = { ean: "barcode", plu: "codigo_balanca", doa: "codigo_doacao" };
 function dupResolver(x) {
@@ -1188,11 +1224,12 @@ function dupResolver(x) {
     const k = (e.target.closest("[data-keep],[data-edit],[data-del]") || {}).dataset; if (!k) return;
     const find = id => itens.find(g => g.k === id);
     if (k.keep !== undefined) { const fica = find(k.keep), fora = itens.filter(g => g !== fica);
-      if (!confirm(`Manter «${fica.name}» e EXCLUIR ${fora.length > 1 ? "estes " + fora.length + " cadastros" : "este cadastro"}?\n\n${fora.map(g => "• " + g.name + (g.l.length > 1 ? " (" + g.l.length + " lotes)" : "")).join("\n")}\n\nNão dá para desfazer.`)) return;
+      if (!confirm(`Manter «${fica.name}» e EXCLUIR ${fora.length > 1 ? "estes " + fora.length + " cadastros" : "este cadastro"}?\n\n${fora.map(g => "• " + g.name + (g.l.length > 1 ? " (" + g.l.length + " lotes)" : "")).join("\n")}\n\nFicam 3 dias na lixeira, onde dá para restaurar.`)) return;
       fora.forEach(cadApagar); toast(fora.length > 1 ? fora.length + " cadastros excluídos. Ficou «" + fica.name + "»." : "Cadastro excluído. Ficou «" + fica.name + "»."); return fecha(); }
     if (k.edit !== undefined) { const g = find(k.edit); bg.remove(); cadAbrir(g); return; }
     if (k.del !== undefined) { const g = find(k.del); if (cadExcluir(g)) bg.remove(); } }; }
 $("navCadastros").addEventListener("click", cadPaint);
+if ($("cLixo")) $("cLixo").onclick = lixoAbrir;
 // ---------- Cadastros: preencher o código lendo com a câmera ----------
 async function cadScan(code) {
   if (navigator.vibrate) navigator.vibrate(100); beep(); stopScanner(); closeModal();
