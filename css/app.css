@@ -976,3 +976,9 @@ html[data-tema=dark] .dprow mark{background:#3a2e0d;color:#f0b429}
 #dSug button .bi .bsv{display:inline-block;vertical-align:-3px;margin:0}
 .dt6 button[data-tv]{position:relative}
 .dt6 button[data-tv] .pk{position:absolute;top:5px;right:6px;font-size:11px;font-weight:800;line-height:1;padding:3px 6px;border-radius:99px;background:#3a2e0d;color:#f3d87a;border:1px solid #c9a227;letter-spacing:0}
+/* respiro do ícone nos balões (ajuste 1) */
+.dt6 button[data-t6]{padding-top:12px;min-height:88px}
+.dt6 button[data-t6] .bi{font-size:26px;line-height:1.25;margin-bottom:3px}
+.dt6 button[data-tv]{padding-top:12px;min-height:88px}
+.dt6 button[data-tv] .bi{font-size:26px;line-height:1.25;margin-bottom:3px}
+.dt6 button .bi .bsv{width:1.05em;height:1.05em}
