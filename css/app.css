@@ -982,3 +982,8 @@ html[data-tema=dark] .dprow mark{background:#3a2e0d;color:#f0b429}
 .dt6 button[data-tv]{padding-top:12px;min-height:88px}
 .dt6 button[data-tv] .bi{font-size:26px;line-height:1.25;margin-bottom:3px}
 .dt6 button .bi .bsv{width:1.05em;height:1.05em}
+/* círculo escuro atrás do ícone (ajuste 2): unifica emojis e desenhos */
+.dt6 button[data-t6] .bi:not(.bl),.dt6 button[data-tv] .bi:not(.bl){display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#2e3550,#1a1f2f);border:1px solid #343b52;font-size:24px;line-height:1;margin:0 auto 4px}
+.dt6 button .bi:not(.bl) .bsv{width:24px;height:24px}
+.dt6 button[data-t6] .bi.bl,.dt6 button[data-tv] .bi.bl{width:42px;height:42px;font-size:19px;line-height:39px;margin:0 auto 4px}
+.dt6 button[data-t6],.dt6 button[data-tv]{padding-top:10px;min-height:96px}
