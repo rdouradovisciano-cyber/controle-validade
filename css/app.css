@@ -974,3 +974,5 @@ html[data-tema=dark] .dprow mark{background:#3a2e0d;color:#f0b429}
 .bi .bsv{width:1.1em;height:1.1em;display:block;margin:0 auto}
 #dSug button .bi{font-size:20px;margin-right:8px;vertical-align:-3px;display:inline-block}
 #dSug button .bi .bsv{display:inline-block;vertical-align:-3px;margin:0}
+.dt6 button[data-tv]{position:relative}
+.dt6 button[data-tv] .pk{position:absolute;top:5px;right:6px;font-size:11px;font-weight:800;line-height:1;padding:3px 6px;border-radius:99px;background:#3a2e0d;color:#f3d87a;border:1px solid #c9a227;letter-spacing:0}
