@@ -700,7 +700,7 @@ function dTop6Render(){ const box=$("dTop6"); if(!box) return; let rank=[]; try{
   if(op!=null&&op>=0&&top[op]){ const f=top[op];
     $("dT6L").textContent="⭐ "+dTitle(f.w).toUpperCase()+" — QUAL?";
     $("dT6").classList.add("var");
-    $("dT6").innerHTML=f.list.map((o,i)=>{ const same=dFamKey(o.n)===f.k, rest=(same?dBase(o.n).split(/\s+/).slice(1).join(" "):dBase(o.n)); return `<button type="button" data-tv="${i}">${esc(rest?dTitle(rest.split(" ")[0])+(rest.includes(" ")?" "+rest.split(" ").slice(1).join(" ").toLowerCase():""):"Comum")}<small>${o.u}</small></button>`; }).join("")+`<button type="button" class="dback" data-tback="1">← voltar</button>`;
+    $("dT6").innerHTML=f.list.map((o,i)=>{ const same=dFamKey(o.n)===f.k, rest=(same?dBase(o.n).split(/\s+/).slice(1).join(" "):dBase(o.n)); return `<button type="button" data-tv="${i}">${balIco(o.n, f.w)}${esc(rest?dTitle(rest.split(" ")[0])+(rest.includes(" ")?" "+rest.split(" ").slice(1).join(" ").toLowerCase():""):"Comum")}<small>${o.u}</small></button>`; }).join("")+`<button type="button" class="dback" data-tback="1">← voltar</button>`;
   } else { box._open=-1; $("dT6L").textContent=ed?"✎ TOQUE NUM BALÃO PARA EDITAR":(cfg?"⭐ MEUS BALÕES":"⭐ MAIS DOADOS"); $("dT6").classList.remove("var");
     $("dT6").innerHTML=top.map((f,i)=>`<button type="button" class="${ed?"ed":""}" data-t6="${i}">${balIco(f.w)}${esc(dTitle(f.w))}<small>${f.list.length>1?f.list.length+" tipos"+(ed?"":" ›"):(f.list[0]?f.list[0].u:"")}</small></button>`).join("")+(ed&&top.length<9?'<button type="button" class="dnew" data-tnew="1">＋ Novo</button>':""); } }
 function dPickVar(o){ const box=$("dTop6"); box._open=-1; buzz(); const p=products.find(x=>norm(dBase(x.name))===norm(dBase(o.n)))||prodFor(o.n); selectProd(p?p.name:o.n,o.c||"",o.u); }
@@ -712,7 +712,8 @@ $("dT6").onclick=e=>{ const box=$("dTop6"), f=box._f||[];
   if(fam.list.length>1){ buzz(); box._open=Number(b.dataset.t6); dTop6Render(); } else dPickVar(fam.list[0]); };
 // ícone do balão pelo nome (🍅 tomate, 🍋 limão…); sem palavra conhecida, mostra a inicial num círculo
 const BICO = [[/tomate/,"🍅"],[/maca/,"🍎"],[/limao|lima\b/,"🍋"],[/banana/,"🍌"],[/melancia/,"🍉"],[/melao/,"🍈"],[/uva/,"🍇"],[/laranja|tangerina|mexerica|ponkan/,"🍊"],[/morang/,"🍓"],[/abacaxi/,"🍍"],[/manga|mamao|papaya/,"🥭"],[/pera\b/,"🍐"],[/pessego|nectarina|damasco/,"🍑"],[/cereja/,"🍒"],[/kiwi/,"🥝"],[/coco/,"🥥"],[/abacate/,"🥑"],[/legume|batata|inhame|mandioca|aipim/,"🥔"],[/cenoura/,"🥕"],[/milho/,"🌽"],[/pepino|abobrinha|chuchu/,"🥒"],[/brocol|couve flor/,"🥦"],[/alho/,"🧄"],[/cebola/,"🧅"],[/berinjela/,"🍆"],[/pimentao/,"🫑"],[/pimenta/,"🌶️"],[/cogumelo|champignon/,"🍄"],[/abobora/,"🎃"],[/beterraba/,"🟣"],[/tropical/,"🌴"],[/verdura|folha|alface|couve|rucula|espinafre|repolho|agriao|salsa|cheiro|erva|coentro|cebolinha|hortela/,"🥬"]];
-function balIco(w) { const n = norm(String(w || "")); for (const [re, e] of BICO) if (re.test(n)) return `<span class="bi">${e}</span>`;
+function balIco(w, fb) { const n = norm(String(w || "")); for (const [re, e] of BICO) if (re.test(n)) return `<span class="bi">${e}</span>`;
+  if (fb) return balIco(fb);
   return `<span class="bi bl">${esc((String(w || "?").trim().charAt(0) || "?").toUpperCase())}</span>`; }
 function dBalCfg(){ const v=store.get("validamais-dbal",null); return Array.isArray(v)&&v.length?v:null; }
 function dBalEnsure(){ let c=dBalCfg(); if(c) return c; const a=$("dTop6")._auto||[]; c=a.map(f=>({w:dTitle(f.w),v:f.list.map(o=>({n:o.n,c:o.c||"",u:o.u||"kg"}))})); store.set("validamais-dbal",c); return c; }
