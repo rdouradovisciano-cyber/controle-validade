@@ -1,4 +1,4 @@
-try{document.documentElement.dataset.tema=localStorage.getItem("validamais-tema")||"dark";if(localStorage.getItem("validamais-oled")==="1")document.documentElement.dataset.oled="on"}catch(e){document.documentElement.dataset.tema="dark"}
+try{document.documentElement.dataset.tema=localStorage.getItem("validamais-tema")||"dark";document.documentElement.dataset.oled="on"}catch(e){document.documentElement.dataset.tema="dark"}document.documentElement.dataset.oled="on";
 (function(){
 var K="validamais-tema",m=document.querySelector('meta[name=theme-color]'),claro=m?m.content:"#08090c";
 function ap(t){document.documentElement.dataset.tema=t;if(m)m.content=t==="dark"?(document.documentElement.dataset.oled==="on"?"#000000":"#08090c"):claro;

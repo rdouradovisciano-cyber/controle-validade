@@ -11,10 +11,10 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=173">
+<link rel="stylesheet" href="css/app.css?v=174">
 <title>Valida+ | Controle de validade</title>
-<script src="js/tema.js?v=173"></script>
-<!-- const APP_VERSION = "2026.10.18-173" -->
+<script src="js/tema.js?v=174"></script>
+<!-- const APP_VERSION = "2026.10.19-174" -->
 </head>
 <body data-tab="Loja">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
@@ -141,7 +141,7 @@
 <div class="toolbar" style="margin-top:8px"><button class="secondary" id="impFileBtn">📎 Escolher arquivo</button><button class="secondary" id="impModel">Baixar modelo</button></div><input type="file" id="impFile" accept=".csv,.txt,.tsv,text/plain,text/csv" hidden>
 <div class="toolbar" style="margin-top:8px"><button class="secondary" id="impLimpa">🗑️ Limpar texto</button></div>
 <div class="toolbar" style="margin-top:10px"><button class="secondary big" id="impCheck">Conferir lista</button><button class="primary big" id="impGo" disabled>Cadastrar</button></div><div id="impPrev" class="rows"></div></section></div>
-<div id="moreBg" class="morebg hidden"></div><div id="moreMenu" class="moremenu hidden" role="menu" aria-label="Mais opções"><div class="mnh" role="presentation">Dados</div><button type="button" role="menuitem" id="mnCad"><svg class="ic" aria-hidden="true"><use href="#i-cad"/></svg><span>Cadastros</span></button><button type="button" role="menuitem" id="mnInv"><svg class="ic" aria-hidden="true"><use href="#i-inv"/></svg><span>Inventário</span></button><button type="button" role="menuitem" id="mnDoaAnt"><svg class="ic" aria-hidden="true"><use href="#i-rec"/></svg><span>Doações anteriores</span></button><button type="button" role="menuitem" id="mnEtqHist"><svg class="ic" aria-hidden="true"><use href="#i-etq"/></svg><span>Histórico de etiquetas</span></button><button type="button" role="menuitem" id="mnHist"><svg class="ic" aria-hidden="true"><use href="#i-his"/></svg><span>Histórico de produtos</span></button><div class="mnh" role="presentation">Preferências</div><button type="button" role="menuitem" id="mnMao"><svg class="ic" aria-hidden="true"><use href="#i-mao"/></svg><span>Modo mão única</span></button><button type="button" role="menuitem" id="mnTema"><svg class="ic" aria-hidden="true"><use href="#i-lua"/></svg><span>Tema</span></button><button type="button" role="menuitem" id="mnOled"><svg class="ic" aria-hidden="true"><use href="#i-lua"/></svg><span>Fundo preto</span></button><div class="mnh" role="presentation">Sistema</div><button type="button" role="menuitem" id="mnBkp"><svg class="ic" aria-hidden="true"><use href="#i-bkp"/></svg><span>Fazer backup</span></button><button type="button" role="menuitem" id="mnRest"><svg class="ic" aria-hidden="true"><use href="#i-res"/></svg><span>Restaurar backup</span></button><button type="button" role="menuitem" id="mnInstall"><svg class="ic" aria-hidden="true"><use href="#i-ins"/></svg><span>Instalar app</span></button><button type="button" role="menuitem" id="mnSair" hidden><svg class="ic" aria-hidden="true"><use href="#i-sai"/></svg><span>Sair (pedir senha de novo)</span></button></div>
+<div id="moreBg" class="morebg hidden"></div><div id="moreMenu" class="moremenu hidden" role="menu" aria-label="Mais opções"><div class="mnh" role="presentation">Dados</div><button type="button" role="menuitem" id="mnCad"><svg class="ic" aria-hidden="true"><use href="#i-cad"/></svg><span>Cadastros</span></button><button type="button" role="menuitem" id="mnInv"><svg class="ic" aria-hidden="true"><use href="#i-inv"/></svg><span>Inventário</span></button><button type="button" role="menuitem" id="mnDoaAnt"><svg class="ic" aria-hidden="true"><use href="#i-rec"/></svg><span>Doações anteriores</span></button><button type="button" role="menuitem" id="mnEtqHist"><svg class="ic" aria-hidden="true"><use href="#i-etq"/></svg><span>Histórico de etiquetas</span></button><button type="button" role="menuitem" id="mnHist"><svg class="ic" aria-hidden="true"><use href="#i-his"/></svg><span>Histórico de produtos</span></button><div class="mnh" role="presentation">Preferências</div><button type="button" role="menuitem" id="mnTema"><svg class="ic" aria-hidden="true"><use href="#i-lua"/></svg><span>Tema</span></button><div class="mnh" role="presentation">Sistema</div><button type="button" role="menuitem" id="mnInstall"><svg class="ic" aria-hidden="true"><use href="#i-ins"/></svg><span>Instalar app</span></button></div>
 <div class="fabwrap" id="fabWrap"><div class="fabrow fabnew"><button type="button" id="manualOpen" aria-label="Cadastro manual" title="Cadastro manual"><span>＋</span><small>Cadastro</small></button></div><div class="fabrow"><button class="fabscan" id="fab" aria-label="Bipar código de barras" title="Bipar"><svg class="bipico" viewBox="0 0 48 36" aria-hidden="true"><g fill="#f3d87a"><rect x="5" y="5" width="3" height="26" rx="1.2"/><rect x="11" y="5" width="2" height="26" rx="1"/><rect x="16" y="5" width="5" height="26" rx="1.2"/><rect x="24" y="5" width="2" height="26" rx="1"/><rect x="29" y="5" width="4" height="26" rx="1.2"/><rect x="36" y="5" width="2" height="26" rx="1"/><rect x="41" y="5" width="3" height="26" rx="1.2"/></g><g class="lz"><rect x="1" y="16.4" width="46" height="3.2" rx="1.6" fill="#ff3b30"/><rect x="1" y="17.4" width="46" height="1.2" rx=".6" fill="#ffb3ad"/></g></svg></button></div></div>
 <div id="lModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="lmNome"><div class="sheethead"><h2 id="lmNome"></h2><button class="secondary" id="lmClose" aria-label="Fechar">✕</button></div>
 <p class="note" id="lmCod"></p><label>Tamanho da etiqueta</label><div class="utog" id="lmTam"><button type="button" data-t="P">P</button><button type="button" data-t="M">M</button><button type="button" data-t="G">G</button></div>
@@ -195,16 +195,16 @@
 </div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
-<script src="js/config.js?v=173"></script>
+<script src="js/config.js?v=174"></script>
 <script src="vendor.js"></script>
-<script src="js/version.js?v=173"></script>
-<script src="js/login.js?v=173"></script>
-<script src="js/app.js?v=173"></script>
-<script src="js/nav.js?v=173"></script>
-<script src="js/operador.js?v=173"></script>
-<script src="js/teclado.js?v=173"></script>
-<script src="js/menu.js?v=173"></script>
-<script src="js/status.js?v=173"></script>
-<script src="js/inventario.js?v=173"></script>
-<script src="js/doacao-busca.js?v=173"></script>
+<script src="js/version.js?v=174"></script>
+<script src="js/login.js?v=174"></script>
+<script src="js/app.js?v=174"></script>
+<script src="js/nav.js?v=174"></script>
+<script src="js/operador.js?v=174"></script>
+<script src="js/teclado.js?v=174"></script>
+<script src="js/menu.js?v=174"></script>
+<script src="js/status.js?v=174"></script>
+<script src="js/inventario.js?v=174"></script>
+<script src="js/doacao-busca.js?v=174"></script>
 </body></html>
