@@ -721,7 +721,7 @@ const BICO = [[/maracuja/,MARACUJA_SVG],[/cebola.*roxa|roxa.*cebola/,CEBOLA_ROXA
 // pacote fechado (ex.: «Tahiti 1kg», «pct 500g», «bandeja»): selo no canto do balão
 function pkTag(n) { const s = String(n || ""), m = s.match(/(\d+(?:[.,]\d+)?)\s*(kg|g)\b/i);
   if (m) return `<span class="pk">📦 ${m[1].replace(".", ",")}${m[2].toLowerCase()}</span>`;
-  return /\b(pacote|pct|bandeja|saco|caixa|embalad[oa]s?)\b/i.test(s) ? '<span class="pk">📦</span>' : ""; }
+  return /\b(pacote|pct|bandeja|saco|caixa|embalad[oa]s?|unid(ade)?s?)\b/i.test(s) ? '<span class="pk">📦</span>' : ""; }
 function balIco(w, fb, soft) { const n = norm(String(w || "")); for (const [re, e] of BICO) if (re.test(n)) return `<span class="bi">${e}</span>`;
   if (fb) return balIco(fb);
   if (soft) return "";
