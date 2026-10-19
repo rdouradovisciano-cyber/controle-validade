@@ -700,9 +700,9 @@ function dTop6Render(){ const box=$("dTop6"); if(!box) return; let rank=[]; try{
   if(op!=null&&op>=0&&top[op]){ const f=top[op];
     $("dT6L").textContent="⭐ "+dTitle(f.w).toUpperCase()+" — QUAL?";
     $("dT6").classList.add("var");
-    $("dT6").innerHTML=f.list.map((o,i)=>{ const same=dFamKey(o.n)===f.k, rest=(same?dBase(o.n).split(/\s+/).slice(1).join(" "):dBase(o.n)); return `<button type="button" data-tv="${i}">${esc(rest?dTitle(rest.split(" ")[0])+(rest.includes(" ")?" "+rest.split(" ").slice(1).join(" ").toLowerCase():""):"Comum")}<small>${o.u}</small></button>`; }).join("")+`<button type="button" class="dback" data-tback="1">← voltar</button>`;
+    $("dT6").innerHTML=f.list.map((o,i)=>{ const same=dFamKey(o.n)===f.k, rest=(same?dBase(o.n).split(/\s+/).slice(1).join(" "):dBase(o.n)); return `<button type="button" data-tv="${i}"${balSty(f.w)}>${esc(rest?dTitle(rest.split(" ")[0])+(rest.includes(" ")?" "+rest.split(" ").slice(1).join(" ").toLowerCase():""):"Comum")}<small>${o.u}</small></button>`; }).join("")+`<button type="button" class="dback" data-tback="1">← voltar</button>`;
   } else { box._open=-1; $("dT6L").textContent=ed?"✎ TOQUE NUM BALÃO PARA EDITAR":(cfg?"⭐ MEUS BALÕES":"⭐ MAIS DOADOS"); $("dT6").classList.remove("var");
-    $("dT6").innerHTML=top.map((f,i)=>`<button type="button" class="${ed?"ed":""}" data-t6="${i}">${esc(dTitle(f.w))}<small>${f.list.length>1?f.list.length+" tipos"+(ed?"":" ›"):(f.list[0]?f.list[0].u:"")}</small></button>`).join("")+(ed&&top.length<9?'<button type="button" class="dnew" data-tnew="1">＋ Novo</button>':""); } }
+    $("dT6").innerHTML=top.map((f,i)=>`<button type="button" class="${ed?"ed":""}" data-t6="${i}"${balSty(f.w)}>${esc(dTitle(f.w))}<small>${f.list.length>1?f.list.length+" tipos"+(ed?"":" ›"):(f.list[0]?f.list[0].u:"")}</small></button>`).join("")+(ed&&top.length<9?'<button type="button" class="dnew" data-tnew="1">＋ Novo</button>':""); } }
 function dPickVar(o){ const box=$("dTop6"); box._open=-1; buzz(); const p=products.find(x=>norm(dBase(x.name))===norm(dBase(o.n)))||prodFor(o.n); selectProd(p?p.name:o.n,o.c||"",o.u); }
 $("dT6").onclick=e=>{ const box=$("dTop6"), f=box._f||[];
   if(window.dEditBal){ if(e.target.closest("[data-tnew]")) return dBalOpen(-1); const b=e.target.closest("[data-t6]"); if(b) dBalOpen(Number(b.dataset.t6)); return; }
@@ -710,6 +710,13 @@ $("dT6").onclick=e=>{ const box=$("dTop6"), f=box._f||[];
   const v=e.target.closest("[data-tv]"); if(v){ const o=(f[box._open]||{list:[]}).list[Number(v.dataset.tv)]; if(o) dPickVar(o); return; }
   const b=e.target.closest("[data-t6]"); if(!b) return; const fam=f[Number(b.dataset.t6)]; if(!fam) return;
   if(fam.list.length>1){ buzz(); box._open=Number(b.dataset.t6); dTop6Render(); } else dPickVar(fam.list[0]); };
+// cor do balão pela descrição do nome (tomate = vermelho, limão = verde-limão, banana = amarelo…); sem palavra conhecida, uma cor fixa pelo nome
+const BCOR = [[4, 72, /tomate|maca|morang|cereja|melancia|pimenta|goiaba|romã|roma\b|framboesa|vermelh|caqui/], [24, 88, /laranja|tangerina|mexerica|ponkan|cenoura|mamao|papaya|abobora|manga|tropical|pessego|damasco|nectarina|laranj/],
+  [46, 88, /banana|melao|abacaxi|milho|amarel|maracuja|limao siciliano|gengibre/], [82, 68, /limao|lima\b|kiwi|taiti/], [135, 52, /legume|verdura|folha|alface|couve|rucula|espinafre|repolho|brocol|pepino|abobrinha|chuchu|pimentao|salsa|cheiro|agriao|vagem|ervilha|jilo|quiabo|abacate|pera|uva verde|erva|hortela|manjericao|coentro|cebolinha/],
+  [275, 50, /uva|berinjela|beterraba|ameixa|figo|acai|roxo/], [330, 62, /rosa|pitaya|lichia|jabuticaba/], [28, 42, /batata|cebola|alho|mandioca|inhame|aipim|coco|cogumelo|champignon|castanha|noz|marrom|cara\b/], [205, 62, /azul|mirtilo|blueberry|jamelao/]];
+function balCor(w) { const n = norm(String(w || "")); for (const [h, s, re] of BCOR) if (re.test(n)) return [h, s];
+  let x = 0; for (const c of n) x = (x * 31 + c.charCodeAt(0)) >>> 0; return [[205, 62], [170, 55], [330, 60], [275, 50], [46, 80]][x % 5]; }
+const balSty = w => { const [h, s] = balCor(w); return ` style="--bh:${h};--bs:${s}%"`; };
 function dBalCfg(){ const v=store.get("validamais-dbal",null); return Array.isArray(v)&&v.length?v:null; }
 function dBalEnsure(){ let c=dBalCfg(); if(c) return c; const a=$("dTop6")._auto||[]; c=a.map(f=>({w:dTitle(f.w),v:f.list.map(o=>({n:o.n,c:o.c||"",u:o.u||"kg"}))})); store.set("validamais-dbal",c); return c; }
 let dbIdx=-1, dbDraft=null;
