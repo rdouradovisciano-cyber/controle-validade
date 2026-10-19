@@ -711,9 +711,11 @@ $("dT6").onclick=e=>{ const box=$("dTop6"), f=box._f||[];
   const b=e.target.closest("[data-t6]"); if(!b) return; const fam=f[Number(b.dataset.t6)]; if(!fam) return;
   if(fam.list.length>1){ buzz(); box._open=Number(b.dataset.t6); dTop6Render(); } else dPickVar(fam.list[0]); };
 // ícone do balão pelo nome (🍅 tomate, 🍋 limão…); sem palavra conhecida, mostra a inicial num círculo
-const BICO = [[/tomate/,"🍅"],[/maca/,"🍎"],[/limao|lima\b/,"🍋"],[/banana/,"🍌"],[/melancia/,"🍉"],[/melao/,"🍈"],[/uva/,"🍇"],[/laranja|tangerina|mexerica|ponkan/,"🍊"],[/morang/,"🍓"],[/abacaxi/,"🍍"],[/manga|mamao|papaya/,"🥭"],[/pera\b/,"🍐"],[/pessego|nectarina|damasco/,"🍑"],[/cereja/,"🍒"],[/kiwi/,"🥝"],[/coco/,"🥥"],[/abacate/,"🥑"],[/legume|batata|inhame|mandioca|aipim/,"🥔"],[/cenoura/,"🥕"],[/milho/,"🌽"],[/pepino|abobrinha|chuchu/,"🥒"],[/brocol|couve flor/,"🥦"],[/alho/,"🧄"],[/cebola/,"🧅"],[/berinjela/,"🍆"],[/pimentao/,"🫑"],[/pimenta/,"🌶️"],[/cogumelo|champignon/,"🍄"],[/abobora/,"🎃"],[/beterraba/,"🟣"],[/tropical/,"🌴"],[/verdura|folha|alface|couve|rucula|espinafre|repolho|agriao|salsa|cheiro|erva|coentro|cebolinha|hortela/,"🥬"]];
-function balIco(w, fb) { const n = norm(String(w || "")); for (const [re, e] of BICO) if (re.test(n)) return `<span class="bi">${e}</span>`;
+const MAMAO_SVG = '<svg class="bsv" viewBox="4 1 24 29" aria-hidden="true"><path d="M16 3c6 3 10 10 9 17-1 6-5 9-9 9s-8-3-9-9C6 13 10 6 16 3z" fill="#f59a23"/><path d="M16 8c3.5 2.5 6 7 5.5 11.5C21 23 18.5 25 16 25s-5-2-5.5-5.5C10 15 12.5 10.5 16 8z" fill="#ff6b3d"/><g fill="#1c1c1c"><circle cx="14" cy="16" r="1.3"/><circle cx="18" cy="16" r="1.3"/><circle cx="16" cy="19" r="1.3"/><circle cx="14" cy="21.5" r="1.1"/><circle cx="18" cy="21.5" r="1.1"/></g><path d="M16 3c-.6-1.4-.2-2.2.8-2.8" stroke="#4c9a2a" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+const BICO = [[/tomate/,"🍅"],[/maca/,"🍎"],[/limao|lima\b/,"🍋"],[/banana/,"🍌"],[/melancia/,"🍉"],[/melao/,"🍈"],[/uva/,"🍇"],[/laranja|tangerina|mexerica|ponkan/,"🍊"],[/morang/,"🍓"],[/abacaxi/,"🍍"],[/mamao|papaya/,MAMAO_SVG],[/manga/,"🥭"],[/pera\b/,"🍐"],[/pessego|nectarina|damasco/,"🍑"],[/cereja/,"🍒"],[/kiwi/,"🥝"],[/coco/,"🥥"],[/abacate/,"🥑"],[/legume|batata|inhame|mandioca|aipim/,"🥔"],[/cenoura/,"🥕"],[/milho/,"🌽"],[/pepino|abobrinha|chuchu/,"🥒"],[/brocol|couve flor/,"🥦"],[/alho/,"🧄"],[/cebola/,"🧅"],[/berinjela/,"🍆"],[/pimentao/,"🫑"],[/pimenta/,"🌶️"],[/cogumelo|champignon/,"🍄"],[/abobora/,"🎃"],[/beterraba/,"🟣"],[/tropical/,"🌴"],[/verdura|folha|alface|couve|rucula|espinafre|repolho|agriao|salsa|cheiro|erva|coentro|cebolinha|hortela/,"🥬"]];
+function balIco(w, fb, soft) { const n = norm(String(w || "")); for (const [re, e] of BICO) if (re.test(n)) return `<span class="bi">${e}</span>`;
   if (fb) return balIco(fb);
+  if (soft) return "";
   return `<span class="bi bl">${esc((String(w || "?").trim().charAt(0) || "?").toUpperCase())}</span>`; }
 function dBalCfg(){ const v=store.get("validamais-dbal",null); return Array.isArray(v)&&v.length?v:null; }
 function dBalEnsure(){ let c=dBalCfg(); if(c) return c; const a=$("dTop6")._auto||[]; c=a.map(f=>({w:dTitle(f.w),v:f.list.map(o=>({n:o.n,c:o.c||"",u:o.u||"kg"}))})); store.set("validamais-dbal",c); return c; }
@@ -903,7 +905,7 @@ function dSuggest() {
   const byCode = products.filter(p => p.codigo_doacao && String(p.codigo_doacao).toLowerCase() === q).map(p => p.name);
   const names = [...new Set([...products.map(p => p.name), ...(C.doacaoAtalhos || DEFN)])].filter(n => norm(n).includes(q) && !byCode.includes(n)).slice(0, 6);
   const list = [...new Set([...byCode, ...names])], exact = list.some(n => norm(n) === q);
-  $("dSug").innerHTML = list.map(n => `<button type="button" data-sel="${esc(n)}">${esc(n)}</button>`).join("") +
+  $("dSug").innerHTML = list.map(n => `<button type="button" data-sel="${esc(n)}">${balIco(n, null, true)}${esc(n)}</button>`).join("") +
     (exact ? "" : `<button type="button" data-sel="${esc(raw.slice(0, 60))}">＋ Usar «${esc(raw.slice(0, 60))}» como novo produto</button>`);
 }
 $("dBusca").oninput = dSuggest;

@@ -971,3 +971,6 @@ html[data-tema=dark] .dprow mark{background:#3a2e0d;color:#f0b429}
 .dt6 button[data-tv]{min-height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
 .dt6 button[data-tv] .bi{font-size:28px;line-height:1.1;margin-bottom:2px}
 .dt6 button[data-tv] .bi.bl{width:30px;height:30px;border-radius:50%;background:#2b3145;border:1.5px solid #c9a227;color:#f3d87a;font:800 15px/27px var(--fd,inherit);text-align:center}
+.bi .bsv{width:1.1em;height:1.1em;display:block;margin:0 auto}
+#dSug button .bi{font-size:20px;margin-right:8px;vertical-align:-3px;display:inline-block}
+#dSug button .bi .bsv{display:inline-block;vertical-align:-3px;margin:0}
