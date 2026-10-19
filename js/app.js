@@ -315,6 +315,13 @@ let actx, alarmed = false, sector = "";
 const audio = () => { try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); } catch {} };
 function tone(f, t, d) { if (!actx) return; const o = actx.createOscillator(), g = actx.createGain(); o.frequency.value = f; g.gain.value = .25; o.connect(g); g.connect(actx.destination); o.start(actx.currentTime + t); o.stop(actx.currentTime + t + d); }
 function beep() { audio(); tone(1000, 0, .09); }
+// sinal sonoro + vibração por resultado: ok (produto conhecido) = 1 bip curto · novo (precisa cadastrar) = 2 bips subindo · erro = tom grave longo
+function sinal(k) {
+  audio(); const v = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch {} };
+  if (k === "erro") { tone(260, 0, .3); v([220]); }
+  else if (k === "novo") { tone(780, 0, .08); tone(1180, .11, .13); v([40, 70, 40]); }
+  else { tone(1000, 0, .09); v(60); }
+}
 function alarm() { /* sem som nem vibração: o aviso de vencimento agora é só a aba piscando */ }
 function loteMode(k) {          // produto já cadastrado: só pede validade e quantidade deste lote
   if (!k || !k.name) return;
@@ -327,8 +334,8 @@ async function onCode(code) {
   if (scanMode === "doacao") return donationScan(code);
   if (scanMode === "etiqueta") return labelScan(code);
   if (scanMode === "cadastro") return cadScan(code);
-  if (navigator.vibrate) navigator.vibrate(100);
-  beep(); stopScanner(); resetForm();
+  sinal((isScale(code) ? products.some(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(String(Number(parseScale(code).item)))) : products.some(p => p.barcode === code)) ? "ok" : "novo");
+  stopScanner(); resetForm();
   if (isScale(code)) {                                   // etiqueta de balança: o código de balança identifica o produto
     const plu = String(Number(parseScale(code).item)), k = products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(plu));
     logScan(code, k); show(k ? `Novo lote de «${k.name}»` : "Produto novo: cadastre agora");
@@ -829,12 +836,12 @@ async function donationScanRun(code) {
   const now = Date.now(); if (code === lastScan.c && now - lastScan.t < 2500) return;   // ignora leitura repetida do mesmo código
   lastScan = { c: code, t: now };
   if (nrResolve || qtResolve || pkResolve) return;   // há um cadastro ou uma pergunta aberta
-  buzz(); beep();
   const names = store.get(NK, {}); let key, unidade, qtd, regd = null, donCod = "", precoTot = 0, notaPeso = "";
   if (isScale(code)) { const s = parseScale(code); key = "B" + s.item; unidade = "kg"; qtd = s.kg; precoTot = s.total || 0;
-    if (!(qtd > 0) && !(precoTot > 0)) { toast("Etiqueta de balança sem peso legível. Ajuste a configuração 'balanca' no config.js."); return; } }
+    if (!(qtd > 0) && !(precoTot > 0)) { sinal("erro"); toast("Etiqueta de balança sem peso legível. Ajuste a configuração 'balanca' no config.js."); return; } }
   else { key = code; unidade = "un"; qtd = 1; }
   let nome = (unidade === "un" && (products.find(p => p.barcode === code) || {}).name) || (unidade === "kg" && (products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(key.slice(1))) || {}).name) || names[key];
+  sinal(nome ? "ok" : "novo");
   if (nome && products.length && !adopted.has(key)) { adopted.add(key);       // nome que só existia neste aparelho passa para o cadastro compartilhado
     const inBase = unidade === "kg" ? products.some(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(key.slice(1))) : products.some(p => p.barcode === code);
     if (!inBase) registerProduct({ name: nome, barcode: unidade === "kg" ? "" : code, codigo_balanca: unidade === "kg" ? String(Number(key.slice(1))) : "" }); }
@@ -1232,8 +1239,9 @@ $("navCadastros").addEventListener("click", cadPaint);
 if ($("cLixo")) $("cLixo").onclick = lixoAbrir;
 // ---------- Cadastros: preencher o código lendo com a câmera ----------
 async function cadScan(code) {
-  if (navigator.vibrate) navigator.vibrate(100); beep(); stopScanner(); closeModal();
+  stopScanner(); closeModal();
   const d = String(code).replace(/\D/g, "");
+  sinal(!d || (!isScale(d) && d.length > 13) || (!isScale(d) && !cadEdit && products.some(p => p.barcode === d)) ? "erro" : "ok");
   if (!d) return toast("Esse código não é só de números. Digite-o no campo.");
   if (isScale(d)) { $("cPlu").value = String(Number(parseScale(d).item)).slice(0, 6); toast("Etiqueta de balança: preenchi o código de balança (PLU)."); }
   else if (d.length > 13) return toast("Código com mais de 13 dígitos. Digite manualmente o que for válido.");
@@ -1406,9 +1414,10 @@ function labelPick(p, ean) {   // ean: código de barras que foi bipado (item po
   toast((c.code ? c.code + " · " : "") + p.name + " adicionado.");
 }
 async function labelScan(code) {
-  buzz(); beep(); stopScanner(); closeModal();
+  stopScanner(); closeModal();
   const scale = isScale(code), item = scale ? Number(parseScale(code).item) : 0;
   let p = scale ? products.find(x => x.codigo_balanca && Number(x.codigo_balanca) === item) : products.find(x => x.barcode === code);
+  sinal(p ? "ok" : "novo");
   if (!p) { const r = await askNewProduct(code, scale, scale ? String(item) : ""); if (!r) return;
     p = registerProduct({ name: r.nome, barcode: scale ? "" : code, codigo_balanca: scale ? String(item) : "" }); }
   labelPick(p, scale ? "" : code);
