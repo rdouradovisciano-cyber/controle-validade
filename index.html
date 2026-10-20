@@ -11,21 +11,21 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=201">
+<link rel="stylesheet" href="css/app.css?v=202">
 <title>Valida+ | Controle de validade</title>
-<script src="js/tema.js?v=201"></script>
-<!-- const APP_VERSION = "2026.10.20-201" -->
+<script src="js/tema.js?v=202"></script>
+<!-- const APP_VERSION = "2026.10.20-202" -->
 </head>
 <body data-tab="Loja">
 <div id="splash" aria-hidden="true"><style>
 #splash{position:fixed;inset:0;z-index:9999;background:#08090c;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .28s ease}
 #splash.sx{opacity:0;pointer-events:none}
-#splash:before{content:"";position:absolute;left:50%;top:50%;width:215px;height:215px;margin:-107px 0 0 -107px;border-radius:34%;background:radial-gradient(circle at 50% 50%,#1a1e29 0,#101319 62%,#0a0b0f 100%)}
-#splash svg{position:relative;width:134px;height:auto;overflow:visible;transform:translateY(12px)}
-#splash .sc{opacity:0;animation:sps .5s ease-in-out .12s forwards}
+#splash:before{content:"";position:absolute;left:50%;top:50%;width:226px;height:226px;margin:-113px 0 0 -113px;border-radius:34%;background:radial-gradient(circle at 50% 50%,#1a1e29 0,#101319 62%,#0a0b0f 100%)}
+#splash svg{position:relative;width:148px;height:auto;overflow:visible;transform:translateY(8px)}
+#splash .sc{opacity:.95;animation:sps .55s ease-in-out .15s both}
 #splash .ok{transform-box:fill-box;transform-origin:50% 50%;animation:spk .3s cubic-bezier(.3,1.6,.5,1) .6s both}
 #splash .lg{transform-box:fill-box;transform-origin:50% 50%;animation:spg .35s ease-in-out .6s both}
-@keyframes sps{0%{opacity:0;transform:translateY(-78px)}15%{opacity:1}50%{transform:translateY(78px)}85%{opacity:.95}100%{opacity:0;transform:translateY(0)}}
+@keyframes sps{0%{opacity:.95;transform:translateY(0)}30%{transform:translateY(-78px)}70%{transform:translateY(78px)}100%{opacity:.95;transform:translateY(0)}}
 @keyframes spk{0%{transform:scale(1)}50%{transform:scale(1.45)}100%{transform:scale(1)}}
 @keyframes spg{0%,100%{filter:none}50%{filter:drop-shadow(0 0 10px rgba(243,216,122,.55))}}
 @media (prefers-reduced-motion:reduce){#splash *{animation:none!important}}
@@ -34,7 +34,7 @@
 <g class="lg" fill="url(#sg)"><rect x="155" y="150" width="8" height="160" rx="4"/><rect x="173" y="150" width="16" height="160" rx="4"/><rect x="201" y="150" width="6" height="160" rx="3"/><rect x="217" y="150" width="22" height="160" rx="4"/><rect x="251" y="150" width="10" height="160" rx="4"/><rect x="271" y="150" width="18" height="160" rx="4"/><rect x="301" y="150" width="6" height="160" rx="3"/><rect x="317" y="150" width="24" height="160" rx="4"/><rect x="349" y="150" width="8" height="160" rx="4"/></g>
 <g class="sc"><line x1="100" y1="230" x2="412" y2="230" stroke="#FF3B30" stroke-width="6" stroke-linecap="round"/><line x1="100" y1="230" x2="412" y2="230" stroke="#FFA09B" stroke-width="2" stroke-linecap="round"/></g>
 <g class="ok"><circle cx="370" cy="310" r="32" fill="#08090C" stroke="url(#sg)" stroke-width="4"/><path d="M356 310 L366 320 L386 300" fill="none" stroke="url(#sg)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="256" y="400" font-family="Outfit,'Montserrat',Arial,sans-serif" font-weight="800" font-size="40" letter-spacing="9" fill="url(#sg)" text-anchor="middle">VALIDA+</text></svg>
+<text x="256" y="422" font-family="Outfit,'Montserrat',Arial,sans-serif" font-weight="700" font-size="34" letter-spacing="9" fill="url(#sg)" text-anchor="middle">VALIDA+</text></svg>
 <script>(function(){var s=document.getElementById("splash");try{if(sessionStorage.getItem("vm-splash")){s.remove();return}sessionStorage.setItem("vm-splash","1")}catch(e){}
 var t0=Date.now(),fim=function(){s.classList.add("sx");setTimeout(function(){s.remove()},320)};
 /* bip ao final (o mesmo bip da leitura); se o navegador bloquear o som sem toque, segue mudo */
@@ -219,16 +219,16 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 </div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
-<script src="js/config.js?v=201"></script>
+<script src="js/config.js?v=202"></script>
 <script src="vendor.js"></script>
-<script src="js/version.js?v=201"></script>
-<script src="js/login.js?v=201"></script>
-<script src="js/app.js?v=201"></script>
-<script src="js/nav.js?v=201"></script>
-<script src="js/operador.js?v=201"></script>
-<script src="js/teclado.js?v=201"></script>
-<script src="js/menu.js?v=201"></script>
-<script src="js/status.js?v=201"></script>
-<script src="js/inventario.js?v=201"></script>
-<script src="js/doacao-busca.js?v=201"></script>
+<script src="js/version.js?v=202"></script>
+<script src="js/login.js?v=202"></script>
+<script src="js/app.js?v=202"></script>
+<script src="js/nav.js?v=202"></script>
+<script src="js/operador.js?v=202"></script>
+<script src="js/teclado.js?v=202"></script>
+<script src="js/menu.js?v=202"></script>
+<script src="js/status.js?v=202"></script>
+<script src="js/inventario.js?v=202"></script>
+<script src="js/doacao-busca.js?v=202"></script>
 </body></html>
