@@ -11,16 +11,17 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=200">
+<link rel="stylesheet" href="css/app.css?v=201">
 <title>Valida+ | Controle de validade</title>
-<script src="js/tema.js?v=200"></script>
-<!-- const APP_VERSION = "2026.10.20-200" -->
+<script src="js/tema.js?v=201"></script>
+<!-- const APP_VERSION = "2026.10.20-201" -->
 </head>
 <body data-tab="Loja">
 <div id="splash" aria-hidden="true"><style>
 #splash{position:fixed;inset:0;z-index:9999;background:#08090c;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .28s ease}
 #splash.sx{opacity:0;pointer-events:none}
-#splash svg{width:min(62vw,300px);height:auto;overflow:visible}
+#splash:before{content:"";position:absolute;left:50%;top:50%;width:215px;height:215px;margin:-107px 0 0 -107px;border-radius:34%;background:radial-gradient(circle at 50% 50%,#1a1e29 0,#101319 62%,#0a0b0f 100%)}
+#splash svg{position:relative;width:134px;height:auto;overflow:visible;transform:translateY(12px)}
 #splash .sc{opacity:0;animation:sps .5s ease-in-out .12s forwards}
 #splash .ok{transform-box:fill-box;transform-origin:50% 50%;animation:spk .3s cubic-bezier(.3,1.6,.5,1) .6s both}
 #splash .lg{transform-box:fill-box;transform-origin:50% 50%;animation:spg .35s ease-in-out .6s both}
@@ -218,16 +219,16 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 </div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
-<script src="js/config.js?v=200"></script>
+<script src="js/config.js?v=201"></script>
 <script src="vendor.js"></script>
-<script src="js/version.js?v=200"></script>
-<script src="js/login.js?v=200"></script>
-<script src="js/app.js?v=200"></script>
-<script src="js/nav.js?v=200"></script>
-<script src="js/operador.js?v=200"></script>
-<script src="js/teclado.js?v=200"></script>
-<script src="js/menu.js?v=200"></script>
-<script src="js/status.js?v=200"></script>
-<script src="js/inventario.js?v=200"></script>
-<script src="js/doacao-busca.js?v=200"></script>
+<script src="js/version.js?v=201"></script>
+<script src="js/login.js?v=201"></script>
+<script src="js/app.js?v=201"></script>
+<script src="js/nav.js?v=201"></script>
+<script src="js/operador.js?v=201"></script>
+<script src="js/teclado.js?v=201"></script>
+<script src="js/menu.js?v=201"></script>
+<script src="js/status.js?v=201"></script>
+<script src="js/inventario.js?v=201"></script>
+<script src="js/doacao-busca.js?v=201"></script>
 </body></html>
