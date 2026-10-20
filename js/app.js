@@ -695,7 +695,7 @@ function dTop6Render(){ const box=$("dTop6"); if(!box) return; let rank=[]; try{
     f.list=[...f.v.values()].sort((a,b)=>b.d-a.d||a.n.localeCompare(b.n,"pt-BR")); });
   box._auto=top; const cfg=dBalCfg(); if(cfg) top=cfg.map(c=>({k:norm(c.w),w:c.w,list:c.v.map(o=>({n:o.n,c:o.c||"",u:o.u||"kg",d:0}))}));
   const ed=!!window.dEditBal; box.classList.toggle("vazio",!top.length&&!ed); box._f=top; const op=ed?-1:box._open;
-  const colp=!!store.get("validamais-dcol",false)&&!ed&&op<0; $("dDock").classList.toggle("col",colp);
+  const colp=!!store.get("validamais-dcol",false)&&!ed&&op<0; $("dDock").classList.toggle("col",colp); $("dBalCol").textContent=colp?"▴ Mostrar":"▾ Recolher"; $("dBalCol").hidden=(ed||op>=0);
   $("dBalEdit").textContent=ed?"✔ Concluir":"✎ Editar"; $("dBalEdit").hidden=(op>=0); $("dBalAuto").hidden=!(ed&&cfg);
   if(op!=null&&op>=0&&top[op]){ const f=top[op];
     $("dT6L").textContent="⭐ "+dTitle(f.w).toUpperCase()+" — QUAL?";
@@ -752,8 +752,8 @@ $("dbX").onclick=dbClose;
 $("dbSalvar").onclick=()=>{ const w=$("dbNome").value.trim().slice(0,24); if(!w) return toast("Dê um nome ao balão."); if(!dbDraft.v.length) return toast("Adicione pelo menos um tipo."); dbDraft.w=w;
   const c=dBalEnsure(); if(dbIdx>=0) c[dbIdx]=dbDraft; else c.push(dbDraft); store.set("validamais-dbal",c.slice(0,9)); dbClose(); dTop6Render(); };
 $("dbExcluir").onclick=()=>{ const c=dBalEnsure(); if(dbIdx<0) return; const rem=c.splice(dbIdx,1)[0]; store.set("validamais-dbal",c.length?c:null); dbClose(); dTop6Render(); toast(`Balão "${rem.w}" excluído.`); };
-const dBalToggle=()=>{ store.set("validamais-dcol",!store.get("validamais-dcol",false)); dTop6Render(); };
-$("dT6L").onclick=()=>{ if(window.dEditBal||$("dTop6")._open>=0) return; dBalToggle(); };   // tocar no título recolhe/mostra os atalhos
+$("dBalCol").onclick=()=>{ store.set("validamais-dcol",!store.get("validamais-dcol",false)); dTop6Render(); };
+$("dT6L").onclick=()=>{ if(window.dEditBal||$("dTop6")._open>=0) return; $("dBalCol").onclick(); };   // tocar no título recolhe/mostra os atalhos
 $("dT6L").onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); $("dT6L").onclick(); } };
 $("dBalEdit").onclick=()=>{ window.dEditBal=!window.dEditBal; $("dTop6")._open=-1; dTop6Render(); };
 $("dBalAuto").onclick=()=>{ if(!confirm("Voltar aos atalhos automáticos? Os seus atalhos serão apagados.")) return; store.set("validamais-dbal",null); dTop6Render(); };

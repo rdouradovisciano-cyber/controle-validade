@@ -11,10 +11,10 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=195">
+<link rel="stylesheet" href="css/app.css?v=196">
 <title>Valida+ | Controle de validade</title>
-<script src="js/tema.js?v=195"></script>
-<!-- const APP_VERSION = "2026.10.20-195" -->
+<script src="js/tema.js?v=196"></script>
+<!-- const APP_VERSION = "2026.10.20-196" -->
 </head>
 <body data-tab="Loja">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
@@ -54,7 +54,7 @@
 <div class="panel" id="dStrip" role="button" tabindex="0" aria-label="Ver resumo e finalizar"><span class="dl">📋 Doação de hoje · <span><b id="dItens">0</b> itens</span></span><span class="dtot"><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span><i class="dsp">›</i></span></div>
 <div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
 <button type="button" id="dTrocar" class="dtroca">✕ Trocar produto</button><div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="tararow" id="dTara"><button type="button" id="tCx" class="on" aria-pressed="true">Com TARA</button><button type="button" id="tEdit" aria-label="Alterar peso da caixa">✎</button><span id="dLiq"></span></div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
-<div id="dDock"><div id="dTop6" class="vazio"><div class="dt6h"><span id="dT6L">⭐ ATALHOS</span><span class="dt6a"><button type="button" id="dBalAuto" hidden>↺ Automático</button><button type="button" id="dBalEdit">✎ Editar</button></span></div><div class="dt6" id="dT6"></div></div><div id="dBar"><button type="button" id="dAddItem" aria-label="Buscar produto" title="Buscar"><span>🔍</span><small>Buscar</small></button><button type="button" id="dBarScan" aria-label="Bipar" title="Bipar"><svg class="bipico" viewBox="0 0 48 36" aria-hidden="true"><g fill="#f3d87a"><rect x="5" y="5" width="3" height="26" rx="1.2"/><rect x="11" y="5" width="2" height="26" rx="1"/><rect x="16" y="5" width="5" height="26" rx="1.2"/><rect x="24" y="5" width="2" height="26" rx="1"/><rect x="29" y="5" width="4" height="26" rx="1.2"/><rect x="36" y="5" width="2" height="26" rx="1"/><rect x="41" y="5" width="3" height="26" rx="1.2"/></g><g class="lz"><rect x="1" y="16.4" width="46" height="3.2" rx="1.6" fill="#ff3b30"/><rect x="1" y="17.4" width="46" height="1.2" rx=".6" fill="#ffb3ad"/></g></svg></button></div></div>
+<div id="dDock"><div id="dTop6" class="vazio"><div class="dt6h"><span id="dT6L">⭐ ATALHOS</span><span class="dt6a"><button type="button" id="dBalCol">▾ Recolher</button><button type="button" id="dBalAuto" hidden>↺ Automático</button><button type="button" id="dBalEdit">✎ Editar</button></span></div><div class="dt6" id="dT6"></div></div><div id="dBar"><button type="button" id="dAddItem" aria-label="Buscar produto" title="Buscar"><span>🔍</span><small>Buscar</small></button><button type="button" id="dBarScan" aria-label="Bipar" title="Bipar"><svg class="bipico" viewBox="0 0 48 36" aria-hidden="true"><g fill="#f3d87a"><rect x="5" y="5" width="3" height="26" rx="1.2"/><rect x="11" y="5" width="2" height="26" rx="1"/><rect x="16" y="5" width="5" height="26" rx="1.2"/><rect x="24" y="5" width="2" height="26" rx="1"/><rect x="29" y="5" width="4" height="26" rx="1.2"/><rect x="36" y="5" width="2" height="26" rx="1"/><rect x="41" y="5" width="3" height="26" rx="1.2"/></g><g class="lz"><rect x="1" y="16.4" width="46" height="3.2" rx="1.6" fill="#ff3b30"/><rect x="1" y="17.4" width="46" height="1.2" rx=".6" fill="#ffb3ad"/></g></svg></button></div></div>
 <div class="dpick"><div id="dPickBar"><button type="button" id="dVoltar">← Voltar à lista</button><b>Escolher produto</b></div>
 <section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div>
 </section>
@@ -195,16 +195,16 @@
 </div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
-<script src="js/config.js?v=195"></script>
+<script src="js/config.js?v=196"></script>
 <script src="vendor.js"></script>
-<script src="js/version.js?v=195"></script>
-<script src="js/login.js?v=195"></script>
-<script src="js/app.js?v=195"></script>
-<script src="js/nav.js?v=195"></script>
-<script src="js/operador.js?v=195"></script>
-<script src="js/teclado.js?v=195"></script>
-<script src="js/menu.js?v=195"></script>
-<script src="js/status.js?v=195"></script>
-<script src="js/inventario.js?v=195"></script>
-<script src="js/doacao-busca.js?v=195"></script>
+<script src="js/version.js?v=196"></script>
+<script src="js/login.js?v=196"></script>
+<script src="js/app.js?v=196"></script>
+<script src="js/nav.js?v=196"></script>
+<script src="js/operador.js?v=196"></script>
+<script src="js/teclado.js?v=196"></script>
+<script src="js/menu.js?v=196"></script>
+<script src="js/status.js?v=196"></script>
+<script src="js/inventario.js?v=196"></script>
+<script src="js/doacao-busca.js?v=196"></script>
 </body></html>
