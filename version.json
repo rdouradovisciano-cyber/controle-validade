@@ -1,1 +1,1 @@
-{"versao":"2026.10.20-197","nota":"Abertura do app com a marca: o logo dourado se desenha e o código de barras é lido, por cerca de 1 segundo (uma vez por abertura)"}
+{"versao":"2026.10.20-198","nota":"Abertura: começa com o logo parado, igual à tela do Android, e então a linha de leitura passa, o selo pulsa e toca um bip ao final"}
