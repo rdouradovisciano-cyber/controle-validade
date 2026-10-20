@@ -701,7 +701,7 @@ function dTop6Render(){ const box=$("dTop6"); if(!box) return; let rank=[]; try{
     $("dT6L").textContent="⭐ "+dTitle(f.w).toUpperCase()+" — QUAL?";
     $("dT6").classList.add("var");
     $("dT6").innerHTML=f.list.map((o,i)=>{ const same=dFamKey(o.n)===f.k, rest=(same?dBase(o.n).split(/\s+/).slice(1).join(" "):dBase(o.n)); return `<button type="button" data-tv="${i}">${balIco(o.n, f.w)}${pkTag(o.n)}${esc(rest?dTitle(rest.split(" ")[0])+(rest.includes(" ")?" "+rest.split(" ").slice(1).join(" ").toLowerCase():""):"Comum")}<small>${uDe(o)}</small></button>`; }).join("")+`<button type="button" class="dback" data-tback="1">← voltar</button>`;
-  } else { box._open=-1; $("dT6L").textContent=ed?"✎ TOQUE NUM BALÃO PARA EDITAR":(cfg?"⭐ MEUS BALÕES":"⭐ MAIS DOADOS"); $("dT6").classList.remove("var");
+  } else { box._open=-1; { const tg=!ed; $("dT6L").textContent=ed?"✎ TOQUE NUM ATALHO PARA EDITAR":"⭐ ATALHOS "+(colp?"▴":"▾"); $("dT6L").classList.toggle("tg",tg); if(tg){ $("dT6L").setAttribute("role","button"); $("dT6L").tabIndex=0; $("dT6L").setAttribute("aria-label",colp?"Mostrar atalhos":"Recolher atalhos"); } else { $("dT6L").removeAttribute("role"); $("dT6L").removeAttribute("tabindex"); $("dT6L").removeAttribute("aria-label"); } } $("dT6").classList.remove("var");
     $("dT6").innerHTML=top.map((f,i)=>`<button type="button" class="${ed?"ed":""}" data-t6="${i}">${balIcoTop(f.w)}${esc(dTitle(f.w))}<small>${f.list.length>1?f.list.length+" tipos"+(ed?"":" ›"):(f.list[0]?f.list[0].u:"")}</small></button>`).join("")+(ed&&top.length<9?'<button type="button" class="dnew" data-tnew="1">＋ Novo</button>':""); } }
 function dPickVar(o){ const box=$("dTop6"); box._open=-1; buzz(); const p=products.find(x=>norm(dBase(x.name))===norm(dBase(o.n)))||prodFor(o.n); selectProd(p?p.name:o.n,o.c||"",uDe(o)); }
 $("dT6").onclick=e=>{ const box=$("dTop6"), f=box._f||[];
@@ -753,8 +753,10 @@ $("dbSalvar").onclick=()=>{ const w=$("dbNome").value.trim().slice(0,24); if(!w)
   const c=dBalEnsure(); if(dbIdx>=0) c[dbIdx]=dbDraft; else c.push(dbDraft); store.set("validamais-dbal",c.slice(0,9)); dbClose(); dTop6Render(); };
 $("dbExcluir").onclick=()=>{ const c=dBalEnsure(); if(dbIdx<0) return; const rem=c.splice(dbIdx,1)[0]; store.set("validamais-dbal",c.length?c:null); dbClose(); dTop6Render(); toast(`Balão "${rem.w}" excluído.`); };
 $("dBalCol").onclick=()=>{ store.set("validamais-dcol",!store.get("validamais-dcol",false)); dTop6Render(); };
+$("dT6L").onclick=()=>{ if(window.dEditBal||$("dTop6")._open>=0) return; $("dBalCol").onclick(); };   // tocar no título recolhe/mostra os atalhos
+$("dT6L").onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); $("dT6L").onclick(); } };
 $("dBalEdit").onclick=()=>{ window.dEditBal=!window.dEditBal; $("dTop6")._open=-1; dTop6Render(); };
-$("dBalAuto").onclick=()=>{ if(!confirm("Voltar aos balões automáticos? Os seus balões serão apagados.")) return; store.set("validamais-dbal",null); dTop6Render(); };
+$("dBalAuto").onclick=()=>{ if(!confirm("Voltar aos atalhos automáticos? Os seus atalhos serão apagados.")) return; store.set("validamais-dbal",null); dTop6Render(); };
 function dFinOpen(){ if(!don.itens.length) return toast("Nada lançado ainda."); const nomes=[...don.itens].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR")).map(i=>esc(i.nome.replace(/\s+(kg|un)$/i,""))).join(" · ");
   $("dFinBody").innerHTML=`<div class="ft"><span>Itens</span><b>${don.itens.length}</b></div><div class="ft"><span>Total</span><b>${[sumU("kg")>0?fq(sumU("kg"))+" kg":"",sumU("un")>0?fq(sumU("un"))+" un":""].filter(Boolean).join(" + ")}</b></div><div class="ft" style="font-weight:600;font-size:13px">${nomes}</div>`;
   $("dFinSheet").classList.remove("hidden"); }

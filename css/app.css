@@ -1002,3 +1002,5 @@ html[data-tema=dark] .dprow mark{background:#3a2e0d;color:#f0b429}
 .dt6 button[data-t6],.dt6 button[data-tv]{min-height:93px;padding:11px 6px 9px}
 .dt6 button[data-t6] .bi,.dt6 button[data-tv] .bi{margin:0 auto 6px}
 .dt6 button .bi .bsv.wide{width:38px!important;height:32px!important}
+#dT6L.tg{cursor:pointer;user-select:none;padding:8px 10px 8px 0;margin:-8px 0}
+#dT6L.tg:active{opacity:.7}
