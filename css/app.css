@@ -992,3 +992,12 @@ html[data-tema=dark] .dprow mark{background:#3a2e0d;color:#f0b429}
 .dt6 button[data-t6],.dt6 button[data-tv]{padding:12px 6px 12px;min-height:104px;gap:0}
 .dt6 button[data-t6] .bi:not(.bl),.dt6 button[data-tv] .bi:not(.bl),.dt6 button[data-t6] .bi.bl,.dt6 button[data-tv] .bi.bl{margin:0 auto 7px}
 .dt6 button[data-t6] small,.dt6 button[data-tv] small{margin-top:5px;letter-spacing:.01em}
+/* balões mais soltos (ajuste 3): espaço entre ícone, nome e contagem */
+.dt6{gap:10px}
+.dt6 button[data-t6],.dt6 button[data-tv]{padding:12px 6px 10px;min-height:100px;gap:0}
+.dt6 button[data-t6] .bi,.dt6 button[data-tv] .bi{margin:0 auto 7px}
+.dt6 button[data-t6],.dt6 button[data-tv]{line-height:1.25}
+.dt6 button[data-t6] small,.dt6 button[data-tv] small{margin-top:5px}
+.dt6{gap:9px}
+.dt6 button[data-t6],.dt6 button[data-tv]{min-height:93px;padding:11px 6px 9px}
+.dt6 button[data-t6] .bi,.dt6 button[data-tv] .bi{margin:0 auto 6px}
