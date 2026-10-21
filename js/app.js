@@ -699,15 +699,10 @@ function dTop6Render(){ const box=$("dTop6"); if(!box) return; let rank=[]; try{
   $("dBalEdit").textContent=ed?"✔ Concluir":"✎ Editar"; $("dBalEdit").hidden=(op>=0); $("dBalAuto").hidden=!(ed&&cfg);
   if(op!=null&&op>=0&&top[op]){ const f=top[op];
     $("dT6L").textContent="⭐ "+dTitle(f.w).toUpperCase()+" — QUAL?";
-    $("dT6").classList.add("var"); $("dT6").classList.remove("car"); dT6Dots();
+    $("dT6").classList.add("var");
     $("dT6").innerHTML=f.list.map((o,i)=>{ const same=dFamKey(o.n)===f.k, rest=(same?dBase(o.n).split(/\s+/).slice(1).join(" "):dBase(o.n)); return `<button type="button" data-tv="${i}">${balIco(o.n, f.w)}${pkTag(o.n)}${esc(rest?dTitle(rest.split(" ")[0])+(rest.includes(" ")?" "+rest.split(" ").slice(1).join(" ").toLowerCase():""):"Comum")}<small>${uDe(o)}</small></button>`; }).join("")+`<button type="button" class="dback" data-tback="1">← voltar</button>`;
-  } else { box._open=-1; const sl0=box._sl||0; { const tg=!ed; $("dT6L").textContent=ed?"✎ TOQUE NUM ATALHO PARA EDITAR":"⭐ ATALHOS "+(colp?"▴":"▾"); $("dT6L").classList.toggle("tg",tg); if(tg){ $("dT6L").setAttribute("role","button"); $("dT6L").tabIndex=0; $("dT6L").setAttribute("aria-label",colp?"Mostrar atalhos":"Recolher atalhos"); } else { $("dT6L").removeAttribute("role"); $("dT6L").removeAttribute("tabindex"); $("dT6L").removeAttribute("aria-label"); } } $("dT6").classList.remove("var"); $("dT6").classList.toggle("car",!ed);
-    $("dT6").innerHTML=top.map((f,i)=>`<button type="button" class="${ed?"ed":""}" data-t6="${i}">${balIcoTop(f.w)}${esc(dTitle(f.w))}<small>${f.list.length>1?f.list.length+" tipos"+(ed?"":" ›"):(f.list[0]?f.list[0].u:"")}</small></button>`).join("")+(ed&&top.length<9?'<button type="button" class="dnew" data-tnew="1">＋ Novo</button>':""); $("dT6").scrollLeft=sl0; dT6Dots(); requestAnimationFrame(dT6Dots); } }
-// pontinhos do carrossel de atalhos
-function dT6Dots(){ const r=$("dT6"); let d=$("dT6dots"); if(!d){ d=document.createElement("div"); d.id="dT6dots"; r.after(d); r.addEventListener("scroll",()=>{ if(r.classList.contains("car")) $("dTop6")._sl=r.scrollLeft; dT6Dots(); },{passive:true}); }
-  const car=r.classList.contains("car"), pg=car?Math.max(1,Math.round(r.scrollWidth/Math.max(1,r.clientWidth))):1;
-  if(!car||pg<2){ d.innerHTML=""; d.hidden=true; return; } d.hidden=false;
-  const max=r.scrollWidth-r.clientWidth, at=max>0?Math.round(r.scrollLeft/max*(pg-1)):0; d.innerHTML=Array.from({length:pg},(_,i)=>`<s class="${i===at?"on":""}"></s>`).join(""); }
+  } else { box._open=-1; { const tg=!ed; $("dT6L").textContent=ed?"✎ TOQUE NUM ATALHO PARA EDITAR":"⭐ ATALHOS "+(colp?"▴":"▾"); $("dT6L").classList.toggle("tg",tg); if(tg){ $("dT6L").setAttribute("role","button"); $("dT6L").tabIndex=0; $("dT6L").setAttribute("aria-label",colp?"Mostrar atalhos":"Recolher atalhos"); } else { $("dT6L").removeAttribute("role"); $("dT6L").removeAttribute("tabindex"); $("dT6L").removeAttribute("aria-label"); } } $("dT6").classList.remove("var");
+    $("dT6").innerHTML=top.map((f,i)=>`<button type="button" class="${ed?"ed":""}" data-t6="${i}">${balIcoTop(f.w)}${esc(dTitle(f.w))}<small>${f.list.length>1?f.list.length+" tipos"+(ed?"":" ›"):(f.list[0]?f.list[0].u:"")}</small></button>`).join("")+(ed&&top.length<9?'<button type="button" class="dnew" data-tnew="1">＋ Novo</button>':""); } }
 function dPickVar(o){ const box=$("dTop6"); box._open=-1; buzz(); const p=products.find(x=>norm(dBase(x.name))===norm(dBase(o.n)))||prodFor(o.n); selectProd(p?p.name:o.n,o.c||"",uDe(o)); }
 $("dT6").onclick=e=>{ const box=$("dTop6"), f=box._f||[];
   if(window.dEditBal){ if(e.target.closest("[data-tnew]")) return dBalOpen(-1); const b=e.target.closest("[data-t6]"); if(b) dBalOpen(Number(b.dataset.t6)); return; }
