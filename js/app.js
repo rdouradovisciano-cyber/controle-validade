@@ -81,9 +81,13 @@ function toast(msg, action, fn) {
 }
 const LIXO_MS = 3 * 864e5;   // lixeira: cadastros excluídos ficam 3 dias e depois somem de vez
 const persist = () => { if (!db) store.set(LK, products.concat(lixeira)); };
+const LLK = "validamais-lixo-local";
+function lixoLocalLer() { const agora = Date.now(); const l = store.get(LLK, []).filter(p => agora - Number(p.lixo) <= LIXO_MS); return l.map(p => ({ ...p, loc: true })); }
+function lixoLocalGravar(l) { store.set(LLK, l.map(({ loc, ...r }) => r)); }
 function separaLixo(arr) {
   const agora = Date.now(), venc = arr.filter(p => p.lixo && agora - Number(p.lixo) > LIXO_MS);
   products = arr.filter(p => !p.lixo); lixeira = arr.filter(p => p.lixo && !venc.includes(p));
+  if (db) { const loc = lixoLocalLer(); if (loc.length) lixeira = lixeira.concat(loc); }   // lixeira deste aparelho (quando a nuvem não aceita o campo "lixo")
   if (venc.length) { if (db) venc.forEach(p => V.deleteDoc(V.doc(db, "products", p.id)).catch(() => {})); else persist(); }
 }
 
@@ -1200,7 +1204,12 @@ function cadAbrir(x) { cadEdit = x.k;
   $("cTitulo").textContent = "Editando cadastro"; $("cSalvar").textContent = "Salvar alterações"; $("cCancela").hidden = false; window.scrollTo(0, 0); }
 function cadApagar(x) {   // manda o cadastro e todos os lotes para a lixeira (3 dias) e tira a marca de revisar
   const agora = Date.now();
-  x.l.forEach(p => { if (db) V.updateDoc(V.doc(db, "products", p.id), { lixo: agora, updatedAt: V.serverTimestamp() }).catch(() => toast("Não foi possível excluir.")); });
+  x.l.forEach(p => { if (db) V.updateDoc(V.doc(db, "products", p.id), { lixo: agora, updatedAt: V.serverTimestamp() }).catch(() => {
+    // as regras da nuvem não aceitam o campo "lixo": guarda uma cópia neste aparelho e apaga na nuvem
+    const { id, ...dados } = p; const cp = { ...dados, id, lixo: agora }; delete cp.updatedAt; delete cp.createdAt;
+    lixoLocalGravar(lixoLocalLer().concat([cp]));
+    V.deleteDoc(V.doc(db, "products", id)).catch(() => toast("Não foi possível excluir."));
+  }); });
   if (!db) { x.l.forEach(p => { p.lixo = agora; }); lixeira = lixeira.concat(x.l); products = products.filter(p => !x.l.includes(p)); persist(); render(); lixoBtn(); }
   if (!products.some(p => p.name && norm(p.name) === norm(x.name) && !x.l.includes(p))) revSet(x.name, false);
   if (cadEdit === x.k) cadReset(); }
@@ -1210,11 +1219,13 @@ function lixoGrupos() {
   return [...m.values()].sort((a, b) => b.t - a.t);
 }
 function lixoRestaurar(g) {
-  if (db) g.l.forEach(p => V.updateDoc(V.doc(db, "products", p.id), { lixo: V.deleteField(), updatedAt: V.serverTimestamp() }).catch(() => toast("Não foi possível restaurar.")));
+  if (db) g.l.forEach(p => {
+    if (p.loc) { const { id, lixo, loc, ...d } = p; const ts = V.serverTimestamp(); V.addDoc(V.collection(db, "products"), { ...d, createdAt: ts, updatedAt: ts }).then(() => lixoLocalGravar(lixoLocalLer().filter(q => q.id !== id))).catch(() => toast("Não foi possível restaurar.")); }
+    else V.updateDoc(V.doc(db, "products", p.id), { lixo: V.deleteField(), updatedAt: V.serverTimestamp() }).catch(() => toast("Não foi possível restaurar.")); });
   else { g.l.forEach(p => { delete p.lixo; }); lixeira = lixeira.filter(p => !g.l.includes(p)); products = products.concat(g.l); persist(); render(); }
 }
 function lixoApagar(g) {
-  if (db) g.l.forEach(p => V.deleteDoc(V.doc(db, "products", p.id)).catch(() => toast("Não foi possível excluir.")));
+  if (db) g.l.forEach(p => { if (p.loc) lixoLocalGravar(lixoLocalLer().filter(q => q.id !== p.id)); else V.deleteDoc(V.doc(db, "products", p.id)).catch(() => toast("Não foi possível excluir.")); });
   else { lixeira = lixeira.filter(p => !g.l.includes(p)); persist(); }
 }
 function lixoAbrir() {
