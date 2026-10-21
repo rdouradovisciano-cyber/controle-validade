@@ -1004,3 +1004,12 @@ html[data-tema=dark] .dprow mark{background:#3a2e0d;color:#f0b429}
 .dt6 button .bi .bsv.wide{width:38px!important;height:32px!important}
 #dT6L.tg{cursor:pointer;user-select:none;padding:8px 10px 8px 0;margin:-8px 0}
 #dT6L.tg:active{opacity:.7}
+/* atalhos em carrossel: uma fileira que desliza para o lado */
+.dt6.car{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;gap:10px;scrollbar-width:none;padding-bottom:2px}
+.dt6.car::-webkit-scrollbar{display:none}
+.dt6.car button[data-t6]{flex:0 0 calc((100% - 20px) / 3.3);scroll-snap-align:start;min-width:0}
+#dT6dots{display:flex;gap:6px;justify-content:center;margin-top:8px}
+#dT6dots[hidden]{display:none}
+#dT6dots s{width:7px;height:7px;border-radius:50%;background:#3a4157;transition:all .2s}
+#dT6dots s.on{background:#f3d87a;width:18px;border-radius:5px}
+#dDock.col #dT6dots{display:none}
