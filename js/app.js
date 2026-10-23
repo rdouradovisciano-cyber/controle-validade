@@ -3,14 +3,20 @@
 "use strict";
 if (window.__LOGIN_WAIT) return;
 const C = window.VALIDA_CONFIG || {}, V = window.V || {}, fb = C.firebase || {};
-const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros"];
+const PER = "Perecíveis";
+const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros", PER];
+// setor escolhido na abertura (sessionStorage): "FLV" (tudo que não é Perecíveis, como sempre foi) ou "Perecíveis" (cadastros e validades próprios)
+const SETOR = (() => { try { return sessionStorage.getItem("validamais-setor") === PER ? PER : "FLV"; } catch (e) { return "FLV"; } })();
+const doSetor = p => (p.category === PER) === (SETOR === PER);
+const CATS_VIS = SETOR === PER ? [PER] : CATS.filter(c => c !== PER);
+document.body.dataset.setor = SETOR;
 const $ = id => document.getElementById(id);
 const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria", TK = "validamais-tam";
 let curTab = "Loja";
 const LOJA = C.loja || "Sam's Club Radial Leste";
 const EMPTY_FLV = '<div class="empty"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="#9db8a4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 28h44l-5 22a4 4 0 0 1-4 3H19a4 4 0 0 1-4-3z"/><path d="M22 28c0-9 4-16 10-16s10 7 10 16"/><path d="M32 12c0-4 3-7 8-7 0 5-3 8-8 7z"/></svg><p>Nenhum produto do FLV com validade para vencer no momento.</p></div>';
 const SKEL = '<div class="skel" role="status" aria-label="Carregando produtos">' + [58, 72, 46, 64].map((w, k) => `<div class="product skelc" aria-hidden="true" style="--d:${k * 0.15}s"><div class="sk sk-t" style="width:${w}%"></div><div class="sk sk-m"></div><div class="sk-row"><div class="sk sk-d"></div><div class="sk sk-p"></div></div></div>`).join("") + '</div>';
-let products = [], lixeira = [], db = null, scanner = null, toastTimer, carregando = false;   // carregando: Firebase ainda não respondeu (mostra silhuetas)
+let products = [], lixeira = [], outros = [], db = null, scanner = null, toastTimer, carregando = false;   // carregando: Firebase ainda não respondeu (mostra silhuetas)
 window.vmProducts = () => products;
 window.vmRegister = o => registerProduct(o);
 window.vmDb = () => db;
@@ -59,7 +65,7 @@ if (confMode()) return;
 const today = () => { const t = new Date(); t.setHours(0,0,0,0); return t; };
 const iso = d => new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 const daysLeft = e => /^\d{4}-\d\d-\d\d$/.test(e || "") ? Math.round((new Date(e + "T00:00:00") - today()) / 864e5) : null;
-const limit = c => (C.alertaDias && (C.alertaDias[c] ?? C.alertaDias.padrao)) ?? 3;
+const limit = c => c === PER ? 7 : (C.alertaDias && (C.alertaDias[c] ?? C.alertaDias.padrao)) ?? 3;
 const status = p => { const d = daysLeft(p.expiry); return d === null ? "ok" : d < 0 ? "expired" : d <= limit(p.category) ? "soon" : "ok"; };
 const when = d => d === null ? "Sem validade" : d < 0 ? `Vencido há ${-d} dia${d < -1 ? "s" : ""}` : d === 0 ? "Vence hoje" : d === 1 ? "Vence amanhã" : `Vence em ${d} dias`;
 const fmt = e => daysLeft(e) === null ? "Sem validade" : new Date(e + "T00:00:00").toLocaleDateString("pt-BR");
@@ -80,20 +86,22 @@ function toast(msg, action, fn) {
   toastTimer = setTimeout(() => t.classList.add("hidden"), action ? 6000 : Math.max(2500, Math.min(7000, 1800 + String(msg).length * 55)));   // some sozinho; texto longo fica mais tempo; com «Desfazer», 6 s
 }
 const LIXO_MS = 3 * 864e5;   // lixeira: cadastros excluídos ficam 3 dias e depois somem de vez
-const persist = () => { if (!db) store.set(LK, products.concat(lixeira)); };
+const persist = () => { if (!db) store.set(LK, products.concat(lixeira, outros)); };
 const LLK = "validamais-lixo-local";
 function lixoLocalLer() { const agora = Date.now(); const l = store.get(LLK, []).filter(p => agora - Number(p.lixo) <= LIXO_MS); return l.map(p => ({ ...p, loc: true })); }
 function lixoLocalGravar(l) { store.set(LLK, l.map(({ loc, ...r }) => r)); }
 function separaLixo(arr) {
   const agora = Date.now(), venc = arr.filter(p => p.lixo && agora - Number(p.lixo) > LIXO_MS);
-  products = arr.filter(p => !p.lixo); lixeira = arr.filter(p => p.lixo && !venc.includes(p));
-  if (db) { const loc = lixoLocalLer(); if (loc.length) lixeira = lixeira.concat(loc); }   // lixeira deste aparelho (quando a nuvem não aceita o campo "lixo")
+  outros = arr.filter(p => !doSetor(p) && !venc.includes(p));   // do outro setor: não aparece aqui (e é preservado no modo local)
+  const meu = arr.filter(doSetor);
+  products = meu.filter(p => !p.lixo); lixeira = meu.filter(p => p.lixo && !venc.includes(p));
+  if (db) { const loc = lixoLocalLer().filter(doSetor); if (loc.length) lixeira = lixeira.concat(loc); }   // lixeira deste aparelho (quando a nuvem não aceita o campo "lixo")
   if (venc.length) { if (db) venc.forEach(p => V.deleteDoc(V.doc(db, "products", p.id)).catch(() => {})); else persist(); }
 }
 
 // ---------- lista ----------
 function fillCategories() {
-  const opt = (id, first) => { const el = $(id); el.innerHTML = ""; el.add(new Option(first, "")); CATS.forEach(c => el.add(new Option(c, c))); };
+  const opt = (id, first) => { const el = $(id); el.innerHTML = ""; el.add(new Option(first, "")); CATS_VIS.forEach(c => el.add(new Option(c, c))); };
   opt("category", "Selecione"); opt("categoryFilter", "Todas as categorias"); opt("exportCategory", "Selecione a categoria");
 }
 function sirene() {   // aba Validades pisca em branco, sem som, só quando há produto que vence hoje (os já vencidos não contam)
@@ -144,16 +152,16 @@ async function phRestore(i) {
 }
 function render() {
   retOverlay(); phDiff();
-  { const cf = $("categoryFilter"), oth = [...new Set(products.map(p => p.category).filter(c => c && c !== "FLV"))].sort(), sig = oth.join("|");
-    if (cf.dataset.sig !== sig) { const cur = cf.value; cf.innerHTML = ""; cf.add(new Option("Todos os setores", "")); ["FLV", ...oth].forEach(c => cf.add(new Option(c, c)));
-      cf.value = [...cf.options].some(o => o.value === cur) ? cur : "FLV"; cf.dataset.sig = sig; }
+  { const cf = $("categoryFilter"), oth = [...new Set(products.map(p => p.category).filter(c => c && c !== SETOR))].sort(), sig = oth.join("|");
+    if (cf.dataset.sig !== sig) { const cur = cf.value; cf.innerHTML = ""; cf.add(new Option("Todos os setores", "")); [SETOR, ...oth].forEach(c => cf.add(new Option(c, c)));
+      cf.value = [...cf.options].some(o => o.value === cur) ? cur : SETOR; cf.dataset.sig = sig; }
     cf.classList.toggle("hidden", !oth.length); document.querySelector("#tabLoja .filters").classList.toggle("hidden", !oth.length); $("verTodos").classList.toggle("hidden", !!oth.length); }
   const q = $("search").value.trim().toLowerCase(), cat = $("categoryFilter").value, st = $("statusFilter").value;
   const base = products.filter(p => !p.retirado && (!cat || p.category === cat)), ex = base.filter(p => status(p) === "expired").length, so = base.filter(p => status(p) === "soon").length;
   const ainda = carregando && !products.length;   // Firebase ainda não respondeu: não mostra "0"
   $("countAll").textContent = ainda ? "–" : products.length;
   { const nr = products.filter(p => p.retirado).length; $("verRet").classList.toggle("hidden", !nr && !retView); $("verRet").textContent = retView ? "← Voltar às validades" : `📦 Ver retirados da loja (${nr})`; }
-  { const vt = $("verTodos"); if (vt) vt.textContent = ainda ? "Conectando…" : cat ? `Ver todos os ${products.length} cadastrados` : "Voltar ao FLV"; }
+  { const vt = $("verTodos"); if (vt) vt.textContent = ainda ? "Conectando…" : cat ? `Ver todos os ${products.length} cadastrados` : "Voltar ao " + SETOR; }
   document.querySelectorAll("#tabLoja .stats .stat").forEach((e, i) => e.classList.toggle("on", (i === 1 && st === "soon") || (i === 2 && st === "expired"))); $("countSoon").textContent = ainda ? "–" : so; $("countExpired").textContent = ainda ? "–" : ex;
   { const fora = cat ? products.filter(p => !p.retirado && p.category !== cat && daysLeft(p.expiry) !== null && daysLeft(p.expiry) >= 0 && daysLeft(p.expiry) <= 1).length : 0;
     $("outAlert").classList.toggle("hidden", !fora); $("outAlert").textContent = `⚠ ${fora} produto(s) de OUTROS setores vencem em até 1 dia — toque para ver todos`; }
@@ -166,7 +174,7 @@ function render() {
   $("todayBanner").textContent = `⚠ VENCEM HOJE (${hoje.length}): ` + hoje.slice(0, 5).map(p => p.name).join(", ") + (hoje.length > 5 ? "…" : "");
   if (!hoje.length) alarmed = false; else if (!alarmed && actx) { alarmed = true; alarm(); }
   const rows = retView ? products.filter(p => p.retirado).sort((a, b) => (Number(b.retEm) || 0) - (Number(a.retEm) || 0)) : products.filter(p => q ? ((p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q) || String(p.codigo_balanca || "") === q || String(p.codigo_doacao || "").toLowerCase() === q)   // buscando: procura em TODOS os setores, com ou sem validade
-      : (!p.retirado && (!cat || p.category === cat) && !(cat === "FLV" && daysLeft(p.expiry) === null) && (!st || status(p) === st)))
+      : (!p.retirado && (!cat || p.category === cat) && !((cat === "FLV" || cat === PER) && daysLeft(p.expiry) === null) && (!st || status(p) === st)))
     .sort((a, b) => cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
@@ -205,7 +213,7 @@ function limparFotosNuvem() {   // coleção "fotos" + campo foto dentro dos cad
 }
 function resetForm() {
   $("productForm").reset(); $("docId").value = ""; $("quantity").value = 1;
-  $("category").value = "FLV"; $("saveNext").classList.remove("hidden"); toggleCodes();
+  $("category").value = SETOR; $("saveNext").classList.remove("hidden"); toggleCodes();
   $("productForm").classList.remove("lote"); $("loteInfo").classList.add("hidden"); $("loteEdit").classList.add("hidden");
 }
 function toggleCodes() {
@@ -289,7 +297,7 @@ async function save(next) {
     const ts = V.serverTimestamp();
     const p = id ? V.updateDoc(V.doc(db, "products", id), { ...data, updatedAt: ts })
                  : V.addDoc(V.collection(db, "products"), { ...data, createdAt: ts, updatedAt: ts });
-    p.catch(e => { console.error(e); toast("Erro ao salvar na nuvem. Confira as regras do Firestore."); });
+    p.catch(e => { console.error(e); toast(data.category === PER ? "Erro ao salvar. O Firebase precisa aceitar a categoria «Perecíveis» nas regras." : "Erro ao salvar na nuvem. Confira as regras do Firestore."); });
   } else {
     if (id) products = products.map(x => x.id === id ? { ...x, ...data, updatedAt: Date.now() } : x); else products.push({ ...data, id: uid(), updatedAt: Date.now() });
     persist(); render();
@@ -343,7 +351,7 @@ async function onCode(code) {
   if (isScale(code)) {                                   // etiqueta de balança: o código de balança identifica o produto
     const plu = String(Number(parseScale(code).item)), k = products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(plu));
     logScan(code, k); show(k ? `Novo lote de «${k.name}»` : "Produto novo: cadastre agora");
-    $("barcode").value = (k && k.barcode) || ""; $("name").value = (k && k.name) || ""; $("category").value = (k && k.category) || "FLV";
+    $("barcode").value = (k && k.barcode) || ""; $("name").value = (k && k.name) || ""; $("category").value = (k && k.category) || SETOR;
     $("cBalanca").value = plu; $("cDoacao").value = (k && k.codigo_doacao) || ""; toggleCodes(); loteMode(k); (k ? $("expiry") : $("name")).focus(); return;
   }
   const known = products.find(p => p.barcode === code); logScan(code, known);
@@ -533,13 +541,16 @@ $("scansBox").ontoggle = () => {
 };
 
 // ---------- setor, menu lateral e voz ----------
-const SETOR = "FLV"; $("categoryFilter").value = SETOR; store.set(LC, SETOR); render();
+{ const trocar = () => { try { sessionStorage.removeItem("validamais-setor"); } catch (e) {} location.reload(); };   // volta à tela "qual setor?"
+  const ch = $("setorChip"); if (ch) { ch.textContent = (SETOR === PER ? "🧀 Perecíveis" : "🥬 FLV") + " ▾"; ch.onclick = trocar; }
+  const ms = $("mnSetor"); if (ms) ms.onclick = trocar; }
+$("categoryFilter").value = SETOR; store.set(LC, SETOR); render();
 { const sf = $("statusFilter"), stt = document.querySelectorAll("#tabLoja .stats .stat");
   stt[0].onclick = () => { sf.value = ""; render(); }; stt[1].onclick = () => { sf.value = sf.value === "soon" ? "" : "soon"; render(); }; stt[2].onclick = () => { sf.value = sf.value === "expired" ? "" : "expired"; render(); }; }
 $("phClose").onclick = () => $("phModal").classList.add("hidden"); $("phBusca").oninput = phDraw;
 $("phList").onclick = e => { const b = e.target.closest("[data-phr]"); if (b) phRestore(Number(b.dataset.phr)); };
 $("outAlert").onclick = () => { $("categoryFilter").value = ""; render(); window.scrollTo(0, 0); };
-$("verTodos").onclick = () => { $("categoryFilter").value = $("categoryFilter").value ? "" : "FLV"; render(); };
+$("verTodos").onclick = () => { $("categoryFilter").value = $("categoryFilter").value ? "" : SETOR; render(); };
 document.addEventListener("pointerdown", () => { audio(); render(); }, { once: true }); // libera o som do alerta no primeiro toque
 const side = o => { $("side").classList.toggle("open", o); $("sideBg").classList.toggle("hidden", !o); };
 $("sideBg").onclick = () => side(false); $("sideClose").onclick = () => side(false);
@@ -553,7 +564,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") side(false);
 
 // ---------- códigos internos editáveis (balança / doação) ----------
 const sameProd = (a, b) => (b.barcode && a.barcode === b.barcode) || (!b.barcode && !a.barcode && norm(a.name) === norm(b.name));
-const newRec = (p, field, v, ts) => ({ name: p.name, barcode: p.barcode || "", category: p.category || "FLV", expiry: "", quantity: 1, por: myName(), codigo_balanca: "", codigo_doacao: "", [field]: v, ...(ts ? { createdAt: ts, updatedAt: ts } : {}) });
+const newRec = (p, field, v, ts) => ({ name: p.name, barcode: p.barcode || "", category: p.category || SETOR, expiry: "", quantity: 1, por: myName(), codigo_balanca: "", codigo_doacao: "", [field]: v, ...(ts ? { createdAt: ts, updatedAt: ts } : {}) });
 function saveCode(p, field, raw) {                 // grava o código em todos os lotes do produto (ou cria um item FLV sem validade)
   const v = String(raw || "").trim().toUpperCase(), re = field === "codigo_balanca" ? /^\d{1,6}$/ : /^[A-Z0-9]{1,12}$/;
   if (v && !re.test(v)) { toast(field === "codigo_balanca" ? "O código de balança deve ter só números (até 6)." : "Use só letras e números (até 12)."); return null; }
@@ -610,7 +621,7 @@ $("nrSave").onclick = () => { const nome = $("nrNome").value.replace(/\s+/g, " "
   nrDone({ nome, don }); };
 $("nrNome").onkeydown = e => { if (e.key === "Enter") $("nrSave").click(); };
 document.addEventListener("keydown", e => { if (e.key === "Escape" && nrResolve) nrDone(null); });
-function registerProduct({ name, category = "FLV", barcode = "", codigo_balanca = "", codigo_doacao = "" }) {   // grava no cadastro compartilhado
+function registerProduct({ name, category = SETOR, barcode = "", codigo_balanca = "", codigo_doacao = "" }) {   // grava no cadastro compartilhado
   const fail = e => { console.error(e); toast("Não salvou no cadastro compartilhado (confira as regras do Firebase). Por isso o app pede o cadastro de novo."); }, f = {}, field = barcode ? "barcode" : "codigo_balanca";
   if (barcode) f.barcode = barcode; if (codigo_balanca) f.codigo_balanca = codigo_balanca; if (codigo_doacao) f.codigo_doacao = codigo_doacao;
   const free = products.filter(x => norm(x.name || "") === norm(name) && !x[field]);   // mesmo nome ainda sem esse código: só acrescenta o código
@@ -653,7 +664,7 @@ $("eanCode").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); ean
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("eanModal").classList.contains("hidden")) eanClose(); });
 
 // ---------- aba Doação ----------
-const UK = "validamais-dunid", DK = "validamais-doacao", HK = "validamais-doacoes", NK = "validamais-dnomes";
+const UK = "validamais-dunid", DK = SETOR === PER ? "validamais-doacao-per" : "validamais-doacao", HK = "validamais-doacoes", NK = "validamais-dnomes";
 let don = store.get(DK, null) || { itens: [], inicio: new Date().toISOString() }, dSel = "", dVal = "", curRom = null, histList = [], unsubHist = null, lastScan = { c: "", t: 0 };
 function norm(s) { return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim(); }
 function pkey(p) { return p.barcode || norm(p.name); }
@@ -680,7 +691,7 @@ const burnTxt = (t, off) => [...String(t)].map((c, k) => c === " " ? " " : `<spa
 function renderDon() {
   if (typeof dTop6Render === "function") dTop6Render();
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dKg").parentElement.style.display = sumU("kg") > 0 ? "" : "none"; $("dUn").parentElement.style.display = sumU("un") > 0 ? "" : "none"; $("dItens").textContent = don.itens.length;
-  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${(window.dLastKey&&don.itens.some(z=>z.key===window.dLastKey)?i.key===window.dLastKey:x===don.itens.length-1)?" ult":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}">${dIco(i.nome)}<div class="dn"><b${window.dBurn===i.key?` class="burn" style="--n:${[...i.nome].length}"`:""}>${window.dBurn===i.key?burnTxt(i.nome,350):esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)${(i.cx || i.sem) ? `<span class="dtara">${i.cx ? i.cx + " com TARA" : ""}${i.cx && i.sem ? " · " : ""}${i.sem ? i.sem + " sem TARA" : ""}</span>` : ""}</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade"><span class="cnum" data-v="${i.qtd}">${fq(i.qtd)}</span> <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>Toque num produto abaixo para começar.</p>';
+  $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${(window.dLastKey&&don.itens.some(z=>z.key===window.dLastKey)?i.key===window.dLastKey:x===don.itens.length-1)?" ult":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}">${dIco(i.nome)}<div class="dn"><b${window.dBurn===i.key?` class="burn" style="--n:${[...i.nome].length}"`:""}>${window.dBurn===i.key?burnTxt(i.nome,350):esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)${(i.cx || i.sem) ? `<span class="dtara">${i.cx ? i.cx + " com TARA" : ""}${i.cx && i.sem ? " · " : ""}${i.sem ? i.sem + " sem TARA" : ""}</span>` : ""}</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade"><span class="cnum" data-v="${i.qtd}">${fq(i.qtd)}</span> <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>${SETOR === PER ? "Toque em Buscar para escolher o produto." : "Toque num produto abaixo para começar."}</p>';
   if (window.dBurn) { const k = window.dBurn; setTimeout(() => dFx(k), 380); }
   window.dBurn = ""; renderKey();
 }
@@ -1186,7 +1197,7 @@ $("cSalvar").onclick = () => {
     else { mine.forEach(x => Object.assign(x, f)); persist(); render(); }
     toast("Cadastro atualizado.");
   } else {
-    const rec = { ...f, category: "FLV", expiry: "", quantity: 1, por: myName() };
+    const rec = { ...f, category: SETOR, expiry: "", quantity: 1, por: myName() };
     if (db) { const ts = V.serverTimestamp(); V.addDoc(V.collection(db, "products"), { ...rec, createdAt: ts, updatedAt: ts }).catch(fail); }
     else { products.push({ ...rec, id: uid(), updatedAt: Date.now() }); persist(); render(); }
     toast("«" + name + "» cadastrado.");
@@ -1641,7 +1652,7 @@ function applyImport(rows) {
   for (const r of rows.filter(x => x.st !== "erro")) {
     const f = {}; if (r.bal) f.codigo_balanca = r.bal; if (r.doa) f.codigo_doacao = r.doa; if (r.ean) f.barcode = r.ean; if (r.cat) f.category = r.cat;
     if (r.matched.length) { u++; r.matched.forEach(x => db ? V.updateDoc(V.doc(db, "products", x.id), { ...f, updatedAt: ts }).catch(fail) : Object.assign(x, f)); }
-    else { n++; const rec = { name: r.nome, barcode: "", category: "FLV", expiry: "", quantity: 1, por: myName(), codigo_balanca: "", codigo_doacao: "", ...f };
+    else { n++; const rec = { name: r.nome, barcode: "", category: SETOR, expiry: "", quantity: 1, por: myName(), codigo_balanca: "", codigo_doacao: "", ...f };
       if (db) V.addDoc(V.collection(db, "products"), { ...rec, createdAt: ts, updatedAt: ts }).catch(fail); else products.push({ ...rec, id: uid() }); }
   }
   if (!db) { persist(); render(); } return { n, u };
