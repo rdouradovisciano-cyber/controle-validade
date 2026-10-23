@@ -1377,10 +1377,10 @@ let topDb = [];
 function renderTop() { try { dTop6Render(); } catch (e) {} }
 if (db) V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(40)), s => { topDb = s.docs.map(d => withEdits({ ...d.data(), _id: d.id })); renderTop(); }, console.error);
 renderDon(); renderKey(); renderTop();
-tab("Doacao");
+tab(SETOR === PER ? "Loja" : "Doacao");
 
 // ---------- aba Etiquetas ----------
-const EK = "validamais-etiquetas", EUK = "validamais-etq-uni";   // EUK: código original -> código do sistema (só para a lista de etiquetas)
+const EK = SETOR === PER ? "validamais-etiquetas-per" : "validamais-etiquetas", EUK = "validamais-etq-uni";   // EUK: código original -> código do sistema (só para a lista de etiquetas)
 const uniCode = c => (c && store.get(EUK, {})[c]) || c;
 const SZ = { P: { w: 63, h: 30, cols: 3, rows: 9, nome: 8, preco: 15, cod: 6, bar: 6 }, M: { w: 95, h: 50, cols: 2, rows: 5, nome: 12, preco: 26, cod: 8, bar: 12 }, G: { w: 190, h: 90, cols: 1, rows: 3, nome: 20, preco: 52, cod: 11, bar: 24 } };
 let labels = store.get(EK, []), pend = null, eHits = [], eFiltro = "";
@@ -1470,7 +1470,7 @@ async function labelScan(code) {
 $("eScan").onclick = () => openScan("etiqueta");
 
 // ---------- histórico de etiquetas já impressas (3 dias) ----------
-const EHK = "validamais-etqhist";
+const EHK = SETOR === PER ? "validamais-etqhist-per" : "validamais-etqhist";
 const ehLoad = () => (store.get(EHK, []) || []).filter(e => Date.now() - (e.t || 0) < HIST_MS);
 function ehAdd(lista) {
   if (!lista.length) return;
@@ -1552,7 +1552,7 @@ $("lmDup").onclick = () => { const i = lmI; $("lModal").classList.add("hidden");
 $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden"); labelUnify(i); };
 // ---------- Etiquetas compartilhadas: todos os aparelhos veem a mesma lista (coleção "sh_etiquetas" no Firestore) ----------
 (function () {
-  if (typeof db === "undefined" || !db || !V.setDoc || !V.deleteDoc || !V.onSnapshot || !V.doc || !V.collection) return;   // sem nuvem: segue só local
+  if (SETOR === PER || typeof db === "undefined" || !db || !V.setDoc || !V.deleteDoc || !V.onSnapshot || !V.doc || !V.collection) return;   // sem nuvem: segue só local
   const COL = "sh_etiquetas", FLAG = "validamais-etq-cloud", baseSet = store.set.bind(store);
   const last = new Map();                 // id -> conteúdo que a nuvem já tem (para só enviar o que mudou)
   let ready = false, warned = false;
