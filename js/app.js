@@ -541,9 +541,9 @@ $("scansBox").ontoggle = () => {
 };
 
 // ---------- setor, menu lateral e voz ----------
-{ const trocar = () => { try { sessionStorage.removeItem("validamais-setor"); } catch (e) {} location.reload(); };   // volta à tela "qual setor?"
-  const ch = $("setorChip"); if (ch) { ch.textContent = (SETOR === PER ? "🧀 Perecíveis" : "🥬 FLV") + " ▾"; ch.onclick = trocar; }
-  const ms = $("mnSetor"); if (ms) ms.onclick = trocar; }
+{ const ir = alvo => { if (alvo === SETOR) return; try { sessionStorage.setItem("validamais-setor", alvo); } catch (e) { return; } location.reload(); };   // a abertura é sempre no FLV; o Perecíveis é uma troca no topo
+  const ch = $("setorChip"); if (ch) { ch.querySelectorAll("[data-s]").forEach(b => { b.classList.toggle("on", b.dataset.s === SETOR); b.setAttribute("aria-pressed", b.dataset.s === SETOR); b.onclick = () => ir(b.dataset.s); }); }
+  const outro = SETOR === PER ? "FLV" : PER, ms = $("mnSetor"); if (ms) { $("mnSetorT").textContent = "Ir para " + outro; ms.onclick = () => ir(outro); } }
 $("categoryFilter").value = SETOR; store.set(LC, SETOR); render();
 { const sf = $("statusFilter"), stt = document.querySelectorAll("#tabLoja .stats .stat");
   stt[0].onclick = () => { sf.value = ""; render(); }; stt[1].onclick = () => { sf.value = sf.value === "soon" ? "" : "soon"; render(); }; stt[2].onclick = () => { sf.value = sf.value === "expired" ? "" : "expired"; render(); }; }

@@ -1021,7 +1021,9 @@ body.hs h1::before{width:26px!important;height:26px!important}
 @media (prefers-reduced-motion:reduce){.ditem.novo,.ditem.novo .di .bi{animation:none}.dt6 button,header,h1::before{transition:none}.dt6 button:active{transform:none}}
 
 /* ===== setores (FLV / Perecíveis) ===== */
-.setorchip{flex:none;margin:0 4px 0 0;padding:5px 11px;min-height:0;height:30px;border-radius:999px;border:1px solid #c9a431;background:rgba(243,216,122,.12);color:#f3d87a;font-size:13px;font-weight:800;white-space:nowrap}
-body[data-setor="Perecíveis"] .setorchip{border-color:#5fc3d1;background:rgba(95,195,209,.14);color:#8fe0ec}
+.setorsw{flex:none;display:flex;gap:2px;padding:2px;margin:0 4px 0 0;border-radius:999px;border:1px solid #3a3420;background:rgba(255,255,255,.06)}
+.setorsw button{min-height:0;height:28px;padding:0 10px;border-radius:999px;border:0;background:transparent;color:#a9a38f;font-size:13px;font-weight:800;white-space:nowrap}
+.setorsw button.on{background:linear-gradient(180deg,#f3d87a,#c9a431);color:#1a1405}
+body[data-setor="Perecíveis"] .setorsw button.on{background:linear-gradient(180deg,#8fe0ec,#4fb3c2);color:#06242a}
 body[data-setor="Perecíveis"] #tbDoacao,body[data-setor="Perecíveis"] #mnInv,body[data-setor="Perecíveis"] #mnDoaAnt{display:none!important}
 body[data-setor="Perecíveis"] #tbLoja{order:-1}
