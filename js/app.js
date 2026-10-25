@@ -1510,7 +1510,7 @@ $("eLista").onclick = e => {
   const dd = e.target.closest("[data-ldrop]"); if (dd) { const l = labels[Number(dd.dataset.ldrop)]; if (l) labelDropMany([l]); return; }   // ✕: remove já, com «Desfazer»
   const dp = e.target.closest("[data-ldup]"); if (dp) { labelDup(Number(dp.dataset.ldup)); return; }
   const k = e.target.closest("[data-lchk]"); if (k) { const l = labels[Number(k.dataset.lchk)]; if (l) { l.ok = !l.ok; store.set(EK, labels); renderLabels(); } return; }
-  const rw = e.target.closest(".crw"); if (rw) lmOpen(Number(rw.dataset.li));   // toque na linha abre a folha: tamanho, quantidade, duplicar e apagar
+  // edição da etiqueta agora abre apenas ao segurar o item (ver long-press abaixo); clique simples não abre mais
 };
 $("lmRev").onclick = () => { const l = labels[lmI]; if (!l) return; const on = !revOn(l.nome); revSet(l.nome, on); $("lmRev").textContent = on ? "🚩 Tirar a marca de revisar" : "🚩 Marcar para revisar"; renderLabels(); toast(on ? "Marcado para revisar (também aparece nos Cadastros)." : "Marca de revisão removida."); };
 $("lmDel").onclick = () => { const l = labels[lmI]; $("lModal").classList.add("hidden"); if (l) labelDropMany([l]); };
@@ -1606,7 +1606,7 @@ $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden");
 (function () { const box = $("eLista"); let t = null, x0 = 0, y0 = 0;
   const stop = () => { clearTimeout(t); t = null; };
   box.addEventListener("pointerdown", e => { const r = e.target.closest(".crw"); if (!r || e.target.closest("[data-ldrop],[data-lchk],[data-ldup]")) return; x0 = e.clientX; y0 = e.clientY;
-    const i = Number(r.dataset.li); t = setTimeout(() => { t = null; lmOpen(i); }, 500); });
+    const i = Number(r.dataset.li); t = setTimeout(() => { t = null; lmOpen(i); }, 800); });
   box.addEventListener("pointermove", e => { if (t && (Math.abs(e.clientX - x0) > 10 || Math.abs(e.clientY - y0) > 10)) stop(); });
   ["pointerup", "pointercancel", "pointerleave"].forEach(n => box.addEventListener(n, stop));
   box.addEventListener("contextmenu", e => { if (e.target.closest(".crw")) e.preventDefault(); }); })();
