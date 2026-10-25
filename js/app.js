@@ -738,7 +738,7 @@ const BICO = [[/maracuja/,MARACUJA_SVG],[/taiti|tahiti|\blima\b/,"🍋‍🟩"],
 function pkTag(n) { const s = String(n || ""), m = s.match(/(\d+(?:[.,]\d+)?)\s*(kg|g)\b/i);
   if (m) return `<span class="pk">📦 ${m[1].replace(".", ",")}${m[2].toLowerCase()}</span>`;
   return /\b(pacote|pct|bandeja|saco|caixa|embalad[oa]s?|unid(ade)?s?)\b/i.test(s) ? '<span class="pk">📦</span>' : ""; }
-function balIcoTop(w) { return norm(String(w || "")) === "tomate" ? `<span class="bi">${PIMENTOES_FAN}</span>` : balIco(w); }   // balão Tomate: leque de pimentões (verde, vermelho, amarelo) para não parecer a maçã
+function balIcoTop(w) { return norm(String(w || "")) === "tomate" ? `<span class="bi">🍅</span>` : balIco(w); }   // balão Tomate: ícone de tomate
 function balIco(w, fb, soft) { const n = norm(String(w || "")); for (const [re, e] of BICO) if (re.test(n)) return `<span class="bi">${e}</span>`;
   if (fb) return balIco(fb);
   if (soft) return "";
