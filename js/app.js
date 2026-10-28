@@ -1428,7 +1428,7 @@ function contagemScan(code) {
   kEscolhe({ n: x.name, b: x.barcode || "" }); }
 const kQuando = () => new Date().toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 function kTexto() { const l = kOrd();
-  return ["CONTAGEM KÓRIN", "Data: " + kQuando(), "Loja: " + LOJA, "Contado por: " + myName(), "------------------------", ...l.map(i => `${i.n} — ${fq(i.q)} ${i.u}`), "------------------------", `TOTAL: ${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}`].join("\n"); }
+  return ["CONTAGEM KÓRIN", "Data: " + kQuando(), "Loja: " + LOJA, "Contado por: " + myName(), "------------------------", ...l.map(i => `${i.n} — ${fq(i.q)} ${i.u}${i.b ? " · EAN " + i.b : ""}`), "------------------------", `TOTAL: ${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}`].join("\n"); }
 $("kZap").onclick = async () => { if (!kList.length) return toast("A contagem está vazia.");
   const t = kTexto(); if (navigator.share) { try { await navigator.share({ title: "Contagem KÓRIN", text: t }); } catch (e) { if (e.name !== "AbortError") toast("Não foi possível compartilhar."); } }
   else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank"); };
