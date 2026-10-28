@@ -1,1 +1,1 @@
-{"versao":"2026.10.28-213","nota":"Novo setor KÓRIN (menu ⋮ → Ir para KÓRIN): cadastros separados do FLV e dos Perecíveis, com foto do produto tirada pela câmera (a foto fica só neste aparelho)"}
+{"versao":"2026.10.28-214","nota":"KÓRIN: foto removida por enquanto; os cadastros do KÓRIN agora salvam como «Congelados» (que o Firebase já aceita), então voltam a salvar normalmente"}

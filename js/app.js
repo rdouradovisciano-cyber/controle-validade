@@ -7,9 +7,11 @@ const PER = "Perecíveis", KOR = "KÓRIN";
 const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros", PER, KOR];
 // setor escolhido na abertura (sessionStorage): "FLV" (tudo que não é Perecíveis, como sempre foi) ou "Perecíveis" (cadastros e validades próprios)
 const SETOR = (() => { try { const s = sessionStorage.getItem("validamais-setor"); return s === PER || s === KOR ? s : "FLV"; } catch (e) { return "FLV"; } })();
-const setorDe = p => p.category === PER ? PER : p.category === KOR ? KOR : "FLV";   // FLV = tudo que não é Perecíveis nem KÓRIN (como sempre foi)
+const KCAT = "Congelados";   // o setor KÓRIN grava com esta categoria (as regras do Firebase já a aceitam; «KÓRIN» e «Perecíveis» dependem de ajuste nas regras)
+const setorDe = p => p.category === PER ? PER : (p.category === KCAT || p.category === KOR) ? KOR : "FLV";   // FLV = tudo que não é Perecíveis nem KÓRIN (como sempre foi)
 const doSetor = p => setorDe(p) === SETOR;
-const CATS_VIS = SETOR === "FLV" ? CATS.filter(c => c !== PER && c !== KOR) : [SETOR];
+const CATS_VIS = SETOR === "FLV" ? CATS.filter(c => c !== PER && c !== KOR && c !== KCAT) : [SETOR === KOR ? KCAT : SETOR];
+const CATSET = SETOR === KOR ? KCAT : SETOR;   // categoria gravada nos cadastros deste setor
 document.body.dataset.setor = SETOR;
 const $ = id => document.getElementById(id);
 const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria", TK = "validamais-tam";
@@ -95,7 +97,7 @@ function separaLixo(arr) {
   const agora = Date.now(), venc = arr.filter(p => p.lixo && agora - Number(p.lixo) > LIXO_MS);
   outros = arr.filter(p => !doSetor(p) && !venc.includes(p));   // do outro setor: não aparece aqui (e é preservado no modo local)
   const meu = arr.filter(doSetor);
-  products = meu.filter(p => !p.lixo); lixeira = meu.filter(p => p.lixo && !venc.includes(p));
+  products = meu.filter(p => !p.lixo).map(p => p.category === KOR ? { ...p, category: KCAT } : p); lixeira = meu.filter(p => p.lixo && !venc.includes(p));
   if (db) { const loc = lixoLocalLer().filter(doSetor); if (loc.length) lixeira = lixeira.concat(loc); }   // lixeira deste aparelho (quando a nuvem não aceita o campo "lixo")
   if (venc.length) { if (db) venc.forEach(p => V.deleteDoc(V.doc(db, "products", p.id)).catch(() => {})); else persist(); }
 }
@@ -153,9 +155,9 @@ async function phRestore(i) {
 }
 function render() {
   retOverlay(); phDiff();
-  { const cf = $("categoryFilter"), oth = [...new Set(products.map(p => p.category).filter(c => c && c !== SETOR))].sort(), sig = oth.join("|");
-    if (cf.dataset.sig !== sig) { const cur = cf.value; cf.innerHTML = ""; cf.add(new Option("Todos os setores", "")); [SETOR, ...oth].forEach(c => cf.add(new Option(c, c)));
-      cf.value = [...cf.options].some(o => o.value === cur) ? cur : SETOR; cf.dataset.sig = sig; }
+  { const cf = $("categoryFilter"), oth = [...new Set(products.map(p => p.category).filter(c => c && c !== CATSET))].sort(), sig = oth.join("|");
+    if (cf.dataset.sig !== sig) { const cur = cf.value; cf.innerHTML = ""; cf.add(new Option("Todos os setores", "")); [CATSET, ...oth].forEach(c => cf.add(new Option(c, c)));
+      cf.value = [...cf.options].some(o => o.value === cur) ? cur : CATSET; cf.dataset.sig = sig; }
     cf.classList.toggle("hidden", !oth.length); document.querySelector("#tabLoja .filters").classList.toggle("hidden", !oth.length); $("verTodos").classList.toggle("hidden", !!oth.length); }
   const q = $("search").value.trim().toLowerCase(), cat = $("categoryFilter").value, st = $("statusFilter").value;
   const base = products.filter(p => !p.retirado && (!cat || p.category === cat)), ex = base.filter(p => status(p) === "expired").length, so = base.filter(p => status(p) === "soon").length;
@@ -175,7 +177,7 @@ function render() {
   $("todayBanner").textContent = `⚠ VENCEM HOJE (${hoje.length}): ` + hoje.slice(0, 5).map(p => p.name).join(", ") + (hoje.length > 5 ? "…" : "");
   if (!hoje.length) alarmed = false; else if (!alarmed && actx) { alarmed = true; alarm(); }
   const rows = retView ? products.filter(p => p.retirado).sort((a, b) => (Number(b.retEm) || 0) - (Number(a.retEm) || 0)) : products.filter(p => q ? ((p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q) || String(p.codigo_balanca || "") === q || String(p.codigo_doacao || "").toLowerCase() === q)   // buscando: procura em TODOS os setores, com ou sem validade
-      : (!p.retirado && (!cat || p.category === cat) && !((cat === "FLV" || cat === PER || cat === KOR) && daysLeft(p.expiry) === null) && (!st || status(p) === st)))
+      : (!p.retirado && (!cat || p.category === cat) && !((cat === "FLV" || cat === PER || (cat === KCAT && SETOR === KOR)) && daysLeft(p.expiry) === null) && (!st || status(p) === st)))
     .sort((a, b) => cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
@@ -214,7 +216,7 @@ function limparFotosNuvem() {   // coleção "fotos" + campo foto dentro dos cad
 }
 function resetForm() {
   $("productForm").reset(); $("docId").value = ""; $("quantity").value = 1;
-  $("category").value = SETOR; $("saveNext").classList.remove("hidden"); toggleCodes();
+  $("category").value = CATSET; $("saveNext").classList.remove("hidden"); toggleCodes();
   $("productForm").classList.remove("lote"); $("loteInfo").classList.add("hidden"); $("loteEdit").classList.add("hidden");
 }
 function toggleCodes() {
@@ -352,7 +354,7 @@ async function onCode(code) {
   if (isScale(code)) {                                   // etiqueta de balança: o código de balança identifica o produto
     const plu = String(Number(parseScale(code).item)), k = products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(plu));
     logScan(code, k); show(k ? `Novo lote de «${k.name}»` : "Produto novo: cadastre agora");
-    $("barcode").value = (k && k.barcode) || ""; $("name").value = (k && k.name) || ""; $("category").value = (k && k.category) || SETOR;
+    $("barcode").value = (k && k.barcode) || ""; $("name").value = (k && k.name) || ""; $("category").value = (k && k.category) || CATSET;
     $("cBalanca").value = plu; $("cDoacao").value = (k && k.codigo_doacao) || ""; toggleCodes(); loteMode(k); (k ? $("expiry") : $("name")).focus(); return;
   }
   const known = products.find(p => p.barcode === code); logScan(code, known);
@@ -542,21 +544,17 @@ $("scansBox").ontoggle = () => {
 };
 
 // ---------- setor, menu lateral e voz ----------
-$("cFotoBtn").onclick = () => $("cFotoIn").click();
-$("cFotoIn").onchange = async () => { const f = $("cFotoIn").files && $("cFotoIn").files[0]; $("cFotoIn").value = ""; if (!f) return; try { cFoto = await kfComprime(f); cFotoMostra(); } catch (e) { toast("Não consegui abrir essa foto."); } };
-$("cFotoDel").onclick = () => { cFoto = null; cFotoMostra(); };
-$("fotoView").onclick = () => { $("fotoView").classList.add("hidden"); $("fotoViewImg").removeAttribute("src"); };
 { const ir = alvo => { if (alvo === SETOR) return; try { sessionStorage.setItem("validamais-setor", alvo); } catch (e) { return; } location.reload(); };   // a abertura é sempre no FLV; o Perecíveis é uma troca no topo
   const ch = $("setorChip"); if (ch) { ch.querySelectorAll("[data-s]").forEach(b => { b.hidden = b.dataset.s === KOR && SETOR !== KOR; b.classList.toggle("on", b.dataset.s === SETOR); b.setAttribute("aria-pressed", b.dataset.s === SETOR); b.onclick = () => ir(b.dataset.s); }); }
   const outros = ["FLV", PER, KOR].filter(x => x !== SETOR), nome = x => x === KOR ? "KÓRIN" : x;
   [["mnSetor", "mnSetorT", outros[0]], ["mnSetor2", "mnSetor2T", outros[1]]].forEach(([b, t, alvo]) => { if ($(b)) { $(t).textContent = "Ir para " + nome(alvo); $(b).onclick = () => ir(alvo); } }); }
-$("categoryFilter").value = SETOR; store.set(LC, SETOR); render();
+$("categoryFilter").value = CATSET; store.set(LC, CATSET); render();
 { const sf = $("statusFilter"), stt = document.querySelectorAll("#tabLoja .stats .stat");
   stt[0].onclick = () => { sf.value = ""; render(); }; stt[1].onclick = () => { sf.value = sf.value === "soon" ? "" : "soon"; render(); }; stt[2].onclick = () => { sf.value = sf.value === "expired" ? "" : "expired"; render(); }; }
 $("phClose").onclick = () => $("phModal").classList.add("hidden"); $("phBusca").oninput = phDraw;
 $("phList").onclick = e => { const b = e.target.closest("[data-phr]"); if (b) phRestore(Number(b.dataset.phr)); };
 $("outAlert").onclick = () => { $("categoryFilter").value = ""; render(); window.scrollTo(0, 0); };
-$("verTodos").onclick = () => { $("categoryFilter").value = $("categoryFilter").value ? "" : SETOR; render(); };
+$("verTodos").onclick = () => { $("categoryFilter").value = $("categoryFilter").value ? "" : CATSET; render(); };
 document.addEventListener("pointerdown", () => { audio(); render(); }, { once: true }); // libera o som do alerta no primeiro toque
 const side = o => { $("side").classList.toggle("open", o); $("sideBg").classList.toggle("hidden", !o); };
 $("sideBg").onclick = () => side(false); $("sideClose").onclick = () => side(false);
@@ -570,7 +568,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") side(false);
 
 // ---------- códigos internos editáveis (balança / doação) ----------
 const sameProd = (a, b) => (b.barcode && a.barcode === b.barcode) || (!b.barcode && !a.barcode && norm(a.name) === norm(b.name));
-const newRec = (p, field, v, ts) => ({ name: p.name, barcode: p.barcode || "", category: p.category || SETOR, expiry: "", quantity: 1, por: myName(), codigo_balanca: "", codigo_doacao: "", [field]: v, ...(ts ? { createdAt: ts, updatedAt: ts } : {}) });
+const newRec = (p, field, v, ts) => ({ name: p.name, barcode: p.barcode || "", category: p.category || CATSET, expiry: "", quantity: 1, por: myName(), codigo_balanca: "", codigo_doacao: "", [field]: v, ...(ts ? { createdAt: ts, updatedAt: ts } : {}) });
 function saveCode(p, field, raw) {                 // grava o código em todos os lotes do produto (ou cria um item FLV sem validade)
   const v = String(raw || "").trim().toUpperCase(), re = field === "codigo_balanca" ? /^\d{1,6}$/ : /^[A-Z0-9]{1,12}$/;
   if (v && !re.test(v)) { toast(field === "codigo_balanca" ? "O código de balança deve ter só números (até 6)." : "Use só letras e números (até 12)."); return null; }
@@ -627,7 +625,7 @@ $("nrSave").onclick = () => { const nome = $("nrNome").value.replace(/\s+/g, " "
   nrDone({ nome, don }); };
 $("nrNome").onkeydown = e => { if (e.key === "Enter") $("nrSave").click(); };
 document.addEventListener("keydown", e => { if (e.key === "Escape" && nrResolve) nrDone(null); });
-function registerProduct({ name, category = SETOR, barcode = "", codigo_balanca = "", codigo_doacao = "" }) {   // grava no cadastro compartilhado
+function registerProduct({ name, category = CATSET, barcode = "", codigo_balanca = "", codigo_doacao = "" }) {   // grava no cadastro compartilhado
   const fail = e => { console.error(e); toast("Não salvou no cadastro compartilhado (confira as regras do Firebase). Por isso o app pede o cadastro de novo."); }, f = {}, field = barcode ? "barcode" : "codigo_balanca";
   if (barcode) f.barcode = barcode; if (codigo_balanca) f.codigo_balanca = codigo_balanca; if (codigo_doacao) f.codigo_doacao = codigo_doacao;
   const free = products.filter(x => norm(x.name || "") === norm(name) && !x[field]);   // mesmo nome ainda sem esse código: só acrescenta o código
@@ -1157,28 +1155,8 @@ function filtBar(el, ativo, nRev, nDup) {
   el.hidden = !ativo && !nRev && !nDup;
   el.innerHTML = el.hidden ? "" : `<button type="button" class="fpill${ativo === "rev" ? " on" : ""}" data-f="rev">🚩 Revisar <b>${nRev}</b></button><button type="button" class="fpill${ativo === "dup" ? " on" : ""}" data-f="dup">⚠ Repetidos <b>${nDup}</b></button>`; }
 // ---------- aba Cadastros: cadastrar e editar produtos digitando (EAN até 13 dígitos) ----------
-let cadEdit = null, cFiltro = "", cFoto, cadNomeOrig = "";   // cFoto: undefined = sem mudança, texto = foto nova, null = remover
-// ---- fotos do setor KÓRIN: ficam só neste aparelho (IndexedDB), não vão para a nuvem ----
-const KF = new Map(); let kfDb = null;
-const kfKey = n => norm(n || "");
-const kfOpen = () => new Promise(res => { try { const r = indexedDB.open("validamais-fotos-kor", 1); r.onupgradeneeded = () => r.result.createObjectStore("f"); r.onsuccess = () => res(r.result); r.onerror = () => res(null); } catch (e) { res(null); } });
-function kfSet(k, v) {   // v = texto (foto) ou null (apaga)
-  if (!k) return; if (v) KF.set(k, v); else KF.delete(k);
-  if (!kfDb) { if (v) toast("Não consegui guardar a foto neste aparelho."); return; }
-  try { const t = kfDb.transaction("f", "readwrite"), s = t.objectStore("f"); if (v) s.put(v, k); else s.delete(k); t.onerror = () => toast("Não consegui guardar a foto neste aparelho."); } catch (e) { toast("Não consegui guardar a foto neste aparelho."); } }
-async function kfInit() { if (SETOR !== KOR) return; kfDb = await kfOpen(); if (!kfDb) return;
-  await new Promise(res => { try { const rq = kfDb.transaction("f").objectStore("f").openCursor(); rq.onsuccess = () => { const c = rq.result; if (c) { KF.set(c.key, c.value); c.continue(); } else res(); }; rq.onerror = () => res(); } catch (e) { res(); } });
-  if (curTab === "Cadastros") cadPaint(); cFotoMostra(); }
-const kfComprime = file => new Promise((res, rej) => { const u = URL.createObjectURL(file), im = new Image();
-  im.onload = () => { const k = Math.min(1, 720 / Math.max(im.width, im.height)), c = document.createElement("canvas"); c.width = Math.max(1, Math.round(im.width * k)); c.height = Math.max(1, Math.round(im.height * k)); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u); res(c.toDataURL("image/jpeg", 0.72)); };
-  im.onerror = () => { URL.revokeObjectURL(u); rej(new Error("imagem")); }; im.src = u; });
-function cFotoMostra() { const box = $("cFotoBox"); if (!box) return; box.hidden = SETOR !== KOR; if (SETOR !== KOR) return;
-  const v = cFoto !== undefined ? cFoto : (cadNomeOrig ? KF.get(kfKey(cadNomeOrig)) : null), pv = $("cFotoPrev");
-  pv.style.backgroundImage = v ? 'url("' + v + '")' : ""; pv.textContent = v ? "" : "📷"; pv.classList.toggle("tem", !!v);
-  $("cFotoBtn").textContent = v ? "📷 Trocar foto" : "📷 Tirar foto"; $("cFotoDel").hidden = !v; }
-function fotoVer(src) { if (!src) return; $("fotoViewImg").src = src; $("fotoView").classList.remove("hidden"); }
-kfInit();
-if (SETOR === KOR) { const n = document.querySelector("#tabCadastros .panel .note"); if (n) n.textContent = "Digite o nome, tire a foto do produto e, se quiser, bipe o código de barras."; }
+let cadEdit = null, cFiltro = "";
+try { indexedDB.deleteDatabase("validamais-fotos-kor"); } catch (e) {}   // recurso de foto removido: apaga o que ficou guardado neste aparelho
    // chave do produto em edição
 const cadKey = p => p.barcode ? "b" + p.barcode + "|" + norm(p.name || "") : "n" + norm(p.name || "");   // mesmo EAN com nomes diferentes = produtos diferentes (linhas separadas)
 function cadGroups() { const m = new Map(); products.forEach(p => { if (!p.name) return; const k = cadKey(p); if (!m.has(k)) m.set(k, []); m.get(k).push(p); });
@@ -1191,7 +1169,7 @@ function cadPaint() {
   lixoBtn(); $("cCount").textContent = all.length + (q ? " · " + g.length + " achados" : "");
   const ini = x => { const c = x.name.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").charAt(0).toUpperCase(); return /[A-Z]/.test(c) ? c : "#"; };
   let ult = "", letras = [];
-  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}">${SETOR === KOR && KF.has(kfKey(x.name)) ? `<img class="cft" data-cft="${esc(x.k)}" src="${KF.get(kfKey(x.name))}" alt="Foto de ${esc(x.name)}">` : ""}<div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · Doação ${x.don ? esc(x.don) : "—"}</small>${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small><button type="button" class="dpres" data-cres="${esc(x.k)}">Resolver código repetido</button>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
+  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · Doação ${x.don ? esc(x.don) : "—"}</small>${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small><button type="button" class="dpres" data-cres="${esc(x.k)}">Resolver código repetido</button>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
   $("cLista").innerHTML = g.length ? g.map(x => { const l = ini(x); let h = ""; if (l !== ult) { ult = l; letras.push(l); h = `<div class="cadlt" id="cl-${l === "#" ? "num" : l}">${l}</div>`; } return h + row(x); }).join("") : '<p class="empty">Nenhum produto encontrado.</p>';
   const rail = $("cIdx"); rail.hidden = g.length < 12 || letras.length < 2; $("cLista").classList.toggle("cadidx", !rail.hidden);
   rail.innerHTML = rail.hidden ? "" : letras.map(l => `<button type="button" tabindex="-1" data-l="${l}">${l}</button>`).join("");
@@ -1203,7 +1181,7 @@ function cadPula(l) { const e = $("cl-" + (l === "#" ? "num" : l)); if (!e) retu
   r.addEventListener("pointerdown", ev => { ativo = true; try { r.setPointerCapture(ev.pointerId) } catch (e) {} const l = letraEm(ev.clientX, ev.clientY); if (l) cadPula(l); ev.preventDefault(); });
   r.addEventListener("pointermove", ev => { if (!ativo) return; const l = letraEm(ev.clientX, ev.clientY); if (l) cadPula(l); });
   const fim = () => { ativo = false; }; r.addEventListener("pointerup", fim); r.addEventListener("pointercancel", fim); })();
-function cadReset() { cadEdit = null; cFoto = undefined; cadNomeOrig = ""; cFotoMostra(); ["cNome", "cEan", "cPlu", "cDon"].forEach(i => $(i).value = ""); $("cTitulo").textContent = "Novo cadastro"; $("cSalvar").textContent = "Cadastrar"; $("cCancela").hidden = true; $("cEanN").textContent = "0/13"; }
+function cadReset() { cadEdit = null; ["cNome", "cEan", "cPlu", "cDon"].forEach(i => $(i).value = ""); $("cTitulo").textContent = "Novo cadastro"; $("cSalvar").textContent = "Cadastrar"; $("cCancela").hidden = true; $("cEanN").textContent = "0/13"; }
 $("cEan").oninput = () => { const v = $("cEan").value.replace(/\D/g, "").slice(0, 13); $("cEan").value = v; $("cEanN").textContent = v.length + "/13"; };
 $("cPlu").oninput = () => { $("cPlu").value = $("cPlu").value.replace(/\D/g, "").slice(0, 6); };
 $("cDon").oninput = () => { $("cDon").value = $("cDon").value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12); };
@@ -1225,25 +1203,20 @@ $("cSalvar").onclick = () => {
     else { mine.forEach(x => Object.assign(x, f)); persist(); render(); }
     toast("Cadastro atualizado.");
   } else {
-    const rec = { ...f, category: SETOR, expiry: "", quantity: 1, por: myName() };
+    const rec = { ...f, category: CATSET, expiry: "", quantity: 1, por: myName() };
     if (db) { const ts = V.serverTimestamp(); V.addDoc(V.collection(db, "products"), { ...rec, createdAt: ts, updatedAt: ts }).catch(fail); }
     else { products.push({ ...rec, id: uid(), updatedAt: Date.now() }); persist(); render(); }
     toast("«" + name + "» cadastrado.");
   }
-  if (SETOR === KOR) { const kn = kfKey(name), ko = kfKey(cadNomeOrig);
-    if (cFoto === null) kfSet(kn, null);
-    else if (typeof cFoto === "string") { kfSet(kn, cFoto); if (ko && ko !== kn) kfSet(ko, null); }
-    else if (ko && ko !== kn && KF.has(ko)) { kfSet(kn, KF.get(ko)); kfSet(ko, null); } }
   cadReset(); setTimeout(cadPaint, db ? 600 : 0);
 };
 $("cFilt").onclick = e => { const b = e.target.closest("[data-f]"); if (!b) return; cFiltro = cFiltro === b.dataset.f ? "" : b.dataset.f; cadPaint(); };
-$("cLista").onclick = e => { const b = e.target.closest("[data-ced],[data-cdel],[data-crev],[data-cres],[data-cft]"); if (!b) return;
-  if (b.dataset.cft !== undefined) { fotoVer(b.getAttribute("src")); return; }
+$("cLista").onclick = e => { const b = e.target.closest("[data-ced],[data-cdel],[data-crev],[data-cres]"); if (!b) return;
   if (b.dataset.cres !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.cres); if (x) dupResolver(x); return; }
   if (b.dataset.crev !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.crev); if (!x) return; const on = !revOn(x.name); revSet(x.name, on); cadPaint(); toast(on ? "Marcado para revisar." : "Marca de revisão removida."); return; }
   if (b.dataset.ced !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.ced); if (x) cadAbrir(x); return; }
   const x = cadGroups().find(y => y.k === b.dataset.cdel); if (x) cadExcluir(x); };
-function cadAbrir(x) { cadEdit = x.k; cFoto = undefined; cadNomeOrig = x.name; cFotoMostra();
+function cadAbrir(x) { cadEdit = x.k;
   $("cNome").value = x.name; $("cEan").value = x.barcode; $("cPlu").value = x.plu; $("cDon").value = x.don; $("cEanN").textContent = x.barcode.length + "/13";
   $("cTitulo").textContent = "Editando cadastro"; $("cSalvar").textContent = "Salvar alterações"; $("cCancela").hidden = false; window.scrollTo(0, 0); }
 function cadApagar(x) {   // manda o cadastro e todos os lotes para a lixeira (3 dias) e tira a marca de revisar
@@ -1685,7 +1658,7 @@ function applyImport(rows) {
   for (const r of rows.filter(x => x.st !== "erro")) {
     const f = {}; if (r.bal) f.codigo_balanca = r.bal; if (r.doa) f.codigo_doacao = r.doa; if (r.ean) f.barcode = r.ean; if (r.cat) f.category = r.cat;
     if (r.matched.length) { u++; r.matched.forEach(x => db ? V.updateDoc(V.doc(db, "products", x.id), { ...f, updatedAt: ts }).catch(fail) : Object.assign(x, f)); }
-    else { n++; const rec = { name: r.nome, barcode: "", category: SETOR, expiry: "", quantity: 1, por: myName(), codigo_balanca: "", codigo_doacao: "", ...f };
+    else { n++; const rec = { name: r.nome, barcode: "", category: CATSET, expiry: "", quantity: 1, por: myName(), codigo_balanca: "", codigo_doacao: "", ...f };
       if (db) V.addDoc(V.collection(db, "products"), { ...rec, createdAt: ts, updatedAt: ts }).catch(fail); else products.push({ ...rec, id: uid() }); }
   }
   if (!db) { persist(); render(); } return { n, u };
