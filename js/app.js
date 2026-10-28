@@ -349,6 +349,7 @@ async function onCode(code) {
   if (scanMode === "doacao") return donationScan(code);
   if (scanMode === "etiqueta") return labelScan(code);
   if (scanMode === "cadastro") return cadScan(code);
+  if (scanMode === "contagem") return contagemScan(code);
   sinal((isScale(code) ? products.some(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(String(Number(parseScale(code).item)))) : products.some(p => p.barcode === code)) ? "ok" : "novo");
   stopScanner(); resetForm();
   if (isScale(code)) {                                   // etiqueta de balança: o código de balança identifica o produto
@@ -370,8 +371,8 @@ function manualCodeGo() {            // código digitado: segue o mesmo caminho 
 $("manualGo").onclick = manualCodeGo;
 $("manualCode").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); manualCodeGo(); } };
 async function openScan(mode = "loja") {
-  scanMode = ["doacao", "etiqueta", "cadastro"].includes(mode) ? mode : "loja";
-  resetForm(); show({ doacao: "Bipar itens da doação", etiqueta: "Bipar para etiqueta", cadastro: "Bipar para o cadastro" }[scanMode] || "Ler código de barras", true);
+  scanMode = ["doacao", "etiqueta", "cadastro", "contagem"].includes(mode) ? mode : "loja";
+  resetForm(); show({ doacao: "Bipar itens da doação", etiqueta: "Bipar para etiqueta", cadastro: "Bipar para o cadastro", contagem: "Bipar para a contagem" }[scanMode] || "Ler código de barras", true);
   $("scanManual").textContent = scanMode === "loja" ? "Digitar código" : "Cancelar";
   ["retryScan", "torchBtn"].forEach(i => $(i).classList.add("hidden"));
   $("scanMsg").textContent = "Aponte a câmera traseira para o código de barras. Se não ler, digite o código abaixo."; $("manualCode").value = "";
@@ -456,7 +457,7 @@ fillCategories();
 ["search"].forEach(i => $(i).oninput = render);
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
 $("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
-$("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
+$("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : curTab === "Contagem" ? "contagem" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = () => { stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("modal").classList.contains("hidden")) closeModal(); });
@@ -680,10 +681,11 @@ const dataBR = d => new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 const FERR = ["Etiquetas", "Inventario", "Cadastros"], FK = "validamais-ferr";
 function tab(t) {
   curTab = t;
-  ["Loja", "Doacao", "Etiquetas", "Inventario", "Cadastros"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); });
-  [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Etiquetas", t === "Etiquetas"], ["Cadastros", t === "Cadastros"]].forEach(([n, on]) => $("tb" + n).classList.toggle("active", on));
+  ["Loja", "Doacao", "Etiquetas", "Inventario", "Cadastros", "Contagem"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); });
+  [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Etiquetas", t === "Etiquetas"], ["Cadastros", t === "Cadastros"], ["Contagem", t === "Contagem"]].forEach(([n, on]) => $("tb" + n).classList.toggle("active", on));
   document.body.dataset.tab = t; document.body.dataset.grp = t;
   if (t === "Doacao" && typeof dView === "function") dView("lista");
+  if (t === "Contagem" && typeof kPaint === "function") kPaint();
 }
 function dCodTxt(i) {   // kg: código de doação · un: código de barras
   const pr = products.find(x => norm(x.name || "") === norm(i.nome)) || {};
@@ -1376,13 +1378,68 @@ $("histBox").ontoggle = () => {
   else if (unsubHist) { unsubHist(); unsubHist = null; } };
 const go = t => { tab(t); side(false); };
 $("navHist").onclick = () => { go("Doacao"); try { if (typeof dView === "function") dView("lista"); } catch (e) {} document.body.classList.add("histOn"); const hb = $("histBox"); hb.open = true; hb.ontoggle && hb.ontoggle(); setTimeout(() => $("histSec").scrollIntoView({ block: "start", behavior: "smooth" }), 120); };
-$("histFechar").onclick = () => { $("histBox").open = false; document.body.classList.remove("histOn"); window.scrollTo({ top: 0, behavior: "smooth" }); }; $("navLoja").onclick = () => go("Loja"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("navInventario").onclick = () => go("Inventario"); $("navCadastros").onclick = () => go("Cadastros"); $("dScan").onclick = () => openScan("doacao");
+$("histFechar").onclick = () => { $("histBox").open = false; document.body.classList.remove("histOn"); window.scrollTo({ top: 0, behavior: "smooth" }); }; $("navLoja").onclick = () => go("Loja"); $("navContagem").onclick = () => go("Contagem"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("navInventario").onclick = () => go("Inventario"); $("navCadastros").onclick = () => go("Cadastros"); $("dScan").onclick = () => openScan("doacao");
 // ----- top 3 mais doados (últimos 30 dias, compacto) -----
 let topDb = [];
 // recalcula os balões «Mais doados» (o painel antigo de top 3 foi removido)
 function renderTop() { try { dTop6Render(); } catch (e) {} }
 if (db) V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(40)), s => { topDb = s.docs.map(d => withEdits({ ...d.data(), _id: d.id })); renderTop(); }, console.error);
 renderDon(); renderKey(); renderTop();
+// ---------- contagem do KÓRIN: lista de produtos e quantidades, enviada por WhatsApp (texto) ou PDF ----------
+const KCK = "validamais-contagem-kor";
+let kList = store.get(KCK, []), kPick = null;   // kPick: produto escolhido {n, b} esperando a quantidade
+const kSave = () => store.set(KCK, kList);
+const kOrd = () => kList.slice().sort((a, b) => a.n.localeCompare(b.n, "pt-BR", { sensitivity: "base" }) || a.u.localeCompare(b.u));
+const kTot = () => { const m = {}; kList.forEach(i => { m[i.u] = (m[i.u] || 0) + i.q; }); return Object.keys(m).map(u => fq(m[u]) + " " + u).join(" · ") || "0"; };
+function kPaint() {
+  $("kSumP").textContent = kList.length; $("kSumT").textContent = kTot();
+  $("kLista").innerHTML = kList.length ? kOrd().map(i => `<div class="krow"><div class="kn"><b>${esc(i.n)}</b>${i.b ? `<small>EAN ${esc(i.b)}</small>` : ""}</div><button type="button" class="kq" data-ked="${esc(i.n)}|${i.u}">${fq(i.q)} ${esc(i.u)}</button><button type="button" class="kx" data-kdel="${esc(i.n)}|${i.u}" aria-label="Remover ${esc(i.n)}">✕</button></div>`).join("") : '<p class="empty">Nada contado ainda.</p>';
+}
+function kEscolhe(p) { kPick = p; $("kSel").hidden = !p; $("kSug").innerHTML = ""; if (!p) return; $("kBusca").value = ""; $("kSelNome").textContent = p.n; $("kQtd").value = ""; $("kQtd").focus(); }
+function kSug() {
+  const q = norm($("kBusca").value.trim()); if (!q) { $("kSug").innerHTML = ""; return; }
+  const hits = cadGroups().filter(x => norm(x.name).includes(q) || x.barcode.includes(q)).slice(0, 8);
+  $("kSug").innerHTML = hits.map((x, i) => `<div class="pick" data-kp="${i}"><b>${esc(x.name)}</b>${x.barcode ? ` <small class="muted">${esc(x.barcode)}</small>` : ""}</div>`).join("") + `<div class="pick" data-kp="novo">➕ Usar «${esc($("kBusca").value.trim())}» sem cadastro</div>`;
+  $("kSug")._hits = hits; }
+$("kBusca").oninput = kSug;
+$("kBusca").onkeydown = e => { if (e.key === "Enter") { const b = $("kSug").querySelector("[data-kp]"); if (b) b.click(); } };
+$("kSug").onclick = e => { const b = e.target.closest("[data-kp]"); if (!b) return; const nome = $("kBusca").value.trim().replace(/\s+/g, " ");
+  if (b.dataset.kp === "novo") { if (nome) kEscolhe({ n: nome, b: "" }); return; }
+  const x = ($("kSug")._hits || [])[Number(b.dataset.kp)]; if (x) kEscolhe({ n: x.name, b: x.barcode || "" }); };
+function kAdd() {
+  if (!kPick) return toast("Escolha o produto primeiro.");
+  const q = Math.round(Number(String($("kQtd").value).replace(",", ".")) * 1000) / 1000, u = $("kUn").value;
+  if (!(q > 0)) { toast("Digite a quantidade."); return $("kQtd").focus(); }
+  const ja = kList.find(i => norm(i.n) === norm(kPick.n) && i.u === u);
+  if (ja) { ja.q = Math.round((ja.q + q) * 1000) / 1000; toast("Somado: «" + ja.n + "» agora tem " + fq(ja.q) + " " + u + "."); } else { kList.push({ n: kPick.n, b: kPick.b, q, u }); }
+  kSave(); kEscolhe(null); kPaint(); $("kBusca").focus(); }
+$("kAdd").onclick = kAdd; $("kCancela").onclick = () => kEscolhe(null);
+$("kQtd").onkeydown = e => { if (e.key === "Enter") kAdd(); };
+$("kLista").onclick = e => { const d = e.target.closest("[data-kdel]"), ed = e.target.closest("[data-ked]"); const chave = (d || ed || {}).dataset; if (!chave) return;
+  const [n, u] = (d ? d.dataset.kdel : ed.dataset.ked).split("|"); const i = kList.findIndex(x => x.n === n && x.u === u); if (i < 0) return;
+  if (d) { const it = kList.splice(i, 1)[0]; kSave(); kPaint(); toast("«" + it.n + "» removido.", "Desfazer", () => { kList.splice(Math.min(i, kList.length), 0, it); kSave(); kPaint(); }); return; }
+  const v = prompt("Quantidade de «" + n + "» (" + u + ")", String(kList[i].q).replace(".", ",")); if (v === null) return;
+  const q = Math.round(Number(String(v).replace(",", ".")) * 1000) / 1000; if (!(q > 0)) return toast("Quantidade inválida."); kList[i].q = q; kSave(); kPaint(); };
+$("kLimpa").onclick = () => { if (!kList.length) return; if (!confirm("Limpar toda a contagem?")) return; kList = []; kSave(); kPaint(); };
+function contagemScan(code) {
+  stopScanner(); closeModal();
+  const d = String(code).replace(/\D/g, ""), x = cadGroups().find(g => (d && g.barcode === d) || (isScale(d) && g.plu && Number(g.plu) === Number(String(Number(parseScale(d).item)))));
+  sinal(x ? "ok" : "erro"); if (!x) { toast("Código não cadastrado. Digite o nome para contar."); $("kBusca").focus(); return; }
+  kEscolhe({ n: x.name, b: x.barcode || "" }); }
+const kQuando = () => new Date().toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+function kTexto() { const l = kOrd();
+  return ["CONTAGEM KÓRIN", "Data: " + kQuando(), "Loja: " + LOJA, "Contado por: " + myName(), "------------------------", ...l.map(i => `${i.n} — ${fq(i.q)} ${i.u}`), "------------------------", `TOTAL: ${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}`].join("\n"); }
+$("kZap").onclick = async () => { if (!kList.length) return toast("A contagem está vazia.");
+  const t = kTexto(); if (navigator.share) { try { await navigator.share({ title: "Contagem KÓRIN", text: t }); } catch (e) { if (e.name !== "AbortError") toast("Não foi possível compartilhar."); } }
+  else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank"); };
+$("kPdf").onclick = async () => { if (!kList.length) return toast("A contagem está vazia.");
+  try { const l = kOrd(), pdf = new V.jsPDF(); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text("CONTAGEM KÓRIN", 14, 16);
+    pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Data: ${kQuando()}   Loja: ${LOJA}   Contado por: ${myName()}`, 14, 23);
+    V.autoTable(pdf, { startY: 28, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [70, 60, 20] }, footStyles: { fillColor: [235, 230, 205], textColor: [40, 35, 10] },
+      head: [["CÓDIGO", "PRODUTO", "QUANTIDADE"]], body: l.map(i => [i.b || "-", i.n, `${fq(i.q)} ${i.u}`]), foot: [["", "TOTAL", `${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}`]] });
+    const blob = pdf.output("blob"), file = new File([blob], "contagem-korin-" + iso(new Date()) + ".pdf", { type: "application/pdf" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Contagem KÓRIN", files: [file] }); else download(blob, file.name);
+  } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Não foi possível gerar o PDF."); } } };
 tab(SETOR === PER ? "Loja" : SETOR === KOR ? "Cadastros" : "Doacao"); if (SETOR === KOR) setTimeout(cadPaint, 0);
 
 // ---------- aba Etiquetas ----------

@@ -1027,9 +1027,17 @@ body.hs h1::before{width:26px!important;height:26px!important}
 body[data-setor="Perecíveis"] .setorsw button.on{background:linear-gradient(180deg,#8fe0ec,#4fb3c2);color:#06242a}
 body[data-setor="Perecíveis"] #tbDoacao,body[data-setor="Perecíveis"] #mnInv,body[data-setor="Perecíveis"] #mnDoaAnt{display:none!important}
 body[data-setor="Perecíveis"] #tbLoja,body[data-setor="KÓRIN"] #tbLoja{order:-1}
-#tbCadastros{display:none}
-body[data-setor="KÓRIN"] #tbCadastros{display:flex}
+#tbCadastros,#tbContagem{display:none}
+body[data-setor="KÓRIN"] #tbCadastros,body[data-setor="KÓRIN"] #tbContagem{display:flex}
 body[data-setor="KÓRIN"] #tbDoacao,body[data-setor="KÓRIN"] #tbEtiquetas,body[data-setor="KÓRIN"] #mnInv,body[data-setor="KÓRIN"] #mnDoaAnt,body[data-setor="KÓRIN"] #mnEtqHist{display:none!important}
 body[data-setor="KÓRIN"] .setorsw button.on{background:linear-gradient(180deg,#e9b6f2,#b46bc4);color:#2a0f31}
 
 body[data-setor="KÓRIN"] label[for="cPlu"],body[data-setor="KÓRIN"] #cPlu,body[data-setor="KÓRIN"] label[for="cDon"],body[data-setor="KÓRIN"] #cDon{display:none!important}
+
+/* contagem do KÓRIN */
+.kselnome{font-size:19px;font-weight:800;color:#f3d87a;margin:12px 0 8px}
+#kSel[hidden]{display:none!important}
+.krow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #1d2029}
+.krow .kn{flex:1;min-width:0}.krow .kn b{display:block;font-size:16px}.krow .kn small{color:#8d8a7c}
+.krow .kq{font-size:20px;font-weight:800;color:#f3d87a;white-space:nowrap;background:none;border:0;padding:6px 4px;min-height:0}
+.krow .kx{background:none;border:0;color:#e07a7a;font-size:20px;padding:6px 8px;min-height:0}

@@ -11,10 +11,10 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=215">
+<link rel="stylesheet" href="css/app.css?v=216">
 <title>Valida+ | Controle de validade</title>
-<script src="js/tema.js?v=215"></script>
-<!-- const APP_VERSION = "2026.10.28-215" -->
+<script src="js/tema.js?v=216"></script>
+<!-- const APP_VERSION = "2026.10.28-216" -->
 </head>
 <body data-tab="Loja">
 <div id="splash" aria-hidden="true"><style>
@@ -58,7 +58,7 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 <symbol id="i-sai" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
 </defs></svg>
 <main class="app">
-<div class="top"><header><h1><span class="vmsr">Valida+</span><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1><span id="setorChip" class="setorsw" role="group" aria-label="Setor"><button type="button" data-s="FLV">🥬 FLV</button><button type="button" data-s="Perecíveis">🧀 Perecíveis</button><button type="button" data-s="KÓRIN" hidden>KÓRIN</button></span></header><nav class="tabbar"><button id="tbDoacao"><svg class="ic" aria-hidden="true"><use href="#i-doa"/></svg><span class="tl">Doação</span></button><button id="tbEtiquetas"><svg class="ic" aria-hidden="true"><use href="#i-etq"/></svg><span class="tl">Etiquetas</span></button><button id="tbLoja"><svg class="ic" aria-hidden="true"><use href="#i-val"/></svg><span class="tl">Validades</span><span class="sirn" id="sirN"></span></button><button id="tbCadastros"><svg class="ic" aria-hidden="true"><use href="#i-cad"/></svg><span class="tl">Cadastros</span></button></nav></div>
+<div class="top"><header><h1><span class="vmsr">Valida+</span><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1><span id="setorChip" class="setorsw" role="group" aria-label="Setor"><button type="button" data-s="FLV">🥬 FLV</button><button type="button" data-s="Perecíveis">🧀 Perecíveis</button><button type="button" data-s="KÓRIN" hidden>KÓRIN</button></span></header><nav class="tabbar"><button id="tbDoacao"><svg class="ic" aria-hidden="true"><use href="#i-doa"/></svg><span class="tl">Doação</span></button><button id="tbEtiquetas"><svg class="ic" aria-hidden="true"><use href="#i-etq"/></svg><span class="tl">Etiquetas</span></button><button id="tbLoja"><svg class="ic" aria-hidden="true"><use href="#i-val"/></svg><span class="tl">Validades</span><span class="sirn" id="sirN"></span></button><button id="tbCadastros"><svg class="ic" aria-hidden="true"><use href="#i-cad"/></svg><span class="tl">Cadastros</span></button><button id="tbContagem"><svg class="ic" aria-hidden="true"><use href="#i-inv"/></svg><span class="tl">Contagem</span></button></nav></div>
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
@@ -121,6 +121,15 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 <section class="panel"><h2 class="h2">Produtos cadastrados <span class="cadcnt" id="cCount"></span></h2><input id="cBusca" type="search" placeholder="Buscar por nome ou código" autocomplete="off"><div id="cFilt" class="fbar" hidden></div><button type="button" id="cLixo" class="secondary lixobtn" hidden>🗑 Lixeira</button><div id="cLista"></div></section>
 <div id="cIdx" class="cadindex" hidden aria-label="Índice A a Z"></div>
 </div>
+<div id="tabContagem" class="hidden">
+<section class="panel"><h2 class="h2">Contagem · KÓRIN</h2><p class="note">Busque o produto (ou bipe), digite a quantidade e adicione. Depois envie a lista.</p>
+<input id="kBusca" type="search" placeholder="Buscar produto ou digitar o nome" autocomplete="off"><div id="kSug" class="rows sug"></div>
+<div id="kSel" hidden><div class="kselnome" id="kSelNome"></div><div class="stepper"><input id="kQtd" type="text" inputmode="decimal" autocomplete="off" placeholder="Quantidade"><select id="kUn" aria-label="Unidade"><option value="un">un</option><option value="cx">cx</option><option value="pct">pct</option><option value="kg">kg</option></select></div>
+<div class="toolbar" style="margin-top:10px"><button type="button" class="primary big" id="kAdd">＋ Adicionar</button><button type="button" class="secondary" id="kCancela">Cancelar</button></div></div></section>
+<section class="panel"><div class="csum"><div><span>PRODUTOS</span><b id="kSumP">0</b></div><div><span>TOTAL</span><b id="kSumT">0</b></div></div><div id="kLista"></div>
+<div class="toolbar" style="margin-top:12px"><button type="button" class="primary big" id="kZap">Enviar no WhatsApp</button><button type="button" class="secondary big" id="kPdf">PDF</button></div>
+<button type="button" id="kLimpa" class="secondary" style="display:block;margin:10px 0 0 auto;min-height:34px;padding:4px 12px;font-size:13px">Limpar contagem</button></section>
+</div>
 <div id="tabInventario" class="hidden">
 <p class="ivsync" id="ivSync"></p>
 <div id="ivMain"></div>
@@ -146,7 +155,7 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 </main>
 <div id="sideBg" class="bg hidden"></div>
 <aside id="side" class="side" aria-label="Menu"><div class="sheethead"><h2>Menu</h2><button class="secondary" id="sideClose" aria-label="Fechar menu">✕</button></div>
-<nav class="menu"><button id="navLoja">⏱️ Validades<small>Ovos e refrigerados</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navHist" hidden>🧾 Doações anteriores</button><button id="navInventario">📦 Inventário<small>Contagem de FLV por banca</small></button><button id="navCadastros">🗂️ Cadastros<small>Cadastrar e editar digitando</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
+<nav class="menu"><button id="navLoja">⏱️ Validades<small>Ovos e refrigerados</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navHist" hidden>🧾 Doações anteriores</button><button id="navInventario">📦 Inventário<small>Contagem de FLV por banca</small></button><button id="navContagem" hidden>📦 Contagem</button><button id="navCadastros">🗂️ Cadastros<small>Cadastrar e editar digitando</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
 <section class="panel"><h2 style="font-size:17px;margin:0 0 10px">Exportar</h2>
 <label for="exportScope">O que exportar</label><select id="exportScope"><option value="all">Todos os produtos</option><option value="soon">Vencem em breve</option><option value="expired">Vencidos</option><option value="category">Uma categoria</option><option value="products">Produtos cadastrados (com códigos)</option></select>
 <select id="exportCategory" class="hidden" aria-label="Categoria para exportar" style="margin-top:8px"></select>
@@ -219,16 +228,16 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 </div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
-<script src="js/config.js?v=215"></script>
+<script src="js/config.js?v=216"></script>
 <script src="vendor.js"></script>
-<script src="js/version.js?v=215"></script>
-<script src="js/login.js?v=215"></script>
-<script src="js/app.js?v=215"></script>
-<script src="js/nav.js?v=215"></script>
-<script src="js/operador.js?v=215"></script>
-<script src="js/teclado.js?v=215"></script>
-<script src="js/menu.js?v=215"></script>
-<script src="js/status.js?v=215"></script>
-<script src="js/inventario.js?v=215"></script>
-<script src="js/doacao-busca.js?v=215"></script>
+<script src="js/version.js?v=216"></script>
+<script src="js/login.js?v=216"></script>
+<script src="js/app.js?v=216"></script>
+<script src="js/nav.js?v=216"></script>
+<script src="js/operador.js?v=216"></script>
+<script src="js/teclado.js?v=216"></script>
+<script src="js/menu.js?v=216"></script>
+<script src="js/status.js?v=216"></script>
+<script src="js/inventario.js?v=216"></script>
+<script src="js/doacao-busca.js?v=216"></script>
 </body></html>
