@@ -1440,7 +1440,7 @@ $("kPdf").onclick = async () => { if (!kList.length) return toast("A contagem es
     const blob = pdf.output("blob"), file = new File([blob], "contagem-korin-" + iso(new Date()) + ".pdf", { type: "application/pdf" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Contagem KÓRIN", files: [file] }); else download(blob, file.name);
   } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Não foi possível gerar o PDF."); } } };
-tab(SETOR === PER ? "Loja" : SETOR === KOR ? "Cadastros" : "Doacao"); if (SETOR === KOR) setTimeout(cadPaint, 0);
+tab(SETOR === PER ? "Loja" : SETOR === KOR ? "Contagem" : "Doacao");
 
 // ---------- aba Etiquetas ----------
 const EK = SETOR === "FLV" ? "validamais-etiquetas" : "validamais-etiquetas-" + (SETOR === PER ? "per" : "kor"), EUK = "validamais-etq-uni";   // EUK: código original -> código do sistema (só para a lista de etiquetas)
