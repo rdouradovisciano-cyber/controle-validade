@@ -1032,3 +1032,4 @@ body[data-setor="KÓRIN"] #tbCadastros{display:flex}
 body[data-setor="KÓRIN"] #tbDoacao,body[data-setor="KÓRIN"] #tbEtiquetas,body[data-setor="KÓRIN"] #mnInv,body[data-setor="KÓRIN"] #mnDoaAnt,body[data-setor="KÓRIN"] #mnEtqHist{display:none!important}
 body[data-setor="KÓRIN"] .setorsw button.on{background:linear-gradient(180deg,#e9b6f2,#b46bc4);color:#2a0f31}
 
+body[data-setor="KÓRIN"] label[for="cPlu"],body[data-setor="KÓRIN"] #cPlu,body[data-setor="KÓRIN"] label[for="cDon"],body[data-setor="KÓRIN"] #cDon{display:none!important}
