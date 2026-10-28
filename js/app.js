@@ -1427,14 +1427,15 @@ function contagemScan(code) {
   sinal(x ? "ok" : "erro"); if (!x) { toast("Código não cadastrado. Digite o nome para contar."); $("kBusca").focus(); return; }
   kEscolhe({ n: x.name, b: x.barcode || "" }); }
 const kQuando = () => new Date().toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
-function kTexto() { const l = kOrd();
-  return ["CONTAGEM KÓRIN", "Data: " + kQuando(), "Loja: " + LOJA, "Contado por: " + myName(), "------------------------", ...l.map(i => `${i.n} — ${fq(i.q)} ${i.u}${i.b ? " · EAN " + i.b : ""}`), "------------------------", `TOTAL: ${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}`].join("\n"); }
+const kNome = () => String(myName()).replace(/\s+admin\b/i, "").trim();   // só o nome (sem «admin»)
+function kTexto() { const l = kOrd();   // cada produto em negrito, quantidade em negrito logo abaixo, uma linha em branco entre eles
+  return ["*CONTAGEM KÓRIN*", "Data: " + kQuando(), "Loja: " + LOJA, "Contado por: " + kNome(), "", ...l.map(i => `*${i.n}*\n*${fq(i.q)} ${i.u}*${i.b ? " · EAN " + i.b : ""}\n`), `*TOTAL: ${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}*`].join("\n"); }
 $("kZap").onclick = async () => { if (!kList.length) return toast("A contagem está vazia.");
   const t = kTexto(); if (navigator.share) { try { await navigator.share({ title: "Contagem KÓRIN", text: t }); } catch (e) { if (e.name !== "AbortError") toast("Não foi possível compartilhar."); } }
   else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank"); };
 $("kPdf").onclick = async () => { if (!kList.length) return toast("A contagem está vazia.");
   try { const l = kOrd(), pdf = new V.jsPDF(); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text("CONTAGEM KÓRIN", 14, 16);
-    pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Data: ${kQuando()}   Loja: ${LOJA}   Contado por: ${myName()}`, 14, 23);
+    pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Data: ${kQuando()}   Loja: ${LOJA}   Contado por: ${kNome()}`, 14, 23);
     V.autoTable(pdf, { startY: 28, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [70, 60, 20] }, footStyles: { fillColor: [235, 230, 205], textColor: [40, 35, 10] },
       head: [["CÓDIGO", "PRODUTO", "QUANTIDADE"]], body: l.map(i => [i.b || "-", i.n, `${fq(i.q)} ${i.u}`]), foot: [["", "TOTAL", `${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}`]] });
     const blob = pdf.output("blob"), file = new File([blob], "contagem-korin-" + iso(new Date()) + ".pdf", { type: "application/pdf" });
