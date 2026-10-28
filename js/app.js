@@ -3,12 +3,13 @@
 "use strict";
 if (window.__LOGIN_WAIT) return;
 const C = window.VALIDA_CONFIG || {}, V = window.V || {}, fb = C.firebase || {};
-const PER = "Perecíveis";
-const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros", PER];
+const PER = "Perecíveis", KOR = "KÓRIN";
+const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros", PER, KOR];
 // setor escolhido na abertura (sessionStorage): "FLV" (tudo que não é Perecíveis, como sempre foi) ou "Perecíveis" (cadastros e validades próprios)
-const SETOR = (() => { try { return sessionStorage.getItem("validamais-setor") === PER ? PER : "FLV"; } catch (e) { return "FLV"; } })();
-const doSetor = p => (p.category === PER) === (SETOR === PER);
-const CATS_VIS = SETOR === PER ? [PER] : CATS.filter(c => c !== PER);
+const SETOR = (() => { try { const s = sessionStorage.getItem("validamais-setor"); return s === PER || s === KOR ? s : "FLV"; } catch (e) { return "FLV"; } })();
+const setorDe = p => p.category === PER ? PER : p.category === KOR ? KOR : "FLV";   // FLV = tudo que não é Perecíveis nem KÓRIN (como sempre foi)
+const doSetor = p => setorDe(p) === SETOR;
+const CATS_VIS = SETOR === "FLV" ? CATS.filter(c => c !== PER && c !== KOR) : [SETOR];
 document.body.dataset.setor = SETOR;
 const $ = id => document.getElementById(id);
 const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria", TK = "validamais-tam";
@@ -174,7 +175,7 @@ function render() {
   $("todayBanner").textContent = `⚠ VENCEM HOJE (${hoje.length}): ` + hoje.slice(0, 5).map(p => p.name).join(", ") + (hoje.length > 5 ? "…" : "");
   if (!hoje.length) alarmed = false; else if (!alarmed && actx) { alarmed = true; alarm(); }
   const rows = retView ? products.filter(p => p.retirado).sort((a, b) => (Number(b.retEm) || 0) - (Number(a.retEm) || 0)) : products.filter(p => q ? ((p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q) || String(p.codigo_balanca || "") === q || String(p.codigo_doacao || "").toLowerCase() === q)   // buscando: procura em TODOS os setores, com ou sem validade
-      : (!p.retirado && (!cat || p.category === cat) && !((cat === "FLV" || cat === PER) && daysLeft(p.expiry) === null) && (!st || status(p) === st)))
+      : (!p.retirado && (!cat || p.category === cat) && !((cat === "FLV" || cat === PER || cat === KOR) && daysLeft(p.expiry) === null) && (!st || status(p) === st)))
     .sort((a, b) => cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
@@ -541,9 +542,14 @@ $("scansBox").ontoggle = () => {
 };
 
 // ---------- setor, menu lateral e voz ----------
+$("cFotoBtn").onclick = () => $("cFotoIn").click();
+$("cFotoIn").onchange = async () => { const f = $("cFotoIn").files && $("cFotoIn").files[0]; $("cFotoIn").value = ""; if (!f) return; try { cFoto = await kfComprime(f); cFotoMostra(); } catch (e) { toast("Não consegui abrir essa foto."); } };
+$("cFotoDel").onclick = () => { cFoto = null; cFotoMostra(); };
+$("fotoView").onclick = () => { $("fotoView").classList.add("hidden"); $("fotoViewImg").removeAttribute("src"); };
 { const ir = alvo => { if (alvo === SETOR) return; try { sessionStorage.setItem("validamais-setor", alvo); } catch (e) { return; } location.reload(); };   // a abertura é sempre no FLV; o Perecíveis é uma troca no topo
-  const ch = $("setorChip"); if (ch) { ch.querySelectorAll("[data-s]").forEach(b => { b.classList.toggle("on", b.dataset.s === SETOR); b.setAttribute("aria-pressed", b.dataset.s === SETOR); b.onclick = () => ir(b.dataset.s); }); }
-  const outro = SETOR === PER ? "FLV" : PER, ms = $("mnSetor"); if (ms) { $("mnSetorT").textContent = "Ir para " + outro; ms.onclick = () => ir(outro); } }
+  const ch = $("setorChip"); if (ch) { ch.querySelectorAll("[data-s]").forEach(b => { b.hidden = b.dataset.s === KOR && SETOR !== KOR; b.classList.toggle("on", b.dataset.s === SETOR); b.setAttribute("aria-pressed", b.dataset.s === SETOR); b.onclick = () => ir(b.dataset.s); }); }
+  const outros = ["FLV", PER, KOR].filter(x => x !== SETOR), nome = x => x === KOR ? "KÓRIN" : x;
+  [["mnSetor", "mnSetorT", outros[0]], ["mnSetor2", "mnSetor2T", outros[1]]].forEach(([b, t, alvo]) => { if ($(b)) { $(t).textContent = "Ir para " + nome(alvo); $(b).onclick = () => ir(alvo); } }); }
 $("categoryFilter").value = SETOR; store.set(LC, SETOR); render();
 { const sf = $("statusFilter"), stt = document.querySelectorAll("#tabLoja .stats .stat");
   stt[0].onclick = () => { sf.value = ""; render(); }; stt[1].onclick = () => { sf.value = sf.value === "soon" ? "" : "soon"; render(); }; stt[2].onclick = () => { sf.value = sf.value === "expired" ? "" : "expired"; render(); }; }
@@ -664,7 +670,7 @@ $("eanCode").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); ean
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("eanModal").classList.contains("hidden")) eanClose(); });
 
 // ---------- aba Doação ----------
-const UK = "validamais-dunid", DK = SETOR === PER ? "validamais-doacao-per" : "validamais-doacao", HK = "validamais-doacoes", NK = "validamais-dnomes";
+const UK = "validamais-dunid", DK = SETOR === "FLV" ? "validamais-doacao" : "validamais-doacao-" + (SETOR === PER ? "per" : "kor"), HK = "validamais-doacoes", NK = "validamais-dnomes";
 let don = store.get(DK, null) || { itens: [], inicio: new Date().toISOString() }, dSel = "", dVal = "", curRom = null, histList = [], unsubHist = null, lastScan = { c: "", t: 0 };
 function norm(s) { return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim(); }
 function pkey(p) { return p.barcode || norm(p.name); }
@@ -677,7 +683,7 @@ const FERR = ["Etiquetas", "Inventario", "Cadastros"], FK = "validamais-ferr";
 function tab(t) {
   curTab = t;
   ["Loja", "Doacao", "Etiquetas", "Inventario", "Cadastros"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); });
-  [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Etiquetas", t === "Etiquetas"]].forEach(([n, on]) => $("tb" + n).classList.toggle("active", on));
+  [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Etiquetas", t === "Etiquetas"], ["Cadastros", t === "Cadastros"]].forEach(([n, on]) => $("tb" + n).classList.toggle("active", on));
   document.body.dataset.tab = t; document.body.dataset.grp = t;
   if (t === "Doacao" && typeof dView === "function") dView("lista");
 }
@@ -1151,7 +1157,29 @@ function filtBar(el, ativo, nRev, nDup) {
   el.hidden = !ativo && !nRev && !nDup;
   el.innerHTML = el.hidden ? "" : `<button type="button" class="fpill${ativo === "rev" ? " on" : ""}" data-f="rev">🚩 Revisar <b>${nRev}</b></button><button type="button" class="fpill${ativo === "dup" ? " on" : ""}" data-f="dup">⚠ Repetidos <b>${nDup}</b></button>`; }
 // ---------- aba Cadastros: cadastrar e editar produtos digitando (EAN até 13 dígitos) ----------
-let cadEdit = null, cFiltro = "";   // chave do produto em edição
+let cadEdit = null, cFiltro = "", cFoto, cadNomeOrig = "";   // cFoto: undefined = sem mudança, texto = foto nova, null = remover
+// ---- fotos do setor KÓRIN: ficam só neste aparelho (IndexedDB), não vão para a nuvem ----
+const KF = new Map(); let kfDb = null;
+const kfKey = n => norm(n || "");
+const kfOpen = () => new Promise(res => { try { const r = indexedDB.open("validamais-fotos-kor", 1); r.onupgradeneeded = () => r.result.createObjectStore("f"); r.onsuccess = () => res(r.result); r.onerror = () => res(null); } catch (e) { res(null); } });
+function kfSet(k, v) {   // v = texto (foto) ou null (apaga)
+  if (!k) return; if (v) KF.set(k, v); else KF.delete(k);
+  if (!kfDb) { if (v) toast("Não consegui guardar a foto neste aparelho."); return; }
+  try { const t = kfDb.transaction("f", "readwrite"), s = t.objectStore("f"); if (v) s.put(v, k); else s.delete(k); t.onerror = () => toast("Não consegui guardar a foto neste aparelho."); } catch (e) { toast("Não consegui guardar a foto neste aparelho."); } }
+async function kfInit() { if (SETOR !== KOR) return; kfDb = await kfOpen(); if (!kfDb) return;
+  await new Promise(res => { try { const rq = kfDb.transaction("f").objectStore("f").openCursor(); rq.onsuccess = () => { const c = rq.result; if (c) { KF.set(c.key, c.value); c.continue(); } else res(); }; rq.onerror = () => res(); } catch (e) { res(); } });
+  if (curTab === "Cadastros") cadPaint(); cFotoMostra(); }
+const kfComprime = file => new Promise((res, rej) => { const u = URL.createObjectURL(file), im = new Image();
+  im.onload = () => { const k = Math.min(1, 720 / Math.max(im.width, im.height)), c = document.createElement("canvas"); c.width = Math.max(1, Math.round(im.width * k)); c.height = Math.max(1, Math.round(im.height * k)); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u); res(c.toDataURL("image/jpeg", 0.72)); };
+  im.onerror = () => { URL.revokeObjectURL(u); rej(new Error("imagem")); }; im.src = u; });
+function cFotoMostra() { const box = $("cFotoBox"); if (!box) return; box.hidden = SETOR !== KOR; if (SETOR !== KOR) return;
+  const v = cFoto !== undefined ? cFoto : (cadNomeOrig ? KF.get(kfKey(cadNomeOrig)) : null), pv = $("cFotoPrev");
+  pv.style.backgroundImage = v ? 'url("' + v + '")' : ""; pv.textContent = v ? "" : "📷"; pv.classList.toggle("tem", !!v);
+  $("cFotoBtn").textContent = v ? "📷 Trocar foto" : "📷 Tirar foto"; $("cFotoDel").hidden = !v; }
+function fotoVer(src) { if (!src) return; $("fotoViewImg").src = src; $("fotoView").classList.remove("hidden"); }
+kfInit();
+if (SETOR === KOR) { const n = document.querySelector("#tabCadastros .panel .note"); if (n) n.textContent = "Digite o nome, tire a foto do produto e, se quiser, bipe o código de barras."; }
+   // chave do produto em edição
 const cadKey = p => p.barcode ? "b" + p.barcode + "|" + norm(p.name || "") : "n" + norm(p.name || "");   // mesmo EAN com nomes diferentes = produtos diferentes (linhas separadas)
 function cadGroups() { const m = new Map(); products.forEach(p => { if (!p.name) return; const k = cadKey(p); if (!m.has(k)) m.set(k, []); m.get(k).push(p); });
   return [...m.entries()].map(([k, l]) => ({ k, l, p: l[0], name: l[0].name, barcode: l.map(x => x.barcode).find(Boolean) || "", plu: l.map(x => x.codigo_balanca).find(Boolean) || "", don: l.map(x => x.codigo_doacao).find(Boolean) || "" })).sort((a, b) => a.name.localeCompare(b.name, "pt-BR")); }
@@ -1163,7 +1191,7 @@ function cadPaint() {
   lixoBtn(); $("cCount").textContent = all.length + (q ? " · " + g.length + " achados" : "");
   const ini = x => { const c = x.name.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").charAt(0).toUpperCase(); return /[A-Z]/.test(c) ? c : "#"; };
   let ult = "", letras = [];
-  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · Doação ${x.don ? esc(x.don) : "—"}</small>${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small><button type="button" class="dpres" data-cres="${esc(x.k)}">Resolver código repetido</button>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
+  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}">${SETOR === KOR && KF.has(kfKey(x.name)) ? `<img class="cft" data-cft="${esc(x.k)}" src="${KF.get(kfKey(x.name))}" alt="Foto de ${esc(x.name)}">` : ""}<div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · Doação ${x.don ? esc(x.don) : "—"}</small>${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small><button type="button" class="dpres" data-cres="${esc(x.k)}">Resolver código repetido</button>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
   $("cLista").innerHTML = g.length ? g.map(x => { const l = ini(x); let h = ""; if (l !== ult) { ult = l; letras.push(l); h = `<div class="cadlt" id="cl-${l === "#" ? "num" : l}">${l}</div>`; } return h + row(x); }).join("") : '<p class="empty">Nenhum produto encontrado.</p>';
   const rail = $("cIdx"); rail.hidden = g.length < 12 || letras.length < 2; $("cLista").classList.toggle("cadidx", !rail.hidden);
   rail.innerHTML = rail.hidden ? "" : letras.map(l => `<button type="button" tabindex="-1" data-l="${l}">${l}</button>`).join("");
@@ -1175,7 +1203,7 @@ function cadPula(l) { const e = $("cl-" + (l === "#" ? "num" : l)); if (!e) retu
   r.addEventListener("pointerdown", ev => { ativo = true; try { r.setPointerCapture(ev.pointerId) } catch (e) {} const l = letraEm(ev.clientX, ev.clientY); if (l) cadPula(l); ev.preventDefault(); });
   r.addEventListener("pointermove", ev => { if (!ativo) return; const l = letraEm(ev.clientX, ev.clientY); if (l) cadPula(l); });
   const fim = () => { ativo = false; }; r.addEventListener("pointerup", fim); r.addEventListener("pointercancel", fim); })();
-function cadReset() { cadEdit = null; ["cNome", "cEan", "cPlu", "cDon"].forEach(i => $(i).value = ""); $("cTitulo").textContent = "Novo cadastro"; $("cSalvar").textContent = "Cadastrar"; $("cCancela").hidden = true; $("cEanN").textContent = "0/13"; }
+function cadReset() { cadEdit = null; cFoto = undefined; cadNomeOrig = ""; cFotoMostra(); ["cNome", "cEan", "cPlu", "cDon"].forEach(i => $(i).value = ""); $("cTitulo").textContent = "Novo cadastro"; $("cSalvar").textContent = "Cadastrar"; $("cCancela").hidden = true; $("cEanN").textContent = "0/13"; }
 $("cEan").oninput = () => { const v = $("cEan").value.replace(/\D/g, "").slice(0, 13); $("cEan").value = v; $("cEanN").textContent = v.length + "/13"; };
 $("cPlu").oninput = () => { $("cPlu").value = $("cPlu").value.replace(/\D/g, "").slice(0, 6); };
 $("cDon").oninput = () => { $("cDon").value = $("cDon").value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12); };
@@ -1202,15 +1230,20 @@ $("cSalvar").onclick = () => {
     else { products.push({ ...rec, id: uid(), updatedAt: Date.now() }); persist(); render(); }
     toast("«" + name + "» cadastrado.");
   }
+  if (SETOR === KOR) { const kn = kfKey(name), ko = kfKey(cadNomeOrig);
+    if (cFoto === null) kfSet(kn, null);
+    else if (typeof cFoto === "string") { kfSet(kn, cFoto); if (ko && ko !== kn) kfSet(ko, null); }
+    else if (ko && ko !== kn && KF.has(ko)) { kfSet(kn, KF.get(ko)); kfSet(ko, null); } }
   cadReset(); setTimeout(cadPaint, db ? 600 : 0);
 };
 $("cFilt").onclick = e => { const b = e.target.closest("[data-f]"); if (!b) return; cFiltro = cFiltro === b.dataset.f ? "" : b.dataset.f; cadPaint(); };
-$("cLista").onclick = e => { const b = e.target.closest("[data-ced],[data-cdel],[data-crev],[data-cres]"); if (!b) return;
+$("cLista").onclick = e => { const b = e.target.closest("[data-ced],[data-cdel],[data-crev],[data-cres],[data-cft]"); if (!b) return;
+  if (b.dataset.cft !== undefined) { fotoVer(b.getAttribute("src")); return; }
   if (b.dataset.cres !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.cres); if (x) dupResolver(x); return; }
   if (b.dataset.crev !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.crev); if (!x) return; const on = !revOn(x.name); revSet(x.name, on); cadPaint(); toast(on ? "Marcado para revisar." : "Marca de revisão removida."); return; }
   if (b.dataset.ced !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.ced); if (x) cadAbrir(x); return; }
   const x = cadGroups().find(y => y.k === b.dataset.cdel); if (x) cadExcluir(x); };
-function cadAbrir(x) { cadEdit = x.k;
+function cadAbrir(x) { cadEdit = x.k; cFoto = undefined; cadNomeOrig = x.name; cFotoMostra();
   $("cNome").value = x.name; $("cEan").value = x.barcode; $("cPlu").value = x.plu; $("cDon").value = x.don; $("cEanN").textContent = x.barcode.length + "/13";
   $("cTitulo").textContent = "Editando cadastro"; $("cSalvar").textContent = "Salvar alterações"; $("cCancela").hidden = false; window.scrollTo(0, 0); }
 function cadApagar(x) {   // manda o cadastro e todos os lotes para a lixeira (3 dias) e tira a marca de revisar
@@ -1377,10 +1410,10 @@ let topDb = [];
 function renderTop() { try { dTop6Render(); } catch (e) {} }
 if (db) V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(40)), s => { topDb = s.docs.map(d => withEdits({ ...d.data(), _id: d.id })); renderTop(); }, console.error);
 renderDon(); renderKey(); renderTop();
-tab(SETOR === PER ? "Loja" : "Doacao");
+tab(SETOR === PER ? "Loja" : SETOR === KOR ? "Cadastros" : "Doacao"); if (SETOR === KOR) setTimeout(cadPaint, 0);
 
 // ---------- aba Etiquetas ----------
-const EK = SETOR === PER ? "validamais-etiquetas-per" : "validamais-etiquetas", EUK = "validamais-etq-uni";   // EUK: código original -> código do sistema (só para a lista de etiquetas)
+const EK = SETOR === "FLV" ? "validamais-etiquetas" : "validamais-etiquetas-" + (SETOR === PER ? "per" : "kor"), EUK = "validamais-etq-uni";   // EUK: código original -> código do sistema (só para a lista de etiquetas)
 const uniCode = c => (c && store.get(EUK, {})[c]) || c;
 const SZ = { P: { w: 63, h: 30, cols: 3, rows: 9, nome: 8, preco: 15, cod: 6, bar: 6 }, M: { w: 95, h: 50, cols: 2, rows: 5, nome: 12, preco: 26, cod: 8, bar: 12 }, G: { w: 190, h: 90, cols: 1, rows: 3, nome: 20, preco: 52, cod: 11, bar: 24 } };
 let labels = store.get(EK, []), pend = null, eHits = [], eFiltro = "";
@@ -1470,7 +1503,7 @@ async function labelScan(code) {
 $("eScan").onclick = () => openScan("etiqueta");
 
 // ---------- histórico de etiquetas já impressas (3 dias) ----------
-const EHK = SETOR === PER ? "validamais-etqhist-per" : "validamais-etqhist";
+const EHK = SETOR === "FLV" ? "validamais-etqhist" : "validamais-etqhist-" + (SETOR === PER ? "per" : "kor");
 const ehLoad = () => (store.get(EHK, []) || []).filter(e => Date.now() - (e.t || 0) < HIST_MS);
 function ehAdd(lista) {
   if (!lista.length) return;
@@ -1552,7 +1585,7 @@ $("lmDup").onclick = () => { const i = lmI; $("lModal").classList.add("hidden");
 $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden"); labelUnify(i); };
 // ---------- Etiquetas compartilhadas: todos os aparelhos veem a mesma lista (coleção "sh_etiquetas" no Firestore) ----------
 (function () {
-  if (SETOR === PER || typeof db === "undefined" || !db || !V.setDoc || !V.deleteDoc || !V.onSnapshot || !V.doc || !V.collection) return;   // sem nuvem: segue só local
+  if (SETOR !== "FLV" || typeof db === "undefined" || !db || !V.setDoc || !V.deleteDoc || !V.onSnapshot || !V.doc || !V.collection) return;   // sem nuvem: segue só local
   const COL = "sh_etiquetas", FLAG = "validamais-etq-cloud", baseSet = store.set.bind(store);
   const last = new Map();                 // id -> conteúdo que a nuvem já tem (para só enviar o que mudou)
   let ready = false, warned = false;

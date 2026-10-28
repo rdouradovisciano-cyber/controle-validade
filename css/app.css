@@ -1026,4 +1026,21 @@ body.hs h1::before{width:26px!important;height:26px!important}
 .setorsw button.on{background:linear-gradient(180deg,#f3d87a,#c9a431);color:#1a1405}
 body[data-setor="Perecíveis"] .setorsw button.on{background:linear-gradient(180deg,#8fe0ec,#4fb3c2);color:#06242a}
 body[data-setor="Perecíveis"] #tbDoacao,body[data-setor="Perecíveis"] #mnInv,body[data-setor="Perecíveis"] #mnDoaAnt{display:none!important}
-body[data-setor="Perecíveis"] #tbLoja{order:-1}
+body[data-setor="Perecíveis"] #tbLoja,body[data-setor="KÓRIN"] #tbLoja{order:-1}
+#tbCadastros{display:none}
+body[data-setor="KÓRIN"] #tbCadastros{display:flex}
+body[data-setor="KÓRIN"] #tbDoacao,body[data-setor="KÓRIN"] #tbEtiquetas,body[data-setor="KÓRIN"] #mnInv,body[data-setor="KÓRIN"] #mnDoaAnt,body[data-setor="KÓRIN"] #mnEtqHist{display:none!important}
+body[data-setor="KÓRIN"] .setorsw button.on{background:linear-gradient(180deg,#e9b6f2,#b46bc4);color:#2a0f31}
+
+/* fotos do KÓRIN */
+.cfoto{margin-top:12px}.cfoto[hidden],#cFotoDel[hidden]{display:none!important}
+.cfrow{display:flex;gap:12px;align-items:center;margin-top:6px}
+.cfprev{flex:none;width:84px;height:84px;border-radius:14px;border:1px dashed #3a3420;background:#0d0f14 center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:30px}
+.cfprev.tem{border-style:solid;border-color:#c9a431}
+.cfbtns{display:flex;flex-direction:column;gap:8px;flex:1}.cfbtns button{min-height:44px}
+.cft{flex:none;width:46px;height:46px;border-radius:10px;object-fit:cover;margin-right:10px;border:1px solid #3a3420}
+.cadrow:has(.cft){align-items:center}
+#fotoView{position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+#fotoView.hidden{display:none}
+#fotoView img{max-width:94vw;max-height:84vh;border-radius:12px;object-fit:contain}
+#fotoView span{color:#a9a38f;font-size:13px}
