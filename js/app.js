@@ -688,10 +688,10 @@ function tab(t) {
   if (t === "Doacao" && typeof dView === "function") dView("lista");
   if (t === "Contagem" && typeof kPaint === "function") kPaint();
 }
-function dCodTxt(i) {   // kg: código de doação · un: código de barras
+function dCodTxt(i) {   // kg: código de doação · un: código de barras (ou, sem ele, o de doação); nunca o de balança
   const pr = products.find(x => norm(x.name || "") === norm(i.nome)) || {};
   return i.unidade === "un"
-    ? (pr.codigo_balanca ? "Cód. balança: " + esc(String(Number(pr.codigo_balanca))) : pr.barcode ? "Cód. barras: " + esc(pr.barcode) : i.bar ? "Cód. barras: " + esc(i.bar) : i.cod ? "Cód.: " + esc(i.cod) : "")
+    ? ((pr.barcode || i.bar) ? "Cód. barras: " + esc(pr.barcode || i.bar) : pr.codigo_doacao ? "Cód. doação: " + esc(pr.codigo_doacao) : "")
     : ((pr.codigo_doacao || i.cod) ? "Cód. doação: " + esc(pr.codigo_doacao || i.cod) : "");
 }
 const burnTxt = (t, off) => [...String(t)].map((c, k) => c === " " ? " " : `<span class="bc" style="animation-delay:${off + k * 38}ms">${esc(c)}</span>`).join("");
