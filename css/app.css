@@ -1043,3 +1043,4 @@ body[data-setor="KÓRIN"] label[for="cPlu"],body[data-setor="KÓRIN"] #cPlu,body
 .krow .kn{flex:1;min-width:0}.krow .kn b{display:block;font-size:16px}.krow .kn small{color:#8d8a7c}
 .krow .kq{font-size:20px;font-weight:800;color:#f3d87a;white-space:nowrap;background:none;border:0;padding:6px 4px;min-height:0}
 .krow .kx{background:none;border:0;color:#e07a7a;font-size:20px;padding:6px 8px;min-height:0}
+body[data-setor="Perecíveis"] #micBtn{display:none!important}
