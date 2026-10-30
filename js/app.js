@@ -374,6 +374,15 @@ async function retirar(id, sai, semPerguntar) {
     catch (e) { console.error(e); salvarLocal(); fim(false, e && (e.code || e.message)); }
   } else { salvarLocal(); fim(true); }
 }
+let retSyncRodou = 0;
+async function retSync(manual) {   // manda para a nuvem as retiradas que ficaram só neste aparelho (quando a nuvem passar a aceitar)
+  const ids = Object.keys(retLoc); if (!db || !ids.length || (!manual && Date.now() - retSyncRodou < 60000)) return { ok: 0, falha: 0 }; retSyncRodou = Date.now();
+  let ok = 0, falha = 0;
+  for (const id of ids) { const r = retLoc[id], p = rawAll.find(x => x.id === id);
+    if (!p) { delete retLoc[id]; continue; }   // produto não existe mais
+    try { await V.updateDoc(V.doc(db, "products", id), { retirado: true, retEm: r.em, retPor: r.por, updatedAt: V.serverTimestamp() }); delete retLoc[id]; ok++; } catch (e) { falha++; } }
+  store.set(RLK, retLoc); if (ok) { toast(ok + " retirada(s) enviada(s) para todos os aparelhos."); } return { ok, falha };
+}
 $("verRet").onclick = () => { retView = !retView; render(); window.scrollTo(0, 0); };
 
 // ---------- scanner ----------
@@ -539,7 +548,9 @@ if (cloud && V.initializeApp) {
     carregando = true; $("list").innerHTML = SKEL;   // silhuetas até chegar o primeiro dado (no máximo 6 s, para não ficar preso sem internet)
     setTimeout(() => { if (carregando) { carregando = false; render(); } }, 6000);
     V.onSnapshot(V.collection(db, "products"), { includeMetadataChanges: true }, snap => {
-      separaLixo(snap.docs.map(d => ({ id: d.id, ...d.data() }))); lixoBtn(); window.__hReady = !snap.metadata.fromCache; if (window.__hReady || snap.docs.length) carregando = false;   // há dados no cache (mesmo que nenhum seja deste setor): não segura a tela esperando a nuvem render(); if (window.__hReady) setTimeout(() => { try { limparFotosNuvem(); } catch (e) { console.warn(e); } }, 2000);
+      separaLixo(snap.docs.map(d => ({ id: d.id, ...d.data() }))); lixoBtn(); window.__hReady = !snap.metadata.fromCache; if (window.__hReady || snap.docs.length) carregando = false;   // há dados no cache (mesmo que nenhum seja deste setor): não segura a tela esperando a nuvem
+      render();   // repinta sempre que qualquer aparelho altera algo
+      if (window.__hReady) { setTimeout(() => { try { limparFotosNuvem(); } catch (e) { console.warn(e); } }, 2000); retSync(); }
       setSync(snap.metadata.hasPendingWrites ? "alterações aguardando envio…" : snap.metadata.fromCache ? (navigator.onLine ? "conectando…" : "offline (dados salvos no aparelho)") : "sincronizado");
     }, err => { console.error(err); carregando = false; render(); setSync("erro de sincronização (confira as regras do Firestore)"); toast("Erro ao ler os dados da nuvem."); });
   } catch (e) { console.error(e); db = null; setSync("falha ao iniciar o Firebase"); }
@@ -1545,6 +1556,7 @@ async function saudeAcao(d, repaint) {
 const rawAllAtivos = () => (db ? rawAll : products.concat(lixeira, outros)).filter(p => p.name && !p.lixo);
 function saudeLocal() {   // o que existe só neste aparelho
   const l = [], n = (a) => Array.isArray(a) ? a.length : 0;
+  if (Object.keys(retLoc).length) l.push(`Retiradas da loja: ${Object.keys(retLoc).length} (a nuvem recusou o campo «retirado»)`);
   if (n(lixoLocalLer())) l.push(`Lixeira local: ${n(lixoLocalLer())} item(ns) (a nuvem não aceitou o campo «lixo»)`);
   if (kList.length) l.push(`Contagem do KÓRIN: ${kList.length} produto(s)`);
   [["validamais-etiquetas-per", "Etiquetas de Perecíveis"], ["validamais-etiquetas-kor", "Etiquetas do KÓRIN"]].forEach(([k, t]) => { if (n(store.get(k, []))) l.push(`${t}: ${n(store.get(k, []))} item(ns)`); });
@@ -1564,6 +1576,7 @@ async function autoteste(log) {
     const ok = await passo(`A nuvem aceita cadastro do setor ${cat === PER ? "Perecíveis" : "FLV"}`, async () => { const r = await com(V.addDoc(V.collection(db, "products"), rec())); id = r.id; ids.push(id); });
     if (!ok || !id) { if (cat === PER) log("→ O que fazer", "info", "as regras do Firebase precisam aceitar a categoria «Perecíveis» (me peça o texto das regras)."); continue; }
     await passo(`Alterar o cadastro de teste (${cat === PER ? "Perecíveis" : "FLV"})`, () => com(V.updateDoc(V.doc(db, "products", id), { name: ST_NOME + " alterado", updatedAt: V.serverTimestamp() })));
+    await passo(`Retirar da loja em ${cat === PER ? "Perecíveis" : "FLV"} (aparece para todos)`, () => com(V.updateDoc(V.doc(db, "products", id), { retirado: true, retEm: Date.now(), retPor: "autoteste", updatedAt: V.serverTimestamp() })), "a retirada desse setor fica só neste aparelho");
     await passo(`Lixeira compartilhada em ${cat === PER ? "Perecíveis" : "FLV"}`, () => com(V.updateDoc(V.doc(db, "products", id), { lixo: Date.now(), updatedAt: V.serverTimestamp() })), "a lixeira desse setor fica só neste aparelho");
     await passo(`Apagar o cadastro de teste (${cat === PER ? "Perecíveis" : "FLV"})`, () => com(V.deleteDoc(V.doc(db, "products", id))));
   }
