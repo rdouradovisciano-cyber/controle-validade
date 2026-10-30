@@ -1,1 +1,1 @@
-{"versao":"2026.10.30-230","nota":"Corrigido: a tela agora atualiza na hora quando outro aparelho altera algo (retirar da loja, editar, cadastrar). Retiradas feitas só neste aparelho são enviadas para a nuvem sozinhas assim que ela aceitar"}
+{"versao":"2026.10.30-231","nota":"Etiqueta de gôndola com preço no código de barras (ex.: 7898205078770000798): o app usa só o EAN de 13 dígitos"}

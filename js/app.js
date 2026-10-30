@@ -406,7 +406,11 @@ function loteMode(k) {          // produto já cadastrado: só pede validade e q
   $("loteInfo").classList.remove("hidden"); $("loteEdit").classList.remove("hidden");
 }
 $("loteEdit").onclick = () => { $("productForm").classList.remove("lote"); $("loteInfo").classList.add("hidden"); $("loteEdit").classList.add("hidden"); };
+// Etiquetas de gôndola trazem o EAN-13 + o preço (6 dígitos) no mesmo código de barras (ex.: 7898205078770 000798 = R$ 7,98). Só vale o EAN: os 13 primeiros dígitos.
+const eanOk = d => { let t = 0; for (let i = 0; i < 12; i++) t += Number(d[i]) * (i % 2 ? 3 : 1); return (10 - t % 10) % 10 === Number(d[12]); };
+const limpaCodigo = c => { c = String(c == null ? "" : c).trim(); return /^[013-9]\d{17,19}$/.test(c) && eanOk(c.slice(0, 13)) ? c.slice(0, 13) : c; };
 async function onCode(code) {
+  code = limpaCodigo(code);
   if (scanMode === "doacao") return donationScan(code);
   if (scanMode === "etiqueta") return labelScan(code);
   if (scanMode === "cadastro") return cadScan(code);
@@ -727,7 +731,7 @@ $("dEan").onclick = () => {
 $("eanClose").onclick = $("eanCancel").onclick = eanClose;
 $("eanCode").oninput = eanPreview;
 function eanGo() {
-  const v = $("eanCode").value.replace(/\D/g, "");
+  const v = limpaCodigo($("eanCode").value.replace(/\D/g, ""));
   if (!/^\d{6,14}$/.test(v)) { toast("Digite o código de barras só com números (6 a 14 dígitos)."); return $("eanCode").focus(); }
   eanClose(); lastScan = { c: "", t: 0 }; donationScan(v);        // mesmo caminho da leitura pela câmera: cadastro (se novo) e quantidade
 }
