@@ -468,8 +468,7 @@ body.mao1 .ditem.ult .dq{font-size:42px}
 #dBar button{width:62px;height:62px}
 
 /* ===== v114: «Doações anteriores» fica no menu (três pontinhos) ===== */
-#histSec{display:none}
-body.histOn #histSec{display:block}
+#histSec{display:block;margin-top:14px}
 #donaEntrada[data-dview="pick"] #histSec{display:none!important}
 /* v117: menos dourado e hierarquia nome > número > código */
 #dVoltar,#dbSalvar{color:var(--ink)!important;border-color:var(--ln)!important}

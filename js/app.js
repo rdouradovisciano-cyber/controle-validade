@@ -1385,7 +1385,7 @@ $("histBox").ontoggle = () => {
   else if (unsubHist) { unsubHist(); unsubHist = null; } };
 const go = t => { tab(t); side(false); };
 $("navHist").onclick = () => { go("Doacao"); try { if (typeof dView === "function") dView("lista"); } catch (e) {} document.body.classList.add("histOn"); const hb = $("histBox"); hb.open = true; hb.ontoggle && hb.ontoggle(); setTimeout(() => $("histSec").scrollIntoView({ block: "start", behavior: "smooth" }), 120); };
-$("histFechar").onclick = () => { $("histBox").open = false; document.body.classList.remove("histOn"); window.scrollTo({ top: 0, behavior: "smooth" }); }; $("navLoja").onclick = () => go("Loja"); $("navContagem").onclick = () => go("Contagem"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("navInventario").onclick = () => go("Inventario"); $("navCadastros").onclick = () => go("Cadastros"); $("dScan").onclick = () => openScan("doacao");
+ $("navLoja").onclick = () => go("Loja"); $("navContagem").onclick = () => go("Contagem"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("navInventario").onclick = () => go("Inventario"); $("navCadastros").onclick = () => go("Cadastros"); $("dScan").onclick = () => openScan("doacao");
 // ----- top 3 mais doados (últimos 30 dias, compacto) -----
 let topDb = [];
 // recalcula os balões «Mais doados» (o painel antigo de top 3 foi removido)

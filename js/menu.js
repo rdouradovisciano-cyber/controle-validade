@@ -9,8 +9,6 @@ b.onclick=function(){m.classList.contains("hidden")?abre():fecha()}}
 bg.onclick=fecha;document.addEventListener("keydown",function(e){if(e.key==="Escape")fecha()});
 if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)g("mnInstall").classList.add("hidden");
 g("mnCad").onclick=function(){fecha();g("navCadastros").click();window.scrollTo(0,0)};
-g("mnInv").onclick=function(){fecha();g("navInventario").click();window.scrollTo(0,0)};
-g("mnDoaAnt").onclick=function(){fecha();g("navHist").click()};
 g("mnEtqHist").onclick=function(){fecha();if(window.ehOpen)window.ehOpen()};
 g("mnHist").onclick=function(){fecha();if(window.phOpen)window.phOpen()};
 g("mnInstall").onclick=function(){fecha();var b=g("installBtn");
