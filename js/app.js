@@ -7,11 +7,10 @@ const PER = "Perecíveis", KOR = "KÓRIN";
 const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros", PER, KOR];
 // setor escolhido na abertura (sessionStorage): "FLV" (tudo que não é Perecíveis, como sempre foi) ou "Perecíveis" (cadastros e validades próprios)
 let SETOR = (() => { try { const s = sessionStorage.getItem("validamais-setor"); return s === PER || s === KOR ? s : "FLV"; } catch (e) { return "FLV"; } })();
-const setorDe = p => p.category === PER ? PER : (p.category === KCAT || p.category === KOR) ? KOR : "FLV";   // FLV = tudo que não é Perecíveis nem KÓRIN (como sempre foi)
-const KCAT = "Congelados";   // o setor KÓRIN grava com esta categoria (as regras do Firebase já a aceitam; «KÓRIN» e «Perecíveis» dependem de ajuste nas regras)
-const doSetor = p => setorDe(p) === SETOR;
+const setorDe = p => p.category === PER ? PER : "FLV";   // Perecíveis tem cadastro próprio; FLV e KÓRIN usam o mesmo cadastro (categoria «FLV» e as demais)
+const doSetor = p => (setorDe(p) === PER) === (SETOR === PER);
 let CATS_VIS, CATSET;   // CATSET = categoria gravada nos cadastros do setor atual
-const derivaSetor = () => { CATS_VIS = SETOR === "FLV" ? CATS.filter(c => c !== PER && c !== KOR && c !== KCAT) : [SETOR === KOR ? KCAT : SETOR]; CATSET = SETOR === KOR ? KCAT : SETOR; document.body.dataset.setor = SETOR; };
+const derivaSetor = () => { CATS_VIS = SETOR === PER ? [PER] : CATS.filter(c => c !== PER && c !== KOR); CATSET = SETOR === PER ? PER : "FLV"; document.body.dataset.setor = SETOR; };
 derivaSetor();
 const $ = id => document.getElementById(id);
 const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria", TK = "validamais-tam";
@@ -98,7 +97,7 @@ function separaLixo(arr) {
   const agora = Date.now(), venc = arr.filter(p => p.lixo && agora - Number(p.lixo) > LIXO_MS);
   outros = arr.filter(p => !doSetor(p) && !venc.includes(p));   // do outro setor: não aparece aqui (e é preservado no modo local)
   const meu = arr.filter(doSetor);
-  products = meu.filter(p => !p.lixo).map(p => p.category === KOR ? { ...p, category: KCAT } : p); lixeira = meu.filter(p => p.lixo && !venc.includes(p));
+  products = meu.filter(p => !p.lixo).map(p => p.category === KOR ? { ...p, category: "FLV" } : p); lixeira = meu.filter(p => p.lixo && !venc.includes(p));
   if (db) { const loc = lixoLocalLer().filter(doSetor); if (loc.length) lixeira = lixeira.concat(loc); }   // lixeira deste aparelho (quando a nuvem não aceita o campo "lixo")
   if (venc.length) { if (db) venc.forEach(p => V.deleteDoc(V.doc(db, "products", p.id)).catch(() => {})); else persist(); }
 }
@@ -178,7 +177,7 @@ function render() {
   $("todayBanner").textContent = `⚠ VENCEM HOJE (${hoje.length}): ` + hoje.slice(0, 5).map(p => p.name).join(", ") + (hoje.length > 5 ? "…" : "");
   if (!hoje.length) alarmed = false; else if (!alarmed && actx) { alarmed = true; alarm(); }
   const rows = retView ? products.filter(p => p.retirado).sort((a, b) => (Number(b.retEm) || 0) - (Number(a.retEm) || 0)) : products.filter(p => q ? ((p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q) || String(p.codigo_balanca || "") === q || String(p.codigo_doacao || "").toLowerCase() === q)   // buscando: procura em TODOS os setores, com ou sem validade
-      : (!p.retirado && (!cat || p.category === cat) && !((cat === "FLV" || cat === PER || (cat === KCAT && SETOR === KOR)) && daysLeft(p.expiry) === null) && (!st || status(p) === st)))
+      : (!p.retirado && (!cat || p.category === cat) && !((cat === "FLV" || cat === PER) && daysLeft(p.expiry) === null) && (!st || status(p) === st)))
     .sort((a, b) => cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
