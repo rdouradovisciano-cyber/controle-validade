@@ -1450,22 +1450,46 @@ $("kPdf").onclick = async () => { if (!kList.length) return toast("A contagem es
   } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Não foi possível gerar o PDF."); } } };
 // ---------- Saúde do app: confere os cadastros e testa se a nuvem aceita cada setor ----------
 const ST_NOME = "__AUTOTESTE__";
+const setSet = p => setorDe(p) === PER ? PER : "FLV";
 function saudeCalc() {
-  const grupos = cadGroups(), mapa = codMapa(), sec = [];
-  const nomeLink = n => `<button type="button" class="shn" data-sn="${esc(n)}">${esc(n)}</button>`;
+  const grupos = cadGroups(), sec = [], atual = SETOR === PER ? PER : "FLV";
+  const lk = (n, set, ean) => `<button type="button" class="shn" data-sn="${esc(n)}" data-ss="${esc(set)}">${esc(n)}</button>`;
   const semCod = grupos.filter(x => !x.barcode && !x.plu && !x.don);
-  sec.push({ t: "Cadastros sem nenhum código", d: "Sem EAN, balança e doação/interno: o app não consegue achar o produto pelo código.", n: semCod.length, it: semCod.map(x => nomeLink(x.name)) });
-  const rep = []; mapa.forEach((nomes, k) => { if (nomes.size > 1) { const [t, ...c] = k.split(":"); rep.push(`<b>${TNOME[t]} ${esc(c.join(":"))}</b>: ${[...nomes.values()].map(nomeLink).join(" · ")}`); } });
-  sec.push({ t: "Códigos repetidos neste setor", d: "O mesmo código em produtos de nomes diferentes.", n: rep.length, it: rep });
-  const m2 = new Map(), add = (t, c, nome, set) => { c = String(c || "").trim(); if (!c) return; const k = codChave(t, c), o = m2.get(k) || new Map(); o.set(set, nome); m2.set(k, o); };
-  rawAllAtivos().forEach(p => { const set = setorDe(p) === PER ? "Perecíveis" : "FLV"; add("ean", p.barcode, p.name, set); add("plu", p.codigo_balanca, p.name, set); add("doa", p.codigo_doacao, p.name, set); });
-  const cruz = []; m2.forEach((o, k) => { if (o.size > 1) { const [t, ...c] = k.split(":"); cruz.push(`<b>${TNOME[t]} ${esc(c.join(":"))}</b>: ${[...o].map(([s, n]) => s + " «" + esc(n) + "»").join(" · ")}`); } });
-  sec.push({ t: "Códigos repetidos entre FLV e Perecíveis", d: "O mesmo código usado nos dois setores.", n: cruz.length, it: cruz });
+  sec.push({ t: "Cadastros sem nenhum código", d: "Toque no nome para abrir o cadastro e preencher EAN, balança ou código interno.", n: semCod.length, it: semCod.map(x => lk(x.name, atual)) });
+  // códigos repetidos (todos os setores)
+  const m = new Map(), lots = rawAllAtivos();
+  lots.forEach(p => { const set = setSet(p); [["ean", p.barcode], ["plu", p.codigo_balanca], ["doa", p.codigo_doacao]].forEach(([t, c]) => { const k = codChave(t, c); if (!k) return; const o = m.get(k) || { t, c: String(c).trim(), e: new Map() }; o.e.set(set + "|" + norm(p.name), { n: p.name, set }); m.set(k, o); }); });
+  const rep = []; m.forEach(o => { if (o.e.size < 2) return; const ents = [...o.e.values()], cruza = new Set(ents.map(e => e.set)).size > 1;
+    rep.push(`<div class="shg"><b>${TNOME[o.t]} ${esc(o.c)}</b>${cruza ? " <small>(entre setores)</small>" : ""}${ents.map(e => `<div class="shrow">${lk(e.n, e.set)}${cruza ? `<small> · ${esc(e.set)}</small>` : ""}<button type="button" class="shact" data-a="lim" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Tirar daqui</button></div>`).join("")}</div>`); });
+  sec.push({ t: "Códigos repetidos", d: "O mesmo código em produtos diferentes. «Tirar daqui» apaga o código só daquele produto (ele continua cadastrado).", n: rep.length, it: rep });
+  // mesmo nome, cadastros separados
+  const porNome = new Map(); grupos.forEach(x => { const k = norm(x.name); (porNome.get(k) || porNome.set(k, []).get(k)).push(x); });
+  const iguais = [];
+  porNome.forEach(l => { if (l.length < 2) return; const nome = l[0].name, eans = new Set(l.map(x => x.barcode).filter(Boolean)), plus = new Set(l.map(x => x.plu).filter(Boolean)), dons = new Set(l.map(x => x.don).filter(Boolean)), podeJuntar = eans.size <= 1 && plus.size <= 1 && dons.size <= 1;
+    iguais.push(`<div class="shg"><b>${esc(nome)}</b> <small>${l.length} cadastros</small>${l.map(x => `<div class="shrow"><small>EAN ${x.barcode ? esc(x.barcode) : "—"}${x.plu ? " · PLU " + esc(x.plu) : ""}${x.don ? " · cód. " + esc(x.don) : ""}</small><button type="button" class="shact" data-a="ren" data-n="${esc(x.name)}" data-b="${esc(x.barcode)}" data-s="${atual}">Renomear</button></div>`).join("")}${podeJuntar ? `<button type="button" class="shact pri" data-a="jun" data-n="${esc(nome)}" data-s="${atual}">Juntar em um só</button>` : '<small class="note">EANs diferentes: provavelmente são produtos diferentes. Renomeie para diferenciar.</small>'}</div>`); });
+  sec.push({ t: "Mesmo nome em cadastros separados", d: "Aparecem como linhas repetidas em Cadastros.", n: iguais.length, it: iguais });
   const par = dupGroups();
-  sec.push({ t: "Nomes parecidos", d: "Podem ser o mesmo produto escrito de formas diferentes.", n: par.length, it: par.map(a => a.map(x => nomeLink(x.nome)).join(" ≈ ")) });
+  sec.push({ t: "Nomes parecidos", d: "Podem ser o mesmo produto escrito de formas diferentes.", n: par.length, it: par.length ? [par.map(a => a.map(x => esc(x.nome)).join(" ≈ ")).slice(0, 6).join("<br>"), `<button type="button" class="shact pri" data-a="uni">Escolher o nome certo</button>`] : [] });
   const fora = {}; products.forEach(p => { if (p.category && !CATS.includes(p.category)) fora[p.category] = (fora[p.category] || 0) + 1; });
   sec.push({ t: "Categoria fora da lista", d: "Produtos com uma categoria que o app não conhece.", n: Object.keys(fora).length, it: Object.keys(fora).map(c => esc(c) + " (" + fora[c] + ")") });
   return sec;
+}
+function saudeSet(lots, campos) {
+  lots.forEach(p => { if (db) V.updateDoc(V.doc(db, "products", p.id), { ...campos, updatedAt: V.serverTimestamp() }).catch(e => { console.error(e); toast("Erro ao salvar na nuvem."); }); Object.assign(p, campos); });
+  if (!db) { persist(); render(); }
+}
+async function saudeAcao(d, repaint) {
+  const lotes = () => rawAllAtivos().filter(p => norm(p.name) === norm(d.n) && setSet(p) === d.s);
+  if (d.a === "lim") { const campo = CAMPO[d.t], alvo = lotes().filter(p => codChave(d.t, p[campo]) === codChave(d.t, d.c));
+    const r = await askConfirm({ icon: "🧹", title: "Tirar o código deste produto?", text: `${TNOME[d.t]} ${d.c}`, sub: `de «${d.n}» (${d.s}). O produto continua cadastrado, só sem esse código.`, ok: "Tirar código", cancel: "Cancelar" });
+    if (r !== true) return; saudeSet(alvo, { [campo]: "" }); toast(`Código tirado de «${d.n}».`); }
+  else if (d.a === "ren") { const alvo = lotes().filter(p => (p.barcode || "") === (d.b || "")); const novo = (prompt("Novo nome para este cadastro:", d.n) || "").trim().slice(0, 120);
+    if (!novo || novo === d.n) return; saudeSet(alvo, { name: novo }); toast(`Renomeado para «${novo}».`); }
+  else if (d.a === "jun") { const alvo = lotes(), pick = f => alvo.map(p => p[f]).find(Boolean) || "";
+    const r = await askConfirm({ icon: "🔗", title: "Juntar em um só?", text: `«${d.n}»`, sub: "Os cadastros passam a usar os mesmos códigos. Os lotes e validades continuam como estão.", ok: "Juntar", cancel: "Cancelar" });
+    if (r !== true) return; saudeSet(alvo, { barcode: pick("barcode"), codigo_balanca: pick("codigo_balanca"), codigo_doacao: pick("codigo_doacao") }); toast("Cadastros juntados."); }
+  else if (d.a === "uni") { dupReview(); const mo = new MutationObserver(() => { if (!document.querySelector(".askbg")) { mo.disconnect(); repaint(); } }); mo.observe(document.body, { childList: true }); return; }
+  repaint();
 }
 const rawAllAtivos = () => (db ? rawAll : products.concat(lixeira, outros)).filter(p => p.name && !p.lixo);
 function saudeLocal() {   // o que existe só neste aparelho
@@ -1498,17 +1522,20 @@ async function autoteste(log) {
 }
 function saudeAbrir() {
   const bg = document.createElement("div"); bg.className = "modal"; bg.id = "saudeModal";
-  const sec = saudeCalc(), probs = sec.filter(s => s.n).length, loc = saudeLocal(), cloud = $("syncState") ? $("syncState").textContent : "";
-  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Saúde do app"><div class="sheethead"><h2>🩺 Saúde do app</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
-    <p class="note">Setor <b>${esc(SETOR)}</b> · ${cadGroups().length} cadastros · ${products.length} lotes/itens · ${db ? "Firebase ligado" : "modo local"}${cloud ? " · " + esc(cloud) : ""}</p>
-    <div class="shsum ${probs ? "aten" : "ok"}">${probs ? "⚠ " + probs + " ponto(s) de atenção" : "✓ Nada para corrigir neste setor"}</div>
-    ${sec.map(s => `<div class="shsec"><div class="shh"><span class="shb ${s.n ? "aten" : "ok"}">${s.n ? s.n : "✓"}</span><b>${esc(s.t)}</b></div>${s.n ? `<small class="note">${esc(s.d)}</small><div class="shit">${s.it.slice(0, 8).map(h => `<div>${h}</div>`).join("")}${s.it.length > 8 ? `<div class="muted">+ ${s.it.length - 8} outros</div>` : ""}</div>` : ""}</div>`).join("")}
+  const cloud = $("syncState") ? $("syncState").textContent : "";
+  const paint = () => { const sec = saudeCalc(), probs = sec.filter(s => s.n).length, loc = saudeLocal(), y = bg.querySelector(".sheet") ? bg.querySelector(".sheet").scrollTop : 0, run = bg.querySelector("#shRes") ? bg.querySelector("#shRes").innerHTML : "";
+    bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Saúde do app"><div class="sheethead"><h2>🩺 Saúde do app</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
+    <p class="note">Setor <b>${esc(SETOR)}</b> · ${cadGroups().length} cadastros · ${db ? "Firebase ligado" : "modo local"}${cloud && db ? " · " + esc(cloud) : ""}</p>
+    <div class="shsum ${probs ? "aten" : "ok"}">${probs ? "⚠ " + probs + " ponto(s) de atenção" : "✓ Nada para corrigir"}</div>
+    ${sec.map(s => `<div class="shsec"><div class="shh"><span class="shb ${s.n ? "aten" : "ok"}">${s.n ? s.n : "✓"}</span><b>${esc(s.t)}</b></div>${s.n ? `<small class="note">${esc(s.d)}</small><div class="shit">${s.it.slice(0, 10).map(h => `<div>${h}</div>`).join("")}${s.it.length > 10 ? `<div class="muted">+ ${s.it.length - 10} outros (resolva estes e abra de novo)</div>` : ""}</div>` : ""}</div>`).join("")}
     <div class="shsec"><div class="shh"><span class="shb info">ⓘ</span><b>Guardado só neste aparelho</b></div>${loc.length ? `<div class="shit">${loc.map(t => `<div>${esc(t)}</div>`).join("")}</div><small class="note">Outros celulares não veem isso.</small>` : '<small class="note">Nada. Tudo o que importa está na nuvem.</small>'}</div>
     <div class="shsec"><div class="shh"><b>Autoteste da nuvem</b></div><small class="note">Cria um item de teste em cada setor, altera, apaga e diz se o Firebase aceitou. Não deixa nada para trás.</small>
-      <button type="button" class="primary big" id="shRun" style="margin-top:10px">Rodar autoteste</button><div id="shRes" class="shit"></div></div></section>`;
-  document.body.appendChild(bg);
+      <button type="button" class="primary big" id="shRun" style="margin-top:10px">Rodar autoteste</button><div id="shRes" class="shit">${run}</div></div></section>`;
+    bg.querySelector(".sheet").scrollTop = y; };
+  paint(); document.body.appendChild(bg);
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) { bg.remove(); return; }
-    const n = e.target.closest("[data-sn]"); if (n) { const nome = n.dataset.sn; bg.remove(); $("navCadastros").click(); $("cBusca").value = nome; cadPaint(); window.scrollTo(0, 0); return; }
+    const ac = e.target.closest("[data-a]"); if (ac) { saudeAcao({ ...ac.dataset }, paint); return; }
+    const n = e.target.closest("[data-sn]"); if (n) { const nome = n.dataset.sn, set = n.dataset.ss; bg.remove(); if (set && set !== (SETOR === PER ? PER : "FLV") && SETOR !== KOR) trocaSetor(set); $("navCadastros").click(); $("cBusca").value = nome; cadPaint(); window.scrollTo(0, 0); return; }
     if (e.target.id === "shRun") { const b = e.target, out = $("shRes"); b.disabled = true; b.textContent = "Testando…"; out.innerHTML = "";
       const ic = { ok: "✓", erro: "✗", aviso: "⚠", info: "ⓘ" };
       autoteste((nome, est, extra) => { out.insertAdjacentHTML("beforeend", `<div class="shr ${est}"><b>${ic[est] || ""} ${esc(nome)}</b>${extra ? `<small>${esc(extra)}</small>` : ""}</div>`); })
