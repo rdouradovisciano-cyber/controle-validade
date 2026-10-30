@@ -93,6 +93,7 @@ const LLK = "validamais-lixo-local";
 function lixoLocalLer() { const agora = Date.now(); const l = store.get(LLK, []).filter(p => agora - Number(p.lixo) <= LIXO_MS); return l.map(p => ({ ...p, loc: true })); }
 function lixoLocalGravar(l) { store.set(LLK, l.map(({ loc, ...r }) => r)); }
 function separaLixo(arr) {
+  arr = arr.filter(p => !String(p.name || "").startsWith("__AUTOTESTE__"));   // itens criados pelo autoteste nunca aparecem
   rawAll = arr;
   const agora = Date.now(), venc = arr.filter(p => p.lixo && agora - Number(p.lixo) > LIXO_MS);
   outros = arr.filter(p => !doSetor(p) && !venc.includes(p));   // do outro setor: não aparece aqui (e é preservado no modo local)
@@ -1447,6 +1448,74 @@ $("kPdf").onclick = async () => { if (!kList.length) return toast("A contagem es
     const blob = pdf.output("blob"), file = new File([blob], "contagem-korin-" + iso(new Date()) + ".pdf", { type: "application/pdf" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Contagem KÓRIN", files: [file] }); else download(blob, file.name);
   } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Não foi possível gerar o PDF."); } } };
+// ---------- Saúde do app: confere os cadastros e testa se a nuvem aceita cada setor ----------
+const ST_NOME = "__AUTOTESTE__";
+function saudeCalc() {
+  const grupos = cadGroups(), mapa = codMapa(), sec = [];
+  const nomeLink = n => `<button type="button" class="shn" data-sn="${esc(n)}">${esc(n)}</button>`;
+  const semCod = grupos.filter(x => !x.barcode && !x.plu && !x.don);
+  sec.push({ t: "Cadastros sem nenhum código", d: "Sem EAN, balança e doação/interno: o app não consegue achar o produto pelo código.", n: semCod.length, it: semCod.map(x => nomeLink(x.name)) });
+  const rep = []; mapa.forEach((nomes, k) => { if (nomes.size > 1) { const [t, ...c] = k.split(":"); rep.push(`<b>${TNOME[t]} ${esc(c.join(":"))}</b>: ${[...nomes.values()].map(nomeLink).join(" · ")}`); } });
+  sec.push({ t: "Códigos repetidos neste setor", d: "O mesmo código em produtos de nomes diferentes.", n: rep.length, it: rep });
+  const m2 = new Map(), add = (t, c, nome, set) => { c = String(c || "").trim(); if (!c) return; const k = codChave(t, c), o = m2.get(k) || new Map(); o.set(set, nome); m2.set(k, o); };
+  rawAllAtivos().forEach(p => { const set = setorDe(p) === PER ? "Perecíveis" : "FLV"; add("ean", p.barcode, p.name, set); add("plu", p.codigo_balanca, p.name, set); add("doa", p.codigo_doacao, p.name, set); });
+  const cruz = []; m2.forEach((o, k) => { if (o.size > 1) { const [t, ...c] = k.split(":"); cruz.push(`<b>${TNOME[t]} ${esc(c.join(":"))}</b>: ${[...o].map(([s, n]) => s + " «" + esc(n) + "»").join(" · ")}`); } });
+  sec.push({ t: "Códigos repetidos entre FLV e Perecíveis", d: "O mesmo código usado nos dois setores.", n: cruz.length, it: cruz });
+  const par = dupGroups();
+  sec.push({ t: "Nomes parecidos", d: "Podem ser o mesmo produto escrito de formas diferentes.", n: par.length, it: par.map(a => a.map(x => nomeLink(x.nome)).join(" ≈ ")) });
+  const fora = {}; products.forEach(p => { if (p.category && !CATS.includes(p.category)) fora[p.category] = (fora[p.category] || 0) + 1; });
+  sec.push({ t: "Categoria fora da lista", d: "Produtos com uma categoria que o app não conhece.", n: Object.keys(fora).length, it: Object.keys(fora).map(c => esc(c) + " (" + fora[c] + ")") });
+  return sec;
+}
+const rawAllAtivos = () => (db ? rawAll : products.concat(lixeira, outros)).filter(p => p.name && !p.lixo);
+function saudeLocal() {   // o que existe só neste aparelho
+  const l = [], n = (a) => Array.isArray(a) ? a.length : 0;
+  if (n(lixoLocalLer())) l.push(`Lixeira local: ${n(lixoLocalLer())} item(ns) (a nuvem não aceitou o campo «lixo»)`);
+  if (kList.length) l.push(`Contagem do KÓRIN: ${kList.length} produto(s)`);
+  [["validamais-etiquetas-per", "Etiquetas de Perecíveis"], ["validamais-etiquetas-kor", "Etiquetas do KÓRIN"]].forEach(([k, t]) => { if (n(store.get(k, []))) l.push(`${t}: ${n(store.get(k, []))} item(ns)`); });
+  [["validamais-doacao-per", "Doação de Perecíveis"], ["validamais-doacao-kor", "Doação do KÓRIN"]].forEach(([k, t]) => { const d = store.get(k, null); if (d && n(d.itens)) l.push(`${t} (rascunho): ${n(d.itens)} item(ns)`); });
+  return l;
+}
+const erroTxt = e => { const c = (e && (e.code || e.message)) || String(e); return /permission-denied/.test(c) ? "recusado pelas regras do Firebase" : /timeout|sem resposta/.test(c) ? "sem resposta da nuvem em 10 s (sem internet?)" : /unavailable|network/.test(c) ? "sem conexão com a nuvem" : c; };
+async function autoteste(log) {
+  const com = (p, ms = 10000) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error("sem resposta"), { code: "timeout" })), ms))]);
+  const passo = async (nome, fn, soAviso) => { const t = Date.now(); try { const x = await fn(); log(nome, "ok", (x ? x + " · " : "") + (Date.now() - t) + " ms"); return true; } catch (e) { log(nome, soAviso ? "aviso" : "erro", (soAviso ? soAviso + " (" + erroTxt(e) + ")" : erroTxt(e))); return false; } };
+  await passo("Guardar e ler dados neste aparelho", () => { store.set("validamais-teste", Date.now()); if (!store.get("validamais-teste", null)) throw new Error("não leu"); try { localStorage.removeItem("validamais-teste"); } catch (e) {} });
+  if (!db) { log("Nuvem", "aviso", "o app está em modo local: não há Firebase configurado neste aparelho"); return; }
+  const ids = [];
+  for (const cat of ["FLV", PER]) {
+    let id = null;
+    const rec = () => { const ts = V.serverTimestamp(); return { barcode: "", name: ST_NOME + " " + Date.now(), category: cat, expiry: iso(new Date(Date.now() + 3 * 864e5)), quantity: 1, por: "autoteste", codigo_balanca: "", codigo_doacao: "", createdAt: ts, updatedAt: ts }; };
+    const ok = await passo(`A nuvem aceita cadastro do setor ${cat === PER ? "Perecíveis" : "FLV"}`, async () => { const r = await com(V.addDoc(V.collection(db, "products"), rec())); id = r.id; ids.push(id); });
+    if (!ok || !id) { if (cat === PER) log("→ O que fazer", "info", "as regras do Firebase precisam aceitar a categoria «Perecíveis» (me peça o texto das regras)."); continue; }
+    await passo(`Alterar o cadastro de teste (${cat === PER ? "Perecíveis" : "FLV"})`, () => com(V.updateDoc(V.doc(db, "products", id), { name: ST_NOME + " alterado", updatedAt: V.serverTimestamp() })));
+    await passo(`Lixeira compartilhada em ${cat === PER ? "Perecíveis" : "FLV"}`, () => com(V.updateDoc(V.doc(db, "products", id), { lixo: Date.now(), updatedAt: V.serverTimestamp() })), "a lixeira desse setor fica só neste aparelho");
+    await passo(`Apagar o cadastro de teste (${cat === PER ? "Perecíveis" : "FLV"})`, () => com(V.deleteDoc(V.doc(db, "products", id))));
+  }
+  const eid = "autoteste" + Date.now();
+  await passo("Etiquetas compartilhadas (sh_etiquetas)", async () => { await com(V.setDoc(V.doc(db, "sh_etiquetas", eid), { nome: ST_NOME, ord: 1 })); await com(V.deleteDoc(V.doc(db, "sh_etiquetas", eid))); });
+  for (const id of ids) { try { await V.deleteDoc(V.doc(db, "products", id)); } catch (e) {} }   // limpeza de segurança
+}
+function saudeAbrir() {
+  const bg = document.createElement("div"); bg.className = "modal"; bg.id = "saudeModal";
+  const sec = saudeCalc(), probs = sec.filter(s => s.n).length, loc = saudeLocal(), cloud = $("syncState") ? $("syncState").textContent : "";
+  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Saúde do app"><div class="sheethead"><h2>🩺 Saúde do app</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
+    <p class="note">Setor <b>${esc(SETOR)}</b> · ${cadGroups().length} cadastros · ${products.length} lotes/itens · ${db ? "Firebase ligado" : "modo local"}${cloud ? " · " + esc(cloud) : ""}</p>
+    <div class="shsum ${probs ? "aten" : "ok"}">${probs ? "⚠ " + probs + " ponto(s) de atenção" : "✓ Nada para corrigir neste setor"}</div>
+    ${sec.map(s => `<div class="shsec"><div class="shh"><span class="shb ${s.n ? "aten" : "ok"}">${s.n ? s.n : "✓"}</span><b>${esc(s.t)}</b></div>${s.n ? `<small class="note">${esc(s.d)}</small><div class="shit">${s.it.slice(0, 8).map(h => `<div>${h}</div>`).join("")}${s.it.length > 8 ? `<div class="muted">+ ${s.it.length - 8} outros</div>` : ""}</div>` : ""}</div>`).join("")}
+    <div class="shsec"><div class="shh"><span class="shb info">ⓘ</span><b>Guardado só neste aparelho</b></div>${loc.length ? `<div class="shit">${loc.map(t => `<div>${esc(t)}</div>`).join("")}</div><small class="note">Outros celulares não veem isso.</small>` : '<small class="note">Nada. Tudo o que importa está na nuvem.</small>'}</div>
+    <div class="shsec"><div class="shh"><b>Autoteste da nuvem</b></div><small class="note">Cria um item de teste em cada setor, altera, apaga e diz se o Firebase aceitou. Não deixa nada para trás.</small>
+      <button type="button" class="primary big" id="shRun" style="margin-top:10px">Rodar autoteste</button><div id="shRes" class="shit"></div></div></section>`;
+  document.body.appendChild(bg);
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) { bg.remove(); return; }
+    const n = e.target.closest("[data-sn]"); if (n) { const nome = n.dataset.sn; bg.remove(); $("navCadastros").click(); $("cBusca").value = nome; cadPaint(); window.scrollTo(0, 0); return; }
+    if (e.target.id === "shRun") { const b = e.target, out = $("shRes"); b.disabled = true; b.textContent = "Testando…"; out.innerHTML = "";
+      const ic = { ok: "✓", erro: "✗", aviso: "⚠", info: "ⓘ" };
+      autoteste((nome, est, extra) => { out.insertAdjacentHTML("beforeend", `<div class="shr ${est}"><b>${ic[est] || ""} ${esc(nome)}</b>${extra ? `<small>${esc(extra)}</small>` : ""}</div>`); })
+        .catch(err => out.insertAdjacentHTML("beforeend", `<div class="shr erro"><b>✗ O teste parou</b><small>${esc(erroTxt(err))}</small></div>`))
+        .then(() => { b.disabled = false; b.textContent = "Rodar de novo"; out.insertAdjacentHTML("beforeend", `<div class="shr info"><small>Fim do teste. ✓ ok · ⚠ funciona com ressalva · ✗ precisa de ajuste.</small></div>`); }); } };
+}
+$("mnSaude").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } saudeAbrir(); };
 const tabInicial = () => SETOR === PER ? "Loja" : SETOR === KOR ? "Contagem" : "Doacao";
 function trocaSetor(alvo) {   // troca FLV / Perecíveis / KÓRIN sem recarregar a página
   if (alvo === SETOR || ![ "FLV", PER, KOR ].includes(alvo)) return;

@@ -1044,3 +1044,16 @@ body[data-setor="KÓRIN"] label[for="cPlu"],body[data-setor="KÓRIN"] #cPlu,body
 .krow .kq{font-size:20px;font-weight:800;color:#f3d87a;white-space:nowrap;background:none;border:0;padding:6px 4px;min-height:0}
 .krow .kx{background:none;border:0;color:#e07a7a;font-size:20px;padding:6px 8px;min-height:0}
 body[data-setor="Perecíveis"] #micBtn{display:none!important}
+
+/* saúde do app */
+.shsum{margin:10px 0;padding:12px 14px;border-radius:14px;font-weight:800;font-size:16px}
+.shsum.ok{background:rgba(70,180,110,.14);color:#7fe0a3;border:1px solid rgba(70,180,110,.4)}
+.shsum.aten{background:rgba(243,190,70,.13);color:#f3d87a;border:1px solid rgba(243,190,70,.4)}
+.shsec{padding:12px 0;border-top:1px solid var(--ln)}
+.shh{display:flex;align-items:center;gap:10px}
+.shb{min-width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;padding:0 6px}
+.shb.ok{background:rgba(70,180,110,.2);color:#7fe0a3}.shb.aten{background:#f3d87a;color:#1a1405}.shb.info{background:rgba(120,160,230,.2);color:#9db8f0}
+.shit{margin-top:8px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.shn{background:none;border:0;padding:0;min-height:0;color:#f3d87a;font-weight:700;text-decoration:underline;font-size:14px;text-align:left}
+.shr{padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04)}.shr b{display:block;font-size:14px}.shr small{display:block;color:#a9a38f;margin-top:2px}
+.shr.ok b{color:#7fe0a3}.shr.erro b{color:#ff8f8f}.shr.aviso b{color:#f3d87a}.shr.info b{color:#9db8f0}
