@@ -771,6 +771,7 @@ function renderDon() {
   if (typeof dTop6Render === "function") dTop6Render();
   $("dKg").textContent = fq(sumU("kg")); $("dUn").textContent = fq(sumU("un")); $("dKg").parentElement.style.display = sumU("kg") > 0 ? "" : "none"; $("dUn").parentElement.style.display = sumU("un") > 0 ? "" : "none"; $("dItens").textContent = don.itens.length;
   $("dLista").innerHTML = don.itens.length ? don.itens.map((i, x) => `<div class="ditem${window.dNovo===i.key?" novo":""}${(window.dLastKey&&don.itens.some(z=>z.key===window.dLastKey)?i.key===window.dLastKey:x===don.itens.length-1)?" ult":""}${dSel && norm(i.nome) === norm(dSel) ? " cur" : ""}">${dIco(i.nome)}<div class="dn"><b${window.dBurn===i.key?` class="burn" style="--n:${[...i.nome].length}"`:""}>${window.dBurn===i.key?burnTxt(i.nome,350):esc(i.nome)}</b>${dCodTxt(i) ? `<span class="dcod">${dCodTxt(i)}</span>` : ""}<small>${i.lanc} lançamento(s)${(i.cx || i.sem) ? `<span class="dtara">${i.cx ? i.cx + " com TARA" : ""}${i.cx && i.sem ? " · " : ""}${i.sem ? i.sem + " sem TARA" : ""}</span>` : ""}</small></div><div class="dq" data-edit="${x}" role="button" tabindex="0" title="Tocar para corrigir a quantidade"><span class="cnum" data-v="${i.qtd}">${fq(i.qtd)}</span> <span>${esc(i.unidade)}</span></div><button class="cdel" data-drop="${x}" aria-label="Remover ${esc(i.nome)}">✕</button></div>`).reverse().join("") : '<p class="empty">Nada lançado ainda.<br>' + (SETOR === PER ? "Toque em Buscar para escolher o produto." : "Toque num produto abaixo para começar.") + '</p>';
+  { const b = $("dCont"); if (b) { b.classList.toggle("hidden", !don.cont); if (don.cont) $("dContT").textContent = `➕ Continuando a doação de ${dataBR(don.cont.data)}. O que você lançar soma nela.` + (don.pausa && don.pausa.itens.length ? ` Sua lista de hoje (${don.pausa.itens.length} itens) fica guardada.` : ""); } }
   if (window.dBurn) { const k = window.dBurn; setTimeout(() => dFx(k), 380); }
   window.dBurn = ""; renderKey();
 }
@@ -1106,7 +1107,7 @@ $("dLista").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key =
 $("dLista").onclick = e => { const q = e.target.closest("[data-edit]"); if (q) return dEditOpen(q); const b = e.target.closest("[data-drop]"); if (!b) return; const x = Number(b.dataset.drop), it = don.itens.splice(x, 1)[0];
   store.set(DK, don); renderDon();
   toast(`${it.nome} removido.`, "Desfazer", () => { if (!don.itens.some(z => z.key === it.key)) { don.itens.splice(Math.min(x, don.itens.length), 0, it); store.set(DK, don); renderDon(); toast(`${it.nome} voltou para a lista.`); } else toast("Esse produto já foi lançado de novo."); }); };
-$("dLimpar").onclick = () => { if (don.itens.length && confirm("Apagar toda a lista da doação atual?")) { const antes = don; don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon();
+$("dLimpar").onclick = () => { if (don.cont) return contCancela(); if (don.itens.length && confirm("Apagar toda a lista da doação atual?")) { const antes = don; don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon();
   toast("Lista da doação apagada.", "Desfazer", () => { if (!don.itens.length) { don = antes; store.set(DK, don); renderDon(); toast("Lista restaurada."); } else toast("Já existem itens novos na lista; não dá mais para restaurar."); }); } };
 // romaneio
 function romTop(d) {    // top 3 dos 30 dias até a data desta doação (inclui ela mesma); por peso (kg), senão por quantidade
@@ -1398,7 +1399,32 @@ function addToRom(nome, unidade, qtd, cod, bar) {
   fim(); toast(`${nm}: +${fq(qtd)} ${unidade} na doação de ${dataBR(curRom.data)} (total ${fq(it.qtd)} ${unidade})`); return it.qtd;
 }
 $("rAdd").onclick = () => openScan("doacao");
+// ---------- continuar uma doação anterior: abre o lançamento na tela normal de doação e, ao finalizar, atualiza o mesmo lançamento ----------
+function romContinuar() {
+  if (!curRom) return; if (!hid(curRom) && !(db && curRom._id)) return toast("Aguarde o salvamento da doação e tente de novo.");
+  if (don.cont) return toast("Já há uma doação anterior em continuação. Finalize ou cancele primeiro.");
+  const pausa = don.itens.length ? { itens: don.itens, inicio: don.inicio } : null;
+  don = { itens: curRom.itens.map(i => ({ key: norm(i.nome) + "|" + i.unidade, nome: i.nome, unidade: i.unidade, qtd: i.qtd, lanc: i.lanc || 1, cod: i.cod || "" })), inicio: new Date().toISOString(), cont: { id: hid(curRom), _id: curRom._id || "", data: curRom.data }, pausa };
+  store.set(DK, don); $("donaRomaneio").classList.add("hidden"); $("donaEntrada").classList.remove("hidden"); try { if (typeof dView === "function") dView("lista"); } catch (e) {}
+  renderDon(); window.scrollTo(0, 0); toast(`Doação de ${dataBR(curRom.data)} aberta: pode acrescentar itens.`);
+}
+function contCancela() {
+  if (!don.cont || !confirm(`Cancelar a continuação da doação de ${dataBR(don.cont.data)}? O que você acrescentou agora será descartado (a doação original fica como estava).`)) return;
+  const p = don.pausa; don = p ? { itens: p.itens, inicio: p.inicio } : { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); toast("Continuação cancelada.");
+}
+function finalizaCont() {
+  const c = don.cont, itens = don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc: lanc || 1, cod: cod || "" })).sort(byName);
+  const tot = u => Math.round(itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0) * 1000) / 1000, campos = { itens, totalKg: tot("kg"), totalUn: tot("un"), editada: true };
+  const ant = (curRom && hid(curRom) === c.id ? curRom : null) || histList.find(x => hid(x) === c.id) || {}, rec = { ...ant, data: c.data, ...campos, _id: c._id || ant._id };
+  const local = () => { const m = store.get(EDK, {}); if (c._id) { m[c._id] = campos; store.set(EDK, m); } };
+  if (db && c._id) V.updateDoc(V.doc(db, "doacoes", c._id), campos).catch(err => { console.error(err); local(); toast("Salvo só neste aparelho: o Firebase não permitiu alterar a doação na nuvem."); });
+  else { const l = store.get(HK, []), y = l.find(z => String(z.em) === c.id); if (y) { Object.assign(y, campos); store.set(HK, l); } }
+  const p = don.pausa; don = p ? { itens: p.itens, inicio: p.inicio } : { itens: [], inicio: new Date().toISOString() }; store.set(DK, don);
+  renderDon(); showRomaneio(rec); if (!db) reloadLocalHist(); renderTop(); toast(`Doação de ${dataBR(c.data)} atualizada.`);
+}
+$("rCont").onclick = romContinuar; $("dContX").onclick = contCancela;
 function finalizeDon() {
+  if (don.cont) return finalizaCont();
   const rec = { data: iso(new Date()), por: myName().slice(0, 40), totalKg: Math.round(sumU("kg") * 1000) / 1000, totalUn: Math.round(sumU("un") * 1000) / 1000,
     itens: don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc, cod: cod || "" })).sort(byName) };
   if (db) V.addDoc(V.collection(db, "doacoes"), { ...rec, em: V.serverTimestamp() }).then(r => { rec._id = r.id; }).catch(e => { console.error(e); toast("Erro ao salvar na nuvem (confira as regras). O romaneio foi gerado."); });

@@ -11,10 +11,10 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=231">
+<link rel="stylesheet" href="css/app.css?v=232">
 <title>Valida+ | Controle de validade</title>
-<script src="js/tema.js?v=231"></script>
-<!-- const APP_VERSION = "2026.10.30-231" -->
+<script src="js/tema.js?v=232"></script>
+<!-- const APP_VERSION = "2026.10.30-232" -->
 </head>
 <body data-tab="Loja">
 <div id="splash" aria-hidden="true"><style>
@@ -75,7 +75,7 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 </div>
 <div id="tabDoacao" class="hidden">
 <div id="donaEntrada" data-dview="lista">
-<div class="panel" id="dStrip" role="button" tabindex="0" aria-label="Ver resumo e finalizar"><span class="dl">📋 Doação de hoje · <span><b id="dItens">0</b> itens</span></span><span class="dtot"><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span><i class="dsp">›</i></span></div>
+<div id="dCont" class="dcont hidden"><span id="dContT"></span><button type="button" class="secondary" id="dContX">Cancelar</button></div><div class="panel" id="dStrip" role="button" tabindex="0" aria-label="Ver resumo e finalizar"><span class="dl">📋 Doação de hoje · <span><b id="dItens">0</b> itens</span></span><span class="dtot"><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span><i class="dsp">›</i></span></div>
 <div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
 <button type="button" id="dTrocar" class="dtroca">✕ Trocar produto</button><div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="tararow" id="dTara"><button type="button" id="tCx" class="on" aria-pressed="true">Com TARA</button><button type="button" id="tEdit" aria-label="Alterar peso da caixa">✎</button><span id="dLiq"></span></div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
 <div id="dDock"><div id="dTop6" class="vazio"><div class="dt6h"><span id="dT6L">⭐ ATALHOS</span><span class="dt6a"><button type="button" id="dBalCol">▾ Recolher</button><button type="button" id="dBalAuto" hidden>↺ Automático</button><button type="button" id="dBalEdit">✎ Editar</button></span></div><div class="dt6" id="dT6"></div></div><div id="dBar"><button type="button" id="dAddItem" aria-label="Buscar produto" title="Buscar"><span>🔍</span><small>Buscar</small></button><button type="button" id="dBarScan" aria-label="Bipar" title="Bipar"><svg class="bipico" viewBox="0 0 48 36" aria-hidden="true"><g fill="#f3d87a"><rect x="5" y="5" width="3" height="26" rx="1.2"/><rect x="11" y="5" width="2" height="26" rx="1"/><rect x="16" y="5" width="5" height="26" rx="1.2"/><rect x="24" y="5" width="2" height="26" rx="1"/><rect x="29" y="5" width="4" height="26" rx="1.2"/><rect x="36" y="5" width="2" height="26" rx="1"/><rect x="41" y="5" width="3" height="26" rx="1.2"/></g><g class="lz"><rect x="1" y="16.4" width="46" height="3.2" rx="1.6" fill="#ff3b30"/><rect x="1" y="17.4" width="46" height="1.2" rx=".6" fill="#ffb3ad"/></g></svg></button></div></div>
@@ -98,7 +98,7 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 <div id="dFinSheet" class="hidden"><div class="fsc" id="dFinX"></div><div class="fss"><h3>Finalizar doação</h3><div id="dFinBody"></div><button type="button" id="dFinOk">✔ Confirmar doação</button><button type="button" id="dFinLimpar">Limpar lista</button><small>A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio vai para o histórico.</small></div></div>
 </div>
 <div id="donaRomaneio" class="hidden"><section class="panel"><div id="romHead"></div><div id="romBody"></div>
-<div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rAdd">＋ Bipar item</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
+<div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rCont">➕ Continuar doação</button><button class="secondary big" id="rAdd">＋ Bipar item</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
 </div>
 <div id="tabEtiquetas" class="hidden">
 <details class="etqinfo"><summary>ℹ️ Como usar esta aba</summary><span>Use esta aba para <b>coletar os códigos de barras dos produtos que precisam de etiquetas na loja</b>.</span><ol><li>Bipe o código ou pesquise o produto pelo nome.</li><li>Segure o item para escolher o tamanho (P, M ou G) e a quantidade.</li><li>Toque no quadrado ao lado do item para marcar as que <b>já foram colocadas para impressão</b>.</li><li>Toque no <b>⧉</b> para <b>duplicar</b> o código e escolher outro tamanho (ex.: 2 P e 1 G do mesmo produto).</li><li>Quando terminar, use <b>Remover todos</b> para limpar a lista.</li></ol><span class="etqnote">A lista é compartilhada: todos os aparelhos veem as mesmas etiquetas e as marcações de “já imprimi”.</span><span class="etqnote">O cadastro de produtos pode ser feito por qualquer usuário: se o código ainda não existir, o app pede o nome e cadastra na hora.</span></details>
@@ -228,16 +228,16 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 </div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
-<script src="js/config.js?v=231"></script>
+<script src="js/config.js?v=232"></script>
 <script src="vendor.js"></script>
-<script src="js/version.js?v=231"></script>
-<script src="js/login.js?v=231"></script>
-<script src="js/app.js?v=231"></script>
-<script src="js/nav.js?v=231"></script>
-<script src="js/operador.js?v=231"></script>
-<script src="js/teclado.js?v=231"></script>
-<script src="js/menu.js?v=231"></script>
-<script src="js/status.js?v=231"></script>
-<script src="js/inventario.js?v=231"></script>
-<script src="js/doacao-busca.js?v=231"></script>
+<script src="js/version.js?v=232"></script>
+<script src="js/login.js?v=232"></script>
+<script src="js/app.js?v=232"></script>
+<script src="js/nav.js?v=232"></script>
+<script src="js/operador.js?v=232"></script>
+<script src="js/teclado.js?v=232"></script>
+<script src="js/menu.js?v=232"></script>
+<script src="js/status.js?v=232"></script>
+<script src="js/inventario.js?v=232"></script>
+<script src="js/doacao-busca.js?v=232"></script>
 </body></html>
