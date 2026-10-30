@@ -1,1 +1,1 @@
-{"versao":"2026.10.30-227","nota":"Na primeira abertura o app pergunta o seu setor (FLV, Perecíveis ou Admin) e depois entra direto nele. Só o Admin vê os dois setores. Dá para mudar em ⋮ → Perfil deste aparelho"}
+{"versao":"2026.10.30-229","nota":"O perfil Admin agora tem senha (criada na primeira vez que alguém escolhe Admin). Sem a senha ninguém entra como Admin nem troca o perfil do aparelho"}

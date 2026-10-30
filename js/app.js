@@ -15,14 +15,51 @@ const doSetor = p => (setorDe(p) === PER) === (SETOR === PER);
 let CATS_VIS, CATSET;   // CATSET = categoria gravada nos cadastros do setor atual
 const derivaSetor = () => { CATS_VIS = SETOR === PER ? [PER] : CATS.filter(c => c !== PER && c !== KOR); CATSET = SETOR === PER ? PER : "FLV"; document.body.dataset.setor = SETOR; document.body.dataset.perfil = PERFIL || ""; };
 derivaSetor();
+const ADM_L = "validamais-admin-h";
+const adminHash = async pin => { const b = new TextEncoder().encode("valida+|" + pin); try { return [...new Uint8Array(await crypto.subtle.digest("SHA-256", b))].map(x => x.toString(16).padStart(2, "0")).join(""); } catch (e) { let h = 5381; for (const c of "valida+|" + pin) h = ((h << 5) + h + c.charCodeAt(0)) >>> 0; return "x" + h; } };
+function adminLer() {   // senha (hash) do Admin: nuvem quando houver, senão este aparelho. Devolve {h} ou {erro}
+  return new Promise(res => {
+    const local = () => { try { return localStorage.getItem(ADM_L) || ""; } catch (e) { return ""; } };
+    const ini = Date.now(), tenta = () => {
+      if (!cloud) return res({ h: local() });
+      const d = window.vmDb && window.vmDb(); if (!d) { if (Date.now() - ini > 6000) return res({ erro: "Sem conexão com a nuvem. Tente de novo." }); return setTimeout(tenta, 250); }
+      let fim = false, un = null; const t = setTimeout(() => { if (!fim) { fim = true; try { un && un(); } catch (e) {} res({ erro: "A nuvem não respondeu. Tente de novo." }); } }, 8000);
+      un = V.onSnapshot(V.doc(d, "sh_cfg", "admin"), sn => { if (fim) return; fim = true; clearTimeout(t); try { un && un(); } catch (e) {} const h = sn.exists() ? (sn.data().h || "") : ""; try { if (h) localStorage.setItem(ADM_L, h); } catch (e) {} res({ h }); },
+        err => { if (fim) return; fim = true; clearTimeout(t); res({ erro: "Não consegui ler a senha na nuvem." }); }); };
+    tenta(); });
+}
+async function adminGravar(h) { try { localStorage.setItem(ADM_L, h); } catch (e) {} const d = window.vmDb && window.vmDb(); if (cloud && d) await V.setDoc(V.doc(d, "sh_cfg", "admin"), { h }); }
+function pinModal({ titulo, texto, ok = "Confirmar", dois = false }) {   // devolve a senha digitada ou null
+  return new Promise(res => { const bg = document.createElement("div"); bg.className = "askbg"; bg.style.cssText = "position:fixed;inset:0;z-index:2147483000";
+    bg.innerHTML = `<div class="ask perfil"><div class="ai">🔐</div><h3>${titulo}</h3><p>${texto}</p><input type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="Senha (4 a 8 números)" id="pinA" style="width:100%;text-align:center;font-size:22px;letter-spacing:6px">${dois ? '<input type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="Repita a senha" id="pinB" style="width:100%;text-align:center;font-size:22px;letter-spacing:6px;margin-top:8px">' : ""}<p id="pinE" style="color:#ff8f8f;margin:8px 0 0;min-height:18px"></p><div class="arow"><button type="button" class="secondary" data-n>Cancelar</button><button type="button" class="ok" data-o>${ok}</button></div></div>`;
+    document.body.appendChild(bg); const a = bg.querySelector("#pinA"); setTimeout(() => a.focus(), 50);
+    const go = () => { const v = a.value.trim(); if (!/^\d{4,8}$/.test(v)) { bg.querySelector("#pinE").textContent = "Use de 4 a 8 números."; return; } if (dois && bg.querySelector("#pinB").value.trim() !== v) { bg.querySelector("#pinE").textContent = "As senhas não são iguais."; return; } bg.remove(); res(v); };
+    bg.onclick = e => { if (e.target.closest("[data-n]")) { bg.remove(); res(null); } else if (e.target.closest("[data-o]")) go(); };
+    bg.onkeydown = e => { if (e.key === "Enter") go(); }; });
+}
+async function adminSenha(motivo) {   // true se a senha do Admin foi confirmada (ou criada, na primeira vez)
+  const r = await adminLer(); if (r.erro) { toast(r.erro); return false; }
+  if (!r.h) {   // ainda não existe senha de Admin: quem entrar primeiro cria
+    const n = await pinModal({ titulo: "Criar senha do Admin", texto: "Esta senha protege o acesso Admin em todos os aparelhos. Guarde-a: só você deve saber.", ok: "Criar senha", dois: true }); if (!n) return false;
+    try { await adminGravar(await adminHash(n)); } catch (e) { toast("Não consegui salvar a senha na nuvem."); return false; } toast("Senha do Admin criada."); return true; }
+  for (let i = 0; i < 3; i++) { const n = await pinModal({ titulo: "Senha do Admin", texto: motivo === "troca" ? "Para trocar o perfil deste aparelho, digite a senha do Admin." : "Digite a senha do Admin para entrar.", ok: "Entrar" }); if (!n) return false;
+    if (await adminHash(n) === r.h) return true; toast("Senha incorreta."); }
+  return false;
+}
 function perfilEscolher(troca) {   // pergunta uma vez qual é o setor deste aparelho
   const bg = document.createElement("div"); bg.className = "askbg"; bg.id = "perfilBg";
   const op = (v, ic, t, s) => `<button type="button" class="perfop${PERFIL === v ? " on" : ""}" data-p="${v}"><span>${ic}</span><b>${t}</b><small>${s}</small></button>`;
   bg.innerHTML = `<div class="ask perfil"><div class="ai">👤</div><h3>${troca ? "Perfil deste aparelho" : "Qual é o seu setor?"}</h3><p>${troca ? "Escolha o novo perfil." : "Você escolhe uma vez e o app abre direto no seu setor."}</p>
     ${op("FLV", "🥬", "FLV", "Hortifruti")}${op(PER, "🧀", "Perecíveis", "Validades e etiquetas")}${op("Admin", "🛡️", "Admin", "Acesso a FLV e Perecíveis")}${troca ? '<button type="button" class="secondary" data-x style="margin-top:8px;width:100%">Cancelar</button>' : ""}</div>`;
-  bg.onclick = e => { if (troca && (e.target === bg || e.target.closest("[data-x]"))) return bg.remove();
-    const b = e.target.closest("[data-p]"); if (!b) return; try { localStorage.setItem(PERFIL_K, b.dataset.p); sessionStorage.removeItem("validamais-setor"); } catch (err) {}
-    location.reload(); };
+  const aplica = v => { try { localStorage.setItem(PERFIL_K, v); sessionStorage.removeItem("validamais-setor"); } catch (err) {} location.reload(); };
+  let ocupado = false;
+  bg.onclick = async e => { if (troca && (e.target === bg || e.target.closest("[data-x]"))) return bg.remove();
+    const b = e.target.closest("[data-p]"); if (!b || ocupado) return; const v = b.dataset.p; if (v === PERFIL) return bg.remove();
+    ocupado = true;
+    try {
+      if (v === "Admin" || (troca && PERFIL !== "Admin")) { if (!(await adminSenha(v === "Admin" ? "Admin" : "troca"))) return; }   // Admin e troca de perfil exigem a senha do Admin
+      aplica(v);
+    } finally { ocupado = false; } };
   document.body.appendChild(bg);
 }
 if (!PERFIL) perfilEscolher(false);
