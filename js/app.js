@@ -6,12 +6,26 @@ const C = window.VALIDA_CONFIG || {}, V = window.V || {}, fb = C.firebase || {};
 const PER = "Perecíveis", KOR = "KÓRIN";
 const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros", PER, KOR];
 // setor escolhido na abertura (sessionStorage): "FLV" (tudo que não é Perecíveis, como sempre foi) ou "Perecíveis" (cadastros e validades próprios)
-let SETOR = (() => { try { const s = sessionStorage.getItem("validamais-setor"); return s === PER || s === KOR ? s : "FLV"; } catch (e) { return "FLV"; } })();
+// perfil do aparelho (escolhido uma vez): "FLV" e "Perecíveis" entram direto e só nesse setor; "Admin" acessa os dois
+const PERFIL_K = "validamais-perfil";
+let PERFIL = (() => { try { const s = localStorage.getItem(PERFIL_K); return s === "FLV" || s === PER || s === "Admin" ? s : null; } catch (e) { return null; } })();
+let SETOR = (() => { if (PERFIL === "FLV" || PERFIL === PER) return PERFIL; try { const s = sessionStorage.getItem("validamais-setor"); return s === PER || s === KOR ? s : "FLV"; } catch (e) { return "FLV"; } })();
 const setorDe = p => p.category === PER ? PER : "FLV";   // Perecíveis tem cadastro próprio; FLV e KÓRIN usam o mesmo cadastro (categoria «FLV» e as demais)
 const doSetor = p => (setorDe(p) === PER) === (SETOR === PER);
 let CATS_VIS, CATSET;   // CATSET = categoria gravada nos cadastros do setor atual
-const derivaSetor = () => { CATS_VIS = SETOR === PER ? [PER] : CATS.filter(c => c !== PER && c !== KOR); CATSET = SETOR === PER ? PER : "FLV"; document.body.dataset.setor = SETOR; };
+const derivaSetor = () => { CATS_VIS = SETOR === PER ? [PER] : CATS.filter(c => c !== PER && c !== KOR); CATSET = SETOR === PER ? PER : "FLV"; document.body.dataset.setor = SETOR; document.body.dataset.perfil = PERFIL || ""; };
 derivaSetor();
+function perfilEscolher(troca) {   // pergunta uma vez qual é o setor deste aparelho
+  const bg = document.createElement("div"); bg.className = "askbg"; bg.id = "perfilBg";
+  const op = (v, ic, t, s) => `<button type="button" class="perfop${PERFIL === v ? " on" : ""}" data-p="${v}"><span>${ic}</span><b>${t}</b><small>${s}</small></button>`;
+  bg.innerHTML = `<div class="ask perfil"><div class="ai">👤</div><h3>${troca ? "Perfil deste aparelho" : "Qual é o seu setor?"}</h3><p>${troca ? "Escolha o novo perfil." : "Você escolhe uma vez e o app abre direto no seu setor."}</p>
+    ${op("FLV", "🥬", "FLV", "Hortifruti")}${op(PER, "🧀", "Perecíveis", "Validades e etiquetas")}${op("Admin", "🛡️", "Admin", "Acesso a FLV e Perecíveis")}${troca ? '<button type="button" class="secondary" data-x style="margin-top:8px;width:100%">Cancelar</button>' : ""}</div>`;
+  bg.onclick = e => { if (troca && (e.target === bg || e.target.closest("[data-x]"))) return bg.remove();
+    const b = e.target.closest("[data-p]"); if (!b) return; try { localStorage.setItem(PERFIL_K, b.dataset.p); sessionStorage.removeItem("validamais-setor"); } catch (err) {}
+    location.reload(); };
+  document.body.appendChild(bg);
+}
+if (!PERFIL) perfilEscolher(false);
 const $ = id => document.getElementById(id);
 const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria", TK = "validamais-tam";
 let curTab = "Loja";
@@ -1542,10 +1556,12 @@ function saudeAbrir() {
         .catch(err => out.insertAdjacentHTML("beforeend", `<div class="shr erro"><b>✗ O teste parou</b><small>${esc(erroTxt(err))}</small></div>`))
         .then(() => { b.disabled = false; b.textContent = "Rodar de novo"; out.insertAdjacentHTML("beforeend", `<div class="shr info"><small>Fim do teste. ✓ ok · ⚠ funciona com ressalva · ✗ precisa de ajuste.</small></div>`); }); } };
 }
+$("mnPerfil").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } perfilEscolher(true); };
 $("mnSaude").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } saudeAbrir(); };
 const tabInicial = () => SETOR === PER ? "Loja" : SETOR === KOR ? "Contagem" : "Doacao";
 function trocaSetor(alvo) {   // troca FLV / Perecíveis / KÓRIN sem recarregar a página
   if (alvo === SETOR || ![ "FLV", PER, KOR ].includes(alvo)) return;
+  if (PERFIL !== "Admin" && alvo !== PERFIL) return;   // só o Admin troca de setor
   try { if (typeof stopScanner === "function") stopScanner(); closeModal(); } catch (e) {}
   const todos = db ? rawAll : products.concat(lixeira, outros);   // todos os cadastros, de todos os setores
   if (SETOR === "FLV") etqFlv = labels;

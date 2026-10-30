@@ -1,1 +1,1 @@
-{"versao":"2026.10.30-226","nota":"Saúde do app agora resolve na hora: tirar código repetido, renomear ou juntar cadastros de mesmo nome e escolher o nome certo entre parecidos"}
+{"versao":"2026.10.30-227","nota":"Na primeira abertura o app pergunta o seu setor (FLV, Perecíveis ou Admin) e depois entra direto nele. Só o Admin vê os dois setores. Dá para mudar em ⋮ → Perfil deste aparelho"}
