@@ -6,20 +6,20 @@ const C = window.VALIDA_CONFIG || {}, V = window.V || {}, fb = C.firebase || {};
 const PER = "Perecíveis", KOR = "KÓRIN";
 const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros", PER, KOR];
 // setor escolhido na abertura (sessionStorage): "FLV" (tudo que não é Perecíveis, como sempre foi) ou "Perecíveis" (cadastros e validades próprios)
-const SETOR = (() => { try { const s = sessionStorage.getItem("validamais-setor"); return s === PER || s === KOR ? s : "FLV"; } catch (e) { return "FLV"; } })();
-const KCAT = "Congelados";   // o setor KÓRIN grava com esta categoria (as regras do Firebase já a aceitam; «KÓRIN» e «Perecíveis» dependem de ajuste nas regras)
+let SETOR = (() => { try { const s = sessionStorage.getItem("validamais-setor"); return s === PER || s === KOR ? s : "FLV"; } catch (e) { return "FLV"; } })();
 const setorDe = p => p.category === PER ? PER : (p.category === KCAT || p.category === KOR) ? KOR : "FLV";   // FLV = tudo que não é Perecíveis nem KÓRIN (como sempre foi)
+const KCAT = "Congelados";   // o setor KÓRIN grava com esta categoria (as regras do Firebase já a aceitam; «KÓRIN» e «Perecíveis» dependem de ajuste nas regras)
 const doSetor = p => setorDe(p) === SETOR;
-const CATS_VIS = SETOR === "FLV" ? CATS.filter(c => c !== PER && c !== KOR && c !== KCAT) : [SETOR === KOR ? KCAT : SETOR];
-const CATSET = SETOR === KOR ? KCAT : SETOR;   // categoria gravada nos cadastros deste setor
-document.body.dataset.setor = SETOR;
+let CATS_VIS, CATSET;   // CATSET = categoria gravada nos cadastros do setor atual
+const derivaSetor = () => { CATS_VIS = SETOR === "FLV" ? CATS.filter(c => c !== PER && c !== KOR && c !== KCAT) : [SETOR === KOR ? KCAT : SETOR]; CATSET = SETOR === KOR ? KCAT : SETOR; document.body.dataset.setor = SETOR; };
+derivaSetor();
 const $ = id => document.getElementById(id);
 const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria", TK = "validamais-tam";
 let curTab = "Loja";
 const LOJA = C.loja || "Sam's Club Radial Leste";
 const EMPTY_FLV = '<div class="empty"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="#9db8a4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 28h44l-5 22a4 4 0 0 1-4 3H19a4 4 0 0 1-4-3z"/><path d="M22 28c0-9 4-16 10-16s10 7 10 16"/><path d="M32 12c0-4 3-7 8-7 0 5-3 8-8 7z"/></svg><p>Nenhum produto do FLV com validade para vencer no momento.</p></div>';
 const SKEL = '<div class="skel" role="status" aria-label="Carregando produtos">' + [58, 72, 46, 64].map((w, k) => `<div class="product skelc" aria-hidden="true" style="--d:${k * 0.15}s"><div class="sk sk-t" style="width:${w}%"></div><div class="sk sk-m"></div><div class="sk-row"><div class="sk sk-d"></div><div class="sk sk-p"></div></div></div>`).join("") + '</div>';
-let products = [], lixeira = [], outros = [], db = null, scanner = null, toastTimer, carregando = false;   // carregando: Firebase ainda não respondeu (mostra silhuetas)
+let products = [], lixeira = [], outros = [], rawAll = [], db = null, scanner = null, toastTimer, carregando = false;   // carregando: Firebase ainda não respondeu (mostra silhuetas)
 window.vmProducts = () => products;
 window.vmRegister = o => registerProduct(o);
 window.vmDb = () => db;
@@ -94,6 +94,7 @@ const LLK = "validamais-lixo-local";
 function lixoLocalLer() { const agora = Date.now(); const l = store.get(LLK, []).filter(p => agora - Number(p.lixo) <= LIXO_MS); return l.map(p => ({ ...p, loc: true })); }
 function lixoLocalGravar(l) { store.set(LLK, l.map(({ loc, ...r }) => r)); }
 function separaLixo(arr) {
+  rawAll = arr;
   const agora = Date.now(), venc = arr.filter(p => p.lixo && agora - Number(p.lixo) > LIXO_MS);
   outros = arr.filter(p => !doSetor(p) && !venc.includes(p));   // do outro setor: não aparece aqui (e é preservado no modo local)
   const meu = arr.filter(doSetor);
@@ -545,10 +546,13 @@ $("scansBox").ontoggle = () => {
 };
 
 // ---------- setor, menu lateral e voz ----------
-{ const ir = alvo => { if (alvo === SETOR) return; try { sessionStorage.setItem("validamais-setor", alvo); } catch (e) { return; } location.reload(); };   // a abertura é sempre no FLV; o Perecíveis é uma troca no topo
-  const ch = $("setorChip"); if (ch) { ch.querySelectorAll("[data-s]").forEach(b => { b.hidden = b.dataset.s === KOR && SETOR !== KOR; b.classList.toggle("on", b.dataset.s === SETOR); b.setAttribute("aria-pressed", b.dataset.s === SETOR); b.onclick = () => ir(b.dataset.s); }); }
+function pintaSetor() {   // botões do topo e itens do menu ⋮ conforme o setor atual
+  const ch = $("setorChip"); if (ch) ch.querySelectorAll("[data-s]").forEach(b => { b.hidden = b.dataset.s === KOR && SETOR !== KOR; b.classList.toggle("on", b.dataset.s === SETOR); b.setAttribute("aria-pressed", b.dataset.s === SETOR); b.onclick = () => trocaSetor(b.dataset.s); });
   const outros = ["FLV", PER, KOR].filter(x => x !== SETOR), nome = x => x === KOR ? "KÓRIN" : x;
-  [["mnSetor", "mnSetorT", outros[0]], ["mnSetor2", "mnSetor2T", outros[1]]].forEach(([b, t, alvo]) => { if ($(b)) { $(t).textContent = "Ir para " + nome(alvo); $(b).onclick = () => ir(alvo); } }); }
+  [["mnSetor", "mnSetorT", outros[0]], ["mnSetor2", "mnSetor2T", outros[1]]].forEach(([b, t, alvo]) => { if ($(b)) { $(t).textContent = "Ir para " + nome(alvo); $(b).onclick = () => { trocaSetor(alvo); if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } }; } }); }
+function rotulosSetor() {   // Perecíveis: «código de doação» vira «código interno»
+  [["label[for=cDoacao]", "Código interno", "Código de doação"], ["label[for=cDon]", "Código interno", "Código de doação"]].forEach(([q, per, flv]) => { const e = document.querySelector(q); if (!e) return; const t = SETOR === PER ? per : flv; const n = [...e.childNodes].find(c => c.nodeType === 3); if (n) n.textContent = t; else e.textContent = t; }); }
+pintaSetor();
 $("categoryFilter").value = CATSET; store.set(LC, CATSET); render();
 { const sf = $("statusFilter"), stt = document.querySelectorAll("#tabLoja .stats .stat");
   stt[0].onclick = () => { sf.value = ""; render(); }; stt[1].onclick = () => { sf.value = sf.value === "soon" ? "" : "soon"; render(); }; stt[2].onclick = () => { sf.value = sf.value === "expired" ? "" : "expired"; render(); }; }
@@ -557,7 +561,7 @@ $("phList").onclick = e => { const b = e.target.closest("[data-phr]"); if (b) ph
 $("outAlert").onclick = () => { $("categoryFilter").value = ""; render(); window.scrollTo(0, 0); };
 $("verTodos").onclick = () => { $("categoryFilter").value = $("categoryFilter").value ? "" : CATSET; render(); };
 document.addEventListener("pointerdown", () => { audio(); render(); }, { once: true }); // libera o som do alerta no primeiro toque
-if (SETOR === PER) { [["label[for=cDoacao]", "Código interno"], ["label[for=cDon]", "Código interno"]].forEach(([q, t]) => { const e = document.querySelector(q); if (e) { const n = [...e.childNodes].find(c => c.nodeType === 3); if (n) n.textContent = t; else e.textContent = t; } }); }   // Perecíveis: «código de doação» vira «código interno»
+rotulosSetor();
 const side = o => { $("side").classList.toggle("open", o); $("sideBg").classList.toggle("hidden", !o); };
 $("sideBg").onclick = () => side(false); $("sideClose").onclick = () => side(false);
 $("micBtn").onclick = () => {
@@ -670,7 +674,9 @@ $("eanCode").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); ean
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("eanModal").classList.contains("hidden")) eanClose(); });
 
 // ---------- aba Doação ----------
-const UK = "validamais-dunid", DK = SETOR === "FLV" ? "validamais-doacao" : "validamais-doacao-" + (SETOR === PER ? "per" : "kor"), HK = "validamais-doacoes", NK = "validamais-dnomes";
+const UK = "validamais-dunid", HK = "validamais-doacoes", NK = "validamais-dnomes";
+const chaveSetor = b => SETOR === "FLV" ? b : b + "-" + (SETOR === PER ? "per" : "kor");
+let DK = chaveSetor("validamais-doacao");
 let don = store.get(DK, null) || { itens: [], inicio: new Date().toISOString() }, dSel = "", dVal = "", curRom = null, histList = [], unsubHist = null, lastScan = { c: "", t: 0 };
 function norm(s) { return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim(); }
 function pkey(p) { return p.barcode || norm(p.name); }
@@ -1442,10 +1448,30 @@ $("kPdf").onclick = async () => { if (!kList.length) return toast("A contagem es
     const blob = pdf.output("blob"), file = new File([blob], "contagem-korin-" + iso(new Date()) + ".pdf", { type: "application/pdf" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Contagem KÓRIN", files: [file] }); else download(blob, file.name);
   } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Não foi possível gerar o PDF."); } } };
-tab(SETOR === PER ? "Loja" : SETOR === KOR ? "Contagem" : "Doacao");
+const tabInicial = () => SETOR === PER ? "Loja" : SETOR === KOR ? "Contagem" : "Doacao";
+function trocaSetor(alvo) {   // troca FLV / Perecíveis / KÓRIN sem recarregar a página
+  if (alvo === SETOR || ![ "FLV", PER, KOR ].includes(alvo)) return;
+  try { if (typeof stopScanner === "function") stopScanner(); closeModal(); } catch (e) {}
+  const todos = db ? rawAll : products.concat(lixeira, outros);   // todos os cadastros, de todos os setores
+  if (SETOR === "FLV") etqFlv = labels;
+  SETOR = alvo; try { sessionStorage.setItem("validamais-setor", alvo); } catch (e) {}
+  derivaSetor(); separaLixo(todos); lixoBtn();
+  DK = chaveSetor("validamais-doacao"); don = store.get(DK, null) || { itens: [], inicio: new Date().toISOString() }; dSel = ""; dVal = "";
+  EK = chaveSetor(EK_FLV); EHK = chaveSetor("validamais-etqhist");
+  labels = alvo === "FLV" ? (etqFlv || store.get(EK_FLV, [])) : store.get(EK, []); pend = null; eHits = []; eFiltro = "";
+  ["search", "cBusca", "eBusca", "dBusca", "kBusca"].forEach(i => { const e = $(i); if (e) e.value = ""; }); $("eRes").innerHTML = ""; if ($("kSug")) $("kSug").innerHTML = "";
+  cFiltro = ""; retView = false; $("statusFilter").value = "";
+  fillCategories(); $("categoryFilter").dataset.sig = ""; $("categoryFilter").value = CATSET; store.set(LC, CATSET);
+  cadReset(); if (typeof kEscolhe === "function") kEscolhe(null);
+  pintaSetor(); rotulosSetor();
+  render(); cadPaint(); renderDon(); renderLabels(); kPaint();
+  tab(tabInicial()); window.scrollTo(0, 0); }
+tab(tabInicial());
 
 // ---------- aba Etiquetas ----------
-const EK = SETOR === "FLV" ? "validamais-etiquetas" : "validamais-etiquetas-" + (SETOR === PER ? "per" : "kor"), EUK = "validamais-etq-uni";   // EUK: código original -> código do sistema (só para a lista de etiquetas)
+const EK_FLV = "validamais-etiquetas";
+let EK = chaveSetor(EK_FLV), etqFlv = null;   // etqFlv: lista do FLV guardada enquanto se trabalha em outro setor
+const EUK = "validamais-etq-uni";   // EUK: código original -> código do sistema (só para a lista de etiquetas)
 const uniCode = c => (c && store.get(EUK, {})[c]) || c;
 const SZ = { P: { w: 63, h: 30, cols: 3, rows: 9, nome: 8, preco: 15, cod: 6, bar: 6 }, M: { w: 95, h: 50, cols: 2, rows: 5, nome: 12, preco: 26, cod: 8, bar: 12 }, G: { w: 190, h: 90, cols: 1, rows: 3, nome: 20, preco: 52, cod: 11, bar: 24 } };
 let labels = store.get(EK, []), pend = null, eHits = [], eFiltro = "";
@@ -1535,7 +1561,7 @@ async function labelScan(code) {
 $("eScan").onclick = () => openScan("etiqueta");
 
 // ---------- histórico de etiquetas já impressas (3 dias) ----------
-const EHK = SETOR === "FLV" ? "validamais-etqhist" : "validamais-etqhist-" + (SETOR === PER ? "per" : "kor");
+let EHK = chaveSetor("validamais-etqhist");
 const ehLoad = () => (store.get(EHK, []) || []).filter(e => Date.now() - (e.t || 0) < HIST_MS);
 function ehAdd(lista) {
   if (!lista.length) return;
@@ -1617,7 +1643,7 @@ $("lmDup").onclick = () => { const i = lmI; $("lModal").classList.add("hidden");
 $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden"); labelUnify(i); };
 // ---------- Etiquetas compartilhadas: todos os aparelhos veem a mesma lista (coleção "sh_etiquetas" no Firestore) ----------
 (function () {
-  if (SETOR !== "FLV" || typeof db === "undefined" || !db || !V.setDoc || !V.deleteDoc || !V.onSnapshot || !V.doc || !V.collection) return;   // sem nuvem: segue só local
+  if (typeof db === "undefined" || !db || !V.setDoc || !V.deleteDoc || !V.onSnapshot || !V.doc || !V.collection) return;   // sem nuvem: segue só local
   const COL = "sh_etiquetas", FLAG = "validamais-etq-cloud", baseSet = store.set.bind(store);
   const last = new Map();                 // id -> conteúdo que a nuvem já tem (para só enviar o que mudou)
   let ready = false, warned = false;
@@ -1625,7 +1651,10 @@ $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden");
   const body = l => { const o = JSON.parse(JSON.stringify(l)); delete o.id; return o; };
   const canon = o => JSON.stringify(Object.keys(o).sort().reduce((a, k) => (a[k] = o[k], a), {}));
   const fail = e => { console.error(e); if (!warned) { warned = true; toast("Etiquetas: não consegui sincronizar com a nuvem (confira as regras da coleção «sh_etiquetas»). Ficou só neste aparelho."); } };
+  const L = () => SETOR === "FLV" ? labels : (etqFlv || (etqFlv = store.get(EK_FLV, [])));   // a nuvem só sincroniza a lista do FLV, mesmo com outro setor aberto
+  const setL = v => { if (SETOR === "FLV") labels = v; else etqFlv = v; };
   function ensure() {                     // todo item precisa de id próprio e de posição (ord) para ficar na mesma ordem em todos os aparelhos
+    const labels = L();
     labels.forEach(l => { if (!l.id) l.id = newId(); });
     for (let i = 0; i < labels.length; i++) {
       if (typeof labels[i].ord === "number" && isFinite(labels[i].ord)) continue;
@@ -1638,29 +1667,30 @@ $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden");
   function push() {
     ensure(); if (!ready) return;
     const ids = new Set();
-    labels.forEach(l => {
+    L().forEach(l => {
       ids.add(l.id); const j = canon(body(l));
       if (last.get(l.id) === j) return;
       last.set(l.id, j); V.setDoc(V.doc(db, COL, l.id), JSON.parse(j)).catch(fail);
     });
     [...last.keys()].forEach(id => { if (!ids.has(id)) { last.delete(id); V.deleteDoc(V.doc(db, COL, id)).catch(fail); } });
   }
-  store.set = (k, v) => { baseSet(k, v); if (k === EK) push(); };
+  store.set = (k, v) => { baseSet(k, v); if (k === EK_FLV) push(); };
   function adopt(snap) {
     if (!ready && snap.metadata.fromCache && !snap.docs.length) return;      // ainda sem resposta do servidor
     const remote = snap.docs.map(d => ({ ...d.data(), id: d.id }));
     if (!ready) {
       ready = true;
-      if (!remote.length && labels.length && !localStorage.getItem(FLAG)) {  // nuvem vazia e este aparelho tem lista: sobe a dele
+      if (!remote.length && L().length && !localStorage.getItem(FLAG)) {  // nuvem vazia e este aparelho tem lista: sobe a dele
         baseSet(FLAG, 1); push(); return;
       }
       baseSet(FLAG, 1);
-      if (labels.length && remote.length) baseSet(EK + "-bkp", labels);       // guarda cópia da lista antiga deste aparelho
+      if (L().length && remote.length) baseSet(EK_FLV + "-bkp", L());       // guarda cópia da lista antiga deste aparelho
     }
     remote.sort((a, b) => ((a.ord || 0) - (b.ord || 0)) || (a.id < b.id ? -1 : 1));
     last.clear(); remote.forEach(r => last.set(r.id, canon(body(r))));
     const sig = a => a.map(x => x.id + canon(body(x))).join("|");
-    if (sig(remote) === sig(labels)) return;                                  // nada mudou (eco da nossa própria escrita)
+    if (sig(remote) === sig(L())) return;                                     // nada mudou (eco da nossa própria escrita)
+    if (SETOR !== "FLV") { setL(remote); baseSet(EK_FLV, remote); return; }    // outro setor aberto: só atualiza a lista do FLV guardada
     const modal = $("lModal"), aberto = modal && !modal.classList.contains("hidden"), cur = aberto && labels[lmI] ? labels[lmI].id : null;
     labels = remote; baseSet(EK, labels);
     if (aberto) { const ni = cur ? labels.findIndex(l => l.id === cur) : -1; if (ni < 0) modal.classList.add("hidden"); else lmI = ni; }
