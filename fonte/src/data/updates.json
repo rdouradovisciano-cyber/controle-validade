@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-10-31T21:10:00-03:00",
+  "itens": [
+   "Pesáveis: PLU (amarelo) e código interno (azul) em destaque, com número grande, e o nome do produto discreto em uma linha com reticências (...). Validades: nome em uma linha com reticências (abre inteiro ao tocar) e linhas mais baixas, para caber mais itens na tela"
+  ]
+ },
+ {
   "t": "2026-10-31T20:45:00-03:00",
   "itens": [
    "O resumo de urgência das Validades ficou bem menor e recolhido: uma linha com os números, e «▾ ver» abre os botões de filtro (o app lembra se você deixou aberto)"

@@ -1174,3 +1174,27 @@ html[data-tema=dark] .pitem.prv,html[data-tema=dark] .pitem.prh,html[data-tema=d
 .tgrid b{font-size:19px!important}.tgrid span{font-size:9.5px!important}
 .tiers .tbar{flex-direction:row;justify-content:flex-start;align-items:center;gap:10px;min-height:38px;padding:5px 12px;border:1px solid var(--ln);background:rgba(255,255,255,.04);box-shadow:none;border-radius:12px}
 .tiers .tbar .tbl{white-space:nowrap}
+
+/* Pesáveis: código em destaque, nome discreto em 1 linha; Validades: nome em 1 linha e linhas mais baixas */
+.peslista .pesrow{padding:7px 2px;gap:8px}
+.peslista .pesrow .pesn{min-width:0}
+.peslista .pesrow .pescods{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 3px}
+.peslista .pesrow .pesn .pesc{display:inline-flex;align-items:baseline;gap:6px;padding:3px 11px 4px;border-radius:10px;border:0;font-size:11px;white-space:nowrap}
+.peslista .pesrow .pesn .pesc i{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.06em}
+.peslista .pesrow .pesn .pesc b{display:inline;margin:0;font-size:22px;font-weight:900;letter-spacing:.02em;line-height:1.1}
+.peslista .pesrow .pesn .pesc.plu{background:#f3d87a;color:#1a1405}
+.peslista .pesrow .pesn .pesc.itn{background:#8fe0ec;color:#06242a}
+html[data-tema=dark] .peslista .pesrow .pesn .pesc.plu b,html[data-tema=dark] .peslista .pesrow .pesn .pesc.itn b{color:inherit}
+.peslista .pesrow .pesn > b.pesnome{display:block;font-size:13.5px;font-weight:600;color:var(--mut,#a9a38f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.peslista .pesrow .pesn small{margin-top:1px}
+.peslista .pesrow .pesb{min-height:34px;padding:0 9px;font-size:12.5px}
+.pitem{margin:6px 0}
+.pi-main{padding:9px 12px;gap:8px}
+.pi-nome{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
+.pi-nome::after{content:none}
+.pitem.open .pi-nome{white-space:normal;overflow:visible}
+.pi-sub{margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pi-sub::after{content:" ▾";opacity:.5}.pitem.open .pi-sub::after{content:" ▴"}
+.pi-badge{min-width:78px;padding:6px 7px}
+.pi-badge b{font-size:19px}
+.pgh{margin:12px 2px 2px}
