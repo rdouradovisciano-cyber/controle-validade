@@ -1107,3 +1107,18 @@ body[data-perfil="FLV"] #setorChip,body[data-perfil="Perecíveis"] #setorChip,bo
 html[data-tema=dark] .pesc{color:var(--gold1,#f3d87a)}html[data-tema=dark] .pesc b{color:#fff}
 .pesrow .pesn .pesc{display:inline-flex;align-items:baseline;gap:5px}
 .pesrow .pesn .pesc b{display:inline;font-size:13px;margin:0}
+
+/* ===== atenção de vencimento: cartão inteiro colorido, faixa grande com os dias, 4 faixas bem diferentes ===== */
+.product.prv{--tc:#8f1020;--tx:#fff}.product.prh{--tc:#e11d2e;--tx:#fff}.product.pra{--tc:#ff8a00;--tx:#1a0f00}.product.pry{--tc:#ffd60a;--tx:#241c00}
+.product.prv,.product.prh,.product.pra,.product.pry{background:#fff;background:color-mix(in srgb,var(--tc) 17%,#fff);border:3px solid var(--tc);border-left-width:12px;box-shadow:0 4px 14px color-mix(in srgb,var(--tc) 35%,transparent)}
+html[data-tema=dark] .product.prv,html[data-tema=dark] .product.prh,html[data-tema=dark] .product.pra,html[data-tema=dark] .product.pry{background:#14100f;background:color-mix(in srgb,var(--tc) 24%,#0c0f0d);border-color:var(--tc)}
+.product.prv .prow,.product.prh .prow,.product.pra .prow,.product.pry .prow{margin:0 0 8px}
+.prio{display:block;width:100%;box-sizing:border-box;font-size:15px;font-weight:900;letter-spacing:.05em;padding:9px 12px;border-radius:12px;background:var(--tc);color:var(--tx);text-align:center}
+.product.prv .prio{background:repeating-linear-gradient(135deg,#8f1020 0 14px,#5e0a15 14px 28px)}
+.product.prv h3,.product.prh h3,.product.pra h3,.product.pry h3{font-size:20px;font-weight:800;letter-spacing:.01em}
+.product.prv .vbox,.product.prh .vbox,.product.pra .vbox,.product.pry .vbox{background:rgba(255,255,255,.7);border-color:var(--tc)}
+html[data-tema=dark] .product.prv .vbox,html[data-tema=dark] .product.prh .vbox,html[data-tema=dark] .product.pra .vbox,html[data-tema=dark] .product.pry .vbox{background:rgba(0,0,0,.35)}
+.product.prv .vd b,.product.prh .vd b,.product.pra .vd b,.product.pry .vd b{font-size:26px;font-weight:900;color:inherit}
+.product.prv .pill,.product.prh .pill,.product.pra .pill,.product.pry .pill{font-size:14px;font-weight:900;padding:6px 14px;background:var(--tc);color:var(--tx)}
+.product.prv .pill::before,.product.prh .pill::before,.product.pra .pill::before,.product.pry .pill::before{background:var(--tx)}
+.product.prv .vr .pill,.product.prh .vr .pill,.product.pra .vr .pill,.product.pry .vr .pill{display:none}

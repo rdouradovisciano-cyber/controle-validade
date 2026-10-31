@@ -1,1 +1,1 @@
-{"versao":"2026.10.31-239","nota":"Aba Pesáveis (Perecíveis): cada produto mostra o PLU e o código interno lado a lado, e a busca também acha pelo código interno"}
+{"versao":"2026.10.31-241","nota":"Validades com visual novo: o cartão inteiro muda de cor (faixa listrada = vencido · vermelho = hoje · laranja = até 2 dias · amarelo = até o prazo de alerta, 7 dias em Perecíveis), com faixa grande dizendo quantos dias faltam, data e fonte maiores"}
