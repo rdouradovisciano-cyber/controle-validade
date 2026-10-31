@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08090c">
+<meta name="description" content="Controle de validade de loja">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Valida+"><meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/app.css">
+<title>Valida+ | Controle de validade</title>
+<script src="js/tema.js"></script>
+</head>
+<body data-tab="Loja">
+<div id="splash" aria-hidden="true"><style>
+#splash{position:fixed;inset:0;z-index:9999;background:#08090c;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .28s ease}
+#splash.sx{opacity:0;pointer-events:none}
+#splash:before{content:"";position:absolute;left:50%;top:50%;width:226px;height:226px;margin:-113px 0 0 -113px;border-radius:34%;background:radial-gradient(circle at 50% 50%,#1a1e29 0,#101319 62%,#0a0b0f 100%)}
+#splash svg{position:relative;width:148px;height:auto;overflow:visible;transform:translateY(8px)}
+#splash .sc{opacity:.95;animation:sps .55s ease-in-out .15s both}
+#splash .ok{transform-box:fill-box;transform-origin:50% 50%;animation:spk .3s cubic-bezier(.3,1.6,.5,1) .6s both}
+#splash .lg{transform-box:fill-box;transform-origin:50% 50%;animation:spg .35s ease-in-out .6s both}
+@keyframes sps{0%{opacity:.95;transform:translateY(0)}30%{transform:translateY(-78px)}70%{transform:translateY(78px)}100%{opacity:.95;transform:translateY(0)}}
+@keyframes spk{0%{transform:scale(1)}50%{transform:scale(1.45)}100%{transform:scale(1)}}
+@keyframes spg{0%,100%{filter:none}50%{filter:drop-shadow(0 0 10px rgba(243,216,122,.55))}}
+@media (prefers-reduced-motion:reduce){#splash *{animation:none!important}}
+</style><svg viewBox="90 110 332 330" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFF5C0"/><stop offset="30%" stop-color="#E5C158"/><stop offset="70%" stop-color="#9E7A1C"/><stop offset="100%" stop-color="#F3D87A"/></linearGradient></defs>
+<path d="M120 170 V130 H160 M352 130 H392 V170 M392 290 V330 H352 M160 330 H120 V290" fill="none" stroke="url(#sg)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<g class="lg" fill="url(#sg)"><rect x="155" y="150" width="8" height="160" rx="4"/><rect x="173" y="150" width="16" height="160" rx="4"/><rect x="201" y="150" width="6" height="160" rx="3"/><rect x="217" y="150" width="22" height="160" rx="4"/><rect x="251" y="150" width="10" height="160" rx="4"/><rect x="271" y="150" width="18" height="160" rx="4"/><rect x="301" y="150" width="6" height="160" rx="3"/><rect x="317" y="150" width="24" height="160" rx="4"/><rect x="349" y="150" width="8" height="160" rx="4"/></g>
+<g class="sc"><line x1="100" y1="230" x2="412" y2="230" stroke="#FF3B30" stroke-width="6" stroke-linecap="round"/><line x1="100" y1="230" x2="412" y2="230" stroke="#FFA09B" stroke-width="2" stroke-linecap="round"/></g>
+<g class="ok"><circle cx="370" cy="310" r="32" fill="#08090C" stroke="url(#sg)" stroke-width="4"/><path d="M356 310 L366 320 L386 300" fill="none" stroke="url(#sg)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="256" y="422" font-family="Outfit,'Montserrat',Arial,sans-serif" font-weight="700" font-size="34" letter-spacing="9" fill="url(#sg)" text-anchor="middle">VALIDA+</text></svg>
+<script>(function(){var s=document.getElementById("splash");try{if(sessionStorage.getItem("vm-splash")){s.remove();return}sessionStorage.setItem("vm-splash","1")}catch(e){}
+var t0=Date.now(),fim=function(){s.classList.add("sx");setTimeout(function(){s.remove()},320)};
+/* bip ao final (o mesmo bip da leitura); se o navegador bloquear o som sem toque, segue mudo */
+setTimeout(function(){try{var A=window.AudioContext||window.webkitAudioContext,c=new A();if(c.state==="suspended")c.resume();var o=c.createOscillator(),g=c.createGain();o.frequency.value=1000;g.gain.value=.25;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.09)}catch(e){}},720);
+var done=function(){setTimeout(fim,Math.max(0,1000-(Date.now()-t0)))};
+if(document.readyState==="complete")done();else window.addEventListener("load",done);setTimeout(function(){if(s.parentNode)fim()},3500)})()</script></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-doa" viewBox="0 0 24 24"><path d="M9 3.5h6V7H9z"/><path d="M15 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4.5"/></symbol>
+<symbol id="i-etq" viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V5a2 2 0 0 1 2-2h8l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.4"/></symbol>
+<symbol id="i-val" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></symbol>
+<symbol id="i-cad" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+<symbol id="i-inv" viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></symbol>
+<symbol id="i-rec" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></symbol>
+<symbol id="i-his" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 3.5v5h5M12 7.5V12l3 2"/></symbol>
+<symbol id="i-mao" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
+<symbol id="i-lua" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></symbol>
+<symbol id="i-sol" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2.5 12h2M19.5 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+<symbol id="i-bkp" viewBox="0 0 24 24"><path d="M12 3.5v11m0 0-4-4m4 4 4-4"/><path d="M4 16.5v2.5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></symbol>
+<symbol id="i-res" viewBox="0 0 24 24"><path d="M12 14.5v-11m0 0-4 4m4-4 4 4"/><path d="M4 16.5v2.5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></symbol>
+<symbol id="i-ins" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M12 8v6m0 0-2.2-2.2M12 14l2.2-2.2"/></symbol>
+<symbol id="i-sai" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+<symbol id="i-pes" viewBox="0 0 24 24"><path d="M12 3.5v16.5M8.5 20.5h7M4.5 6.5h15"/><path d="M4.5 6.5v4M19.5 6.5v4"/><path d="M1.5 10.5a3 3 0 0 0 6 0M16.5 10.5a3 3 0 0 0 6 0"/><circle cx="12" cy="3" r="1"/></symbol>
+</defs></svg>
+<main class="app">
+<div class="top"><header><h1><span class="vmsr">Valida+</span><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1><span id="setorChip" class="setorsw" role="group" aria-label="Setor"><button type="button" data-s="FLV">🥬 FLV</button><button type="button" data-s="Perecíveis">🧀 Perecíveis</button><button type="button" data-s="KÓRIN" hidden>KÓRIN</button></span></header><nav class="tabbar"><button id="tbDoacao"><svg class="ic" aria-hidden="true"><use href="#i-doa"/></svg><span class="tl">Doação</span></button><button id="tbEtiquetas"><svg class="ic" aria-hidden="true"><use href="#i-etq"/></svg><span class="tl">Etiquetas</span></button><button id="tbLoja"><svg class="ic" aria-hidden="true"><use href="#i-val"/></svg><span class="tl">Validades</span><span class="sirn" id="sirN"></span></button><button id="tbPesaveis"><svg class="ic" aria-hidden="true"><use href="#i-pes"/></svg><span class="tl">Pesáveis</span></button><button id="tbCadastros"><svg class="ic" aria-hidden="true"><use href="#i-cad"/></svg><span class="tl">Cadastros</span></button><button id="tbContagem"><svg class="ic" aria-hidden="true"><use href="#i-inv"/></svg><span class="tl">Contagem</span></button></nav></div>
+<div id="todayBanner" class="today hidden" role="alert"></div>
+<p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
+<div id="tabLoja">
+<div id="topAlert" class="alert hidden" role="status"></div><button type="button" id="outAlert" class="alert hidden" style="width:100%;text-align:left;background:#7a1020;border-color:#ff5a6e;color:#fff"></button>
+<section id="tiers" class="tiers" aria-label="Filtrar por urgência"><button type="button" data-t="v" class="tv"><b>0</b><span>Vencidos</span></button><button type="button" data-t="h" class="th"><b>0</b><span>Hoje</span></button><button type="button" data-t="a" class="ta"><b>0</b><span>Até 2 dias</span></button><button type="button" data-t="y" class="ty"><b>0</b><span>Até 7 dias</span></button></section>
+<section class="stats"><div class="stat"><b id="countAll">0</b><span>Cadastrados</span></div><div class="stat"><b id="countSoon">0</b><span>Vencem em breve</span></div><div class="stat"><b id="countExpired">0</b><span>Vencidos</span></div></section>
+<section class="panel">
+<input id="search" type="search" placeholder="Buscar por nome ou código" aria-label="Buscar produto" style="margin-top:12px">
+<div class="filters"><select id="categoryFilter" class="hidden" aria-label="Categoria"></select><select id="statusFilter" class="hidden" aria-label="Status"><option value="">Todos os status</option><option value="expired">Vencidos</option><option value="soon">Vencem em breve</option><option value="ok">Dentro do prazo</option></select></div>
+<button type="button" class="lnk" id="verTodos"></button><button type="button" class="lnk hidden" id="verRet"></button>
+<div id="list"></div>
+</section>
+<div class="hidden"><details id="scansBox"><div id="scanList"></div></details></div>
+<p style="text-align:center;margin:8px 0"><span id="syncDot" class="sdot" title="iniciando…"></span><span id="syncState" class="hidden">iniciando…</span></p>
+</div>
+<div id="tabDoacao" class="hidden">
+<div id="donaEntrada" data-dview="lista">
+<div id="dCont" class="dcont hidden"><span id="dContT"></span><button type="button" class="secondary" id="dContX">Cancelar</button></div><div class="panel" id="dStrip" role="button" tabindex="0" aria-label="Ver resumo e finalizar"><span class="dl">📋 Doação de hoje · <span><b id="dItens">0</b> itens</span></span><span class="dtot"><span><b id="dKg">0</b> kg</span><span><b id="dUn">0</b> un</span><i class="dsp">›</i></span></div>
+<div id="dNow" class="nowbar vazio" aria-live="polite"><div class="nowtop"><div class="nowname"><span id="dNome">Pesquise o produto</span></div><div class="nowtot" id="dSelInfo"></div></div>
+<button type="button" id="dTrocar" class="dtroca">✕ Trocar produto</button><div class="dhint" id="dHint">Confira o nome → digite o peso → Adicionar</div><div class="tararow" id="dTara"><button type="button" id="tCx" class="on" aria-pressed="true">Com TARA</button><button type="button" id="tEdit" aria-label="Alterar peso da caixa">✎</button><span id="dLiq"></span></div><div class="nowrow"><div class="dbig" id="dBig">0 kg</div><div class="utog"><button type="button" id="uKg" class="sel">kg</button><button type="button" id="uUn">un</button></div><input id="dPeso" type="text" readonly inputmode="none" data-np data-np-submit="#dAdd" data-np-label="Adicionar" placeholder="kg (ex.: 2,5)" autocomplete="off"><button type="button" class="primary" id="dAdd">Adicionar</button></div></div>
+<div id="dDock"><div id="dTop6" class="vazio"><div class="dt6h"><span id="dT6L">⭐ ATALHOS</span><span class="dt6a"><button type="button" id="dBalCol">▾ Recolher</button><button type="button" id="dBalAuto" hidden>↺ Automático</button><button type="button" id="dBalEdit">✎ Editar</button></span></div><div class="dt6" id="dT6"></div></div><div id="dBar"><button type="button" id="dAddItem" aria-label="Buscar produto" title="Buscar"><span>🔍</span><small>Buscar</small></button><button type="button" id="dBarScan" aria-label="Bipar" title="Bipar"><svg class="bipico" viewBox="0 0 48 36" aria-hidden="true"><g fill="#f3d87a"><rect x="5" y="5" width="3" height="26" rx="1.2"/><rect x="11" y="5" width="2" height="26" rx="1"/><rect x="16" y="5" width="5" height="26" rx="1.2"/><rect x="24" y="5" width="2" height="26" rx="1"/><rect x="29" y="5" width="4" height="26" rx="1.2"/><rect x="36" y="5" width="2" height="26" rx="1"/><rect x="41" y="5" width="3" height="26" rx="1.2"/></g><g class="lz"><rect x="1" y="16.4" width="46" height="3.2" rx="1.6" fill="#ff3b30"/><rect x="1" y="17.4" width="46" height="1.2" rx=".6" fill="#ffb3ad"/></g></svg></button></div></div>
+<div class="dpick"><div id="dPickBar"><button type="button" id="dVoltar">← Voltar à lista</button><b>Escolher produto</b></div>
+<section class="panel"><div class="toolbar"><button class="primary big" id="dScan">▦ Bipar itens</button><button class="secondary big" id="dEan">⌨️ Digitar EAN</button></div>
+</section>
+<section class="panel"><div id="dFindBox"><div id="dFind"><input id="dBusca" type="search" placeholder="Buscar produto ou código de doação" autocomplete="off" enterkeyhint="search"><div id="dSug" class="rows sug"></div></div></div>
+<details style="margin-top:6px"><summary>Código de doação deste produto</summary><div class="stepper"><input id="dCod" maxlength="12" placeholder="Ex.: B1"><button type="button" class="secondary" id="dCodSave" style="padding:0 14px">Salvar código</button></div></details></section>
+</div>
+<section class="panel dlistp" id="dListaBox"><div id="dLista"></div><div class="toolbar" style="margin-top:6px"><button class="secondary" id="dLimpar">Limpar</button><button class="primary big" id="dFinalizar">Finalizar doação</button></div>
+<small class="note">A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio é guardado no histórico.</small><button type="button" id="dEditOk" hidden aria-hidden="true" tabindex="-1"></button>
+</section>
+<section class="panel" id="histSec"><details id="histBox"><summary>Doações anteriores</summary><div id="dHist" class="rows"></div></details></section>
+<div id="dBalModal" class="hidden"><div class="fsc" id="dbX"></div><div class="fss"><h3 id="dbTit">Editar balão</h3>
+<label class="dblb" for="dbNome">Nome do balão</label><input id="dbNome" maxlength="24" placeholder="Ex.: Banana" autocomplete="off">
+<label class="dblb">Tipos (o que aparece ao tocar)</label><div id="dbTipos"></div>
+<input id="dbBusca" type="search" placeholder="Buscar produto para adicionar" autocomplete="off"><div id="dbSug"></div>
+<div class="dbmv" id="dbMv"><button type="button" id="dbEsq">◀ Mover antes</button><button type="button" id="dbDir">Mover depois ▶</button></div>
+<div class="dbrow"><button type="button" id="dbSalvar">Salvar</button><button type="button" id="dbExcluir">Excluir balão</button></div></div></div>
+<div id="dFinSheet" class="hidden"><div class="fsc" id="dFinX"></div><div class="fss"><h3>Finalizar doação</h3><div id="dFinBody"></div><button type="button" id="dFinOk">✔ Confirmar doação</button><button type="button" id="dFinLimpar">Limpar lista</button><small>A lista fica salva neste aparelho até você finalizar. Ao finalizar, o romaneio vai para o histórico.</small></div></div>
+</div>
+<div id="donaRomaneio" class="hidden"><section class="panel"><div id="romHead"></div><div id="romBody"></div>
+<div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rCont">➕ Continuar doação</button><button class="secondary big" id="rAdd">＋ Bipar item</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
+</div>
+<div id="tabPesaveis" class="hidden">
+<section class="panel">
+<input id="pesBusca" type="search" inputmode="search" autocomplete="off" placeholder="Buscar: nome, PLU ou código interno" aria-label="Buscar pesável"><small id="pesInfo" class="pesinfo"></small>
+<div id="pesLista" class="peslista"></div>
+</section>
+<div class="toolbar" style="margin-top:12px"><button class="primary big" id="pesBipar">▦ Bipar etiqueta</button><button class="secondary big" id="pesNovo">＋ Cadastrar pesável</button></div>
+</div>
+<div id="tabEtiquetas" class="hidden">
+<details class="etqinfo"><summary>ℹ️ Como usar esta aba</summary><span>Use esta aba para <b>coletar os códigos de barras dos produtos que precisam de etiquetas na loja</b>.</span><ol><li>Bipe o código ou pesquise o produto pelo nome.</li><li>Segure o item para escolher o tamanho (P, M ou G) e a quantidade.</li><li>Toque no quadrado ao lado do item para marcar as que <b>já foram colocadas para impressão</b>.</li><li>Toque no <b>⧉</b> para <b>duplicar</b> o código e escolher outro tamanho (ex.: 2 P e 1 G do mesmo produto).</li><li>Quando terminar, use <b>Remover todos</b> para limpar a lista.</li></ol><span class="etqnote">A lista é compartilhada: todos os aparelhos veem as mesmas etiquetas e as marcações de “já imprimi”.</span><span class="etqnote">O cadastro de produtos pode ser feito por qualquer usuário: se o código ainda não existir, o app pede o nome e cadastra na hora.</span></details>
+<section class="panel"><div class="toolbar" hidden style="display:none"><button class="primary big" id="eScan">▦ Bipar EAN</button></div>
+<input id="eBusca" type="search" placeholder="Ou pesquise o produto pelo nome" style="margin-top:12px"><div id="eRes" class="rows"></div></section>
+<section class="panel hidden" id="ePend"><h2 class="h2" id="eNome"></h2><p class="note" id="eCod"></p>
+<label for="eCodBal">Código de balança (PLU) deste produto</label><div class="stepper"><input id="eCodBal" inputmode="numeric" maxlength="6" placeholder="Ex.: 123"><button type="button" class="secondary" id="eCodSave" style="padding:0 14px">Salvar código</button></div>
+<label>Tamanho da etiqueta</label><div class="grid3" id="eTam"><button type="button" data-t="P">P<small>Pequena</small></button><button type="button" data-t="M">M<small>Média</small></button><button type="button" data-t="G">G<small>Grande</small></button></div>
+<label for="eQtd">Cópias</label><div class="stepper"><button type="button" class="secondary" id="eMenos" aria-label="Diminuir">−</button><input id="eQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-submit="#eAdd" data-np-label="Adicionar" value="1"><button type="button" class="secondary" id="eMais" aria-label="Aumentar">＋</button></div>
+<div class="toolbar" style="margin-top:12px"><button class="primary big" id="eAdd">Adicionar à lista</button><button class="secondary" id="eCancela">Cancelar</button></div></section>
+<div class="csum"><div><span>PRODUTOS</span><b id="eSumP">0</b></div><div><span>QUANTIDADE TOTAL</span><b id="eSumQ">0</b></div></div><div id="eFilt" class="fbar" hidden></div><div id="eLista" class="clist"></div><p class="emarc" id="eMarc"></p><button type="button" id="eLimpa" class="secondary hidden" style="display:block;width:auto;min-height:32px;margin:8px 0 0 auto;padding:4px 12px;font-size:12px;font-weight:600;border-radius:10px">🗑 Remover todos (já imprimi)</button>
+</div>
+<div id="tabCadastros" class="hidden">
+<section class="panel"><h2 class="h2" id="cTitulo">Novo cadastro</h2><p class="note">Cadastro sem foto: digite ou bipe o código de barras (no máximo 13 dígitos).</p><button type="button" class="secondary" id="cImportar" style="width:100%;margin:2px 0 8px">📥 Importar lista de cadastros</button>
+<label for="cNome">Nome do produto</label><input id="cNome" maxlength="60" autocomplete="off" placeholder="Ex.: Couve-flor">
+<label for="cEan">Código de barras (EAN) <span class="cadcnt" id="cEanN">0/13</span></label><div class="stepper"><input id="cEan" inputmode="numeric" maxlength="13" autocomplete="off" placeholder="Até 13 dígitos"><button type="button" class="secondary" id="cBipar" style="padding:0 14px;white-space:nowrap;font-size:14px">▦ Bipar</button></div>
+<label for="cPlu">Código de balança (PLU)</label><input id="cPlu" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Opcional, até 6 números">
+<label for="cDon">Código de doação</label><input id="cDon" maxlength="12" autocomplete="off" placeholder="Opcional, ex.: B1" style="text-transform:uppercase">
+<div class="toolbar" style="margin-top:12px"><button class="primary big" id="cSalvar">Cadastrar</button><button class="secondary" id="cCancela" hidden>Cancelar</button></div></section>
+<section class="panel"><h2 class="h2">Produtos cadastrados <span class="cadcnt" id="cCount"></span></h2><input id="cBusca" type="search" placeholder="Buscar por nome ou código" autocomplete="off"><div id="cFilt" class="fbar" hidden></div><button type="button" id="cLixo" class="secondary lixobtn" hidden>🗑 Lixeira</button><div id="cLista"></div></section>
+<div id="cIdx" class="cadindex" hidden aria-label="Índice A a Z"></div>
+</div>
+<div id="tabContagem" class="hidden">
+<section class="panel"><h2 class="h2">Contagem · KÓRIN</h2><p class="note">Busque o produto (ou bipe), digite a quantidade e adicione. Depois envie a lista.</p>
+<input id="kBusca" type="search" placeholder="Buscar produto ou digitar o nome" autocomplete="off"><div id="kSug" class="rows sug"></div>
+<div id="kSel" hidden><div class="kselnome" id="kSelNome"></div><div class="stepper"><input id="kQtd" type="text" inputmode="decimal" autocomplete="off" placeholder="Quantidade"><select id="kUn" aria-label="Unidade"><option value="un">un</option><option value="cx">cx</option><option value="pct">pct</option><option value="kg">kg</option></select></div>
+<div class="toolbar" style="margin-top:10px"><button type="button" class="primary big" id="kAdd">＋ Adicionar</button><button type="button" class="secondary" id="kCancela">Cancelar</button></div></div></section>
+<section class="panel"><div class="csum"><div><span>PRODUTOS</span><b id="kSumP">0</b></div><div><span>TOTAL</span><b id="kSumT">0</b></div></div><div id="kLista"></div>
+<div class="toolbar" style="margin-top:12px"><button type="button" class="primary big" id="kZap">Enviar no WhatsApp</button><button type="button" class="secondary big" id="kPdf">PDF</button></div>
+<button type="button" id="kLimpa" class="secondary" style="display:block;margin:10px 0 0 auto;min-height:34px;padding:4px 12px;font-size:13px">Limpar contagem</button></section>
+</div>
+<div id="tabInventario" class="hidden">
+<p class="ivsync" id="ivSync"></p>
+<div id="ivMain"></div>
+<div id="ivCount" class="hidden">
+<div class="ivbanner" id="ivCBanner"><div id="ivCName"></div><span id="ivCPct">0%</span></div>
+<section class="panel ivcp"><div class="prog"><div id="ivCBar" style="width:0%"></div></div><div class="ivseg" id="ivCSeg"></div><small class="note" id="ivCInfo" style="margin:0"></small></section>
+<section class="panel" id="ivCur"><small class="note" id="ivCNum" style="text-align:center;margin:0"></small>
+<div class="ivname" id="ivCItem"></div><div class="ivcodes" id="ivCCode"></div>
+<div id="ivLans"></div><div class="ivsub" id="ivSub"></div>
+<label for="ivPeso" id="ivPesoL">Quantidade</label>
+<input id="ivPeso" type="text" readonly inputmode="none" data-np data-np-submit="#ivAdd" data-np-label="Lançar" placeholder="kg (ex.: 2,5)" autocomplete="off">
+<div class="toolbar" style="margin-top:12px"><button type="button" class="primary big" id="ivAdd">＋ Lançar</button><button type="button" class="secondary big" id="ivNext">Concluir ›</button></div>
+<div class="toolbar" style="margin-top:8px"><button type="button" class="secondary" id="ivZero">Não tem</button><button type="button" class="secondary" id="ivPrev">← Anterior</button></div>
+<div class="toolbar" style="margin-top:8px"><button type="button" class="secondary" id="ivBack">Voltar às bancas</button></div></section>
+<section class="panel hidden" id="ivDone" style="text-align:center"><div class="ivcode">100%</div><p id="ivDoneTxt" style="margin:4px 0 12px"></p>
+<div class="toolbar"><button type="button" class="primary big" id="ivDoneRel">📄 Relatório</button><button type="button" class="secondary big" id="ivDoneSend">Enviar resultado</button></div>
+<div class="toolbar" style="margin-top:8px"><button type="button" class="secondary" id="ivDoneCopy">Copiar link</button><button type="button" class="secondary" id="ivDoneBack">Voltar às bancas</button></div></section>
+<section class="panel"><h2 class="h2">Produtos da banca</h2><div id="ivList"></div></section>
+</div>
+</div>
+<footer class="foot rodape" id="rodape"><span id="rodOn" role="button" tabindex="0" title="Ver quem está online"><i class="dot" id="dotO"></i>ONLINE <b id="nOnline">–</b></span><small id="appVer" role="button" tabindex="0" title="Verificar atualização"></small><span id="rodVer" hidden></span><span hidden><b id="nVisitas">–</b></span></footer>
+<details class="updbox hidden" id="updBox"><summary id="updSum"></summary><div id="updBody"></div></details>
+</main>
+<div id="sideBg" class="bg hidden"></div>
+<aside id="side" class="side" aria-label="Menu"><div class="sheethead"><h2>Menu</h2><button class="secondary" id="sideClose" aria-label="Fechar menu">✕</button></div>
+<nav class="menu"><button id="navLoja">⏱️ Validades<small>Ovos e refrigerados</small></button><button id="navDoacao">📋✅ Doação<small>Pesagem e bipagem rápida</small></button><button id="navEtiquetas">🏷️ Etiquetas<small>Consulta rápida de códigos</small></button><button id="navHist" hidden>🧾 Doações anteriores</button><button id="navInventario">📦 Inventário<small>Contagem de FLV por banca</small></button><button id="navContagem" hidden>📦 Contagem</button><button id="navCadastros">🗂️ Cadastros<small>Cadastrar e editar digitando</small></button><button id="navImport" style="background:#fff;border:1px solid #cfe0d3">📥 Importar lista<small>Cadastrar vários produtos de uma vez</small></button></nav>
+<section class="panel"><h2 style="font-size:17px;margin:0 0 10px">Exportar</h2>
+<label for="exportScope">O que exportar</label><select id="exportScope"><option value="all">Todos os produtos</option><option value="soon">Vencem em breve</option><option value="expired">Vencidos</option><option value="category">Uma categoria</option><option value="products">Produtos cadastrados (com códigos)</option></select>
+<select id="exportCategory" class="hidden" aria-label="Categoria para exportar" style="margin-top:8px"></select>
+<div class="toolbar" style="margin-top:10px"><button class="secondary" id="csvBtn">Excel (.csv)</button><button class="secondary" id="pdfBtn">Gerar PDF</button><button class="primary" id="shareBtn">Compartilhar</button></div>
+<small class="note">O compartilhamento usa a janela nativa do celular quando disponível; se não houver, o PDF é baixado.</small></section>
+<button class="secondary" id="installBtn" hidden style="width:100%;margin-top:10px">Instalar app</button></aside>
+<div id="ehModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="ehTitle"><div class="sheethead"><h2 id="ehTitle">Histórico de etiquetas</h2><button class="secondary" id="ehClose" aria-label="Fechar">✕</button></div>
+<p class="note">Cada vez que você usa <b>Remover todos (já imprimi)</b>, a lista fica guardada aqui por <b>3 dias</b>, com data e quem imprimiu.</p>
+<div id="ehList" class="rows"></div></section></div>
+<div id="phModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="phTitle"><div class="sheethead"><h2 id="phTitle">Histórico de produtos</h2><button class="secondary" id="phClose" aria-label="Fechar">✕</button></div>
+<p class="note">Tudo que entra, muda ou sai da lista, com data e quem fez. Se algo sumiu, toque em <b>Restaurar</b>. Este histórico vale para este aparelho e guarda só os <b>últimos 3 dias</b>.</p>
+<input id="phBusca" type="search" placeholder="Buscar produto no histórico" autocomplete="off"><div id="phList" class="rows"></div></section></div>
+<div id="impModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="impTitle"><div class="sheethead"><h2 id="impTitle">Importar lista de produtos</h2><button class="secondary" id="impClose" aria-label="Fechar">✕</button></div>
+<p class="note" id="impNote">Uma linha por produto. Separe as colunas com <b>;</b> (ponto e vírgula), tabulação (ao colar do Excel) ou <b>|</b>. Ordem: <b>nome; código de balança; código de doação; EAN; categoria</b>. Só o nome é obrigatório. Quem já existe (pelo EAN ou pelo nome) é atualizado; os novos entram como FLV, sem validade, se você não informar a categoria.</p>
+<textarea id="impText" rows="8" placeholder="Mamão Papaya;123;45&#10;Banana Prata;124;46&#10;Pão Francês;200;B1;;Padaria"></textarea>
+<div class="toolbar" style="margin-top:8px"><button class="secondary" id="impFileBtn">📎 Escolher arquivo</button><button class="secondary" id="impModel">Baixar modelo</button></div><input type="file" id="impFile" accept=".csv,.txt,.tsv,text/plain,text/csv" hidden>
+<div class="toolbar" style="margin-top:8px"><button class="secondary" id="impLimpa">🗑️ Limpar texto</button></div>
+<div class="toolbar" style="margin-top:10px"><button class="secondary big" id="impCheck">Conferir lista</button><button class="primary big" id="impGo" disabled>Cadastrar</button></div><div id="impPrev" class="rows"></div></section></div>
+<div id="moreBg" class="morebg hidden"></div><div id="moreMenu" class="moremenu hidden" role="menu" aria-label="Mais opções"><div class="mnh" role="presentation">Dados</div><button type="button" role="menuitem" id="mnSetor"><svg class="ic" aria-hidden="true"><use href="#i-cad"/></svg><span id="mnSetorT">Trocar de setor</span></button><button type="button" role="menuitem" id="mnPerfil"><svg class="ic" aria-hidden="true"><use href="#i-cad"/></svg><span>Perfil deste aparelho</span></button><button type="button" role="menuitem" id="mnNotif"><svg class="ic" aria-hidden="true"><use href="#i-his"/></svg><span>🔔 Notificações</span></button><button type="button" role="menuitem" id="mnSaude"><svg class="ic" aria-hidden="true"><use href="#i-his"/></svg><span>Saúde do app</span></button><button type="button" role="menuitem" id="mnImp"><svg class="ic" aria-hidden="true"><use href="#i-cad"/></svg><span>Importar cadastros</span></button><button type="button" role="menuitem" id="mnCad"><svg class="ic" aria-hidden="true"><use href="#i-cad"/></svg><span>Cadastros</span></button><button type="button" role="menuitem" id="mnEtqHist"><svg class="ic" aria-hidden="true"><use href="#i-etq"/></svg><span>Histórico de etiquetas</span></button><button type="button" role="menuitem" id="mnHist"><svg class="ic" aria-hidden="true"><use href="#i-his"/></svg><span>Histórico de produtos</span></button><div class="mnh" role="presentation">Preferências</div><button type="button" role="menuitem" id="mnTema"><svg class="ic" aria-hidden="true"><use href="#i-lua"/></svg><span>Tema</span></button><div class="mnh" role="presentation">Sistema</div><button type="button" role="menuitem" id="mnInstall"><svg class="ic" aria-hidden="true"><use href="#i-ins"/></svg><span>Instalar app</span></button></div>
+<div class="fabwrap" id="fabWrap"><div class="fabrow fabnew"><button type="button" id="manualOpen" aria-label="Cadastro manual" title="Cadastro manual"><span>＋</span><small>Cadastro</small></button></div><div class="fabrow"><button class="fabscan" id="fab" aria-label="Bipar código de barras" title="Bipar"><svg class="bipico" viewBox="0 0 48 36" aria-hidden="true"><g fill="#f3d87a"><rect x="5" y="5" width="3" height="26" rx="1.2"/><rect x="11" y="5" width="2" height="26" rx="1"/><rect x="16" y="5" width="5" height="26" rx="1.2"/><rect x="24" y="5" width="2" height="26" rx="1"/><rect x="29" y="5" width="4" height="26" rx="1.2"/><rect x="36" y="5" width="2" height="26" rx="1"/><rect x="41" y="5" width="3" height="26" rx="1.2"/></g><g class="lz"><rect x="1" y="16.4" width="46" height="3.2" rx="1.6" fill="#ff3b30"/><rect x="1" y="17.4" width="46" height="1.2" rx=".6" fill="#ffb3ad"/></g></svg></button></div></div>
+<div id="lModal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="lmNome"><div class="sheethead"><h2 id="lmNome"></h2><button class="secondary" id="lmClose" aria-label="Fechar">✕</button></div>
+<p class="note" id="lmCod"></p><label>Tamanho da etiqueta</label><div class="utog" id="lmTam"><button type="button" data-t="P">P</button><button type="button" data-t="M">M</button><button type="button" data-t="G">G</button></div>
+<label>Quantidade</label><div class="stepper"><button type="button" class="secondary" id="lmMenos" aria-label="Diminuir">−</button><input id="lmQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-label="OK" value="1"><button type="button" class="secondary" id="lmMais" aria-label="Aumentar">＋</button></div>
+<div class="toolbar" style="margin-top:14px"><button class="primary big" id="lmOk">Pronto</button></div><button type="button" id="lmDup" class="lmuni">⧉ Duplicar com outro tamanho</button><button type="button" id="lmUni" class="lmuni">Unificar código</button><button type="button" id="lmRev" class="lmuni"></button><button type="button" id="lmDel" class="lmdel">🗑 Apagar esta etiqueta</button></section></div>
+<div id="opModal" class="modal hidden" style="z-index:100;align-items:center"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="opTitle"><h2 id="opTitle" class="h2" style="font-size:18px">Nome do Operador</h2>
+<p class="note">Digite o seu nome para começar. <b>Atenção: depois de salvo, o nome não poderá ser alterado neste aparelho.</b></p>
+<input id="opNome" maxlength="40" autocomplete="off" placeholder="Ex.: Rodrigo Dourado"><div class="toolbar" style="margin-top:12px"><button class="primary big" id="opOk">Entrar</button></div></section></div>
+<div id="confView" class="app hidden"></div>
+<div id="np" role="group" aria-label="Teclado numérico"><div id="npTop"><span id="npTitle"></span><b id="npVal"></b><button type="button" id="npClose" aria-label="Fechar teclado">⌄</button></div>
+<div id="npGrid"><button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" class="del" data-k="del" aria-label="Apagar">⌫</button>
+<button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button><button type="button" class="ok" data-k="ok" id="npOk">Adicionar</button>
+<button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
+<button type="button" data-k=",">,</button><button type="button" class="z" data-k="0">0</button></div></div>
+<div id="eanModal" class="modal hidden" style="z-index:34"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="eanTitle">
+<div class="sheethead"><h2 id="eanTitle">Lançar por EAN</h2><button class="secondary" id="eanClose" aria-label="Fechar">✕</button></div>
+<label for="eanCode">Código de barras (EAN)</label>
+<input id="eanCode" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="20" enterkeyhint="go" autocomplete="off" placeholder="Digite o código de barras">
+<div id="eanPrev" class="codbox hidden"></div>
+<div class="toolbar" style="margin-top:14px"><button class="primary big" id="eanGo">Continuar</button><button class="secondary big" id="eanCancel">Cancelar</button></div>
+<small class="note">Produto novo é cadastrado a seguir. Depois você informa a quantidade.</small></section></div>
+<div id="nrModal" class="modal hidden" style="z-index:35"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="nrTitle">
+<div class="sheethead"><h2 id="nrTitle">Produto não cadastrado</h2><button class="secondary" id="nrClose" aria-label="Fechar">✕</button></div>
+<p class="note" id="nrCod"></p>
+<label for="nrNome">Nome do produto *</label><input id="nrNome" maxlength="120" autocomplete="off" placeholder="Ex.: Mamão papaya"><div id="nrDonBox" class="hidden"><label for="nrDon">Código de doação (opcional)</label><input id="nrDon" maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="Ex.: B1 ou 4912" style="text-transform:uppercase"></div>
+<div class="toolbar" style="margin-top:14px"><button class="primary big" id="nrSave">Cadastrar e continuar</button><button class="secondary big" id="nrCancel">Cancelar</button></div>
+<small class="note">O cadastro fica salvo para todos os usuários.</small></section></div>
+<div id="qtModal" class="modal hidden" style="z-index:36"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="qtNome">
+<div class="sheethead"><h2 id="qtNome">Produto</h2><button class="secondary" id="qtClose" aria-label="Fechar">✕</button></div>
+<p class="note" id="qtInfo"></p><label for="qtCod">Código de doação</label><input id="qtCod" maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="Sem código: digite para cadastrar" style="font-size:20px;font-weight:800;letter-spacing:.5px;text-transform:uppercase">
+<label for="qtQtd">Quantas unidades?</label>
+<div class="stepper"><button type="button" class="secondary" id="qtMenos" aria-label="Diminuir">−</button><input id="qtQtd" type="text" readonly inputmode="none" data-np data-np-int data-np-submit="#qtOk" data-np-label="Adicionar" value="1"><button type="button" class="secondary" id="qtMais" aria-label="Aumentar">＋</button></div>
+<div class="toolbar" style="margin-top:14px"><button class="primary big" id="qtOk">Adicionar</button><button class="secondary big" id="qtCancel">Cancelar</button></div></section></div>
+<div id="pkModal" class="modal hidden" style="z-index:36"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="pkNome">
+<div class="sheethead"><h2 id="pkNome">Produto</h2><button class="secondary" id="pkClose" aria-label="Fechar">✕</button></div>
+<p class="note" id="pkInfo"></p>
+<label for="pkPeso">Peso (kg)</label><input id="pkPeso" type="text" readonly inputmode="none" data-np data-np-submit="#pkOk" data-np-label="OK" placeholder="Ex.: 0,308" autocomplete="off" style="font-size:26px;font-weight:800;text-align:center">
+<div class="toolbar" style="margin-top:14px"><button class="primary big" id="pkOk">Adicionar</button><button class="secondary big" id="pkCancel">Cancelar</button></div></section></div>
+<div id="toast" class="toast hidden" role="status"></div>
+<div id="modal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+<div class="sheethead"><h2 id="modalTitle">Cadastrar produto</h2><button id="closeModal" class="secondary" aria-label="Fechar">✕</button></div>
+<div id="scannerArea" class="hidden"><div id="reader"></div><p id="scanMsg" class="note"></p><div class="wrow" id="manualRow" style="margin:6px 0 10px"><input id="manualCode" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="20" enterkeyhint="go" autocomplete="off" placeholder="Digite o código de barras"><button type="button" class="primary" id="manualGo" style="min-width:76px">OK</button></div>
+<div class="toolbar"><button class="secondary hidden" id="torchBtn">🔦 Lanterna</button><button class="primary hidden" id="retryScan">Tentar novamente</button><button class="secondary" id="scanManual">Digitar código</button></div></div>
+<form id="productForm"><input type="hidden" id="docId"><p class="note hidden" id="loteInfo"></p><button type="button" class="secondary hidden" id="loteEdit" style="width:100%;margin-bottom:6px">Editar dados do produto</button><div class="formgrid">
+<div class="wide hide-lote"><label for="barcode">Código de barras</label><input id="barcode" inputmode="numeric" placeholder="Bipe ou digite o código" maxlength="32"></div>
+<div class="wide hidden hide-lote" id="semCodigo"><small class="note">Sem código de barras: informe os códigos internos do produto.</small><div class="formgrid"><div><label for="cBalanca">Código de balança (etiquetas)</label><input id="cBalanca" inputmode="numeric" maxlength="12"></div><div><label for="cDoacao">Código de doação</label><input id="cDoacao" inputmode="numeric" maxlength="12"></div></div></div>
+<div class="wide hide-lote"><label for="name">Nome do produto *</label><div class="stepper"><input id="name" required maxlength="120" placeholder="Ex.: Leite integral 1 L" autocomplete="off"><button type="button" class="secondary" id="micBtn" aria-label="Ditar nome">🎤</button></div></div>
+<div class="hidden"><label for="category">Categoria *</label><select id="category" required></select></div>
+<div class="wide"><label for="quantity">Quantidade *</label><div class="stepper"><button type="button" class="secondary" id="qMinus" aria-label="Diminuir">−</button><input id="quantity" type="text" readonly inputmode="none" data-np data-np-label="OK" value="1"><button type="button" class="secondary" id="qPlus" aria-label="Aumentar">＋</button></div></div>
+<div class="wide"><label for="expiry" id="expLabel">Data de validade *</label><input id="expiry" type="date" required>
+</div>
+</div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
+</section></div>
+<script src="js/config.js"></script>
+<script src="vendor.js"></script>
+<script src="js/version.js"></script>
+<script src="js/login.js"></script>
+<script src="js/app.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/operador.js"></script>
+<script src="js/teclado.js"></script>
+<script src="js/menu.js"></script>
+<script src="js/status.js"></script>
+<script src="js/inventario.js"></script>
+<script src="js/doacao-busca.js"></script>
+</body></html>

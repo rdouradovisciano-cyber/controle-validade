@@ -1,0 +1,20 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve("dist");
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f))b=Buffer.from(b.toString().replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css",".woff2":"font/woff2"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const pg=await br.newPage({viewport:{width:390,height:800}});const errs=[];pg.on("pageerror",e=>errs.push(e.message));
+await pg.addInitScript(()=>{localStorage.setItem("validamais-operador",JSON.stringify("Teste"));
+localStorage.setItem("validamais-produtos-v1",JSON.stringify([{id:"1",name:"BANANA",barcode:"7891000000011",category:"FLV",quantity:1,expiry:"2026-12-01"}]));
+window.__log=[];navigator.vibrate=p=>{window.__log.push("vib "+JSON.stringify(p));return true};
+const AC=function(){this.state="running";this.currentTime=0;this.destination={};this.createOscillator=()=>({frequency:{set value(v){window.__log.push("tom "+v)}},connect(){},start(){},stop(){}});this.createGain=()=>({gain:{},connect(){}});this.resume=()=>{}};window.AudioContext=AC});
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(900);
+const run=async(code,mode)=>{await pg.evaluate(()=>{window.__log=[]});
+ await pg.evaluate(async([c,m])=>{const s=document.getElementById("manualCode");document.getElementById("fab").click();await new Promise(r=>setTimeout(r,200));s.value=c;document.getElementById("manualGo")?.click()},[code,mode]);
+ await pg.waitForTimeout(500);console.log(code,"→",await pg.evaluate(()=>window.__log.join(", ")))};
+console.log("ids:",await pg.evaluate(()=>[...document.querySelectorAll("#scannerArea button, #scannerArea input")].map(e=>e.id)));
+await run("7891000000011");await pg.reload();await pg.waitForTimeout(800);
+await run("7899999999990");
+console.log("erros",errs);await br.close();srv.close();

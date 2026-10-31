@@ -1,0 +1,20 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve("dist");
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f))b=Buffer.from(b.toString().replace(/apiKey:\s*"[^"]*"/g,'apiKey:"COLE_"').replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const pg=await br.newPage({viewport:{width:411,height:860}});const errs=[];pg.on("pageerror",e=>errs.push(e.message));pg.on("dialog",d=>d.accept());
+await pg.addInitScript(()=>{if(localStorage.getItem("seeded"))return;localStorage.setItem("seeded","1");localStorage.setItem("validamais-operador",JSON.stringify("T"));localStorage.setItem("validamais-perfil","FLV");
+localStorage.setItem("validamais-doacoes",JSON.stringify([{em:1761800000000,data:"2026-10-28",por:"T",totalKg:5,totalUn:2,itens:[{nome:"Banana",unidade:"kg",qtd:5,lanc:2,cod:"12"},{nome:"Abacaxi",unidade:"un",qtd:2,lanc:1,cod:""}]}]));
+localStorage.setItem("validamais-doacao",JSON.stringify({inicio:"2026-10-30T10:00:00Z",itens:[{key:"tomate|kg",nome:"Tomate",unidade:"kg",qtd:3,lanc:1}]}))});
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(1500);
+await pg.click("#tbDoacao");await pg.waitForTimeout(300);
+await pg.click("#histBox summary");await pg.waitForTimeout(400);await pg.click('[data-hist="0"]');await pg.waitForTimeout(300);
+await pg.click("#rCont");await pg.waitForTimeout(400);
+console.log("banner:",await pg.innerText("#dContT"),"| itens:",await pg.innerText("#dItens"));
+await pg.evaluate(()=>document.getElementById("dFinalizar").click());await pg.waitForTimeout(500);
+const st=await pg.evaluate(()=>({h:JSON.parse(localStorage.getItem("validamais-doacoes")),d:JSON.parse(localStorage.getItem("validamais-doacao")),banner:document.getElementById("dCont").className}));
+console.log("hist n:",st.h.length,"editada:",st.h[0].editada,"itens:",st.h[0].itens.length,"| rascunho restaurado:",st.d.itens.map(i=>i.nome),"cont:",st.d.cont,"banner:",st.banner);
+console.log("erros",errs);await br.close();srv.close();

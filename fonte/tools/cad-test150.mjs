@@ -1,0 +1,25 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const run = async (dir, port) => {
+  const srv = http.createServer((q, r) => { let f = path.join(dir, q.url.split("?")[0]); if (f.endsWith("/")) f += "index.html";
+    try { let b = fs.readFileSync(f); const ext = path.extname(f); if ([".html",".js"].includes(ext)) b = Buffer.from(b.toString("utf8").replace(/login:\s*\{\s*email:\s*"[^"]*"\s*\}/g, "login: null"));
+      r.setHeader("content-type", { ".css":"text/css", ".js":"text/javascript", ".html":"text/html", ".json":"application/json" }[ext] || "application/octet-stream"); r.end(b); } catch { r.statusCode = 404; r.end(); } }).listen(port);
+  const br = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+  const ctx = await br.newContext({ viewport: { width: 390, height: 900 } });
+  await ctx.addInitScript(() => { try { localStorage.setItem("validamais-operador", JSON.stringify("Teste")); localStorage.setItem("validamais-fotos", JSON.stringify({ banana: "data:image/png;base64,AAAA" })); } catch {} });
+  const pg = await ctx.newPage(); const errs = []; pg.on("pageerror", e => errs.push(String(e).slice(0, 160))); pg.on("dialog", d => d.accept());
+  await pg.goto(`http://localhost:${port}/index.html`); await pg.waitForTimeout(3500);
+  const r = { errs };
+  r.fotosLocal = await pg.evaluate(() => localStorage.getItem("validamais-fotos"));
+  r.elementosFoto = await pg.evaluate(() => ["fotoBtn","fotoIn","fotoPrev","fotoDel"].filter(i => document.getElementById(i)));
+  await pg.evaluate(() => document.getElementById("navCadastros").click()); await pg.waitForTimeout(400);
+  r.form = await pg.evaluate(() => { const f = document.getElementById("productForm"); return f ? f.innerText.replace(/\s+/g, " ").slice(0, 400) : "sem form"; });
+  await pg.evaluate(() => { window.__calls = []; const V = window.V; ["addDoc","updateDoc","setDoc","deleteDoc"].forEach(k => { const o = V[k]; V[k] = (...a) => { window.__calls.push([k, a[0] && a[0].path || (a[0] && a[0].type) || "?", JSON.stringify(a[1] ?? null)]); return Promise.resolve({ id: "x" }); }; }); });
+  await pg.evaluate(() => { document.getElementById("name").value = "Produto Teste Sem Foto"; document.getElementById("barcode").value = "7890000000017"; document.getElementById("quantity").value = 2; document.getElementById("expiry").value = "2027-01-15"; document.getElementById("category").value = "Outros"; document.getElementById("productForm").requestSubmit(); });
+  await pg.waitForTimeout(1500);
+  r.chamadas = await pg.evaluate(() => window.__calls.filter(c => /product|addDoc|updateDoc/.test(c[0] + c[1])).map(c => c[0] + " " + c[1] + " " + c[2].replace(/"createdAt":\{[^}]*\}|"updatedAt":\{[^}]*\}/g, "").slice(0, 260)));
+  await pg.screenshot({ path: `/tmp/cad_${port}.png` });
+  await br.close(); srv.close(); return r;
+};
+const N = await run("/tmp/n150", 8150);
+console.log(JSON.stringify(N, null, 1));

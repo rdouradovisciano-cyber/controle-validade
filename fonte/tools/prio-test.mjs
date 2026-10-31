@@ -1,0 +1,23 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve("dist");
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f))b=Buffer.from(b.toString().replace(/apiKey:\s*"[^"]*"/g,'apiKey:"COLE_"').replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const pg=await br.newPage({viewport:{width:411,height:860}});const errs=[];pg.on("pageerror",e=>errs.push(e.message));pg.on("console",m=>{if(m.type()==="error")errs.push("C:"+m.text())});
+await pg.addInitScript(()=>{window.addEventListener("unhandledrejection",e=>console.error("REJ "+(e.reason&&e.reason.stack||e.reason)));if(localStorage.getItem("seeded"))return;localStorage.setItem("seeded","1");localStorage.setItem("validamais-operador",JSON.stringify("T"));localStorage.setItem("validamais-perfil","Perecíveis");
+const iso=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+const P=(id,name,n,bc)=>({id,name,category:"Perecíveis",barcode:bc,expiry:iso(n),quantity:1});
+localStorage.setItem("validamais-produtos-v1",JSON.stringify([P("1","Vencido",-2,"1"),P("2","Hoje",0,"2"),P("3","Amanha",1,"3"),P("4","TresDias",3,"4"),P("5","SeteDias",6,"5"),P("6","Longe",30,"6"),P("7","Dois lotes",2,"7"),P("8","Dois lotes",20,"7")]))});
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(1500);
+const lst=()=>pg.evaluate(()=>[...document.querySelectorAll("#list article")].map(a=>a.querySelector("h3").textContent+":"+((a.querySelector(".prio")||{}).textContent||"-")).join(" | "));
+console.log(await lst());
+await pg.evaluate(()=>{window.__log=[];new MutationObserver(m=>m.forEach(x=>{x.addedNodes.forEach(n=>__log.push("+"+(n.className||n.nodeName)));x.removedNodes.forEach(n=>__log.push("-"+(n.className||n.nodeName)))})).observe(document.body,{childList:true})});console.log("ret btn:",await pg.locator("[data-ret]").count());const bb=await pg.locator("[data-ret]").first().boundingBox();console.log("bb",JSON.stringify(bb));console.log("topo:",await pg.evaluate(([x,y])=>{const e=document.elementFromPoint(x,y);return e.tagName+"#"+e.id+"."+e.className+" <"+(e.parentElement&&e.parentElement.className)},[bb.x+bb.width/2,bb.y+bb.height/2]));await pg.evaluate(()=>{window.__ev=[];["pointerdown","mousedown","pointerup","mouseup","click"].forEach(t=>document.addEventListener(t,e=>__ev.push(t+":"+e.target.tagName+"."+e.target.className+(e.defaultPrevented?"(dp)":"")),true))});await pg.mouse.click(bb.x+bb.width/2,bb.y+bb.height/2);await pg.waitForTimeout(300);
+console.log(await pg.evaluate(()=>__log.join(",")));console.log("EV",await pg.evaluate(()=>__ev.join(" ; ")));console.log("askbg:",await pg.locator(".askbg").count(),"toast:",await pg.evaluate(()=>document.getElementById("toast").textContent));await pg.screenshot({path:"/tmp/claude-0/-home-claude/8acfd74b-066d-5685-9053-e1d75c13691f/scratchpad/prio.png"});console.log("dialog:",(await pg.innerText(".ask")).replace(/\n/g," / ").slice(0,330));
+await pg.click(".askalt");await pg.waitForTimeout(400);console.log("depois remover único:",await lst());
+const st=await pg.evaluate(()=>JSON.parse(localStorage.getItem("validamais-produtos-v1")).map(p=>p.name+"="+(p.expiry?"c/val":"sem")+(p.retirado?"R":"")).join(","));console.log(st);
+await pg.locator("#list article",{hasText:"Dois lotes"}).first().locator("[data-ret]").click();await pg.waitForTimeout(300);await pg.click(".askalt");await pg.waitForTimeout(400);
+console.log("depois remover lote:",await lst());
+await pg.click("#toast button, .toast button");await pg.waitForTimeout(400);console.log("desfazer:",await lst());
+console.log("erros",errs);await br.close();srv.close();

@@ -1,0 +1,23 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve("dist");
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f))b=Buffer.from(b.toString().replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css",".json":"application/json"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const pg=await br.newPage({viewport:{width:390,height:800}});const errs=[];pg.on("pageerror",e=>errs.push(e.message));
+const nomes="Abacate,Abacaxi,Abobrinha,Acelga,Alface,Alho,Banana,Batata,Berinjela,Beterraba,Brócolis,Cebola,Cenoura,Chuchu,Couve,Dente de Leão,Ervilha,Espinafre,Figo,Goiaba,Gengibre,Laranja,Limão,Maçã,Mamão,Manga,Melancia,Melão,Morango,Ovo,Pepino,Pera,Pimentão,Repolho,Rúcula,Tomate,Uva,Vagem,Zucchini,7 Grãos".split(",");
+await pg.addInitScript(n=>{localStorage.setItem("validamais-operador",JSON.stringify("Teste"));localStorage.setItem("validamais-produtos-v1",JSON.stringify(n.map((x,i)=>({id:"p"+i,name:x,barcode:String(7890000000000+i),category:"FLV",quantity:1,expiry:"2026-12-01"}))))},nomes);
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(800);
+await pg.evaluate(()=>document.getElementById("navCadastros").click());
+await pg.waitForTimeout(500);
+const info=await pg.evaluate(()=>{const r=document.getElementById("cIdx");const b=r.getBoundingClientRect();return{hidden:r.hidden,letras:[...r.children].map(x=>x.textContent).join(""),rect:[b.left,b.top,b.width,b.height].map(Math.round),sh:document.querySelectorAll(".cadlt").length}});
+console.log("erros cedo",errs);console.log(info);
+await pg.evaluate(()=>{const b=document.querySelector('#cIdx button[data-l="M"]');const r=b.getBoundingClientRect();window.__x=r.left+r.width/2;window.__y=r.top+r.height/2});
+const [x,y]=await pg.evaluate(()=>[__x,__y]);await pg.mouse.move(x,y);await pg.mouse.down();await pg.mouse.up();await pg.waitForTimeout(300);
+console.log("após M:",await pg.evaluate(()=>{const t=document.getElementById("cl-M").getBoundingClientRect().top;return{scrollY:Math.round(scrollY),topM:Math.round(t),topH:getComputedStyle(document.documentElement).getPropertyValue("--top-h")}}));
+await pg.screenshot({path:"/tmp/idx.png"});
+await pg.fill("#cBusca","ma");await pg.waitForTimeout(200);console.log("busca ma, hidden:",await pg.evaluate(()=>document.getElementById("cIdx").hidden));
+await pg.fill("#cBusca","");await pg.evaluate(()=>document.getElementById("navLoja").click());await pg.waitForTimeout(200);
+console.log("fora dos Cadastros visível:",await pg.evaluate(()=>{const r=document.getElementById("cIdx");return r.offsetParent!==null||getComputedStyle(r).position==="fixed"&&r.getClientRects().length>0}));
+console.log("erros",errs);await br.close();srv.close();

@@ -1,0 +1,14 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const dir = process.argv[2];
+const srv = http.createServer((q, r) => { let f = path.join(dir, q.url.split("?")[0]); if (f.endsWith("/")) f += "index.html";
+  try { const b = fs.readFileSync(f); const t = { ".css":"text/css", ".js":"text/javascript", ".html":"text/html", ".json":"application/json", ".webmanifest":"application/json", ".png":"image/png", ".svg":"image/svg+xml" }[path.extname(f)] || "application/octet-stream"; r.setHeader("content-type", t); r.end(b); } catch { r.statusCode = 404; r.end(); } }).listen(8110);
+const br = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+const ctx = await br.newContext({ viewport: { width: 390, height: 800 } }); const pg = await ctx.newPage();
+const errs = [], notFound = [];
+pg.on("pageerror", e => errs.push(String(e).slice(0, 160)));
+pg.on("response", r => { if (r.status() === 404 && r.url().includes("localhost")) notFound.push(r.url()); });
+await pg.goto("http://localhost:8110/index.html"); await pg.waitForTimeout(2500);
+const info = await pg.evaluate(() => ({ versao: window.APP_VERSION, rodape: document.getElementById("rodVer")?.textContent, appVer: document.getElementById("appVer")?.textContent, updates: window.UPDATES?.length, temLogin: !!document.querySelector("[id*=login i]"), abas: ["navDoacao","navEtiquetas","navLoja","navInventario"].map(i => !!document.getElementById(i)) }));
+console.log(JSON.stringify(info)); console.log("erros JS:", errs.length ? errs.join(" || ") : "nenhum"); console.log("404 locais:", notFound.length ? notFound.join(", ") : "nenhum");
+await pg.screenshot({ path: "/tmp/smoke.png" }); await br.close(); srv.close();

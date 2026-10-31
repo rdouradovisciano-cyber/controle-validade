@@ -1,0 +1,22 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve("dist");
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f))b=Buffer.from(b.toString().replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css",".woff2":"font/woff2"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const pg=await br.newPage({viewport:{width:390,height:800}});const errs=[];pg.on("pageerror",e=>errs.push(e.message));
+const nomes=["Tropical","Melão","Maçã","Tomate","Legume","Limão","Banana","Uva","Batata","Xuxu"];
+await pg.addInitScript(n=>{localStorage.setItem("validamais-operador",JSON.stringify("Teste"));localStorage.setItem("validamais-dbal",JSON.stringify(n.map(w=>({w,v:w==="Limão"?[{n:"Taiti",c:"",u:"kg"},{n:"Siciliano",c:"",u:"kg"},{n:"Mexerica murkot",c:"",u:"kg"},{n:"Maracuja azedo",c:"",u:"kg"},{n:"Tahiti members 1kg",c:"",u:"kg"},{n:"Taiti 1kg benassi",c:"",u:"un"},{n:"Tahiti 1kg ide",c:"",u:"kg"},{n:"Laranja powell importada gnel",c:"",u:"kg"}]:w==="Legume"?[{n:"Batata especial",c:"",u:"kg"},{n:"Cebola kg",c:"",u:"kg"},{n:"Cebola roxa",c:"",u:"kg"},{n:"Cenoura",c:"",u:"kg"},{n:"Batata doce roxa",c:"",u:"kg"},{n:"Batata doce",c:"",u:"kg"},{n:"Batata p fritar unid",c:"",u:"kg"},{n:"Beterraba",c:"",u:"kg"}]:w==="Tomate"?[{n:"Granel",c:"",u:"kg"},{n:"Italiano",c:"",u:"kg"},{n:"Pimentao verde",c:"",u:"kg"},{n:"Pimentao vermelho",c:"",u:"kg"},{n:"Pimentao amarelo",c:"",u:"kg"},{n:"Pepino comum",c:"",u:"kg"},{n:"Pepino japones",c:"",u:"kg"},{n:"Abob italiana",c:"",u:"kg"},{n:"Berinjela",c:"",u:"kg"},{n:"Chuchu",c:"",u:"kg"}]:w==="Maçã"?[{n:"Fuji",c:"",u:"kg"},{n:"Gala importada",c:"",u:"kg"},{n:"Gransmith",c:"",u:"kg"},{n:"Kiwi gold",c:"",u:"kg"},{n:"Goiaba vermelha",c:"",u:"kg"},{n:"Red granel",c:"",u:"kg"},{n:"Ameixa importada",c:"",u:"kg"},{n:"Roma fresca",c:"",u:"kg"},{n:"Kiwi",c:"",u:"kg"}]:w==="Tropical"?[{n:"Banana nanica",c:"",u:"kg"},{n:"Banana prata",c:"",u:"kg"},{n:"Abacate",c:"",u:"kg"},{n:"Mamao papaya",c:"",u:"kg"},{n:"Mamao formosa",c:"",u:"kg"},{n:"Manga tommy gran",c:"",u:"kg"},{n:"Manga palmer",c:"",u:"kg"},{n:"Abacaxi perola unidade",c:"",u:"un"}]:[{n:w+" A",c:"",u:"kg"},{n:w+" B",c:"",u:"kg"}]}))))},nomes);
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(900);
+await pg.evaluate(()=>{const b=document.getElementById("navDoacao")||document.querySelector("[data-tab=Doacao]");b&&b.click()});await pg.waitForTimeout(500);
+await pg.screenshot({path:"/tmp/bal1.png"});await pg.evaluate(()=>document.querySelectorAll("#dT6 button")[4].click());await pg.waitForTimeout(300);await pg.screenshot({path:"/tmp/bal2.png"});await pg.evaluate(()=>document.querySelector("[data-tback]")?.click());await pg.waitForTimeout(200);await pg.evaluate(()=>{document.getElementById("dAddItem").click()});await pg.waitForTimeout(300);await pg.evaluate(()=>{const i=document.getElementById("dBusca");i.value="ma";i.dispatchEvent(new Event("input"))});await pg.waitForTimeout(300);await pg.screenshot({path:"/tmp/bal3.png"});
+console.log(await pg.evaluate(()=>[...document.querySelectorAll("#dT6 button")].map(b=>b.innerText.split("\n")[0]+":"+b.style.cssText)));
+/*toggle-test*/await pg.evaluate(()=>document.querySelector("[data-tback]")?.click());await pg.waitForTimeout(150);
+console.log("título:",await pg.evaluate(()=>document.getElementById("dT6L").textContent));
+await pg.evaluate(()=>document.getElementById("dT6L").click());await pg.waitForTimeout(200);
+console.log("após tocar:",await pg.evaluate(()=>[document.getElementById("dT6L").textContent,document.getElementById("dDock").classList.contains("col"),getComputedStyle(document.getElementById("dT6")).display]));
+await pg.screenshot({path:"/tmp/bal4.png"});
+await pg.evaluate(()=>document.getElementById("dT6L").click());await pg.waitForTimeout(200);
+console.log("tocar de novo:",await pg.evaluate(()=>[document.getElementById("dT6L").textContent,getComputedStyle(document.getElementById("dT6")).display]));
+console.log("erros",errs);await br.close();srv.close();

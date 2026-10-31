@@ -1,0 +1,24 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve("dist");
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f))b=Buffer.from(b.toString().replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css",".json":"application/json"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const pg=await br.newPage({viewport:{width:390,height:800},hasTouch:true});const errs=[];pg.on("pageerror",e=>errs.push(e.message));
+await pg.addInitScript(()=>localStorage.setItem("validamais-operador",JSON.stringify("Teste")));
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(800);
+await pg.evaluate(()=>{const n="Abacaxi Banana Batata Cebola Couve Éclair Alface Uva Vinagre Maçã Melão Mamão Manga Laranja Limão Pera Pêssego Tomate Zebu Ágata 7Up".split(" ");
+products=n.map((x,i)=>({id:"p"+i,name:x,barcode:"789"+String(1000+i)}));document.getElementById("navCadastros").click();cadPaint()});
+await pg.waitForTimeout(300);
+console.log(await pg.evaluate(()=>({idx:!document.getElementById("cIdx").hidden,letras:[...document.querySelectorAll("#cIdx button")].map(b=>b.dataset.l).join(""),heads:[...document.querySelectorAll(".cadlt")].map(e=>e.textContent).join("")})));
+await pg.screenshot({path:"/tmp/az1.png"});
+await pg.mouse.click(0,0);
+const box=await pg.locator('#cIdx button[data-l="M"]').boundingBox();
+await pg.mouse.move(box.x+9,box.y+4);await pg.mouse.down();await pg.mouse.up();await pg.waitForTimeout(300);
+console.log("scrollY",await pg.evaluate(()=>scrollY),"topoM",await pg.evaluate(()=>Math.round(document.getElementById("cl-M").getBoundingClientRect().top)),"topH",await pg.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue("--top-h")));
+await pg.mouse.wheel(0,250);await pg.waitForTimeout(300);
+console.log("sticky",await pg.evaluate(()=>[...document.querySelectorAll(".cadlt")].map(e=>e.textContent+":"+Math.round(e.getBoundingClientRect().top)).join(" ")));
+await pg.screenshot({path:"/tmp/az2.png"});
+await pg.fill("#cBusca","ba");await pg.waitForTimeout(200);console.log("busca idx oculto",await pg.evaluate(()=>document.getElementById("cIdx").hidden));
+console.log("erros",errs);await br.close();srv.close();

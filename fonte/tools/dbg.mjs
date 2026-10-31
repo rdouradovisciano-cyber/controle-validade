@@ -1,0 +1,12 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const dir = process.argv[2];
+const srv = http.createServer((q, r) => { let f = path.join(dir, q.url.split("?")[0]); if (f.endsWith("/")) f += "index.html";
+  try { let b = fs.readFileSync(f); const ext = path.extname(f); if ([".html",".js"].includes(ext)) b = Buffer.from(b.toString("utf8").replace(/login:\s*\{\s*email:\s*"[^"]*"\s*\}/g, "login: null"));
+    r.setHeader("content-type", { ".css":"text/css", ".js":"text/javascript", ".html":"text/html", ".json":"application/json" }[ext] || "application/octet-stream"); r.end(b); } catch { r.statusCode = 404; r.end(); } }).listen(8130);
+const br = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+const pg = await (await br.newContext({ viewport: { width: 390, height: 800 } })).newPage();
+pg.on("console", m => console.log("console:", m.type(), m.text().slice(0, 200))); pg.on("pageerror", e => console.log("pageerror:", String(e).slice(0, 200))); pg.on("requestfailed", r => console.log("falhou:", r.url().slice(0, 100)));
+await pg.goto("http://localhost:8130/index.html"); await pg.waitForTimeout(3000);
+console.log(await pg.evaluate(() => JSON.stringify({ login: window.VALIDA_CONFIG?.login, wait: window.__LOGIN_WAIT, vm: window.vmVersion, V: Object.keys(window.V || {}).length, vmLogin: !!document.getElementById("vmLogin"), hash: location.hash, body: document.body.innerText.slice(0, 120) })));
+await br.close(); srv.close();

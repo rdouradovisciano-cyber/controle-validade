@@ -1,0 +1,23 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const dir = process.argv[2], port = 8210;
+const srv = http.createServer((q, r) => { let f = path.join(dir, q.url.split("?")[0]); if (f.endsWith("/")) f += "index.html";
+  try { let b = fs.readFileSync(f); const ext = path.extname(f); if ([".html",".js"].includes(ext)) b = Buffer.from(b.toString("utf8").replace(/login:\s*\{\s*email:\s*"[^"]*"\s*\}/g, "login: null"));
+    r.setHeader("content-type", { ".css":"text/css", ".js":"text/javascript", ".html":"text/html", ".json":"application/json" }[ext] || "application/octet-stream"); r.end(b); } catch { r.statusCode = 404; r.end(); } }).listen(port);
+const br = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+const L = [{ id: "a1", nome: "Banana Prata kg", code: "1181", qtd: 11, tam: "M", ok: false }, { id: "a2", nome: "Tomate Italiano kg", code: "8118", qtd: 88, tam: "P", ok: false }, { id: "a3", nome: "Pão Francês kg", code: "1011", qtd: 111, tam: "G", ok: false }, { id: "a4", nome: "Mamão Papaya kg", code: "7078", qtd: 1, tam: "M", ok: false }];
+const D = { itens: [{ key: "banana prata|kg", nome: "Banana Prata", unidade: "kg", qtd: 11.1, lanc: 2, cod: "B1" }, { key: "tomate|kg", nome: "Tomate", unidade: "kg", qtd: 88.8, lanc: 3, cod: "T8" }, { key: "abacaxi|un", nome: "Abacaxi", unidade: "un", qtd: 7, lanc: 1, cod: "A7" }, { key: "batata|kg", nome: "Batata", unidade: "kg", qtd: 1.8, lanc: 1, cod: "B7" }], inicio: new Date().toISOString() };
+const ctx = await br.newContext({ viewport: { width: 390, height: 900 } });
+await ctx.addInitScript(([l, d]) => { try { localStorage.setItem("validamais-operador", JSON.stringify("Teste")); localStorage.setItem("validamais-etiquetas", JSON.stringify(l)); localStorage.setItem("validamais-doacao", JSON.stringify(d)); localStorage.setItem("validamais-tema", "dark"); } catch {} }, [L, D]);
+const pg = await ctx.newPage(); await pg.goto(`http://localhost:${port}/index.html`); await pg.waitForTimeout(2800);
+const achar = () => pg.evaluate(() => [...document.querySelectorAll("body *")].filter(e => e.offsetParent !== null && e.children.length === 0 && /^[\s\d.,:\/+−\-xkgun]*\d[\s\d.,:\/+−\-xkgun]*$/i.test(e.textContent.trim()) && !/tabular/.test(getComputedStyle(e).fontVariantNumeric))
+  .map(e => (e.tagName.toLowerCase() + (e.id ? "#" + e.id : "") + (e.className && typeof e.className === "string" ? "." + e.className.trim().split(/\s+/).join(".") : "")) + " = \"" + e.textContent.trim().slice(0, 14) + "\""));
+const r = {};
+r.doacao = await achar();
+await pg.evaluate(() => { const h = document.getElementById("dHoje") || document.querySelector(".dhoje, #dTopBar"); h && h.click(); }); await pg.waitForTimeout(400);
+await pg.evaluate(() => [...document.querySelectorAll("button, summary, div")].find(e => /Doação de hoje/.test(e.textContent) && e.textContent.length < 40)?.click()); await pg.waitForTimeout(500);
+r.doacaoAberta = await achar();
+await pg.screenshot({ path: "/tmp/tn_doa.png" });
+await pg.evaluate(() => document.getElementById("navEtiquetas").click()); await pg.waitForTimeout(400); r.etiquetas = await achar();
+await pg.evaluate(() => document.getElementById("navLoja").click()); await pg.waitForTimeout(400); r.validades = await achar();
+console.log(JSON.stringify(r, null, 1)); await br.close(); srv.close();

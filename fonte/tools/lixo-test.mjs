@@ -1,0 +1,30 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve("dist");
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f))b=Buffer.from(b.toString().replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css",".woff2":"font/woff2"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const pg=await br.newPage({viewport:{width:390,height:800}});const errs=[];pg.on("pageerror",e=>errs.push(e.message));
+const P=(id,name,o)=>({id,name,barcode:"",category:"FLV",quantity:1,expiry:"2026-12-01",...o});
+const day=864e5,now=Date.now();
+const prods=[P("1","BANANA",{barcode:"7891000000011"}),P("2","MACA",{barcode:"7891000000028"}),P("3","MACA",{barcode:"7891000000028",expiry:"2026-12-05"}),
+P("4","ANTIGA",{barcode:"7891000000035",lixo:now-4*day}),P("5","RECENTE",{barcode:"7891000000042",lixo:now-1*day})];
+await pg.addInitScript(p=>{localStorage.setItem("validamais-operador",JSON.stringify("Teste"));if(!localStorage.getItem("validamais-produtos-v1"))localStorage.setItem("validamais-produtos-v1",JSON.stringify(p))},prods);
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(900);
+pg.on("dialog",d=>{console.log("  confirm>",d.message().replace(/\n+/g," / "));d.accept()});
+const st=()=>pg.evaluate(()=>JSON.parse(localStorage.getItem("validamais-produtos-v1")).map(p=>p.name+(p.lixo?"(lixo)":"")));
+console.log("storage inicial (ANTIGA vencida deve sumir):",await st());
+await pg.evaluate(()=>document.getElementById("navCadastros").click());await pg.waitForTimeout(400);
+const nomes=()=>pg.evaluate(()=>[...document.querySelectorAll(".cadrow b")].map(b=>b.textContent));
+console.log("linhas:",await nomes(),"| botao:",await pg.evaluate(()=>{const b=document.getElementById("cLixo");return b.hidden?"oculto":b.textContent}));
+await pg.evaluate(()=>{[...document.querySelectorAll(".cadrow")].find(r=>r.querySelector("b").textContent==="MACA").querySelector(".cdel").click()});await pg.waitForTimeout(400);
+console.log("após excluir MACA:",await nomes(),await st(),await pg.evaluate(()=>document.getElementById("cLixo").textContent));
+await pg.evaluate(()=>document.getElementById("cLixo").click());await pg.waitForTimeout(300);
+console.log("lixeira:",await pg.evaluate(()=>document.getElementById("lixoModal").innerText.replace(/\n+/g," | ")));
+await pg.screenshot({path:"/tmp/lixo1.png"});
+await pg.evaluate(()=>[...document.querySelectorAll("#lixoModal .dprow")].find(r=>/MACA/.test(r.innerText)).querySelector("[data-rest]").click());await pg.waitForTimeout(300);
+console.log("restaurou MACA, modal ainda:",await pg.evaluate(()=>!!document.getElementById("lixoModal")),await st());
+await pg.evaluate(()=>[...document.querySelectorAll("#lixoModal .dprow")][0].querySelector("[data-del]").click());await pg.waitForTimeout(400);
+console.log("excluiu de vez; modal fechado:",await pg.evaluate(()=>!document.getElementById("lixoModal")),await st(),"| linhas:",await nomes(),"| botao oculto:",await pg.evaluate(()=>document.getElementById("cLixo").hidden));
+console.log("erros",errs);await br.close();srv.close();

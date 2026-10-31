@@ -1,0 +1,23 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve("dist");
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f))b=Buffer.from(b.toString().replace(/apiKey:\s*"[^"]*"/g,'apiKey:"COLE_"').replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const pg=await br.newPage({viewport:{width:411,height:860}});const errs=[];pg.on("pageerror",e=>errs.push(e.message));
+await pg.addInitScript(()=>{if(localStorage.getItem("seeded"))return;localStorage.setItem("seeded","1");localStorage.setItem("validamais-operador",JSON.stringify("T"));localStorage.setItem("validamais-perfil","Perecíveis");
+const iso=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+const P=(id,name,n)=>({id,name,category:"Perecíveis",barcode:"b"+id,expiry:iso(n),quantity:2});
+localStorage.setItem("validamais-produtos-v1",JSON.stringify([P("1","Presunto fatiado",-2),P("2","Iogurte natural",0),P("3","Queijo prato",2),P("4","Requeijão",6),P("5","Leite longa vida",20)]))});
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(1500);
+const nomes=()=>pg.evaluate(()=>[...document.querySelectorAll("#list .pi-nome")].map(b=>b.textContent).join(" | "));
+console.log("todos:",await nomes());
+await pg.click('.tiers [data-t="a"]');await pg.waitForTimeout(200);console.log("filtro ≤2d:",await nomes(),"| ativo:",await pg.evaluate(()=>document.querySelector('.tiers .on span').textContent));
+await pg.click('.tiers [data-t="a"]');await pg.waitForTimeout(200);console.log("limpou:",(await nomes()).split("|").length);
+await pg.click("#list .pitem:nth-of-type(2) .pi-main");await pg.waitForTimeout(200);
+console.log("abertos:",await pg.evaluate(()=>[...document.querySelectorAll("#list .pitem.open .pi-nome")].map(x=>x.textContent)),"| botões visíveis:",await pg.locator("#list .pitem.open [data-ret]").isVisible());
+await pg.locator("#list .pitem.open [data-ret]").click();await pg.waitForTimeout(300);
+console.log("diálogo:",await pg.locator(".askbg").count());await pg.click(".askbg .ok");await pg.waitForTimeout(400);console.log("após retirar:",await nomes());
+await pg.click("#verRet");await pg.waitForTimeout(300);console.log("retirados:",await pg.evaluate(()=>[...document.querySelectorAll("#list article")].map(a=>a.className+":"+a.querySelector("h3,.pi-nome").textContent).join(" | ")),"| chips ocultos:",await pg.evaluate(()=>document.getElementById("tiers").classList.contains("hidden")));
+console.log("erros",errs);await br.close();srv.close();

@@ -1,0 +1,25 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve("dist");
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f))b=Buffer.from(b.toString().replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css",".woff2":"font/woff2"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const ctx=await br.newContext({viewport:{width:411,height:860},deviceScaleFactor:2});const pg=await ctx.newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
+const P=(id,name,o)=>({id,name,barcode:"",category:"FLV",quantity:1,expiry:"",...o});
+await pg.addInitScript(p=>{localStorage.setItem("validamais-operador",JSON.stringify("T"));if(!localStorage.getItem("validamais-produtos-v1"))localStorage.setItem("validamais-produtos-v1",JSON.stringify(p))},[P("1","BANANA",{}),P("2","IOGURTE",{category:"Perecíveis"}),P("3","SUSHI",{category:"KÓRIN"}),P("4","PIZZA",{category:"Congelados"})]);
+const url=`http://localhost:${srv.address().port}/`;
+await pg.goto(url);await pg.waitForTimeout(2000);
+console.log("menu:",await pg.evaluate(()=>[document.getElementById("mnSetorT").textContent,document.getElementById("mnSetor2T").textContent]));
+await pg.evaluate(()=>document.getElementById("mnSetor2").click());await pg.waitForTimeout(1500);
+const info=()=>pg.evaluate(()=>({setor:document.body.dataset.setor,tab:document.body.dataset.tab,tabs:[...document.querySelectorAll(".tabbar button")].filter(b=>getComputedStyle(b).display!=="none").map(b=>b.querySelector(".tl").textContent),rows:[...document.querySelectorAll(".cadrow b")].map(b=>b.textContent),chips:[...document.querySelectorAll("#setorChip button")].filter(b=>!b.hidden).map(b=>b.textContent+(b.classList.contains("on")?"*":"")),menu:[document.getElementById("mnSetorT").textContent,document.getElementById("mnSetor2T").textContent]}));
+console.log("KÓRIN:",JSON.stringify(await info()));
+await pg.fill("#cNome","Sushi combinado");await pg.click("#cSalvar");await pg.waitForTimeout(500);
+console.log("fotobox existe:",await pg.evaluate(()=>!!document.getElementById("cFotoBox")),"| storage:",await pg.evaluate(()=>JSON.parse(localStorage.getItem("validamais-produtos-v1")).map(p=>p.name+"|"+p.category)));
+console.log("lista KÓRIN:",await pg.evaluate(()=>[...document.querySelectorAll(".cadrow b")].map(b=>b.textContent)));
+await pg.evaluate(()=>document.getElementById("tbLoja").click());await pg.waitForTimeout(300);
+console.log("validades KÓRIN contagem:",await pg.evaluate(()=>document.getElementById("countAll").textContent));
+await pg.evaluate(()=>document.querySelector('#setorChip [data-s="FLV"]').click());await pg.waitForTimeout(1500);
+await pg.evaluate(()=>document.getElementById("navCadastros").click());await pg.waitForTimeout(300);
+console.log("lista FLV:",await pg.evaluate(()=>[...document.querySelectorAll(".cadrow b")].map(b=>b.textContent)));
+console.log("erros",errs);await br.close();srv.close();
