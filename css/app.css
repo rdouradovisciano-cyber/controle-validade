@@ -1122,3 +1122,6 @@ html[data-tema=dark] .product.prv .vbox,html[data-tema=dark] .product.prh .vbox,
 .product.prv .pill,.product.prh .pill,.product.pra .pill,.product.pry .pill{font-size:14px;font-weight:900;padding:6px 14px;background:var(--tc);color:var(--tx)}
 .product.prv .pill::before,.product.prh .pill::before,.product.pra .pill::before,.product.pry .pill::before{background:var(--tx)}
 .product.prv .vr .pill,.product.prh .vr .pill,.product.pra .vr .pill,.product.pry .vr .pill{display:none}
+.pesinfo{display:block;margin:6px 2px 2px;color:var(--mut,#a9a38f);font-size:12.5px}
+.peslista mark{background:rgba(243,216,122,.5);color:inherit;border-radius:3px;padding:0 1px}
+#pesBusca{font-size:17px;min-height:50px}

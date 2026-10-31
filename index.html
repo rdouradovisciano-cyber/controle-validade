@@ -11,10 +11,10 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=241">
+<link rel="stylesheet" href="css/app.css?v=243">
 <title>Valida+ | Controle de validade</title>
-<script src="js/tema.js?v=241"></script>
-<!-- const APP_VERSION = "2026.10.31-241" -->
+<script src="js/tema.js?v=243"></script>
+<!-- const APP_VERSION = "2026.10.31-243" -->
 </head>
 <body data-tab="Loja">
 <div id="splash" aria-hidden="true"><style>
@@ -102,26 +102,8 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 <div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rCont">➕ Continuar doação</button><button class="secondary big" id="rAdd">＋ Bipar item</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
 </div>
 <div id="tabPesaveis" class="hidden">
-<section class="panel peshero">
-<svg class="pesdesenho" viewBox="0 0 160 120" role="img" aria-label="Desenho de uma balança de pesar">
-<g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-<path d="M80 24v72"/>
-<path d="M60 96h40"/>
-<path d="M60 96l-8 10h56l-8-10"/>
-<path d="M40 24h80"/>
-<circle cx="80" cy="22" r="3.5"/>
-<path d="M40 24 22 50M40 24l18 26M120 24l-18 26M120 24l18 26"/>
-<path d="M20 50a20 20 0 0 0 40 0M100 50a20 20 0 0 0 40 0"/>
-<circle cx="34" cy="44" r="6"/><circle cx="47" cy="46" r="4.5"/>
-<path d="M116 38l9-5 6 7-9 5z"/>
-</g>
-</svg>
-<h2 class="h2">Pesáveis</h2>
-<p class="note">Produtos vendidos por peso ou com código de balança. Toque em 🏷️ para mandar direto para as etiquetas.</p>
-</section>
-<section class="stats"><div class="stat"><b id="pesCount">0</b><span>Pesáveis</span></div><div class="stat"><b id="pesPlu">0</b><span>Com PLU</span></div><div class="stat"><b id="pesVenc">0</b><span>Vencendo</span></div></section>
 <section class="panel">
-<input id="pesBusca" type="search" placeholder="Buscar pesável por nome ou código" aria-label="Buscar pesável" style="margin-top:12px">
+<input id="pesBusca" type="search" inputmode="search" autocomplete="off" placeholder="Buscar: nome, PLU ou código interno" aria-label="Buscar pesável"><small id="pesInfo" class="pesinfo"></small>
 <div id="pesLista" class="peslista"></div>
 </section>
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="pesBipar">▦ Bipar etiqueta</button><button class="secondary big" id="pesNovo">＋ Cadastrar pesável</button></div>
@@ -254,16 +236,16 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 </div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
-<script src="js/config.js?v=241"></script>
+<script src="js/config.js?v=243"></script>
 <script src="vendor.js"></script>
-<script src="js/version.js?v=241"></script>
-<script src="js/login.js?v=241"></script>
-<script src="js/app.js?v=241"></script>
-<script src="js/nav.js?v=241"></script>
-<script src="js/operador.js?v=241"></script>
-<script src="js/teclado.js?v=241"></script>
-<script src="js/menu.js?v=241"></script>
-<script src="js/status.js?v=241"></script>
-<script src="js/inventario.js?v=241"></script>
-<script src="js/doacao-busca.js?v=241"></script>
+<script src="js/version.js?v=243"></script>
+<script src="js/login.js?v=243"></script>
+<script src="js/app.js?v=243"></script>
+<script src="js/nav.js?v=243"></script>
+<script src="js/operador.js?v=243"></script>
+<script src="js/teclado.js?v=243"></script>
+<script src="js/menu.js?v=243"></script>
+<script src="js/status.js?v=243"></script>
+<script src="js/inventario.js?v=243"></script>
+<script src="js/doacao-busca.js?v=243"></script>
 </body></html>
