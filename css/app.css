@@ -1078,3 +1078,7 @@ body[data-perfil="FLV"] #setorChip,body[data-perfil="Perecíveis"] #setorChip,bo
 .product.pr2{border-left-width:8px;border-left-color:#f08a24}
 .product.pr3{border-left-width:6px}
 .askalt{margin-top:8px;width:100%;min-height:46px;border-radius:14px;border:1px dashed var(--ln,#c8c8c8);background:transparent;color:inherit;font-weight:700}
+.porx{color:#f3d87a;font-weight:700}
+.nfrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--ln)}
+.nfrow span{display:flex;flex-direction:column}.nfrow small{color:#a9a38f;font-weight:500}
+.nfrow input[type=checkbox]{width:26px;height:26px}.nfrow select{min-width:120px;font-size:16px}

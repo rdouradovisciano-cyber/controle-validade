@@ -236,7 +236,7 @@ function render() {
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
     if (p.retirado) return `<article class="product retirado"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">${esc(p.category)}</span></div><div class="vbox"><div class="vd"><small>RETIRADO DA LOJA</small><b>${p.retEm ? new Date(Number(p.retEm)).toLocaleDateString("pt-BR") : "—"}</b></div><div class="vr"><span class="pill">${p.retPor ? "por " + esc(p.retPor) : ""}</span><small>validade era ${fmt(p.expiry)}</small></div></div><div class="actions"><button class="secondary" data-volta="${esc(p.id)}">↩ Voltar para a loja</button></div></article>`;
-    const pr = prioDe(p), pb = PRIO[pr]; return `<article class="product ${cls}${pr ? " pr" + pr : ""}"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div>${pb ? `<div class="prow"><span class="prio ${pb[0]}">${pb[1]}</span></div>` : ""}<p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button></div></article>`;
+    const pr = prioDe(p), pb = PRIO[pr]; return `<article class="product ${cls}${pr ? " pr" + pr : ""}"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div>${pb ? `<div class="prow"><span class="prio ${pb[0]}">${pb[1]}</span></div>` : ""}<p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}${PERFIL === "Admin" ? ` · 👤 ${esc(p.por || "autor não registrado")}` : ""}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
 }
 
@@ -570,11 +570,11 @@ if (cloud && V.initializeApp) {
     V.onSnapshot(V.collection(db, "products"), { includeMetadataChanges: true }, snap => {
       separaLixo(snap.docs.map(d => ({ id: d.id, ...d.data() }))); lixoBtn(); window.__hReady = !snap.metadata.fromCache; if (window.__hReady || snap.docs.length) carregando = false;   // há dados no cache (mesmo que nenhum seja deste setor): não segura a tela esperando a nuvem
       render();   // repinta sempre que qualquer aparelho altera algo
-      if (window.__hReady) { setTimeout(() => { try { limparFotosNuvem(); } catch (e) { console.warn(e); } }, 2000); retSync(); }
+      if (window.__hReady) { setTimeout(() => { try { limparFotosNuvem(); } catch (e) { console.warn(e); } }, 2000); retSync(); notifVerifica(); }
       setSync(snap.metadata.hasPendingWrites ? "alterações aguardando envio…" : snap.metadata.fromCache ? (navigator.onLine ? "conectando…" : "offline (dados salvos no aparelho)") : "sincronizado");
     }, err => { console.error(err); carregando = false; render(); setSync("erro de sincronização (confira as regras do Firestore)"); toast("Erro ao ler os dados da nuvem."); });
   } catch (e) { console.error(e); db = null; setSync("falha ao iniciar o Firebase"); }
-} else { separaLixo(store.get(LK, []).map(({ foto, ...r }) => r)); persist(); setSync("modo local neste aparelho (configure o Firebase para sincronizar)"); render(); }
+} else { setTimeout(() => notifVerifica(), 1500); separaLixo(store.get(LK, []).map(({ foto, ...r }) => r)); persist(); setSync("modo local neste aparelho (configure o Firebase para sincronizar)"); render(); }
 
 // ---------- aparelho, contadores (visitas/online) e histórico de leituras ----------
 const myId = store.get("validamais-device", null) || (() => { const i = uid().slice(0, 8); store.set("validamais-device", i); return i; })();
@@ -1262,7 +1262,7 @@ function cadPaint() {
   lixoBtn(); $("cCount").textContent = all.length + (q ? " · " + g.length + " achados" : "");
   const ini = x => { const c = x.name.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").charAt(0).toUpperCase(); return /[A-Z]/.test(c) ? c : "#"; };
   let ult = "", letras = [];
-  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"}${SETOR === KOR ? "" : ` · PLU ${x.plu ? esc(x.plu) : "—"} · ${SETOR === PER ? "Interno" : "Doação"} ${x.don ? esc(x.don) : "—"}`}</small>${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small><button type="button" class="dpres" data-cres="${esc(x.k)}">Resolver código repetido</button>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
+  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"}${SETOR === KOR ? "" : ` · PLU ${x.plu ? esc(x.plu) : "—"} · ${SETOR === PER ? "Interno" : "Doação"} ${x.don ? esc(x.don) : "—"}`}</small>${PERFIL === "Admin" ? `<small class="porx">👤 ${esc(x.l.map(l => l.por).find(Boolean) || "autor não registrado")} · ${dayOf(x.l[0])}</small>` : ""}${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small><button type="button" class="dpres" data-cres="${esc(x.k)}">Resolver código repetido</button>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
   $("cLista").innerHTML = g.length ? g.map(x => { const l = ini(x); let h = ""; if (l !== ult) { ult = l; letras.push(l); h = `<div class="cadlt" id="cl-${l === "#" ? "num" : l}">${l}</div>`; } return h + row(x); }).join("") : '<p class="empty">Nenhum produto encontrado.</p>';
   const rail = $("cIdx"); rail.hidden = g.length < 12 || letras.length < 2; $("cLista").classList.toggle("cadidx", !rail.hidden);
   rail.innerHTML = rail.hidden ? "" : letras.map(l => `<button type="button" tabindex="-1" data-l="${l}">${l}</button>`).join("");
@@ -1654,6 +1654,61 @@ function saudeAbrir() {
         .then(() => { b.disabled = false; b.textContent = "Rodar de novo"; out.insertAdjacentHTML("beforeend", `<div class="shr info"><small>Fim do teste. ✓ ok · ⚠ funciona com ressalva · ✗ precisa de ajuste.</small></div>`); }); } };
 }
 $("mnPerfil").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } perfilEscolher(true); };
+// ---------- notificações de vencimento (cada pessoa liga e escolhe quantos dias antes quer ser avisada) ----------
+const NTK = "validamais-notif";
+const notifSuporte = () => "Notification" in window && "serviceWorker" in navigator;
+const notifCfg = () => { const c = store.get(NTK, null) || {}; return { on: !!c.on, dias: Number(c.dias) > 0 ? Number(c.dias) : (PERFIL === PER ? 7 : 2), setores: c.setores || (PERFIL === PER ? [PER] : PERFIL === "FLV" ? ["FLV"] : ["FLV", PER]), ultimo: c.ultimo || "" }; };
+const diaKey = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+async function notifGravaCache(c) {   // o service worker lê esta cópia para avisar com o app fechado
+  try { const ch = await caches.open("vm-cfg"); await ch.put("vm-cfg.json", new Response(JSON.stringify({ on: c.on, dias: c.dias, setores: c.setores, ultimo: c.ultimo, pid: fb.projectId || "", key: fb.apiKey || "" }), { headers: { "content-type": "application/json" } })); } catch (e) { console.warn(e); }
+}
+async function notifSalva(c) {
+  store.set(NTK, c); await notifGravaCache(c);
+  try { const reg = await navigator.serviceWorker.ready;
+    if (reg.periodicSync) { if (c.on) await reg.periodicSync.register("vm-venc", { minInterval: 12 * 3600 * 1000 }); else await reg.periodicSync.unregister("vm-venc"); } } catch (e) { console.warn(e); }
+}
+function notifLista(c) {   // [{name, dl}] dos produtos que pedem aviso, do mais urgente ao menos
+  const out = [], vistos = new Set();
+  (db ? rawAll : products.concat(outros)).forEach(p => { if (!p || !p.name || p.retirado || p.lixo || !/^\d{4}-\d\d-\d\d$/.test(p.expiry || "")) return;
+    if (!c.setores.includes(p.category === PER ? PER : "FLV")) return; const dl = daysLeft(p.expiry); if (dl === null || dl > c.dias) return;
+    const k = norm(p.name) + "|" + p.expiry; if (vistos.has(k)) return; vistos.add(k); out.push({ name: p.name, dl }); });
+  return out.sort((a, b) => a.dl - b.dl || a.name.localeCompare(b.name, "pt-BR"));
+}
+function notifTexto(l, dias) {
+  const n = (f) => l.filter(f).length, ven = n(x => x.dl < 0), hoje = n(x => x.dl === 0), prox = n(x => x.dl > 0), partes = [];
+  if (ven) partes.push(`🔴 ${ven} vencido${ven > 1 ? "s" : ""}`); if (hoje) partes.push(`🟠 ${hoje} vence${hoje > 1 ? "m" : ""} hoje`); if (prox) partes.push(`🟡 ${prox} em até ${dias} dia${dias > 1 ? "s" : ""}`);
+  return { title: "Valida+ · produtos para vencer", body: partes.join(" · ") + "\n" + l.slice(0, 4).map(x => `${x.name} (${when(x.dl).toLowerCase()})`).join("\n") + (l.length > 4 ? `\n+ ${l.length - 4} outros` : "") };
+}
+async function notifVerifica(forcar) {   // avisa no máximo uma vez por dia (ou quando o usuário pede o teste)
+  try { const c = notifCfg(); if (!notifSuporte() || Notification.permission !== "granted" || (!c.on && !forcar)) return false; if (!forcar && (c.ultimo === diaKey() || !(db ? window.__hReady : true))) return false;
+    const l = notifLista(c); if (!l.length) { if (forcar) toast("Nenhum produto dentro do prazo escolhido. Está tudo em dia."); return false; }
+    const t = notifTexto(l, c.dias), reg = await navigator.serviceWorker.ready;
+    await reg.showNotification(t.title, { body: t.body, tag: "vm-venc", icon: "icon-192.png", badge: "icon-192.png", data: { url: "./" } });
+    if (!forcar) { c.ultimo = diaKey(); await notifSalva(c); } return true; } catch (e) { console.warn(e); return false; }
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") notifVerifica(); });
+function notifAbrir() {
+  const bg = document.createElement("div"); bg.className = "modal"; bg.id = "notifModal";
+  const sup = notifSuporte(), perm = sup ? Notification.permission : "unsupported", c = notifCfg(), admin = PERFIL === "Admin";
+  const opc = [1, 2, 3, 5, 7, 10, 15], estado = !sup ? "Este navegador não permite notificações." : perm === "denied" ? "As notificações estão bloqueadas para o app. Libere nas configurações do celular (Configurações → Apps → Valida+/Chrome → Notificações)." : c.on && perm === "granted" ? "Ativadas neste aparelho." : "Desativadas.";
+  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Notificações"><div class="sheethead"><h2>🔔 Notificações</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
+    <p class="note" id="nfEst">${esc(estado)}</p>
+    <label class="nfrow"><span><b>Avisar sobre vencimentos</b><small>Uma notificação por dia com o que está perto de vencer</small></span><input type="checkbox" id="nfOn" ${c.on && perm === "granted" ? "checked" : ""} ${!sup || perm === "denied" ? "disabled" : ""}></label>
+    <label class="nfrow"><span><b>Avisar quando faltar até</b><small>Você escolhe o prazo</small></span><select id="nfDias">${opc.concat(opc.includes(c.dias) ? [] : [c.dias]).sort((a, b) => a - b).map(d => `<option value="${d}" ${d === c.dias ? "selected" : ""}>${d} dia${d > 1 ? "s" : ""}</option>`).join("")}</select></label>
+    ${admin ? `<label class="nfrow"><span><b>Setores</b><small>Só você, Admin, escolhe</small></span><select id="nfSet"><option value="both" ${c.setores.length > 1 ? "selected" : ""}>FLV e Perecíveis</option><option value="FLV" ${c.setores.length === 1 && c.setores[0] === "FLV" ? "selected" : ""}>Só FLV</option><option value="PER" ${c.setores.length === 1 && c.setores[0] === PER ? "selected" : ""}>Só Perecíveis</option></select></label>` : ""}
+    <button type="button" class="primary big" id="nfTeste" style="margin-top:8px" ${!sup || perm === "denied" ? "disabled" : ""}>Testar agora</button>
+    <p class="note" style="margin-top:12px">Como funciona: no <b>Android</b>, com o app instalado na tela inicial, o aviso chega mesmo com o app fechado (o Chrome escolhe o horário, em geral 1 a 2 vezes por dia). No <b>iPhone</b> o aviso aparece quando você abre o app. Vale por aparelho: cada pessoa configura o seu.</p></section>`;
+  document.body.appendChild(bg);
+  const le = () => { const v = bg.querySelector("#nfSet") ? bg.querySelector("#nfSet").value : null; return { on: bg.querySelector("#nfOn").checked, dias: Number(bg.querySelector("#nfDias").value), setores: v === "FLV" ? ["FLV"] : v === "PER" ? [PER] : v === "both" ? ["FLV", PER] : c.setores, ultimo: "" }; };
+  const salva = async () => { await notifSalva(le()); };
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) bg.remove(); };
+  bg.querySelector("#nfOn").onchange = async e => { if (e.target.checked && Notification.permission !== "granted") { const r = await Notification.requestPermission(); if (r !== "granted") { e.target.checked = false; bg.querySelector("#nfEst").textContent = "Sem permissão, as notificações não podem ser ativadas."; if (r === "denied") e.target.disabled = true; return; } }
+    await salva(); bg.querySelector("#nfEst").textContent = e.target.checked ? "Ativadas neste aparelho." : "Desativadas."; if (e.target.checked) toast("Notificações ativadas."); };
+  bg.querySelector("#nfDias").onchange = salva; if (bg.querySelector("#nfSet")) bg.querySelector("#nfSet").onchange = salva;
+  bg.querySelector("#nfTeste").onclick = async () => { if (Notification.permission !== "granted") { const r = await Notification.requestPermission(); if (r !== "granted") return toast("Sem permissão para notificar."); }
+    const c2 = le(); store.set(NTK, { ...c2, on: bg.querySelector("#nfOn").checked }); const ok = await notifVerifica(true); if (ok) toast("Notificação enviada. Veja a barra do celular."); };
+}
+$("mnNotif").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } notifAbrir(); };
 $("mnSaude").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } saudeAbrir(); };
 const tabInicial = () => SETOR === PER ? "Loja" : SETOR === KOR ? "Contagem" : "Doacao";
 function trocaSetor(alvo) {   // troca FLV / Perecíveis / KÓRIN sem recarregar a página
