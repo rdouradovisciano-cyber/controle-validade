@@ -1125,3 +1125,39 @@ html[data-tema=dark] .product.prv .vbox,html[data-tema=dark] .product.prh .vbox,
 .pesinfo{display:block;margin:6px 2px 2px;color:var(--mut,#a9a38f);font-size:12.5px}
 .peslista mark{background:rgba(243,216,122,.5);color:inherit;border-radius:3px;padding:0 1px}
 #pesBusca{font-size:17px;min-height:50px}
+
+/* ===== Validades: lista compacta por urgência (toque na linha para abrir Editar / Retirar) ===== */
+#tabLoja .stats,#topAlert{display:none!important}
+body[data-tab="Loja"] #todayBanner{display:none!important}
+.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 4px}
+.tiers.hidden{display:none}
+.tiers button{--tc:#888;--tx:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 2px;min-height:68px;border-radius:14px;border:2px solid var(--tc);background:color-mix(in srgb,var(--tc) 16%,transparent);color:inherit}
+.tiers b{font-size:26px;font-weight:900;line-height:1}
+.tiers span{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;text-align:center;line-height:1.1}
+.tiers .tv{--tc:#b3122a}.tiers .th{--tc:#e11d2e}.tiers .ta{--tc:#ff8a00;--tx:#1a0f00}.tiers .ty{--tc:#f2c200;--tx:#241c00}
+.tiers button.on{background:var(--tc);color:var(--tx);box-shadow:0 4px 14px color-mix(in srgb,var(--tc) 45%,transparent)}
+.tiers button.zero:not(.on){opacity:.45}
+.pgh{--tc:#3aa676;--tx:#fff;display:flex;align-items:center;gap:8px;margin:18px 2px 4px;font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}
+.pgh::after{content:"";flex:1;height:2px;background:var(--tc);opacity:.45;order:3}
+.pgh i{font-style:normal;background:var(--tc);color:var(--tx);border-radius:99px;padding:1px 10px;font-size:12px}
+.pgh.gv{--tc:#b3122a}.pgh.gh{--tc:#e11d2e}.pgh.ga{--tc:#ff8a00;--tx:#1a0f00}.pgh.gy{--tc:#f2c200;--tx:#241c00}
+.pitem{--tc:#3aa676;--tx:#fff;border-radius:16px;margin:8px 0;border:1px solid var(--ln);border-left:10px solid var(--tc);background:#fff;overflow:hidden}
+html[data-tema=dark] .pitem{background:#0f1311}
+.pitem.prv{--tc:#8f1020}.pitem.prh{--tc:#e11d2e}.pitem.pra{--tc:#ff8a00;--tx:#1a0f00}.pitem.pry{--tc:#f2c200;--tx:#241c00}
+.pitem.prv,.pitem.prh,.pitem.pra,.pitem.pry{background:color-mix(in srgb,var(--tc) 14%,#fff);border-color:var(--tc)}
+html[data-tema=dark] .pitem.prv,html[data-tema=dark] .pitem.prh,html[data-tema=dark] .pitem.pra,html[data-tema=dark] .pitem.pry{background:color-mix(in srgb,var(--tc) 24%,#0c0f0d)}
+.pi-main{display:flex;align-items:center;gap:10px;padding:12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pi-txt{flex:1;min-width:0}
+.pi-nome{display:block;font-size:18px;font-weight:800;line-height:1.2;overflow-wrap:anywhere}
+.pi-nome::after{content:" ▾";opacity:.45;font-size:13px}
+.pitem.open .pi-nome::after{content:" ▴"}
+.pi-sub{display:block;margin-top:4px;font-size:13px;opacity:.8}
+.pi-badge{flex:none;min-width:86px;text-align:center;padding:9px 8px;border-radius:14px;background:var(--tc);color:var(--tx)}
+.pi-badge b{display:block;font-size:21px;font-weight:900;line-height:1.05}
+.pi-badge span{display:block;font-size:11px;font-weight:800;text-transform:uppercase;margin-top:1px}
+.pitem.prv .pi-badge{background:repeating-linear-gradient(135deg,#8f1020 0 10px,#5e0a15 10px 20px)}
+.pitem.prok .pi-badge{background:transparent;color:inherit;border:2px solid var(--tc)}
+.pi-act{display:none;padding:0 12px 12px}
+.pitem.open .pi-act{display:block}
+.pi-cod{display:block;opacity:.75;margin-bottom:8px;font-size:12.5px}
+.pi-act .actions{display:flex;gap:8px}.pi-act .actions button{flex:1}

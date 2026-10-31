@@ -1,1 +1,1 @@
-{"versao":"2026.10.31-243","nota":"Aba Pesáveis só com a busca (saíram o desenho e os contadores). Busca inteligente: ignora acento, aceita várias palavras em qualquer ordem, acha por trecho do PLU ou código interno e perdoa erro de digitação; mostra quantos achou e destaca o que você digitou"}
+{"versao":"2026.10.31-244","nota":"Validades com novo layout: 4 botões de urgência no topo (Vencidos, Hoje, Até 2 dias, Até 7 dias) que filtram a lista; lista compacta separada por faixas, com o prazo em destaque à direita; toque no produto para abrir Editar e Retirar da loja"}

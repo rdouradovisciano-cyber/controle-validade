@@ -65,7 +65,7 @@ function perfilEscolher(troca) {   // pergunta uma vez qual é o setor deste apa
 if (!PERFIL) perfilEscolher(false);
 const $ = id => document.getElementById(id);
 const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria", TK = "validamais-tam";
-let curTab = "Loja";
+let curTab = "Loja", tierF = "", openId = "";   // tierF: filtro por faixa de urgência (v/h/a/y); openId: linha de validade aberta
 const LOJA = C.loja || "Sam's Club Radial Leste";
 const EMPTY_FLV = '<div class="empty"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="#9db8a4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 28h44l-5 22a4 4 0 0 1-4 3H19a4 4 0 0 1-4-3z"/><path d="M22 28c0-9 4-16 10-16s10 7 10 16"/><path d="M32 12c0-4 3-7 8-7 0 5-3 8-8 7z"/></svg><p>Nenhum produto do FLV com validade para vencer no momento.</p></div>';
 const SKEL = '<div class="skel" role="status" aria-label="Carregando produtos">' + [58, 72, 46, 64].map((w, k) => `<div class="product skelc" aria-hidden="true" style="--d:${k * 0.15}s"><div class="sk sk-t" style="width:${w}%"></div><div class="sk sk-m"></div><div class="sk-row"><div class="sk sk-d"></div><div class="sk sk-p"></div></div></div>`).join("") + '</div>';
@@ -226,18 +226,25 @@ function render() {
   // escala de atenção: vencido · vence hoje · até 2 dias (laranja) · até o prazo de alerta (amarelo; 7 dias em Perecíveis)
   const prioDe = p => { const dl = daysLeft(p.expiry); if (dl === null || p.retirado) return ""; if (dl < 0) return "v"; if (dl === 0) return "h"; if (status(p) !== "soon") return ""; return dl <= 2 ? "a" : "y"; };
   const PRIOI = { v: "⛔", h: "🚨", a: "⚠️", y: "⏳" };
+  { const c = { v: 0, h: 0, a: 0, y: 0 }, lim = limit(cat || CATSET); base.forEach(p => { const k = prioDe(p); if (k) c[k]++; });
+    const t = $("tiers"); if (t) { t.classList.toggle("hidden", retView); t.querySelectorAll("[data-t]").forEach(b => { b.querySelector("b").textContent = ainda ? "–" : c[b.dataset.t]; b.classList.toggle("on", tierF === b.dataset.t); b.classList.toggle("zero", !c[b.dataset.t]); });
+      const ly = t.querySelector('[data-t="y"] span'); if (ly) ly.textContent = "Até " + lim + " dias"; } }
   const cnt = {}; products.forEach(p => { if (p.barcode) cnt[p.barcode] = (cnt[p.barcode] || 0) + 1; });
   const hoje = products.filter(p => !p.retirado && daysLeft(p.expiry) === 0 && (!cat || p.category === cat));
   $("todayBanner").classList.toggle("hidden", !hoje.length);
   $("todayBanner").textContent = `⚠ VENCEM HOJE (${hoje.length}): ` + hoje.slice(0, 5).map(p => p.name).join(", ") + (hoje.length > 5 ? "…" : "");
   if (!hoje.length) alarmed = false; else if (!alarmed && actx) { alarmed = true; alarm(); }
   const rows = retView ? products.filter(p => p.retirado).sort((a, b) => (Number(b.retEm) || 0) - (Number(a.retEm) || 0)) : products.filter(p => q ? ((p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q) || String(p.codigo_balanca || "") === q || String(p.codigo_doacao || "").toLowerCase() === q)   // buscando: procura em TODOS os setores, com ou sem validade
-      : (!p.retirado && (!cat || p.category === cat) && !((cat === "FLV" || cat === PER) && daysLeft(p.expiry) === null) && (!st || status(p) === st)))
+      : (!p.retirado && (!cat || p.category === cat) && !((cat === "FLV" || cat === PER) && daysLeft(p.expiry) === null) && (!st || status(p) === st) && (!tierF || prioDe(p) === tierF)))
     .sort((a, b) => cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
+  let lastG = ""; const gcnt = {}; rows.forEach(p => { const k = retView ? "x" : (prioDe(p) || "ok"); gcnt[k] = (gcnt[k] || 0) + 1; });
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
     if (p.retirado) return `<article class="product retirado"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">${esc(p.category)}</span></div><div class="vbox"><div class="vd"><small>RETIRADO DA LOJA</small><b>${p.retEm ? new Date(Number(p.retEm)).toLocaleDateString("pt-BR") : "—"}</b></div><div class="vr"><span class="pill">${p.retPor ? "por " + esc(p.retPor) : ""}</span><small>validade era ${fmt(p.expiry)}</small></div></div><div class="actions"><button class="secondary" data-volta="${esc(p.id)}">↩ Voltar para a loja</button></div></article>`;
-    const pr = prioDe(p); return `<article class="product ${cls}${pr ? " pr" + pr : ""}"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div>${pr ? `<div class="prow"><span class="prio">${PRIOI[pr]} ${esc(when(dl).toUpperCase())}${pr === "v" || pr === "h" ? " · RETIRAR" : ""}</span></div>` : ""}<p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}${PERFIL === "Admin" ? ` · 👤 ${esc(p.por || "autor não registrado")}` : ""}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button></div></article>`;
+    const pr = prioDe(p), g = pr || "ok", lim = limit(cat || CATSET); let hd = "";
+    if (cat && !q && !tierF && g !== lastG) { lastG = g; const GN = { v: "⛔ Vencidos", h: "🚨 Vence hoje", a: "⚠️ Em até 2 dias", y: "⏳ Em até " + lim + " dias", ok: "✅ Dentro do prazo" }; hd = `<div class="pgh g${g}"><span>${GN[g]}</span><i>${gcnt[g]}</i></div>`; }
+    const big = dl === null ? "—" : dl < 0 ? "VENCIDO" : dl === 0 ? "HOJE" : dl === 1 ? "AMANHÃ" : String(dl), small = dl === null ? "sem validade" : dl < 0 ? "há " + (-dl) + (dl < -1 ? " dias" : " dia") : dl <= 1 ? "" : "dias";
+    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${esc(p.name)}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act"><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button></div></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
   if (typeof renderPesaveis === "function") renderPesaveis();
 }
@@ -361,7 +368,7 @@ async function save(next) {
     if (id) products = products.map(x => x.id === id ? { ...x, ...data, updatedAt: Date.now() } : x); else products.push({ ...data, id: uid(), updatedAt: Date.now() });
     persist(); render();
   }
-  closeModal(); toast("Produto salvo."); { const nm = norm(data.name || ""); vmOk(() => [...document.querySelectorAll("#list article.product")].find(a => norm((a.querySelector("h3") || {}).textContent || "") === nm)); } if (next) openScan();
+  closeModal(); toast("Produto salvo."); { const nm = norm(data.name || ""); vmOk(() => [...document.querySelectorAll("#list article.product, #list article.pitem")].find(a => norm((a.querySelector("h3, .pi-nome") || {}).textContent || "") === nm)); } if (next) openScan();
 }
 let retView = false;
 const RLK = "validamais-retlocal"; let retLoc = store.get(RLK, {});
@@ -401,6 +408,7 @@ async function remover(id) {   // tira só o lote da lista, sem registrar como r
     toast(`${p.name} removido da lista (o cadastro continua).`, "Desfazer", () => { Promise.resolve(set(exp)).then(() => toast("Lote restaurado.")).catch(falha); });
   }
 }
+$("tiers").onclick = e => { const b = e.target.closest("[data-t]"); if (!b) return; tierF = tierF === b.dataset.t ? "" : b.dataset.t; render(); };
 $("verRet").onclick = () => { retView = !retView; render(); window.scrollTo(0, 0); };
 
 // ---------- scanner ----------
@@ -539,7 +547,7 @@ const fname = () => ($("exportScope").value === "products" ? "produtos-cadastrad
 fillCategories();
 ["search"].forEach(i => $(i).oninput = render);
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
-$("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
+$("list").onclick = e => { const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
 $("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Pesaveis" ? "etiqueta" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : curTab === "Contagem" ? "contagem" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = () => { stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
