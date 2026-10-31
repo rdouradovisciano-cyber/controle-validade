@@ -228,7 +228,9 @@ function render() {
   const PRIOI = { v: "⛔", h: "🚨", a: "⚠️", y: "⏳" };
   { const c = { v: 0, h: 0, a: 0, y: 0 }, lim = limit(cat || CATSET); base.forEach(p => { const k = prioDe(p); if (k) c[k]++; });
     const t = $("tiers"); if (t) { t.classList.toggle("hidden", retView); t.querySelectorAll("[data-t]").forEach(b => { b.querySelector("b").textContent = ainda ? "–" : c[b.dataset.t]; b.classList.toggle("on", tierF === b.dataset.t); b.classList.toggle("zero", !c[b.dataset.t]); });
-      const ly = t.querySelector('[data-t="y"] span'); if (ly) ly.textContent = "Até " + lim + " dias"; } }
+      const ly = t.querySelector('[data-t="y"] span'); if (ly) ly.textContent = "Até " + lim + " dias";
+      const IC = { v: "⛔", h: "🚨", a: "⚠️", y: "⏳" }; $("tiersSum").innerHTML = ["v", "h", "a", "y"].map(k => `<i class="${c[k] ? "nz" : "z"}${tierF === k ? " on" : ""}">${IC[k]}${ainda ? "–" : c[k]}</i>`).join("");
+      const ab = tiersAberto(); t.classList.toggle("aberto", ab); $("tiersBar").setAttribute("aria-expanded", ab ? "true" : "false"); $("tiersTog").textContent = ab ? "▴ recolher" : "▾ ver"; } }
   const cnt = {}; products.forEach(p => { if (p.barcode) cnt[p.barcode] = (cnt[p.barcode] || 0) + 1; });
   const hoje = products.filter(p => !p.retirado && daysLeft(p.expiry) === 0 && (!cat || p.category === cat));
   $("todayBanner").classList.toggle("hidden", !hoje.length);
@@ -408,7 +410,8 @@ async function remover(id) {   // tira só o lote da lista, sem registrar como r
     toast(`${p.name} removido da lista (o cadastro continua).`, "Desfazer", () => { Promise.resolve(set(exp)).then(() => toast("Lote restaurado.")).catch(falha); });
   }
 }
-$("tiers").onclick = e => { const b = e.target.closest("[data-t]"); if (!b) return; tierF = tierF === b.dataset.t ? "" : b.dataset.t; render(); };
+const TIERK = "validamais-tiers-aberto", tiersAberto = () => store.get(TIERK, false);
+$("tiers").onclick = e => { if (e.target.closest("#tiersBar")) { store.set(TIERK, !tiersAberto()); render(); return; } const b = e.target.closest("[data-t]"); if (!b) return; tierF = tierF === b.dataset.t ? "" : b.dataset.t; render(); };
 $("verRet").onclick = () => { retView = !retView; render(); window.scrollTo(0, 0); };
 
 // ---------- scanner ----------

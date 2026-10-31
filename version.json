@@ -1,1 +1,1 @@
-{"versao":"2026.10.31-244","nota":"Validades com novo layout: 4 botões de urgência no topo (Vencidos, Hoje, Até 2 dias, Até 7 dias) que filtram a lista; lista compacta separada por faixas, com o prazo em destaque à direita; toque no produto para abrir Editar e Retirar da loja"}
+{"versao":"2026.10.31-246","nota":"O resumo de urgência das Validades ficou bem menor e recolhido: uma linha com os números, e «▾ ver» abre os botões de filtro (o app lembra se você deixou aberto)"}
