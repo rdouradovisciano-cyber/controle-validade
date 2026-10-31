@@ -1198,3 +1198,23 @@ html[data-tema=dark] .peslista .pesrow .pesn .pesc.plu b,html[data-tema=dark] .p
 .pi-badge{min-width:78px;padding:6px 7px}
 .pi-badge b{font-size:19px}
 .pgh{margin:12px 2px 2px}
+
+/* Pesáveis: tudo alinhado em colunas fixas (PLU | INTERNO), linhas de mesma altura */
+.peslista .pesrow{align-items:center;min-height:68px}
+.peslista .pesrow .pescods{display:flex;flex-wrap:nowrap;gap:6px;margin:0 0 4px}
+.peslista .pesrow .pesn .pesc{flex:none;box-sizing:border-box;width:112px;height:32px;padding:0 8px;justify-content:space-between;align-items:center;gap:4px;overflow:hidden}
+.peslista .pesrow .pesn .pesc.itn{width:148px}
+.peslista .pesrow .pesn .pesc.ph{background:transparent!important;visibility:hidden}
+.peslista .pesrow .pesn .pesc i{font-size:9px}
+.peslista .pesrow .pesn .pesc b{font-size:19px;font-weight:900;white-space:nowrap}
+.peslista .pesrow .pesn .pesc.cod{background:rgba(255,255,255,.14);color:inherit}
+html:not([data-tema=dark]) .peslista .pesrow .pesn .pesc.cod{background:#e6e6e6;color:#222}
+.peslista .pesrow .pesl{display:flex;align-items:baseline;gap:8px;min-width:0}
+.peslista .pesrow .pesl .pesnome{flex:1;min-width:0}
+.peslista .pesrow .pesv{flex:none;font-size:11.5px;font-weight:800;margin:0;color:var(--mut,#a9a38f)}
+.peslista .pesrow .pesv.y{color:#e0a100}.peslista .pesrow .pesv.r{color:#ff5a5a}
+.peslista .pesrow .pesb{flex:none;width:84px}
+.peslista .pesrow .pesl .pesnome{display:block;font-size:13.5px;font-weight:600;color:var(--mut,#a9a38f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.peslista .pesrow .pesb{white-space:nowrap;font-size:12px;padding:0 6px;width:90px;display:inline-flex;align-items:center;justify-content:center;gap:3px}
+.peslista .pesrow .pesn .pesc{width:106px}.peslista .pesrow .pesn .pesc.itn{width:142px}
+.peslista .pesrow .pesn .pesc b{font-size:18px}

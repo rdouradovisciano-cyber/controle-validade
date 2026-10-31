@@ -1874,8 +1874,8 @@ function renderPesaveis() {
   if ($("pesInfo")) $("pesInfo").textContent = q ? `${rows.length} de ${all.length} pesáveis` : `${all.length} pesáveis`;
   box.innerHTML = rows.length ? rows.map(p => {
     const dl = daysLeft(p.expiry), plu = p.codigo_balanca || "", itn = p.codigo_doacao || "";
-    const cods = (plu ? `<span class="pesc plu"><i>PLU</i><b>${esc(plu)}</b></span>` : "") + (itn ? `<span class="pesc itn"><i>INTERNO</i><b>${esc(itn)}</b></span>` : "") + (!plu && !itn ? `<span class="pesc">${p.barcode ? "Cód. " + esc(p.barcode) : "Sem código"}</span>` : "");
-    return `<div class="pesrow" data-pes="${esc(p.id)}"><div class="pesn"><span class="pescods">${cods}</span><b class="pesnome">${pesHl(p.name, toks)}</b>${dl === null ? "" : `<small>${esc(when(dl))}</small>`}</div><button type="button" class="pesb" data-etq="${esc(p.id)}" aria-label="Etiqueta de ${esc(p.name)}">🏷️ Etiqueta</button></div>`;
+    const cods = (plu ? `<span class="pesc plu"><i>PLU</i><b>${esc(plu)}</b></span>` : (!itn ? `<span class="pesc cod"><i>CÓD</i><b>${esc(p.barcode || "—")}</b></span>` : `<span class="pesc ph"></span>`)) + (itn ? `<span class="pesc itn"><i>INTERNO</i><b>${esc(itn)}</b></span>` : `<span class="pesc ph itn"></span>`);
+    return `<div class="pesrow" data-pes="${esc(p.id)}"><div class="pesn"><span class="pescods">${cods}</span><div class="pesl"><b class="pesnome">${pesHl(p.name, toks)}</b>${dl === null ? "" : `<small class="pesv${dl <= 0 ? " r" : dl <= 7 ? " y" : ""}">${dl < 0 ? "vencido" : dl === 0 ? "hoje" : dl + " d"}</small>`}</div></div><button type="button" class="pesb" data-etq="${esc(p.id)}" aria-label="Etiqueta de ${esc(p.name)}">🏷️ Etiqueta</button></div>`;
   }).join("") : `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
 }
 $("pesBusca").oninput = renderPesaveis;
