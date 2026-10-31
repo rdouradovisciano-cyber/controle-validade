@@ -2001,7 +2001,7 @@ $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden");
 // (apagar etiqueta: ✕ em cada linha, direto e com «Desfazer»; também na folha da etiqueta)
 
 // ---------- importar lista de produtos (nome + códigos) ----------
-const HDR = { nome: /^(nome|produto|descri)/, bal: /(balan|plu)/, doa: /doa/, ean: /(ean|barra|gtin)/, cat: /(categ|setor)/ };
+const HDR = { nome: /^(nome|produto|descri)/, bal: /(balan|plu)/, doa: /(doa|intern)/, ean: /(ean|barra|gtin)/, cat: /(categ|setor)/ };
 const catOf = s => { const n = norm(s); return CATS.find(c => norm(c) === n) || (/^(hortifruti|fruta|legume|verdura)/.test(n) ? "FLV" : null); };
 const cleanNum = s => String(s || "").trim().replace(/^=/, "").replace(/"/g, "").replace(/\.0+$/, "");
 function parseRows(text) {
@@ -2022,7 +2022,7 @@ function analyzeList(text) {
     if (r.bal && !/^\d{1,6}$/.test(r.bal)) { bad("código de balança inválido (só números, até 6)"); continue; }
     if (r.doa && !/^[A-Z0-9]{1,12}$/.test(r.doa)) { bad("código de doação inválido (letras/números, até 12)"); continue; }
     if (r.ean && !/^\d{6,14}$/.test(r.ean)) { bad("EAN inválido"); continue; }
-    let cat = ""; if (r.cat) { cat = catOf(r.cat); if (!cat) { bad("categoria desconhecida: " + r.cat); continue; } }
+    let cat = ""; if (r.cat && SETOR !== PER) { cat = catOf(r.cat); if (!cat) { bad("categoria desconhecida: " + r.cat); continue; } if (cat === PER) { bad("para Perecíveis, importe dentro do setor Perecíveis"); continue; } }   // em Perecíveis tudo entra como Perecíveis (a coluna categoria é ignorada)
     const matched = products.filter(x => r.ean ? (x.barcode === r.ean || (!x.barcode && norm(x.name) === norm(r.nome))) : norm(x.name) === norm(r.nome));
     const key = matched.length ? (matched[0].barcode || norm(matched[0].name)) : (r.ean || norm(r.nome));
     if (seen.has(key)) { bad("produto repetido na lista"); continue; }
@@ -2039,7 +2039,7 @@ function applyImport(rows) {
   for (const r of rows.filter(x => x.st !== "erro")) {
     const f = {}; if (r.bal) f.codigo_balanca = r.bal; if (r.doa) f.codigo_doacao = r.doa; if (r.ean) f.barcode = r.ean; if (r.cat) f.category = r.cat;
     if (r.matched.length) { u++; r.matched.forEach(x => db ? V.updateDoc(V.doc(db, "products", x.id), { ...f, updatedAt: ts }).catch(fail) : Object.assign(x, f)); }
-    else { n++; const rec = { name: r.nome, barcode: "", category: CATSET, expiry: "", quantity: 1, por: myName(), codigo_balanca: "", codigo_doacao: "", ...f };
+    else { n++; const rec = { name: r.nome, barcode: "", category: CATSET, expiry: "", quantity: 1, por: myName(), codigo_balanca: "", codigo_doacao: "", ...f, ...(SETOR === PER ? { category: PER } : {}) };
       if (db) V.addDoc(V.collection(db, "products"), { ...rec, createdAt: ts, updatedAt: ts }).catch(fail); else products.push({ ...rec, id: uid() }); }
   }
   if (!db) { persist(); render(); } return { n, u };
@@ -2050,9 +2050,16 @@ function impCheck() {
   impRows = analyzeList($("impText").value); const ok = impRows.filter(r => r.st !== "erro").length, er = impRows.length - ok;
   $("impGo").disabled = !ok; $("impGo").textContent = ok ? `Cadastrar ${ok} produto(s)` : "Cadastrar";
   $("impPrev").innerHTML = impRows.length ? `<p><b>${impRows.filter(r => r.st === "novo").length} novos · ${impRows.filter(r => r.st === "atualiza").length} atualizações · ${er} com erro</b></p><div class="impl">` +
-    impRows.map(r => r.st === "erro" ? `<p class="bad">✖ Linha ${r.linha}: ${esc(r.msg)}</p>` : `<p>${r.st === "novo" ? "＋" : "↻"} <b>${esc(r.nome)}</b> <span class="muted">${[r.bal && "Balança " + r.bal, r.doa && "Doação " + r.doa, r.ean && "EAN " + r.ean, r.cat && esc(r.cat)].filter(Boolean).join(" · ") || "sem códigos"}</span></p>`).join("") + "</div>" : '<p class="muted">Nenhuma linha encontrada.</p>';
+    impRows.map(r => r.st === "erro" ? `<p class="bad">✖ Linha ${r.linha}: ${esc(r.msg)}</p>` : `<p>${r.st === "novo" ? "＋" : "↻"} <b>${esc(r.nome)}</b> <span class="muted">${[r.bal && "Balança " + r.bal, r.doa && (SETOR === PER ? "Interno " : "Doação ") + r.doa, r.ean && "EAN " + r.ean, r.cat && esc(r.cat)].filter(Boolean).join(" · ") || "sem códigos"}</span></p>`).join("") + "</div>" : '<p class="muted">Nenhuma linha encontrada.</p>';
 }
-const impOpen = o => $("impModal").classList.toggle("hidden", !o);
+const impOpen = o => { if (o) {   // textos do setor atual
+    const per = SETOR === PER; $("impTitle").textContent = per ? "Importar cadastro · Perecíveis" : "Importar lista de produtos";
+    $("impNote").innerHTML = per ? "Uma linha por produto. Separe as colunas com <b>;</b> (ponto e vírgula), tabulação (ao colar do Excel) ou <b>|</b>. Ordem: <b>nome; código de balança; código interno; EAN</b>. Só o nome é obrigatório. Quem já existe em Perecíveis (pelo EAN ou pelo nome) é atualizado; os novos entram em <b>Perecíveis</b>, sem validade (a validade você lança em Validades)."
+      : "Uma linha por produto. Separe as colunas com <b>;</b> (ponto e vírgula), tabulação (ao colar do Excel) ou <b>|</b>. Ordem: <b>nome; código de balança; código de doação; EAN; categoria</b>. Só o nome é obrigatório. Quem já existe (pelo EAN ou pelo nome) é atualizado; os novos entram como FLV, sem validade, se você não informar a categoria.";
+    $("impText").placeholder = per ? "Iogurte Natural;;INT01;7891234567890\nQueijo Minas;;INT02;7891234567891" : "Mamão Papaya;123;45\nBanana Prata;124;46\nPão Francês;200;B1;;Padaria"; }
+  $("impModal").classList.toggle("hidden", !o); };
+$("mnImp").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } impOpen(true); };
+$("cImportar").onclick = () => impOpen(true);
 $("navImport").onclick = () => { side(false); impOpen(true); };
 $("impClose").onclick = () => impOpen(false);
 $("impCheck").onclick = impCheck;
@@ -2066,7 +2073,7 @@ $("impFile").onchange = async () => { const f = $("impFile").files[0]; if (!f) r
   if (impBinario(t)) { $("impFile").value = ""; toast("Arquivo ilegível: não parece uma lista em texto/CSV."); return; }
   $("impText").value = t.replace(/^\ufeff/, ""); $("impFile").value = ""; impCheck(); };
 $("impLimpa").onclick = () => { $("impText").value = ""; $("impPrev").innerHTML = ""; impRows = []; $("impGo").disabled = true; $("impGo").textContent = "Cadastrar"; };
-$("impModel").onclick = () => download(new Blob(["\ufeffnome;codigo_balanca;codigo_doacao;ean;categoria\r\nMamão Papaya;123;45;;FLV\r\nBanana Prata;124;46;;FLV\r\nPão Francês;200;B1;;Padaria\r\n"], { type: "text/csv;charset=utf-8" }), "modelo-importacao-valida.csv");
+$("impModel").onclick = () => SETOR === PER ? download(new Blob(["\ufeffnome;codigo_balanca;codigo_interno;ean\r\nIogurte Natural;;INT01;7891234567890\r\nQueijo Minas;;INT02;7891234567891\r\n"], { type: "text/csv;charset=utf-8" }), "modelo-importacao-pereciveis.csv") : download(new Blob(["\ufeffnome;codigo_balanca;codigo_doacao;ean;categoria\r\nMamão Papaya;123;45;;FLV\r\nBanana Prata;124;46;;FLV\r\nPão Francês;200;B1;;Padaria\r\n"], { type: "text/csv;charset=utf-8" }), "modelo-importacao-valida.csv");
 
 if (db) startPresence(); else localStats();
 
