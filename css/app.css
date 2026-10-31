@@ -1025,7 +1025,26 @@ body.hs h1::before{width:26px!important;height:26px!important}
 .setorsw button.on{background:linear-gradient(180deg,#f3d87a,#c9a431);color:#1a1405}
 body[data-setor="Perecíveis"] .setorsw button.on{background:linear-gradient(180deg,#8fe0ec,#4fb3c2);color:#06242a}
 body[data-setor="Perecíveis"] #tbDoacao,body[data-setor="Perecíveis"] #mnInv,body[data-setor="Perecíveis"] #mnDoaAnt{display:none!important}
-body[data-setor="Perecíveis"] #tbLoja{order:-1}
+body[data-setor="Perecíveis"] #tbLoja{order:1}
+body[data-setor="Perecíveis"] #tbPesaveis{display:inline-flex;order:2}
+body[data-setor="Perecíveis"] #tbEtiquetas{order:3}
+#tbPesaveis{display:none}
+
+/* aba Pesáveis (Perecíveis) */
+.peshero{text-align:center;padding:18px 16px 14px;background:linear-gradient(180deg,rgba(243,216,122,.12),transparent 72%)}
+.pesdesenho{width:min(230px,62vw);height:auto;color:var(--gold4);display:block;margin:0 auto 6px;filter:drop-shadow(0 6px 14px rgba(158,122,28,.18))}
+.peshero .h2{margin:0;color:var(--g);letter-spacing:.06em;text-transform:uppercase}
+.peslista .pesrow{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--ln);cursor:pointer}
+.peslista .pesrow:last-child{border-bottom:0}
+.pesrow .pesn{flex:1;min-width:0}
+.pesrow .pesn b{display:block;font-size:15px;color:var(--ink)}
+.pesrow .pesn small{display:block;color:var(--mut);font-size:11.5px;margin-top:2px}
+.pesrow .pesplu{flex:none;font-size:11px;font-weight:800;color:var(--gold4);border:1px solid rgba(201,162,39,.45);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.pesrow .pesb{flex:none;min-height:34px;padding:0 10px;font-size:13px;border-radius:10px;background:var(--lt);border:1px solid var(--ln);color:var(--ink)}
+.pesvazio{text-align:center;padding:24px 12px;color:var(--mut);font-size:13px}
+.pesvazio b{display:block;color:var(--ink);margin-bottom:4px}
+html[data-tema=dark] .pesdesenho{color:var(--gold1);filter:drop-shadow(0 6px 14px rgba(243,216,122,.18))}
+html[data-tema=dark] .pesrow .pesplu{color:var(--gold1)}
 body[data-setor="KÓRIN"] #tbContagem{order:-1}
 body[data-setor="KÓRIN"] #tbLoja{display:none!important}
 #tbCadastros,#tbContagem{display:none}

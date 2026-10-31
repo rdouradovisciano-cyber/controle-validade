@@ -11,10 +11,10 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=235">
+<link rel="stylesheet" href="css/app.css?v=236">
 <title>Valida+ | Controle de validade</title>
-<script src="js/tema.js?v=235"></script>
-<!-- const APP_VERSION = "2026.10.31-235" -->
+<script src="js/tema.js?v=236"></script>
+<!-- const APP_VERSION = "2026.10.31-236" -->
 </head>
 <body data-tab="Loja">
 <div id="splash" aria-hidden="true"><style>
@@ -56,9 +56,10 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 <symbol id="i-res" viewBox="0 0 24 24"><path d="M12 14.5v-11m0 0-4 4m4-4 4 4"/><path d="M4 16.5v2.5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></symbol>
 <symbol id="i-ins" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M12 8v6m0 0-2.2-2.2M12 14l2.2-2.2"/></symbol>
 <symbol id="i-sai" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+<symbol id="i-pes" viewBox="0 0 24 24"><path d="M12 3.5v16.5M8.5 20.5h7M4.5 6.5h15"/><path d="M4.5 6.5v4M19.5 6.5v4"/><path d="M1.5 10.5a3 3 0 0 0 6 0M16.5 10.5a3 3 0 0 0 6 0"/><circle cx="12" cy="3" r="1"/></symbol>
 </defs></svg>
 <main class="app">
-<div class="top"><header><h1><span class="vmsr">Valida+</span><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1><span id="setorChip" class="setorsw" role="group" aria-label="Setor"><button type="button" data-s="FLV">🥬 FLV</button><button type="button" data-s="Perecíveis">🧀 Perecíveis</button><button type="button" data-s="KÓRIN" hidden>KÓRIN</button></span></header><nav class="tabbar"><button id="tbDoacao"><svg class="ic" aria-hidden="true"><use href="#i-doa"/></svg><span class="tl">Doação</span></button><button id="tbEtiquetas"><svg class="ic" aria-hidden="true"><use href="#i-etq"/></svg><span class="tl">Etiquetas</span></button><button id="tbLoja"><svg class="ic" aria-hidden="true"><use href="#i-val"/></svg><span class="tl">Validades</span><span class="sirn" id="sirN"></span></button><button id="tbCadastros"><svg class="ic" aria-hidden="true"><use href="#i-cad"/></svg><span class="tl">Cadastros</span></button><button id="tbContagem"><svg class="ic" aria-hidden="true"><use href="#i-inv"/></svg><span class="tl">Contagem</span></button></nav></div>
+<div class="top"><header><h1><span class="vmsr">Valida+</span><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1><span id="setorChip" class="setorsw" role="group" aria-label="Setor"><button type="button" data-s="FLV">🥬 FLV</button><button type="button" data-s="Perecíveis">🧀 Perecíveis</button><button type="button" data-s="KÓRIN" hidden>KÓRIN</button></span></header><nav class="tabbar"><button id="tbDoacao"><svg class="ic" aria-hidden="true"><use href="#i-doa"/></svg><span class="tl">Doação</span></button><button id="tbEtiquetas"><svg class="ic" aria-hidden="true"><use href="#i-etq"/></svg><span class="tl">Etiquetas</span></button><button id="tbLoja"><svg class="ic" aria-hidden="true"><use href="#i-val"/></svg><span class="tl">Validades</span><span class="sirn" id="sirN"></span></button><button id="tbPesaveis"><svg class="ic" aria-hidden="true"><use href="#i-pes"/></svg><span class="tl">Pesáveis</span></button><button id="tbCadastros"><svg class="ic" aria-hidden="true"><use href="#i-cad"/></svg><span class="tl">Cadastros</span></button><button id="tbContagem"><svg class="ic" aria-hidden="true"><use href="#i-inv"/></svg><span class="tl">Contagem</span></button></nav></div>
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
@@ -99,6 +100,31 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 </div>
 <div id="donaRomaneio" class="hidden"><section class="panel"><div id="romHead"></div><div id="romBody"></div>
 <div class="toolbar" id="romBar" style="margin-top:12px"><button class="primary big" id="rZap">Enviar no WhatsApp</button><button class="secondary big" id="rPdf">PDF</button><button class="secondary big" id="rConf">Conferir</button><button class="secondary big" id="rCont">➕ Continuar doação</button><button class="secondary big" id="rAdd">＋ Bipar item</button><button class="secondary big" id="rEdit">✏️ Editar</button><button class="secondary big" id="rNova">Voltar</button></div></section></div>
+</div>
+<div id="tabPesaveis" class="hidden">
+<section class="panel peshero">
+<svg class="pesdesenho" viewBox="0 0 160 120" role="img" aria-label="Desenho de uma balança de pesar">
+<g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+<path d="M80 24v72"/>
+<path d="M60 96h40"/>
+<path d="M60 96l-8 10h56l-8-10"/>
+<path d="M40 24h80"/>
+<circle cx="80" cy="22" r="3.5"/>
+<path d="M40 24 22 50M40 24l18 26M120 24l-18 26M120 24l18 26"/>
+<path d="M20 50a20 20 0 0 0 40 0M100 50a20 20 0 0 0 40 0"/>
+<circle cx="34" cy="44" r="6"/><circle cx="47" cy="46" r="4.5"/>
+<path d="M116 38l9-5 6 7-9 5z"/>
+</g>
+</svg>
+<h2 class="h2">Pesáveis</h2>
+<p class="note">Produtos vendidos por peso ou com código de balança. Toque em 🏷️ para mandar direto para as etiquetas.</p>
+</section>
+<section class="stats"><div class="stat"><b id="pesCount">0</b><span>Pesáveis</span></div><div class="stat"><b id="pesPlu">0</b><span>Com PLU</span></div><div class="stat"><b id="pesVenc">0</b><span>Vencendo</span></div></section>
+<section class="panel">
+<input id="pesBusca" type="search" placeholder="Buscar pesável por nome ou código" aria-label="Buscar pesável" style="margin-top:12px">
+<div id="pesLista" class="peslista"></div>
+</section>
+<div class="toolbar" style="margin-top:12px"><button class="primary big" id="pesBipar">▦ Bipar etiqueta</button><button class="secondary big" id="pesNovo">＋ Cadastrar pesável</button></div>
 </div>
 <div id="tabEtiquetas" class="hidden">
 <details class="etqinfo"><summary>ℹ️ Como usar esta aba</summary><span>Use esta aba para <b>coletar os códigos de barras dos produtos que precisam de etiquetas na loja</b>.</span><ol><li>Bipe o código ou pesquise o produto pelo nome.</li><li>Segure o item para escolher o tamanho (P, M ou G) e a quantidade.</li><li>Toque no quadrado ao lado do item para marcar as que <b>já foram colocadas para impressão</b>.</li><li>Toque no <b>⧉</b> para <b>duplicar</b> o código e escolher outro tamanho (ex.: 2 P e 1 G do mesmo produto).</li><li>Quando terminar, use <b>Remover todos</b> para limpar a lista.</li></ol><span class="etqnote">A lista é compartilhada: todos os aparelhos veem as mesmas etiquetas e as marcações de “já imprimi”.</span><span class="etqnote">O cadastro de produtos pode ser feito por qualquer usuário: se o código ainda não existir, o app pede o nome e cadastra na hora.</span></details>
@@ -228,16 +254,16 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 </div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
-<script src="js/config.js?v=235"></script>
+<script src="js/config.js?v=236"></script>
 <script src="vendor.js"></script>
-<script src="js/version.js?v=235"></script>
-<script src="js/login.js?v=235"></script>
-<script src="js/app.js?v=235"></script>
-<script src="js/nav.js?v=235"></script>
-<script src="js/operador.js?v=235"></script>
-<script src="js/teclado.js?v=235"></script>
-<script src="js/menu.js?v=235"></script>
-<script src="js/status.js?v=235"></script>
-<script src="js/inventario.js?v=235"></script>
-<script src="js/doacao-busca.js?v=235"></script>
+<script src="js/version.js?v=236"></script>
+<script src="js/login.js?v=236"></script>
+<script src="js/app.js?v=236"></script>
+<script src="js/nav.js?v=236"></script>
+<script src="js/operador.js?v=236"></script>
+<script src="js/teclado.js?v=236"></script>
+<script src="js/menu.js?v=236"></script>
+<script src="js/status.js?v=236"></script>
+<script src="js/inventario.js?v=236"></script>
+<script src="js/doacao-busca.js?v=236"></script>
 </body></html>

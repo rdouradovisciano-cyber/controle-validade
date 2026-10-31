@@ -238,6 +238,7 @@ function render() {
     if (p.retirado) return `<article class="product retirado"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">${esc(p.category)}</span></div><div class="vbox"><div class="vd"><small>RETIRADO DA LOJA</small><b>${p.retEm ? new Date(Number(p.retEm)).toLocaleDateString("pt-BR") : "—"}</b></div><div class="vr"><span class="pill">${p.retPor ? "por " + esc(p.retPor) : ""}</span><small>validade era ${fmt(p.expiry)}</small></div></div><div class="actions"><button class="secondary" data-volta="${esc(p.id)}">↩ Voltar para a loja</button></div></article>`;
     const pr = prioDe(p), pb = PRIO[pr]; return `<article class="product ${cls}${pr ? " pr" + pr : ""}"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div>${pb ? `<div class="prow"><span class="prio ${pb[0]}">${pb[1]}</span></div>` : ""}<p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}${PERFIL === "Admin" ? ` · 👤 ${esc(p.por || "autor não registrado")}` : ""}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
+  if (typeof renderPesaveis === "function") renderPesaveis();
 }
 
 // ---------- modal e formulário ----------
@@ -538,7 +539,7 @@ fillCategories();
 ["search"].forEach(i => $(i).oninput = render);
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
 $("list").onclick = e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
-$("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : curTab === "Contagem" ? "contagem" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
+$("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Pesaveis" ? "etiqueta" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : curTab === "Contagem" ? "contagem" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = () => { stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("modal").classList.contains("hidden")) closeModal(); });
@@ -771,10 +772,11 @@ const dataBR = d => new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 const FERR = ["Etiquetas", "Inventario", "Cadastros"], FK = "validamais-ferr";
 function tab(t) {
   curTab = t;
-  ["Loja", "Doacao", "Etiquetas", "Inventario", "Cadastros", "Contagem"].forEach(n => { $("tab" + n).classList.toggle("hidden", n !== t); $("nav" + n).classList.toggle("active", n === t); });
-  [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Etiquetas", t === "Etiquetas"], ["Cadastros", t === "Cadastros"], ["Contagem", t === "Contagem"]].forEach(([n, on]) => $("tb" + n).classList.toggle("active", on));
+  ["Loja", "Doacao", "Pesaveis", "Etiquetas", "Inventario", "Cadastros", "Contagem"].forEach(n => { const p = $("tab" + n); if (p) p.classList.toggle("hidden", n !== t); const nb = $("nav" + n); if (nb) nb.classList.toggle("active", n === t); });
+  [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Pesaveis", t === "Pesaveis"], ["Etiquetas", t === "Etiquetas"], ["Cadastros", t === "Cadastros"], ["Contagem", t === "Contagem"]].forEach(([n, on]) => { const b = $("tb" + n); if (b) b.classList.toggle("active", on); });
   document.body.dataset.tab = t; document.body.dataset.grp = t;
   if (t === "Doacao" && typeof dView === "function") dView("lista");
+  if (t === "Pesaveis" && typeof renderPesaveis === "function") renderPesaveis();
   if (t === "Contagem" && typeof kPaint === "function") kPaint();
 }
 function dCodTxt(i) {   // kg: código de doação · un: código de barras (ou, sem ele, o de doação); nunca o de balança
@@ -1494,6 +1496,7 @@ $("histBox").ontoggle = () => {
   else if (unsubHist) { unsubHist(); unsubHist = null; } };
 const go = t => { tab(t); side(false); };
 $("navHist").onclick = () => { go("Doacao"); try { if (typeof dView === "function") dView("lista"); } catch (e) {} document.body.classList.add("histOn"); const hb = $("histBox"); hb.open = true; hb.ontoggle && hb.ontoggle(); setTimeout(() => $("histSec").scrollIntoView({ block: "start", behavior: "smooth" }), 120); };
+ $("tbPesaveis").onclick = () => go("Pesaveis");
  $("navLoja").onclick = () => go("Loja"); $("navContagem").onclick = () => go("Contagem"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("navInventario").onclick = () => go("Inventario"); $("navCadastros").onclick = () => go("Cadastros"); $("dScan").onclick = () => openScan("doacao");
 // ----- top 3 mais doados (últimos 30 dias, compacto) -----
 let topDb = [];
@@ -1822,6 +1825,32 @@ async function labelScan(code) {
   labelPick(p, scale ? "" : code);
 }
 $("eScan").onclick = () => openScan("etiqueta");
+
+// ---------- aba Pesáveis (Perecíveis): produtos vendidos por peso / com código de balança ----------
+function pesaveis() {
+  return products.filter(p => !p.retirado && p.category === PER && (p.codigo_balanca || (/^\d+$/.test(String(p.barcode || "")) && String(p.barcode).length < 8)));
+}
+function renderPesaveis() {
+  const box = $("pesLista"); if (!box) return;
+  const q = norm(($("pesBusca") || {}).value || "");
+  const all = pesaveis().sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "pt-BR", { sensitivity: "base" }));
+  const rows = q ? all.filter(p => norm(p.name || "").includes(q) || String(p.barcode || "").includes(q) || String(p.codigo_balanca || "") === q) : all;
+  const cnt = $("pesCount"), plu = $("pesPlu"), venc = $("pesVenc");
+  if (cnt) cnt.textContent = all.length;
+  if (plu) plu.textContent = all.filter(p => p.codigo_balanca).length;
+  if (venc) venc.textContent = all.filter(p => ["soon", "expired"].includes(status(p))).length;
+  box.innerHTML = rows.length ? rows.map(p => {
+    const dl = daysLeft(p.expiry), cod = p.codigo_balanca ? "PLU " + p.codigo_balanca : (p.barcode ? "Cód. " + p.barcode : "Sem código");
+    return `<div class="pesrow" data-pes="${esc(p.id)}"><div class="pesn"><b>${esc(p.name)}</b><small>${esc(cod)}${dl === null ? "" : " · " + esc(when(dl))}</small></div>${p.codigo_balanca ? '<span class="pesplu">PLU</span>' : ""}<button type="button" class="pesb" data-etq="${esc(p.id)}" aria-label="Etiqueta de ${esc(p.name)}">🏷️ Etiqueta</button></div>`;
+  }).join("") : `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
+}
+$("pesBusca").oninput = renderPesaveis;
+$("pesLista").onclick = e => {
+  const b = e.target.closest("[data-etq]"); if (b) { const p = products.find(x => x.id === b.dataset.etq); if (p) labelPick(p); return; }
+  const r = e.target.closest("[data-pes]"); if (r) edit(r.dataset.pes);
+};
+$("pesBipar").onclick = () => openScan("etiqueta");
+$("pesNovo").onclick = () => openForm();
 
 // ---------- histórico de etiquetas já impressas (3 dias) ----------
 let EHK = chaveSetor("validamais-etqhist");
