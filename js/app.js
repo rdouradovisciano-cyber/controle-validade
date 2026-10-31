@@ -1834,14 +1834,15 @@ function renderPesaveis() {
   const box = $("pesLista"); if (!box) return;
   const q = norm(($("pesBusca") || {}).value || "");
   const all = pesaveis().sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "pt-BR", { sensitivity: "base" }));
-  const rows = q ? all.filter(p => norm(p.name || "").includes(q) || String(p.barcode || "").includes(q) || String(p.codigo_balanca || "") === q) : all;
+  const rows = q ? all.filter(p => norm(p.name || "").includes(q) || String(p.barcode || "").includes(q) || String(p.codigo_balanca || "") === q || norm(p.codigo_doacao || "") === q) : all;
   const cnt = $("pesCount"), plu = $("pesPlu"), venc = $("pesVenc");
   if (cnt) cnt.textContent = all.length;
   if (plu) plu.textContent = all.filter(p => p.codigo_balanca).length;
   if (venc) venc.textContent = all.filter(p => ["soon", "expired"].includes(status(p))).length;
   box.innerHTML = rows.length ? rows.map(p => {
-    const dl = daysLeft(p.expiry), cod = p.codigo_balanca ? "PLU " + p.codigo_balanca : (p.barcode ? "Cód. " + p.barcode : "Sem código");
-    return `<div class="pesrow" data-pes="${esc(p.id)}"><div class="pesn"><b>${esc(p.name)}</b><small>${esc(cod)}${dl === null ? "" : " · " + esc(when(dl))}</small></div>${p.codigo_balanca ? '<span class="pesplu">PLU</span>' : ""}<button type="button" class="pesb" data-etq="${esc(p.id)}" aria-label="Etiqueta de ${esc(p.name)}">🏷️ Etiqueta</button></div>`;
+    const dl = daysLeft(p.expiry), plu = p.codigo_balanca || "", itn = p.codigo_doacao || "";
+    const cods = (plu ? `<span class="pesc">PLU <b>${esc(plu)}</b></span>` : "") + (itn ? `<span class="pesc">Interno <b>${esc(itn)}</b></span>` : "") + (!plu && !itn ? `<span class="pesc">${p.barcode ? "Cód. " + esc(p.barcode) : "Sem código"}</span>` : "");
+    return `<div class="pesrow" data-pes="${esc(p.id)}"><div class="pesn"><b>${esc(p.name)}</b><span class="pescods">${cods}</span>${dl === null ? "" : `<small>${esc(when(dl))}</small>`}</div><button type="button" class="pesb" data-etq="${esc(p.id)}" aria-label="Etiqueta de ${esc(p.name)}">🏷️ Etiqueta</button></div>`;
   }).join("") : `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
 }
 $("pesBusca").oninput = renderPesaveis;
