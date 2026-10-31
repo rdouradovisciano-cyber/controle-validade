@@ -223,6 +223,8 @@ function render() {
   $("topAlert").classList.toggle("hidden", !(ex || so));
   $("topAlert").textContent = `Atenção: ${ex} vencido(s) e ${so} vencendo em breve.`;
   sirene();
+  const prioDe = p => { const dl = daysLeft(p.expiry); if (dl === null || p.retirado) return 0; if (dl <= 0) return 1; if (status(p) !== "soon") return 0; return dl === 1 ? 2 : dl <= 3 ? 3 : 4; };
+  const PRIO = { 1: ["p1", "🔴 RETIRAR JÁ"], 2: ["p2", "🟠 URGENTE"], 3: ["p3", "🟡 ATENÇÃO"], 4: ["p4", "🔵 ACOMPANHAR"] };
   const cnt = {}; products.forEach(p => { if (p.barcode) cnt[p.barcode] = (cnt[p.barcode] || 0) + 1; });
   const hoje = products.filter(p => !p.retirado && daysLeft(p.expiry) === 0 && (!cat || p.category === cat));
   $("todayBanner").classList.toggle("hidden", !hoje.length);
@@ -234,7 +236,7 @@ function render() {
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
     if (p.retirado) return `<article class="product retirado"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">${esc(p.category)}</span></div><div class="vbox"><div class="vd"><small>RETIRADO DA LOJA</small><b>${p.retEm ? new Date(Number(p.retEm)).toLocaleDateString("pt-BR") : "—"}</b></div><div class="vr"><span class="pill">${p.retPor ? "por " + esc(p.retPor) : ""}</span><small>validade era ${fmt(p.expiry)}</small></div></div><div class="actions"><button class="secondary" data-volta="${esc(p.id)}">↩ Voltar para a loja</button></div></article>`;
-    return `<article class="product ${cls}"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div><p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button></div></article>`;
+    const pr = prioDe(p), pb = PRIO[pr]; return `<article class="product ${cls}${pr ? " pr" + pr : ""}"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">Última atualização: ${dayOf(p)}</span></div>${pb ? `<div class="prow"><span class="prio ${pb[0]}">${pb[1]}</span></div>` : ""}<p class="meta">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)} · Qtd: ${esc(p.quantity)}</p><div class="vbox"><div class="vd"><small>VALIDADE</small><b>${fmt(p.expiry)}</b></div><div class="vr"><span class="pill">${when(dl)}</span>${cnt[p.barcode] > 1 ? `<small>${cnt[p.barcode]} lotes</small>` : ""}</div></div><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
 }
 
@@ -365,7 +367,7 @@ const RLK = "validamais-retlocal"; let retLoc = store.get(RLK, {});
 function retOverlay() { products.forEach(p => { if (p.retirado == null && retLoc[p.id]) { p.retirado = true; p.retEm = retLoc[p.id].em; p.retPor = retLoc[p.id].por; } }); }
 async function retirar(id, sai, semPerguntar) {
   const p = products.find(x => x.id === id); if (!p) return;
-  if (sai && !semPerguntar) { const ok = await askConfirm({ icon: "📦", title: "Retirar da loja?", text: p.name + " · validade " + fmt(p.expiry), sub: "Sai da lista de vencimentos e do alerta, mas fica guardado em «Ver retirados da loja», com a data e quem retirou. O cadastro continua.", ok: "Retirar da loja", cancel: "Cancelar" }); if (!ok) return; }
+  if (sai && !semPerguntar) { const ok = await askConfirm({ icon: "📦", title: "Retirar da loja?", text: p.name + " · validade " + fmt(p.expiry), sub: "Retirar da loja: sai da lista e do alerta e fica guardado em «Ver retirados da loja», com a data e quem retirou. Só remover da lista: tira este lote sem registrar nada (use se foi lançado por engano). O cadastro continua nos dois casos.", ok: "Retirar da loja", cancel: "Cancelar", alt: "Só remover da lista" }); if (ok === "alt") return remover(id); if (ok !== true) return; }
   const em = Date.now(), por = myName(), campos = sai ? { retirado: true, retEm: em, retPor: por } : { retirado: false };
   const salvarLocal = () => { if (sai) retLoc[id] = { em, por }; else delete retLoc[id]; store.set(RLK, retLoc); Object.assign(p, campos); render(); };
   const fim = (nuvem, motivo) => toast((sai ? "✓ " + p.name + " retirado da loja" : p.name + " voltou para a loja") + (nuvem ? "." : " (só neste aparelho: a nuvem recusou" + (motivo ? " — " + motivo : "") + ")."), "Desfazer", () => retirar(id, !sai, true));
@@ -382,6 +384,20 @@ async function retSync(manual) {   // manda para a nuvem as retiradas que ficara
     if (!p) { delete retLoc[id]; continue; }   // produto não existe mais
     try { await V.updateDoc(V.doc(db, "products", id), { retirado: true, retEm: r.em, retPor: r.por, updatedAt: V.serverTimestamp() }); delete retLoc[id]; ok++; } catch (e) { falha++; } }
   store.set(RLK, retLoc); if (ok) { toast(ok + " retirada(s) enviada(s) para todos os aparelhos."); } return { ok, falha };
+}
+async function remover(id) {   // tira só o lote da lista, sem registrar como retirado; o cadastro (nome e códigos) é preservado
+  const p = products.find(x => x.id === id); if (!p) return;
+  const outros = rawAllAtivos().filter(x => x.id !== id && sameProd(x, p) && setSet(x) === setSet(p)), campos = ["barcode", "name", "category", "expiry", "quantity", "por", "codigo_balanca", "codigo_doacao"];
+  const copia = {}; campos.forEach(k => { if (p[k] !== undefined) copia[k] = p[k]; });
+  const falha = e => { console.error(e); toast("Não foi possível remover."); };
+  if (outros.length) {   // há outro registro do produto: este lote pode sair de vez
+    if (db) { try { await V.deleteDoc(V.doc(db, "products", id)); } catch (e) { return falha(e); } } else { products = products.filter(x => x.id !== id); persist(); render(); }
+    toast(`${p.name} removido da lista.`, "Desfazer", () => { if (db) { const ts = V.serverTimestamp(); V.addDoc(V.collection(db, "products"), { ...copia, createdAt: ts, updatedAt: ts }).catch(falha); } else { products.push({ ...copia, id: uid() }); persist(); render(); } toast("Lote restaurado."); });
+  } else {   // é o único registro: guarda o cadastro e só apaga a validade
+    const exp = p.expiry; const set = ex => { if (db) return V.updateDoc(V.doc(db, "products", id), { expiry: ex, updatedAt: V.serverTimestamp() }); p.expiry = ex; persist(); render(); };
+    try { await set(""); } catch (e) { return falha(e); }
+    toast(`${p.name} removido da lista (o cadastro continua).`, "Desfazer", () => { Promise.resolve(set(exp)).then(() => toast("Lote restaurado.")).catch(falha); });
+  }
 }
 $("verRet").onclick = () => { retView = !retView; render(); window.scrollTo(0, 0); };
 
@@ -626,7 +642,8 @@ $("phClose").onclick = () => $("phModal").classList.add("hidden"); $("phBusca").
 $("phList").onclick = e => { const b = e.target.closest("[data-phr]"); if (b) phRestore(Number(b.dataset.phr)); };
 $("outAlert").onclick = () => { $("categoryFilter").value = ""; render(); window.scrollTo(0, 0); };
 $("verTodos").onclick = () => { $("categoryFilter").value = $("categoryFilter").value ? "" : CATSET; render(); };
-document.addEventListener("pointerdown", () => { audio(); render(); }, { once: true }); // libera o som do alerta no primeiro toque
+document.addEventListener("pointerdown", () => {   // libera o som do alerta no primeiro toque (sem redesenhar a lista, senão o primeiro toque num botão se perde)
+  audio(); try { const cat = $("categoryFilter").value; if (!alarmed && actx && products.some(p => !p.retirado && daysLeft(p.expiry) === 0 && (!cat || p.category === cat))) { alarmed = true; alarm(); } } catch (e) { console.warn(e); } }, { once: true });
 rotulosSetor();
 const side = o => { $("side").classList.toggle("open", o); $("sideBg").classList.toggle("hidden", !o); };
 $("sideBg").onclick = () => side(false); $("sideClose").onclick = () => side(false);
@@ -1043,16 +1060,16 @@ const dStatKey = (n, u) => norm(n) + "|" + u;
 function dStatLearn(n, u, q) { const s = store.get(DSTAT, {}), k = dStatKey(n, u), o = s[k] || { n: 0, sum: 0, max: 0 };
   o.n++; o.sum += q; o.max = Math.max(o.max, q); s[k] = o; store.set(DSTAT, s); }
 // diálogo no tema do app (substitui o confirm() do navegador)
-function askConfirm({ icon = "⚠️", title, big, bigUnit, text, sub, ok = "Confirmar", cancel = "Cancelar" }) {
+function askConfirm({ icon = "⚠️", title, big, bigUnit, text, sub, ok = "Confirmar", cancel = "Cancelar", alt = "" }) {   // alt: terceira opção (devolve "alt")
   return new Promise(res => {
     if (window.npClose) window.npClose();
     const bg = document.createElement("div"); bg.className = "askbg";
     bg.innerHTML = `<div class="ask" role="alertdialog" aria-modal="true"><div class="ai">${icon}</div><h3>${esc(title)}</h3>` +
       (big ? `<div class="big">${esc(big)} <small>${esc(bigUnit || "")}</small></div>` : "") +
       (text ? `<p><b>${esc(text)}</b></p>` : "") + (sub ? `<p>${esc(sub)}</p>` : "") +
-      `<div class="arow"><button type="button" data-a="0">${esc(cancel)}</button><button type="button" class="ok" data-a="1">${esc(ok)}</button></div></div>`;
+      `<div class="arow"><button type="button" data-a="0">${esc(cancel)}</button><button type="button" class="ok" data-a="1">${esc(ok)}</button></div>` + (alt ? `<button type="button" class="askalt" data-a="2">${esc(alt)}</button>` : "") + `</div>`;
     const done = v => { bg.remove(); res(v); };
-    bg.onclick = e => { const b = e.target.closest("[data-a]"); if (b) done(b.dataset.a === "1"); else if (e.target === bg) done(null); };
+    bg.onclick = e => { const b = e.target.closest("[data-a]"); if (b) done(b.dataset.a === "2" ? "alt" : b.dataset.a === "1"); else if (e.target === bg) done(null); };
     document.body.appendChild(bg); bg.querySelector(".ok").focus({ preventScroll: true });
   });
 }

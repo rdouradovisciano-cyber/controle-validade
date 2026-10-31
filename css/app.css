@@ -1069,3 +1069,12 @@ body[data-perfil="FLV"] #setorChip,body[data-perfil="Perecíveis"] #setorChip,bo
 .perfop.on,.perfop:active{border-color:#f3d87a;background:rgba(243,216,122,.12)}
 .dcont{display:flex;align-items:center;gap:10px;justify-content:space-between;margin:8px 0;padding:10px 12px;border-radius:14px;background:rgba(243,216,122,.13);border:1px solid rgba(243,216,122,.45);font-size:14px;font-weight:600}
 .dcont.hidden{display:none}.dcont button{min-height:38px;padding:6px 12px;white-space:nowrap}
+
+/* prioridade de vencimento */
+.prow{margin:2px 0 4px}
+.prio{display:inline-block;font-size:11px;font-weight:900;letter-spacing:.05em;padding:3px 10px;border-radius:99px}
+.prio.p1{background:#d64545;color:#fff}.prio.p2{background:#f08a24;color:#fff}.prio.p3{background:#f6d046;color:#4a3600}.prio.p4{background:#dcebf7;color:#1d4a73}
+.product.pr1{border-left-width:9px;box-shadow:0 0 0 1px rgba(214,69,69,.45)}
+.product.pr2{border-left-width:8px;border-left-color:#f08a24}
+.product.pr3{border-left-width:6px}
+.askalt{margin-top:8px;width:100%;min-height:46px;border-radius:14px;border:1px dashed var(--ln,#c8c8c8);background:transparent;color:inherit;font-weight:700}
