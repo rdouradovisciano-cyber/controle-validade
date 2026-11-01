@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-01T20:45:00-03:00",
+  "itens": [
+   "Perecíveis: ícone por tipo de produto ao lado do nome (🧀 queijos, 🥓 frios, 🥛 laticínios, 🍝 massas, 🧊 congelados…). Para voltar ao visual antigo: ⋮ → 🎨 Cores e prazos → desligar “Ícones nos produtos”"
+  ]
+ },
+ {
   "t": "2026-11-01T18:55:00-03:00",
   "itens": [
    "Etiqueta de promoção refeita no formato padrão da loja: fundo amarelo, nome grande, “DE” riscado, caixa preta com o “POR” enorme, preço por unidade, código de barras, “válido até … ou enquanto durarem os estoques” e data"

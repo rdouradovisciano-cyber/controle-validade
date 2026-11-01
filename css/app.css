@@ -1450,3 +1450,6 @@ html .pitem.prok{border-left-color:var(--cg,#4a9a78)}
   body.printOf #ofPrint .ofcard.print.small{position:absolute;left:0;top:0;width:150mm;height:auto}
   @page{size:A4 portrait;margin:8mm}
 }
+
+/* ícone por tipo de produto */
+.ico{display:inline-block;margin-right:7px;font-size:.95em;line-height:1;vertical-align:-1px;text-transform:none;font-style:normal;filter:saturate(.9)}
