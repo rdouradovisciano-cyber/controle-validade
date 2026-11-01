@@ -1300,3 +1300,31 @@ html[data-tema=dark] .peslista .pesrow .pesn .pesc.cod b{color:inherit}
 .listtotal{text-align:center;margin:14px 0 0;font-size:14px;font-weight:800;color:var(--mut,#8a9a90);letter-spacing:.02em}
 .listtotal.hidden{display:none}
 .listtotal + .lnk.rodape{margin-top:4px}
+
+/* cores e prazos personalizáveis (variáveis definidas por visAplica) */
+html .pitem{--tc:var(--cg,#3aa676);--tx:var(--tcg,#fff)}
+html .pitem.prv{--tc:var(--cv,#8f1020);--tx:var(--tcv,#fff)}
+html .pitem.prh{--tc:var(--ch,#e11d2e);--tx:var(--tch,#fff)}
+html .pitem.pra{--tc:var(--ca,#e5202e);--tx:var(--tca,#fff)}
+html .pitem.pry{--tc:var(--cy,#f2c200);--tx:var(--tcy,#241c00)}
+html .pitem.prok{--tc:var(--cg,#3aa676)}
+html .pgh{--tc:var(--cg,#3aa676);--tx:var(--tcg,#fff)}
+html .pgh.gv{--tc:var(--cv,#b3122a);--tx:var(--tcv,#fff)}html .pgh.gh{--tc:var(--ch,#e11d2e);--tx:var(--tch,#fff)}
+html .pgh.ga{--tc:var(--ca,#e5202e);--tx:var(--tca,#fff)}html .pgh.gy{--tc:var(--cy,#f2c200);--tx:var(--tcy,#241c00)}
+html .pitem.prv .pi-badge{background:repeating-linear-gradient(135deg,var(--cv,#8f1020) 0 10px,color-mix(in srgb,var(--cv,#8f1020) 60%,#000) 10px 20px)}
+html .pitem.pra .pi-nome::before{background:var(--ca,#e5202e);color:var(--tca,#fff)}
+html .pitem.pra{background:color-mix(in srgb,var(--ca,#e5202e) 16%,#fff)}
+html[data-tema=dark] .pitem.pra{background:color-mix(in srgb,var(--ca,#e5202e) 26%,#0c0f0d)}
+html .pitem.pry{background:color-mix(in srgb,var(--cy,#f2c200) 12%,#fff)}
+html[data-tema=dark] .pitem.pry{background:color-mix(in srgb,var(--cy,#f2c200) 24%,#0c0f0d)}
+html .pitem.prh .pi-nome::before{background:none}
+html[data-fonte=grande] .pitem .pi-nome{font-size:22px}
+html[data-fonte=grande] .pitem .pi-sub{font-size:15.5px}
+html[data-fonte=grande] .pitem .pi-badge b{font-size:25px}
+html[data-fonte=grande] .pitem .pi-badge span{font-size:13px}
+html[data-fonte=grande] .pgh{font-size:16px}
+.vspre{display:flex;gap:8px;margin:4px 0 12px}.vspre button{flex:1;min-height:44px;font-weight:800}.vspre button.on{background:#e5b92b;color:#241c00}
+.vscores{display:grid;gap:6px;margin-bottom:12px}
+.vsc{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 10px;border:1px solid var(--ln);border-radius:12px;font-weight:700}
+.vsc input[type=color]{width:56px;height:36px;padding:0;border:0;background:none;cursor:pointer}
+.vsprev{display:flex;gap:8px}.vsprev span{flex:1;text-align:center;padding:12px 4px;border-radius:12px;font-weight:900;font-size:14px}

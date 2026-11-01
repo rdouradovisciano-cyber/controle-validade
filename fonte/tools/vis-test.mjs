@@ -1,38 +1,25 @@
 import { chromium } from "playwright-core";
 import http from "node:http"; import fs from "node:fs"; import path from "node:path";
-const dir = process.argv[2], port = 8200;
-const srv = http.createServer((q, r) => { let f = path.join(dir, q.url.split("?")[0]); if (f.endsWith("/")) f += "index.html";
-  try { let b = fs.readFileSync(f); const ext = path.extname(f); if ([".html",".js"].includes(ext)) b = Buffer.from(b.toString("utf8").replace(/login:\s*\{\s*email:\s*"[^"]*"\s*\}/g, "login: null"));
-    r.setHeader("content-type", { ".css":"text/css", ".js":"text/javascript", ".html":"text/html", ".json":"application/json" }[ext] || "application/octet-stream"); r.end(b); } catch { r.statusCode = 404; r.end(); } }).listen(port);
-const br = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
-const L = [{ id: "a1", nome: "Banana Prata kg", code: "124", qtd: 3, tam: "M", ok: false }, { id: "a2", nome: "Tomate Italiano kg", code: "456", qtd: 2, tam: "P", ok: false }];
-const out = {};
-for (const tema of ["dark", "light"]) {
-  const ctx = await br.newContext({ viewport: { width: 390, height: 800 } });
-  await ctx.addInitScript(([l, t]) => { try { localStorage.setItem("validamais-operador", JSON.stringify("Teste")); localStorage.setItem("validamais-etiquetas", JSON.stringify(l)); localStorage.setItem("validamais-tema", t); } catch {} }, [L, tema]);
-  const pg = await ctx.newPage(); const errs = []; pg.on("pageerror", e => errs.push(String(e).slice(0, 150)));
-  await pg.goto(`http://localhost:${port}/index.html`); await pg.waitForTimeout(2800);
-  const o = { errs };
-  o.iconesAbas = await pg.evaluate(() => document.querySelectorAll(".tabbar .ic").length);
-  o.abasTexto = await pg.evaluate(() => [...document.querySelectorAll(".tabbar button")].map(b => b.innerText.trim()));
-  // 1) aviso simples (Doação > Concluir sem itens)
-  await pg.evaluate(() => { const b = document.getElementById("dFin") || [...document.querySelectorAll("button")].find(x => /Finalizar|Concluir doa/i.test(x.textContent)); b && b.click(); }); await pg.waitForTimeout(350);
-  o.toastSimples = await pg.evaluate(() => { const e = document.getElementById("toast"); const r = e.getBoundingClientRect(); return { visivel: !e.classList.contains("hidden"), texto: e.innerText.replace(/\s+/g, " "), largura: Math.round(r.width), topo: Math.round(r.top) }; });
-  await pg.screenshot({ path: `/tmp/vis_aviso_${tema}.png` });
-  // 2) etiquetas: remover e mostrar «Desfazer»
-  await pg.evaluate(() => document.getElementById("navEtiquetas").click()); await pg.waitForTimeout(400);
-  await pg.evaluate(() => document.querySelector("#eLista .crx").click()); await pg.waitForTimeout(350);
-  o.toastDesfazer = await pg.evaluate(() => { const e = document.getElementById("toast"); const r = e.getBoundingClientRect(); const b = e.querySelector("button"); return { texto: e.innerText.replace(/\s+/g, " "), largura: Math.round(r.width), esq: Math.round(r.left), dir: Math.round(r.right), botao: !!b, fundoBotao: b && getComputedStyle(b).backgroundColor }; });
-  await pg.screenshot({ path: `/tmp/vis_etq_${tema}.png` });
-  o.some = await (async () => { await pg.waitForTimeout(6300); return await pg.evaluate(() => document.getElementById("toast").classList.contains("hidden")); })();
-  // 3) menu ⋮ e troca de tema
-  await pg.evaluate(() => document.getElementById("moreBtn").click()); await pg.waitForTimeout(400);
-  o.iconesMenu = await pg.evaluate(() => document.querySelectorAll("#moreMenu .ic").length);
-  o.iconeTemaAntes = await pg.evaluate(() => document.querySelector("#mnTema use").getAttribute("href") + " | " + document.getElementById("mnTema").innerText.trim());
-  await pg.screenshot({ path: `/tmp/vis_menu_${tema}.png` });
-  await pg.evaluate(() => document.getElementById("mnTema").click()); await pg.waitForTimeout(500);
-  await pg.evaluate(() => document.getElementById("moreBtn").click()); await pg.waitForTimeout(300);
-  o.iconeTemaDepois = await pg.evaluate(() => document.querySelector("#mnTema use").getAttribute("href") + " | " + document.getElementById("mnTema").innerText.trim() + " | tema=" + document.documentElement.dataset.tema);
-  out[tema] = o; await ctx.close();
-}
-await br.close(); srv.close(); console.log(JSON.stringify(out, null, 1));
+const D=path.resolve("dist");
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f))b=Buffer.from(b.toString().replace(/apiKey:\s*"[^"]*"/g,'apiKey:"COLE_"').replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const pg=await (await br.newContext({viewport:{width:411,height:860}})).newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
+const dt=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+const ps=[[-1,"Vencido"],[0,"Hoje"],[1,"Um dia"],[3,"Tres dias"],[4,"Quatro dias"],[7,"Sete dias"],[12,"Doze dias"]].map(([n,nm],i)=>({id:"p"+i,name:nm,barcode:"789000"+i,quantity:"1",expiry:dt(n),category:"Perecíveis",createdAt:Date.now()}));
+await pg.addInitScript(([ps])=>{localStorage.setItem("validamais-operador",JSON.stringify("T"));localStorage.setItem("validamais-perfil","Perecíveis");localStorage.setItem("validamais-produtos-v1",JSON.stringify(ps));},[ps]);
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(1500);
+const hdrs=()=>pg.evaluate(()=>[...document.querySelectorAll(".pgh")].map(e=>e.textContent.replace(/\s+/g," ")));
+console.log("antes:",await hdrs());
+await pg.click("#moreBtn");await pg.click("#mnVis");await pg.waitForTimeout(300);
+await pg.selectOption("#vsR","2");await pg.selectOption("#vsY","15");await pg.click('[data-p="dal"]');await pg.click('[data-f="grande"]');
+await pg.screenshot({path:"/tmp/claude-0/-home-claude/8acfd74b-066d-5685-9053-e1d75c13691f/scratchpad/vis.png"});
+await pg.click("#vsSalva");await pg.waitForTimeout(500);
+console.log("depois:",await hdrs());
+console.log("vars:",await pg.evaluate(()=>{const r=document.documentElement;return [r.style.getPropertyValue("--ca"),r.style.getPropertyValue("--cg"),r.dataset.fonte]}));
+console.log("cor do cartão amarelo (borda):",await pg.evaluate(()=>{const e=document.querySelector(".pitem.pry");return e?getComputedStyle(e).borderLeftColor:"-"}));
+await pg.screenshot({path:"/tmp/claude-0/-home-claude/8acfd74b-066d-5685-9053-e1d75c13691f/scratchpad/vis2.png"});
+await pg.reload();await pg.waitForTimeout(1200);console.log("após reload:",await pg.evaluate(()=>document.documentElement.style.getPropertyValue("--cg")));
+await pg.click("#moreBtn");await pg.click("#mnVis");await pg.click("#vsPad");await pg.waitForTimeout(400);console.log("restaurado:",await pg.evaluate(()=>document.documentElement.style.getPropertyValue("--cg")),await hdrs());
+console.log("erros",errs);await br.close();srv.close();

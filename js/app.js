@@ -119,7 +119,17 @@ if (confMode()) return;
 const today = () => { const t = new Date(); t.setHours(0,0,0,0); return t; };
 const iso = d => new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 const daysLeft = e => /^\d{4}-\d\d-\d\d$/.test(e || "") ? Math.round((new Date(e + "T00:00:00") - today()) / 864e5) : null;
-const limit = c => c === PER ? 7 : (C.alertaDias && (C.alertaDias[c] ?? C.alertaDias.padrao)) ?? 3;
+// ---------- aparência e prazos personalizáveis (cores + dias do vermelho/amarelo + tamanho da letra) ----------
+const VK = "validamais-visual", VIS_PAD = { red: 3, yel: null, cores: { v: "#8f1020", h: "#e11d2e", a: "#e5202e", y: "#f2c200", g: "#3aa676" }, fonte: "normal" };
+let visCloud = null;   // padrão da loja (Firestore sh_cfg/visual), definido pelo Admin
+const visNorm = o => { const c = o || {}; return { red: Number(c.red) >= 1 ? Math.min(30, Number(c.red)) : VIS_PAD.red, yel: Number(c.yel) >= 1 ? Math.min(60, Number(c.yel)) : null, cores: { ...VIS_PAD.cores, ...(c.cores || {}) }, fonte: c.fonte === "grande" ? "grande" : "normal" }; };
+const visCfg = () => visNorm(store.get(VK, null) || visCloud);
+const limit = c => { const v = visCfg(); if (v.yel) return Math.max(v.yel, v.red); const b = c === PER ? 7 : (C.alertaDias && (C.alertaDias[c] ?? C.alertaDias.padrao)) ?? 3; return Math.max(b, v.red); };
+function visAplica() {
+  const v = visCfg(), r = document.documentElement.style, lum = h => { const m = /^#?([0-9a-f]{6})$/i.exec(h || ""); if (!m) return 0; const n = parseInt(m[1], 16), f = x => { x /= 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }; return .2126 * f(n >> 16) + .7152 * f((n >> 8) & 255) + .0722 * f(n & 255); };
+  Object.entries({ v: "cv", h: "ch", a: "ca", y: "cy", g: "cg" }).forEach(([k, n]) => { r.setProperty("--" + n, v.cores[k]); r.setProperty("--t" + n, lum(v.cores[k]) > .4 ? "#1a1405" : "#fff"); });
+  document.documentElement.dataset.fonte = v.fonte;
+}
 const status = p => { const d = daysLeft(p.expiry); return d === null ? "ok" : d < 0 ? "expired" : d <= limit(p.category) ? "soon" : "ok"; };
 const when = d => d === null ? "Sem validade" : d < 0 ? `Vencido há ${-d} dia${d < -1 ? "s" : ""}` : d === 0 ? "Vence hoje" : d === 1 ? "Vence amanhã" : `Vence em ${d} dias`;
 const fmt = e => daysLeft(e) === null ? "Sem validade" : new Date(e + "T00:00:00").toLocaleDateString("pt-BR");
@@ -228,7 +238,7 @@ function render() {
   $("topAlert").textContent = `Atenção: ${ex} vencido(s) e ${so} vencendo em breve.`;
   sirene();
   // escala de atenção: vencido · vence hoje · 1 a 3 dias (vermelho, ação imediata) · até o prazo de alerta (amarelo; 7 dias em Perecíveis)
-  const prioDe = p => { const dl = daysLeft(p.expiry); if (dl === null || p.retirado) return ""; if (dl < 0) return "v"; if (dl === 0) return "h"; if (status(p) !== "soon") return ""; return dl <= 3 ? "a" : "y"; };
+  const prioDe = p => { const dl = daysLeft(p.expiry); if (dl === null || p.retirado) return ""; if (dl < 0) return "v"; if (dl === 0) return "h"; if (status(p) !== "soon") return ""; return dl <= visCfg().red ? "a" : "y"; };
   const PRIOI = { v: "⛔", h: "🚨", a: "⚠️", y: "⏳" };
   { const c = { v: 0, h: 0, a: 0, y: 0 }, lim = limit(cat || CATSET); base.forEach(p => { const k = prioDe(p); if (k) c[k]++; });
     const t = $("tiers"); if (t) { t.classList.toggle("hidden", retView); t.querySelectorAll("[data-t]").forEach(b => { b.querySelector("b").textContent = ainda ? "–" : c[b.dataset.t]; b.classList.toggle("on", tierF === b.dataset.t); b.classList.toggle("zero", !c[b.dataset.t]); });
@@ -248,7 +258,7 @@ function render() {
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
     if (p.retirado) return `<article class="product retirado"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">${esc(p.category)}</span></div><div class="vbox"><div class="vd"><small>RETIRADO DA LOJA</small><b>${p.retEm ? new Date(Number(p.retEm)).toLocaleDateString("pt-BR") : "—"}</b></div><div class="vr"><span class="pill">${p.retPor ? "por " + esc(p.retPor) : ""}</span><small>validade era ${fmt(p.expiry)}</small></div></div><div class="actions"><button class="secondary" data-volta="${esc(p.id)}">↩ Voltar para a loja</button></div></article>`;
     const pr = prioDe(p), g = pr || "ok", lim = limit(cat || CATSET); let hd = "";
-    if (cat && !q && !tierF && g !== lastG) { lastG = g; const GN = { v: "⛔ Vencidos", h: "🚨 Vence hoje", a: "🔴 Vence em 1 a 3 dias — agir já", y: "🟡 De 4 a " + lim + " dias", ok: "✅ Dentro do prazo" }; hd = `<div class="pgh g${g}"><span>${GN[g]}</span><i>${gcnt[g]}</i></div>`; }
+    if (cat && !q && !tierF && g !== lastG) { lastG = g; const GN = { v: "⛔ Vencidos", h: "🚨 Vence hoje", a: "🔴 Vence em 1 a " + visCfg().red + " dia" + (visCfg().red > 1 ? "s" : "") + " — agir já", y: "🟡 De " + (visCfg().red + 1) + " a " + lim + " dias", ok: "✅ Dentro do prazo" }; hd = `<div class="pgh g${g}"><span>${GN[g]}</span><i>${gcnt[g]}</i></div>`; }
     const big = dl === null ? "—" : dl < 0 ? "VENCIDO" : dl === 0 ? "HOJE" : dl === 1 ? "AMANHÃ" : String(dl), small = dl === null ? "sem validade" : dl < 0 ? "há " + (-dl) + (dl < -1 ? " dias" : " dia") : dl <= 1 ? "" : "dias";
     return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${esc(p.name)}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act"><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="secondary of" data-of="${esc(p.id)}">🏷️ Oferta</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
@@ -1722,6 +1732,46 @@ function saudeAbrir() {
         .catch(err => out.insertAdjacentHTML("beforeend", `<div class="shr erro"><b>✗ O teste parou</b><small>${esc(erroTxt(err))}</small></div>`))
         .then(() => { b.disabled = false; b.textContent = "Rodar de novo"; out.insertAdjacentHTML("beforeend", `<div class="shr info"><small>Fim do teste. ✓ ok · ⚠ funciona com ressalva · ✗ precisa de ajuste.</small></div>`); }); } };
 }
+
+// nuvem: padrão da loja (só o Admin grava); cada aparelho pode ter o seu (fica local)
+if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "visual"), sn => { visCloud = sn.exists() && sn.data().cores ? sn.data() : null; visAplica(); render(); }, e => console.warn("visual", e)); } catch (e) { console.warn(e); } }
+function visAbrir() {
+  const v0 = visCfg(), admin = PERFIL === "Admin", loc = !!store.get(VK, null);
+  let v = JSON.parse(JSON.stringify(v0));
+  const bg = document.createElement("div"); bg.className = "modal"; bg.id = "visModal";
+  const nomes = { v: "Vencido", h: "Vence hoje", a: "Urgente (vermelho)", y: "Atenção (amarelo)", g: "Dentro do prazo (verde)" };
+  const optR = [1, 2, 3, 4, 5, 7], optY = [3, 5, 7, 10, 15, 20, 30, 45, 60], num = (l, sel, cur) => l.concat(l.includes(cur) ? [] : [cur]).sort((x, y) => x - y).map(d => `<option value="${d}" ${d === sel ? "selected" : ""}>${d} dia${d > 1 ? "s" : ""}</option>`).join("");
+  const PRE = { pad: { v: "#8f1020", h: "#e11d2e", a: "#e5202e", y: "#f2c200", g: "#3aa676" }, dal: { v: "#4a2a00", h: "#d55e00", a: "#e69f00", y: "#f0e442", g: "#0072b2" }, sua: { v: "#5b0f6e", h: "#d6336c", a: "#f76707", y: "#fcc419", g: "#2b8a3e" } };
+  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Cores e prazos"><div class="sheethead"><h2>🎨 Cores e prazos</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
+    <p class="note">${admin ? "Como Admin, o que você salvar vale para <b>todos os aparelhos</b>." : "O que você salvar vale só <b>neste aparelho</b>."}</p>
+    <label class="nfrow"><span><b>🔴 Vermelho: vence em até</b><small>Ação imediata (de 1 dia até este prazo)</small></span><select id="vsR">${num(optR, v.red, v.red)}</select></label>
+    <label class="nfrow"><span><b>🟡 Amarelo: vence em até</b><small>Atenção (depois do vermelho até este prazo)</small></span><select id="vsY"><option value="" ${v.yel ? "" : "selected"}>Padrão do setor</option>${num(optY, v.yel, v.yel || 7).replace(/<option value="(\d+)" selected>/, (m, d) => v.yel ? m : `<option value="${d}">`)}</select></label>
+    <p class="note" style="margin:2px 0 8px">🟢 Verde: tudo que vence depois do amarelo.</p>
+    <label>Conjuntos de cores</label><div class="vspre"><button type="button" data-p="pad">Padrão</button><button type="button" data-p="dal">Daltonismo</button><button type="button" data-p="sua">Vivas</button></div>
+    <div class="vscores">${Object.keys(nomes).map(k => `<label class="vsc"><span>${nomes[k]}</span><input type="color" data-c="${k}" value="${v.cores[k]}"></label>`).join("")}</div>
+    <label>Tamanho da letra da lista</label><div class="vspre" id="vsF"><button type="button" data-f="normal">Normal</button><button type="button" data-f="grande">Grande</button></div>
+    <div class="vsprev" id="vsPrev"></div>
+    <div class="toolbar" style="margin-top:12px"><button class="primary big" type="button" id="vsSalva">Salvar</button><button class="secondary" type="button" id="vsPad">${admin ? "Restaurar padrão" : (loc ? "Usar o padrão da loja" : "Restaurar padrão")}</button></div></section>`;
+  document.body.appendChild(bg);
+  const q = x => bg.querySelector(x), txt = h => { const n = parseInt(h.slice(1), 16), f = x => { x /= 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }; return (.2126 * f(n >> 16) + .7152 * f((n >> 8) & 255) + .0722 * f(n & 255)) > .4 ? "#1a1405" : "#fff"; };
+  const prev = () => { q("#vsPrev").innerHTML = [["a", `1 a ${v.red} dias`], ["y", `${v.red + 1} a ${v.yel || "…"} dias`], ["g", "depois"]].map(([k, t]) => `<span style="background:${v.cores[k]};color:${txt(v.cores[k])}">${k === "a" ? "🔴" : k === "y" ? "🟡" : "🟢"} ${t}</span>`).join("");
+    bg.querySelectorAll("[data-f]").forEach(b => b.classList.toggle("on", b.dataset.f === v.fonte)); bg.querySelectorAll("[data-c]").forEach(i => { i.value = v.cores[i.dataset.c]; }); };
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) bg.remove(); const p = e.target.closest("[data-p]"); if (p) { v.cores = { ...PRE[p.dataset.p] }; prev(); } const f = e.target.closest("[data-f]"); if (f) { v.fonte = f.dataset.f; prev(); } };
+  q("#vsR").onchange = e => { v.red = Number(e.target.value); prev(); }; q("#vsY").onchange = e => { v.yel = e.target.value ? Number(e.target.value) : null; prev(); };
+  bg.querySelectorAll("[data-c]").forEach(i => i.oninput = () => { v.cores[i.dataset.c] = i.value; prev(); });
+  q("#vsSalva").onclick = async () => {
+    const cfg = visNorm(v);
+    if (admin && db) { try { await V.setDoc(V.doc(db, "sh_cfg", "visual"), { ...cfg, em: Date.now() }); localStorage.removeItem(VK); visCloud = cfg; toast("Salvo para todos os aparelhos."); }
+      catch (e) { console.error(e); store.set(VK, cfg); toast("Salvo só neste aparelho: a nuvem recusou (" + (e && (e.code || e.message) || "regras") + ")."); } }
+    else { store.set(VK, cfg); toast(admin ? "Salvo neste aparelho (modo local)." : "Salvo neste aparelho."); }
+    visAplica(); render(); bg.remove(); };
+  q("#vsPad").onclick = async () => {
+    if (admin && db) { try { await V.setDoc(V.doc(db, "sh_cfg", "visual"), { em: Date.now() }); } catch (e) { console.error(e); } visCloud = null; }
+    try { localStorage.removeItem(VK); } catch (e) {} visAplica(); render(); bg.remove(); toast(admin ? "Padrão restaurado." : "Voltou ao padrão da loja."); };
+  prev();
+}
+visAplica();
+$("mnVis").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } visAbrir(); };
 $("mnPerfil").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } perfilEscolher(true); };
 // ---------- notificações de vencimento (cada pessoa liga e escolhe quantos dias antes quer ser avisada) ----------
 const NTK = "validamais-notif";
