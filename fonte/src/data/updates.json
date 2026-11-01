@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-01T01:50:00-03:00",
+  "itens": [
+   "Novo botão “🏷️ Oferta” ao lado de Editar e Retirar da loja: gera a etiqueta promocional (20%, 30%, 50% ou outro %), já sugerindo 50% quando vence hoje/amanhã e 30% nos demais, com “De/Por” se informar o preço e “até dd/mm”. Dá para imprimir"
+  ]
+ },
+ {
   "t": "2026-11-01T01:30:00-03:00",
   "itens": [
    "Urgência mais clara: 1 a 3 dias agora é VERMELHO com ícone ⚠ (ação imediata); 4 a 7 dias fica amarelo e mais discreto; hoje pulsa 🚨 e vencido tem ⛔"

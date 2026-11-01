@@ -250,10 +250,51 @@ function render() {
     const pr = prioDe(p), g = pr || "ok", lim = limit(cat || CATSET); let hd = "";
     if (cat && !q && !tierF && g !== lastG) { lastG = g; const GN = { v: "⛔ Vencidos", h: "🚨 Vence hoje", a: "🔴 Vence em 1 a 3 dias — agir já", y: "🟡 De 4 a " + lim + " dias", ok: "✅ Dentro do prazo" }; hd = `<div class="pgh g${g}"><span>${GN[g]}</span><i>${gcnt[g]}</i></div>`; }
     const big = dl === null ? "—" : dl < 0 ? "VENCIDO" : dl === 0 ? "HOJE" : dl === 1 ? "AMANHÃ" : String(dl), small = dl === null ? "sem validade" : dl < 0 ? "há " + (-dl) + (dl < -1 ? " dias" : " dia") : dl <= 1 ? "" : "dias";
-    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${esc(p.name)}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act"><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button></div></div></article>`;
+    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${esc(p.name)}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act"><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="secondary of" data-of="${esc(p.id)}">🏷️ Oferta</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button></div></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
   if (typeof renderPesaveis === "function") renderPesaveis();
 }
+
+// ---------- oferta / etiqueta promocional (desconto de última hora) ----------
+const OFK = "validamais-ofpreco";   // último preço normal digitado, por produto (só neste aparelho)
+let ofP = null, ofD = 30;
+function ofSugestao(p) { const dl = daysLeft(p.expiry); return dl !== null && dl <= 1 ? 50 : 30; }
+function ofHtml(p, d, preco) {
+  const dl = daysLeft(p.expiry), por = preco > 0 ? Math.round(preco * (100 - d)) / 100 : 0;
+  const quando = dl === null ? "" : dl <= 0 ? "SÓ HOJE" : dl === 1 ? "ATÉ AMANHÃ" : "ATÉ " + fmt(p.expiry).slice(0, 5);
+  return `<div class="of-top">OFERTA</div><div class="of-nome">${esc(p.name)}</div><div class="of-pct">${d}<small>%</small><span>OFF</span></div>` +
+    (por ? `<div class="of-de">De R$ ${brl(preco)}</div><div class="of-por"><small>POR</small> R$ ${brl(por)}</div>` : "") +
+    (quando ? `<div class="of-val">${quando}</div>` : "");
+}
+function ofRender() {
+  if (!ofP) return;
+  const preco = parseFloat(String($("ofPreco").value).replace(",", ".")) || 0;
+  document.querySelectorAll("#ofChips button").forEach(b => b.classList.toggle("on", Number(b.dataset.d) === ofD && !$("ofOutro").value));
+  $("ofOutro").classList.toggle("on", !!$("ofOutro").value);
+  $("ofCard").innerHTML = ofHtml(ofP, ofD, preco);
+}
+function ofertaAbrir(id) {
+  const p = products.find(x => x.id === id); if (!p) return;
+  ofP = p; ofD = ofSugestao(p); $("ofOutro").value = "";
+  const dl = daysLeft(p.expiry), sv = store.get(OFK, {})[p.barcode || p.id];
+  $("ofPreco").value = sv ? String(sv).replace(".", ",") : "";
+  $("ofInfo").textContent = `${p.name} · ${dl === null ? "sem validade" : dl <= 0 ? "vence hoje" : dl === 1 ? "vence amanhã" : "vence em " + dl + " dias"} · sugestão: ${ofD}% de desconto`;
+  $("ofModal").classList.remove("hidden"); ofRender();
+}
+function ofFecha() { $("ofModal").classList.add("hidden"); ofP = null; }
+$("ofX").onclick = $("ofFecha").onclick = ofFecha;
+$("ofChips").onclick = e => { const b = e.target.closest("button[data-d]"); if (!b) return; ofD = Number(b.dataset.d); $("ofOutro").value = ""; ofRender(); };
+$("ofOutro").oninput = () => { const v = $("ofOutro").value.replace(/\D/g, ""); $("ofOutro").value = v; const n = Number(v); if (n >= 1 && n <= 90) ofD = n; ofRender(); };
+$("ofPreco").oninput = () => { $("ofPreco").value = $("ofPreco").value.replace(/[^\d,.]/g, ""); ofRender(); };
+$("ofPrintBtn").onclick = () => {
+  if (!ofP) return;
+  const preco = parseFloat(String($("ofPreco").value).replace(",", ".")) || 0;
+  if (preco > 0) { const m = store.get(OFK, {}); m[ofP.barcode || ofP.id] = preco; store.set(OFK, m); }
+  const box = $("ofPrint"); box.innerHTML = `<div class="ofcard print">${ofHtml(ofP, ofD, preco)}</div>`;
+  document.body.classList.add("printOf");
+  const fim = () => { document.body.classList.remove("printOf"); box.innerHTML = ""; window.removeEventListener("afterprint", fim); };
+  window.addEventListener("afterprint", fim); setTimeout(() => { try { window.print(); } catch (e) { fim(); } }, 60);
+};
 
 // ---------- modal e formulário ----------
 function show(title, scan) {
@@ -554,7 +595,7 @@ const fname = () => ($("exportScope").value === "products" ? "produtos-cadastrad
 fillCategories();
 ["search"].forEach(i => $(i).oninput = render);
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
-$("list").onclick = e => { const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
+$("list").onclick = e => { const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.of) ofertaAbrir(b.dataset.of); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
 $("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Pesaveis" ? "etiqueta" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : curTab === "Contagem" ? "contagem" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = () => { stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
