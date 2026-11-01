@@ -11,5 +11,5 @@ const ps=[[-1,"Vencido"],[0,"Hoje"],[1,"Um dia"],[3,"Tres dias"],[4,"Quatro dias
 await pg.addInitScript(([ps])=>{localStorage.setItem("validamais-operador",JSON.stringify("T"));localStorage.setItem("validamais-perfil","Perecíveis");localStorage.setItem("validamais-produtos-v1",JSON.stringify(ps));},[ps]);
 await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(1500);
 console.log("total:",await pg.textContent("#listTotal"));
-await pg.fill("#search","Um");await pg.waitForTimeout(300);console.log("busca:",await pg.textContent("#listTotal"));
+console.log("busca visível:",await pg.locator("#search").isVisible());
 console.log("erros",errs);await br.close();srv.close();

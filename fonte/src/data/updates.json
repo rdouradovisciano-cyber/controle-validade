@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-01T03:50:00-03:00",
+  "itens": [
+   "Validades: removida a busca por nome do topo (a lista começa direto nos itens)"
+  ]
+ },
+ {
   "t": "2026-11-01T03:40:00-03:00",
   "itens": [
    "Menu ⋮ → “🎨 Cores e prazos”: escolha os dias do vermelho e do amarelo, as cores (vencido, hoje, vermelho, amarelo, verde), conjuntos prontos (inclui daltonismo) e tamanho da letra. O Admin salva para todos os aparelhos; os demais, só no próprio aparelho"

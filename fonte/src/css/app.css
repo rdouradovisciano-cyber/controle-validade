@@ -1328,3 +1328,5 @@ html[data-fonte=grande] .pgh{font-size:16px}
 .vsc{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 10px;border:1px solid var(--ln);border-radius:12px;font-weight:700}
 .vsc input[type=color]{width:56px;height:36px;padding:0;border:0;background:none;cursor:pointer}
 .vsprev{display:flex;gap:8px}.vsprev span{flex:1;text-align:center;padding:12px 4px;border-radius:12px;font-weight:900;font-size:14px}
+
+#search{display:none!important}
