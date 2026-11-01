@@ -283,14 +283,14 @@ function ean13Svg(code) {
 }
 const OFH = "validamais-ofhd", OFT = "validamais-oftam";
 function ofHtml(p, d, preco, hd) {
-  const dl = daysLeft(p.expiry), por = preco > 0 ? Math.round(preco * (100 - d)) / 100 : 0, hoje = new Date();
-  const quando = dl === null ? "" : dl <= 0 ? "SÓ HOJE" : dl === 1 ? "ATÉ AMANHÃ" : "ATÉ " + fmt(p.expiry).slice(0, 5);
-  const [inteiro, cent] = por ? brl(por).split(",") : ["", ""], cod = p.codigo_doacao || p.codigo_balanca || "", bar = ean13Svg(String(p.barcode || ""));
-  const dt = String(hoje.getDate()).padStart(2, "0") + "/" + String(hoje.getMonth() + 1).padStart(2, "0") + "/" + String(hoje.getFullYear()).slice(2);
-  return `<div class="o2-top"><b class="o2-hd">${esc(hd || "")}</b><span class="o2-cod">${esc(cod)}</span></div><div class="o2-nome">${esc(p.name)}</div>` +
-    `<div class="o2-tag"><b>OFERTA</b> −${d}%${quando ? " · " + quando : ""}</div>` +
-    (por ? `<div class="o2-preco" data-n="${inteiro.length}"><small>R$</small><b>${inteiro}</b><sup>,${cent}</sup></div><div class="o2-de">DE <s>R$ ${brl(preco)}</s> POR <b>R$ ${brl(por)}</b></div>` : `<div class="o2-preco o2-off"><b>${d}</b><sup>%</sup><small>OFF</small></div>`) +
-    `<div class="o2-bot">${bar ? `<div class="o2-bar">${bar}<span>${esc(String(p.barcode))}</span></div>` : "<div></div>"}<span class="o2-dt">${dt}</span></div>`;
+  const hoje = new Date(), por = preco > 0 ? Math.round(preco * (100 - d)) / 100 : 0, bar = ean13Svg(String(p.barcode || "")), cod = p.codigo_doacao || p.codigo_balanca || "";
+  const [pi, pc] = por ? brl(por).split(",") : ["", ""], [di, dc] = preco > 0 ? brl(preco).split(",") : ["", ""];
+  const dt = String(hoje.getDate()).padStart(2, "0") + "/" + String(hoje.getMonth() + 1).padStart(2, "0") + "/" + hoje.getFullYear();
+  const val = (p.expiry ? `VÁLIDO ATÉ ${fmt(p.expiry)} OU ENQUANTO DURAREM OS ESTOQUES` : "VÁLIDO ENQUANTO DURAREM OS ESTOQUES");
+  return `<div class="o3"><div><div class="o3-top"><b class="o3-hd">${esc(hd || "")}</b><span class="o3-cod">${esc(cod)}</span></div><div class="o3-nome">${esc(p.name)}</div></div>` +
+    `<div class="o3-mid"><div class="o3-de">${preco > 0 ? `<small>DE:</small><div class="o3-dep"><em>R$</em><b>${di}</b><sup>,${dc}</sup></div>` : ""}</div>` +
+    `<div class="o3-por">${por ? `<small>POR:</small><div class="o3-pv" data-n="${pi.length}"><em>R$</em><b>${pi}</b><sup>,${pc}</sup></div>` : `<small>OFERTA</small><div class="o3-pct">${d}<sup>%</sup><span>OFF</span></div>`}</div></div>` +
+    `<div class="o3-bot"><div class="o3-left">${por ? `<div class="o3-un">PREÇO POR UNIDADE: <b>R$ ${brl(por)}</b></div>` : `<div class="o3-un"><b>${d}% DE DESCONTO</b></div>`}${bar ? `<div class="o3-bar">${bar}<span>${esc(String(p.barcode))}</span></div>` : ""}</div><div class="o3-val">${val}</div><span class="o3-dt">${dt}</span></div></div>`;
 }
 function ofRender() {
   if (!ofP) return;

@@ -1377,25 +1377,6 @@ html,body,button,input,select,textarea{font-variant-numeric:tabular-nums;font-fe
 .pitem .pi-badge b,.pgh i,.listtotal,.pesc b{font-variant-numeric:tabular-nums}
 .pitem .pi-nome::after{text-transform:none}
 
-/* etiqueta de oferta no formato da etiqueta da loja: preto no branco, nome em destaque, preço enorme, código de barras */
-.ofcard{border:2px solid #111;border-radius:6px;padding:12px 14px 10px;text-align:left;background:#fff;color:#111;overflow:hidden;font-family:Outfit,Inter,system-ui,Arial,sans-serif;font-variant-numeric:tabular-nums}
-.ofcard .o2-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.ofcard .o2-hd{font-size:12px;font-weight:900;letter-spacing:.02em}
-.ofcard .o2-cod{font-size:11px;font-weight:800}
-.ofcard .o2-nome{font-size:21px;font-weight:900;line-height:1.1;margin:10px 0 6px;text-transform:uppercase;overflow-wrap:anywhere}
-.ofcard .o2-tag{display:inline-block;background:#111;color:#fff;font-size:13px;font-weight:800;letter-spacing:.04em;padding:3px 10px;border-radius:4px}
-.ofcard .o2-tag b{color:#ffd60a}
-.ofcard .o2-preco{display:flex;align-items:flex-start;justify-content:center;gap:6px;line-height:.9;margin:8px 0 2px}
-.ofcard .o2-preco small{font-size:20px;font-weight:900;margin-top:22px}
-.ofcard .o2-preco b{font-size:104px;font-weight:900;letter-spacing:-.02em}
-.ofcard .o2-preco sup{font-size:46px;font-weight:900;margin-top:8px}
-.ofcard .o2-off b{font-size:96px}.ofcard .o2-off small{margin-top:30px;font-size:26px}
-.ofcard .o2-de{text-align:center;font-size:14px;font-weight:800}.ofcard .o2-de s{opacity:.7}.ofcard .o2-de b{font-size:16px}
-.ofcard .o2-bot{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-top:10px}
-.ofcard .o2-bar{width:58%;max-width:230px}.ofcard .o2-bar svg{display:block;width:100%;height:38px;fill:#111}
-.ofcard .o2-bar span{display:block;font-size:11px;letter-spacing:.2em;margin-top:2px}
-.ofcard .o2-dt{font-size:11px;font-weight:800}
-@media print{ body.printOf .ofcard.print .o2-preco b{font-size:34mm} body.printOf .ofcard.print .o2-nome{font-size:7mm} body.printOf .ofcard.print .o2-preco sup{font-size:15mm} }
 
 /* impressão da oferta: a regra de impressão do inventário esconde tudo (visibility); aqui reexibimos só a etiqueta */
 @media print{
@@ -1430,29 +1411,42 @@ html .pitem.pra .pi-nome::before{background:var(--ca,#c7514a)}
 .pitem .pi-sub{letter-spacing:.01em;font-size:12px}
 html .pitem.prok{border-left-color:var(--cg,#4a9a78)}
 
-/* impressão em folha inteira: A4 em pé, etiqueta girada 90° (fica "deitada") ocupando a página toda */
-@media print{
-  body.printOf:has(.ofcard.full){}
-  body.printOf #ofPrint{left:0;top:0;width:auto}
-  body.printOf .ofcard.print.full{position:absolute;left:0;top:0;box-sizing:border-box;width:281mm;height:194mm;max-width:none;margin:0;padding:6mm 9mm;border:3mm solid #000!important;border-radius:0;display:flex;flex-direction:column;justify-content:space-between;transform-origin:top left;transform:translateX(194mm) rotate(90deg)}
-  body.printOf .ofcard.print.full .o2-hd{font-size:7mm}
-  body.printOf .ofcard.print.full .o2-cod{font-size:7mm}
-  body.printOf .ofcard.print.full .o2-nome{font-size:15mm;line-height:1.05;margin:2mm 0;max-height:33mm;overflow:hidden}
-  body.printOf .ofcard.print.full .o2-tag{align-self:flex-start;font-size:8mm;padding:1.5mm 6mm;border-radius:2mm}
-  body.printOf .ofcard.print.full .o2-preco{margin:0;justify-content:center;gap:4mm}
-  body.printOf .ofcard.print.full .o2-preco b{font-size:88mm}
-  body.printOf .ofcard.print.full .o2-preco sup{font-size:40mm;margin-top:6mm}
-  body.printOf .ofcard.print.full .o2-preco small{font-size:15mm;margin-top:18mm}
-  body.printOf .ofcard.print.full .o2-preco[data-n="3"] b{font-size:72mm}body.printOf .ofcard.print.full .o2-preco[data-n="3"] sup{font-size:34mm}
-  body.printOf .ofcard.print.full .o2-preco[data-n="4"] b{font-size:58mm}body.printOf .ofcard.print.full .o2-preco[data-n="4"] sup{font-size:28mm}
-  body.printOf .ofcard.print.full .o2-off b{font-size:80mm}body.printOf .ofcard.print.full .o2-off small{font-size:22mm;margin-top:24mm}
-  body.printOf .ofcard.print.full .o2-de{font-size:9mm}body.printOf .ofcard.print.full .o2-de b{font-size:10mm}
-  body.printOf .ofcard.print.full .o2-bot{margin:0}
-  body.printOf .ofcard.print.full .o2-bar{width:100mm;max-width:none}
-  body.printOf .ofcard.print.full .o2-bar svg{height:24mm}
-  body.printOf .ofcard.print.full .o2-bar span{font-size:5mm;margin-top:1mm}
-  body.printOf .ofcard.print.full .o2-dt{font-size:6mm}
-  @page{size:A4 portrait;margin:8mm}
-}
 
 .atvlimpa{display:block;width:100%;margin-top:12px;min-height:44px;font-weight:700;opacity:.85}
+
+/* etiqueta de promoção no formato da loja: fundo amarelo, "DE" riscado, caixa preta "POR", código de barras e validade.
+   Tudo em cqw (largura da etiqueta), então o mesmo desenho serve na tela, na folha inteira e na pequena */
+.ofcard{container-type:inline-size;aspect-ratio:281/194;width:100%;box-sizing:border-box;padding:0;border:0;border-radius:6px;background:#e8e63a;color:#1b1b10;overflow:hidden;text-align:left;font-family:Outfit,Inter,system-ui,Arial,sans-serif;font-variant-numeric:tabular-nums;margin-top:14px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ofcard .o3{box-sizing:border-box;height:100%;padding:3.4cqw 4cqw 2.6cqw;display:flex;flex-direction:column;justify-content:space-between;position:relative}
+.ofcard .o3-top{display:flex;justify-content:space-between;align-items:baseline;gap:2cqw}
+.ofcard .o3-hd{font-size:3.4cqw;font-weight:900}.ofcard .o3-cod{font-size:2.5cqw;font-weight:900}
+.ofcard .o3-nome{font-size:6.6cqw;font-weight:900;line-height:.95;text-transform:uppercase;margin-top:1cqw;max-height:13.6cqw;overflow:hidden;overflow-wrap:anywhere}
+.ofcard .o3-mid{display:flex;align-items:center;justify-content:space-between;gap:3cqw}
+.ofcard .o3-de{flex:1;min-width:0}
+.ofcard .o3-de small{display:block;font-size:2.6cqw;font-weight:900}
+.ofcard .o3-de .o3-dep{display:flex;align-items:baseline;gap:1cqw;text-decoration:line-through;text-decoration-thickness:.9cqw}
+.ofcard .o3-de .o3-dep em{font-style:normal;font-size:3.2cqw;font-weight:900}
+.ofcard .o3-de .o3-dep b{font-size:10.5cqw;font-weight:900;line-height:1}
+.ofcard .o3-de .o3-dep sup{font-size:4.6cqw;font-weight:900;align-self:flex-start;margin-top:1cqw}
+.ofcard .o3-por{flex:none;width:58%;background:#1b1b10;color:#e8e63a;border-radius:.6cqw;padding:2cqw 2.6cqw 1.2cqw;position:relative;line-height:1}
+.ofcard .o3-por small{display:block;font-size:3.6cqw;font-weight:900}
+.ofcard .o3-pv{display:flex;align-items:flex-start;gap:1.4cqw}
+.ofcard .o3-pv em{font-style:normal;font-size:3.6cqw;font-weight:900;margin-top:1.4cqw}
+.ofcard .o3-pv b{font-size:23cqw;font-weight:900;letter-spacing:-.02em;line-height:.88}
+.ofcard .o3-pv sup{font-size:10.6cqw;font-weight:900;margin-top:1.6cqw}
+.ofcard .o3-pv[data-n="3"] b{font-size:17cqw}.ofcard .o3-pv[data-n="3"] sup{font-size:8cqw}
+.ofcard .o3-pv[data-n="4"] b{font-size:13cqw}.ofcard .o3-pv[data-n="4"] sup{font-size:6.4cqw}
+.ofcard .o3-pct{font-size:25cqw;font-weight:900;line-height:.9}.ofcard .o3-pct sup{font-size:11cqw}.ofcard .o3-pct span{font-size:6cqw;letter-spacing:.2em;margin-left:1cqw}
+.ofcard .o3-un{font-size:3.1cqw;font-weight:900;line-height:1.1}.ofcard .o3-un b{font-size:3.5cqw}
+.ofcard .o3-bot{display:flex;justify-content:space-between;align-items:flex-end;gap:2cqw}
+.ofcard .o3-bar{width:30cqw}.ofcard .o3-bar svg{display:block;width:100%;height:8cqw;fill:#1b1b10}.ofcard .o3-bar span{display:block;font-size:1.8cqw;letter-spacing:.18em;margin-top:.6cqw}
+.ofcard .o3-val{font-size:1.9cqw;font-weight:900;flex:1;text-align:left;align-self:center;padding-left:4cqw}
+.ofcard .o3-dt{font-size:2.2cqw;font-weight:800;align-self:flex-end}
+.ofcard .o3-left{display:flex;flex-direction:column;gap:1.4cqw}
+/* impressão: folha inteira (A4 em pé, etiqueta girada 90° = deitada) ou pequena */
+@media print{
+  body.printOf #ofPrint .ofcard.print{margin:0;border-radius:0;max-width:none!important}
+  body.printOf #ofPrint .ofcard.print.full{position:absolute;left:0;top:0;width:281mm;height:194mm;transform-origin:top left;transform:translateX(194mm) rotate(90deg)}
+  body.printOf #ofPrint .ofcard.print.small{position:absolute;left:0;top:0;width:150mm;height:auto}
+  @page{size:A4 portrait;margin:8mm}
+}

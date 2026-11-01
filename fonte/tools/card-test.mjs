@@ -20,5 +20,5 @@ await pg.click('#ofChips [data-d="30"]');console.log("card 30%:",(await pg.textC
 await pg.fill("#ofOutro","15");console.log("outro 15:",(await pg.textContent("#ofCard")).replace(/\s+/g," "));
 await pg.fill("#ofOutro","");await pg.click('#ofChips [data-d="30"]');
 await pg.locator("#ofCard").screenshot({path:"/tmp/claude-0/-home-claude/8acfd74b-066d-5685-9053-e1d75c13691f/scratchpad/card.png"});
-await pg.locator("#ofCard .o2-bar svg").screenshot({path:"/tmp/claude-0/-home-claude/8acfd74b-066d-5685-9053-e1d75c13691f/scratchpad/bar.png"});
+await pg.locator("#ofCard .o3-bar svg").screenshot({path:"/tmp/claude-0/-home-claude/8acfd74b-066d-5685-9053-e1d75c13691f/scratchpad/bar.png"});
 console.log("erros",errs);await br.close();srv.close();
