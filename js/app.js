@@ -505,6 +505,9 @@ $("tiers").onclick = e => { if (e.target.closest("#tiersBar")) { store.set(TIERK
 $("verRet").onclick = $("verRetTop").onclick = () => { retView = !retView; render(); window.scrollTo(0, 0); };
 
 // ---------- scanner ----------
+// toque com resposta: botões afundam (CSS) e vibram de leve (10 ms); dá para desligar em 🎨 Cores e prazos
+const VBK = "validamais-vibra", vibraOn = () => store.get(VBK, true) !== false;
+document.addEventListener("pointerdown", e => { if (e.pointerType === "mouse" || !vibraOn()) return; const t = e.target.closest && e.target.closest("button, .pi-main, .pesrow, [role=button], [role=menuitem], .nfrow, label.vsc, .tabbar a, summary"); if (t && !t.disabled) { try { navigator.vibrate && navigator.vibrate(10); } catch (_) {} } }, { passive: true });
 const buzz = () => { try { if (navigator.vibrate) navigator.vibrate(50); } catch {} }; // pulso tátil de 50 ms
 let actx, alarmed = false, sector = "";
 const audio = () => { try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); } catch {} };
@@ -1777,6 +1780,7 @@ function visAbrir() {
     <p class="note" style="margin:2px 0 8px">🟢 Verde: tudo que vence depois do amarelo.</p>
     <label>Conjuntos de cores</label><div class="vspre"><button type="button" data-p="pad">Padrão</button><button type="button" data-p="dal">Daltonismo</button><button type="button" data-p="sua">Vivas</button></div>
     <div class="vscores">${Object.keys(nomes).map(k => `<label class="vsc"><span>${nomes[k]}</span><input type="color" data-c="${k}" value="${v.cores[k]}"></label>`).join("")}</div>
+    <label class="nfrow"><span><b>📳 Vibrar ao tocar</b><small>Pulso curto a cada toque (só neste aparelho)</small></span><input type="checkbox" id="vsVib" ${vibraOn() ? "checked" : ""}></label>
     <label>Tamanho da letra da lista</label><div class="vspre" id="vsF"><button type="button" data-f="normal">Normal</button><button type="button" data-f="grande">Grande</button></div>
     <div class="vsprev" id="vsPrev"></div>
     <div class="toolbar" style="margin-top:12px"><button class="primary big" type="button" id="vsSalva">Salvar</button><button class="secondary" type="button" id="vsPad">${admin ? "Restaurar padrão" : (loc ? "Usar o padrão da loja" : "Restaurar padrão")}</button></div></section>`;
@@ -1785,6 +1789,7 @@ function visAbrir() {
   const prev = () => { q("#vsPrev").innerHTML = [["a", `1 a ${v.red} dias`], ["y", `${v.red + 1} a ${v.yel || "…"} dias`], ["g", "depois"]].map(([k, t]) => `<span style="background:${v.cores[k]};color:${txt(v.cores[k])}">${k === "a" ? "🔴" : k === "y" ? "🟡" : "🟢"} ${t}</span>`).join("");
     bg.querySelectorAll("[data-f]").forEach(b => b.classList.toggle("on", b.dataset.f === v.fonte)); bg.querySelectorAll("[data-c]").forEach(i => { i.value = v.cores[i.dataset.c]; }); };
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) bg.remove(); const p = e.target.closest("[data-p]"); if (p) { v.cores = { ...PRE[p.dataset.p] }; prev(); } const f = e.target.closest("[data-f]"); if (f) { v.fonte = f.dataset.f; prev(); } };
+  q("#vsVib").onchange = e => { store.set(VBK, e.target.checked); if (e.target.checked) { try { navigator.vibrate && navigator.vibrate(30); } catch (_) {} } };
   q("#vsR").onchange = e => { v.red = Number(e.target.value); prev(); }; q("#vsY").onchange = e => { v.yel = e.target.value ? Number(e.target.value) : null; prev(); };
   bg.querySelectorAll("[data-c]").forEach(i => i.oninput = () => { v.cores[i.dataset.c] = i.value; prev(); });
   q("#vsSalva").onclick = async () => {
