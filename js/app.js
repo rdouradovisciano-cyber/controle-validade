@@ -447,10 +447,10 @@ function efeitoSai(id) {
   el.style.maxHeight = el.offsetHeight + "px"; void el.offsetHeight; el.classList.add("saindo");
   return new Promise(r => setTimeout(r, 420));
 }
-const MOTIVOS = ["Vencido", "Quebra/estragou", "Vendido em oferta", "Outro"], ENGANO = ["Lançado por engano"];   // "engano" só apaga o lote da lista, sem registro
+const MOTIVOS = ["Vencido", "Quebra/estragou", "Vendido em oferta", "Vendido"], ENGANO = ["Lançado por engano"];   // "engano" só apaga o lote da lista, sem registro
 async function retirar(id, sai, semPerguntar) {
   const p = products.find(x => x.id === id); if (!p) return;
-  if (sai && !semPerguntar) { const ok = await askConfirm({ icon: "📦", title: "Retirar produto", text: p.name + " · vence " + fmt(p.expiry), subtitle: "Por que está saindo?", motivos: MOTIVOS.concat(ENGANO), motivo: (daysLeft(p.expiry) !== null && daysLeft(p.expiry) <= 0) ? "Vencido" : "Outro", okMap: { [ENGANO[0]]: "Remover" }, ok: "Retirar", cancel: "Cancelar" }); if (ok !== true) return; if (window.vmMotivo === ENGANO[0]) return remover(id); }
+  if (sai && !semPerguntar) { const ok = await askConfirm({ icon: "📦", title: "Retirar produto", text: p.name + " · vence " + fmt(p.expiry), subtitle: "Por que está saindo?", motivos: MOTIVOS.concat(ENGANO), motivo: (daysLeft(p.expiry) !== null && daysLeft(p.expiry) <= 0) ? "Vencido" : "Vendido", okMap: { [ENGANO[0]]: "Remover" }, ok: "Retirar", cancel: "Cancelar" }); if (ok !== true) return; if (window.vmMotivo === ENGANO[0]) return remover(id); }
   if (sai) await efeitoSai(id);
   { const mot = sai ? (semPerguntar ? "Outro" : (window.vmMotivo || "Outro")) : ""; logAtv(sai ? "retirou" : "devolveu", `${p.name} · vence ${fmt(p.expiry)}${mot ? " · " + mot : ""}`, sai ? { motivo: mot, qtd: Number(p.quantity) || 0, prod: String(p.name || "").slice(0, 80), cat: p.category || "", dl: daysLeft(p.expiry) ?? 99 } : null); }
   const em = Date.now(), por = myName(), campos = sai ? { retirado: true, retEm: em, retPor: por } : { retirado: false };
@@ -1823,7 +1823,7 @@ function perdasHtml(dados, dias, setor) {
   const ctl = `<div class="atvf"><button type="button" data-pd="7" class="${dias === 7 ? "on" : ""}">7 dias</button><button type="button" data-pd="30" class="${dias === 30 ? "on" : ""}">30 dias</button><button type="button" data-ps="" class="${!setor ? "on" : ""}">Todos</button><button type="button" data-ps="FLV" class="${setor === "FLV" ? "on" : ""}">FLV</button><button type="button" data-ps="Perecíveis" class="${setor === PER ? "on" : ""}">Perecíveis</button></div>`;
   if (!l.length) return ctl + '<p class="note">Sem retiradas com motivo neste período. O motivo passa a ser registrado a partir desta versão.</p>';
   return ctl + `<div class="perres"><div class="perbig"><b>${pq}</b><span>un. perdidas (vencido + quebra) em ${perda.length} retirada${perda.length === 1 ? "" : "s"}</span></div>` +
-    MOTIVOS.map(m => { const o = por[m]; return `<div class="permot ${m === "Vencido" || m === "Quebra/estragou" ? "perda" : ""}"><span>${esc(m)}</span><b>${o.n}</b><small>${o.q} un.</small></div>`; }).join("") + `</div>` +
+    Object.keys(por).sort((a, b) => (MOTIVOS.indexOf(a) + 99) % 99 - (MOTIVOS.indexOf(b) + 99) % 99).map(m => { const o = por[m]; return `<div class="permot ${m === "Vencido" || m === "Quebra/estragou" ? "perda" : ""}"><span>${esc(m)}</span><b>${o.n}</b><small>${o.q} un.</small></div>`; }).join("") + `</div>` +
     (top.length ? `<div class="atvd">Mais perdidos</div>` + top.map(([n, o]) => `<div class="atvr"><time>${o.q}</time><div><b>${esc(n)}</b><small>${o.n} retirada${o.n === 1 ? "" : "s"} · ${o.q} un.</small></div></div>`).join("") : "");
 }
 const ATV_ICO = { entrou: "🚪", cadastrou: "➕", editou: "✏️", retirou: "📦", devolveu: "↩️", removeu: "🗑️", "doação": "🎁", etiqueta: "🏷️", importou: "📥", oferta: "🔥", erro: "🐞" };
