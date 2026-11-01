@@ -7,7 +7,7 @@ r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".c
 const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
 const pg=await (await br.newContext({viewport:{width:411,height:860}})).newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
 const dt=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
-const ps=[[-1,"Vencido"],[0,"Hoje"],[1,"Um dia"],[3,"Tres dias"],[4,"Quatro dias"],[7,"Sete dias"],[12,"Doze dias"]].map(([n,nm],i)=>({id:"p"+i,name:nm,barcode:"789000"+i,quantity:"1",expiry:dt(n),category:"Perecíveis",createdAt:Date.now()}));
+const ps=[[-1,"Vencido"],[0,"Hoje"],[1,"Um dia"],[3,"Tres dias"],[4,"Quatro dias"],[7,"Sete dias"],[12,"Doze dias"]].map(([n,nm],i)=>({id:"p"+i,name:nm,barcode:"7898205078770",quantity:"1",expiry:dt(n),category:"Perecíveis",createdAt:Date.now()}));
 await pg.addInitScript(([ps])=>{localStorage.setItem("validamais-operador",JSON.stringify("T"));localStorage.setItem("validamais-perfil","Perecíveis");localStorage.setItem("validamais-produtos-v1",JSON.stringify(ps));},[ps]);
 await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(1500);
 await pg.click('.pitem:has-text("Um dia") .pi-main');await pg.waitForTimeout(200);
