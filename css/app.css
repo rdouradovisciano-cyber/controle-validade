@@ -1368,3 +1368,11 @@ body:not([data-perfil="Admin"]) #mnAtv{display:none!important}
 .ask .amot button:last-child{grid-column:1/-1;border-style:dashed;opacity:.8;font-weight:600}
 .ask .amot button:last-child.on{opacity:1;font-weight:800}
 html[data-tema=dark] .ask .arow button.ok{color:#1a1405}
+
+/* números tabulares (mesma largura) em todo o app + nomes e detalhes da lista em MAIÚSCULAS */
+html,body,button,input,select,textarea{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.pitem .pi-nome,.pitem .pi-sub,.pitem .pi-cod,.product h3,.peslista .pesrow .pesnome,.pgh,.atvr b{text-transform:uppercase;letter-spacing:.02em}
+.pitem .pi-nome{font-size:17px}
+.pitem .pi-sub{font-size:12.5px;font-weight:600;letter-spacing:.03em}
+.pitem .pi-badge b,.pgh i,.listtotal,.pesc b{font-variant-numeric:tabular-nums}
+.pitem .pi-nome::after{text-transform:none}
