@@ -1,1 +1,1 @@
-{"versao":"2026.11.01-266","nota":"Menu ⋮ mais enxuto: saíram “Ir para…”, “Importar cadastros” e “Histórico de etiquetas”; “Perfil deste aparelho” e “Saúde do app” aparecem só para o Admin"}
+{"versao":"2026.11.01-267","nota":"Admin: menu ⋮ → “🕘 Atividade dos usuários” mostra quem entrou no app, a que horas e o que fez (cadastrou, editou, retirou, doação, etiqueta, importou, oferta), com filtro por pessoa. O registro começa a ser gravado a partir desta versão"}

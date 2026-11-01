@@ -300,6 +300,7 @@ $("ofPreco").oninput = () => { $("ofPreco").value = $("ofPreco").value.replace(/
 $("ofPrintBtn").onclick = () => {
   if (!ofP) return;
   const preco = parseFloat(String($("ofPreco").value).replace(",", ".")) || 0;
+  logAtv("oferta", `${ofP.name} · ${ofD}% de desconto`);
   if (preco > 0) { const m = store.get(OFK, {}); m[ofP.barcode || ofP.id] = preco; store.set(OFK, m); }
   const box = $("ofPrint"); box.innerHTML = `<div class="ofcard print">${ofHtml(ofP, ofD, preco)}</div>`;
   document.body.classList.add("printOf");
@@ -402,6 +403,13 @@ function dupReview() {
   paint(); document.body.appendChild(bg);
 }
 window.dupReview = dupReview;
+// ---------- histórico de atividade (Admin vê quem entrou e o que fez; gravado na coleção "acessos", que as regras já aceitam) ----------
+const ATK = "validamais-atv";
+function logAtv(a, txt) {
+  try { const rec = { tipo: "atv", t: Date.now(), quem: myName().slice(0, 40), perfil: PERFIL || "", setor: SETOR || "", dev: myId, a, txt: String(txt || "").slice(0, 140) };
+    if (db) V.addDoc(V.collection(db, "acessos"), rec).catch(e => console.warn("atividade:", e && (e.code || e.message)));
+    else { const l = store.get(ATK, []); l.unshift(rec); store.set(ATK, l.slice(0, 300)); } } catch (e) { console.warn(e); }
+}
 async function save(next) {
   const id = $("docId").value, q = Number(String($("quantity").value).replace(",", "."));
   const data = { barcode: $("barcode").value.trim().slice(0, 32), name: $("name").value.trim().slice(0, 120),
@@ -416,7 +424,7 @@ async function save(next) {
       if (r === false) { data.name = sim[0].slice(0, 120); $("name").value = data.name; }
     }
   }
-  store.set(LC, data.category);
+  store.set(LC, data.category); logAtv(id ? "editou" : "cadastrou", `${data.name} · vence ${fmt(data.expiry)} · qtd ${data.quantity}`);
   if (db) {
     const ts = V.serverTimestamp();
     const p = id ? V.updateDoc(V.doc(db, "products", id), { ...data, updatedAt: ts })
@@ -443,6 +451,7 @@ async function retirar(id, sai, semPerguntar) {
   const p = products.find(x => x.id === id); if (!p) return;
   if (sai && !semPerguntar) { const ok = await askConfirm({ icon: "📦", title: "Retirar?", text: p.name + " · validade " + fmt(p.expiry), sub: "Retirar: sai da lista e do alerta e fica guardado em «Ver retirados da loja», com a data e quem retirou. Só remover da lista: tira este lote sem registrar nada (use se foi lançado por engano). O cadastro continua nos dois casos.", ok: "Retirar", cancel: "Cancelar", alt: "Só remover da lista" }); if (ok === "alt") return remover(id); if (ok !== true) return; }
   if (sai) await efeitoSai(id);
+  logAtv(sai ? "retirou" : "devolveu", `${p.name} · vence ${fmt(p.expiry)}`);
   const em = Date.now(), por = myName(), campos = sai ? { retirado: true, retEm: em, retPor: por } : { retirado: false };
   const salvarLocal = () => { if (sai) retLoc[id] = { em, por }; else delete retLoc[id]; store.set(RLK, retLoc); Object.assign(p, campos); render(); };
   const fim = (nuvem, motivo) => toast((sai ? "✓ " + p.name + " retirado da loja" : p.name + " voltou para a loja") + (nuvem ? "." : " (só neste aparelho: a nuvem recusou" + (motivo ? " — " + motivo : "") + ")."), "Desfazer", () => retirar(id, !sai, true));
@@ -461,7 +470,7 @@ async function retSync(manual) {   // manda para a nuvem as retiradas que ficara
   store.set(RLK, retLoc); if (ok) { toast(ok + " retirada(s) enviada(s) para todos os aparelhos."); } return { ok, falha };
 }
 async function remover(id) {   // tira só o lote da lista, sem registrar como retirado; o cadastro (nome e códigos) é preservado
-  const p = products.find(x => x.id === id); if (!p) return;
+  const p = products.find(x => x.id === id); if (!p) return; logAtv("removeu", `${p.name} (só da lista)`);
   const outros = rawAllAtivos().filter(x => x.id !== id && sameProd(x, p) && setSet(x) === setSet(p)), campos = ["barcode", "name", "category", "expiry", "quantity", "por", "codigo_balanca", "codigo_doacao"];
   const copia = {}; campos.forEach(k => { if (p[k] !== undefined) copia[k] = p[k]; });
   const falha = e => { console.error(e); toast("Não foi possível remover."); };
@@ -1508,6 +1517,7 @@ function contCancela() {
   const p = don.pausa; don = p ? { itens: p.itens, inicio: p.inicio } : { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); toast("Continuação cancelada.");
 }
 function finalizaCont() {
+  logAtv("doação", `continuou uma doação anterior (+ itens)`);
   const c = don.cont, itens = don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc: lanc || 1, cod: cod || "" })).sort(byName);
   const tot = u => Math.round(itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0) * 1000) / 1000, campos = { itens, totalKg: tot("kg"), totalUn: tot("un"), editada: true };
   const ant = (curRom && hid(curRom) === c.id ? curRom : null) || histList.find(x => hid(x) === c.id) || {}, rec = { ...ant, data: c.data, ...campos, _id: c._id || ant._id };
@@ -1520,6 +1530,7 @@ function finalizaCont() {
 $("rCont").onclick = romContinuar; $("dContX").onclick = contCancela;
 function finalizeDon() {
   if (don.cont) return finalizaCont();
+  logAtv("doação", `${don.itens.length} item(ns) lançado(s)`);
   const rec = { data: iso(new Date()), por: myName().slice(0, 40), totalKg: Math.round(sumU("kg") * 1000) / 1000, totalUn: Math.round(sumU("un") * 1000) / 1000,
     itens: don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc, cod: cod || "" })).sort(byName) };
   if (db) V.addDoc(V.collection(db, "doacoes"), { ...rec, em: V.serverTimestamp() }).then(r => { rec._id = r.id; }).catch(e => { console.error(e); toast("Erro ao salvar na nuvem (confira as regras). O romaneio foi gerado."); });
@@ -1772,6 +1783,37 @@ function visAbrir() {
 }
 visAplica();
 $("mnVis").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } visAbrir(); };
+
+// entrada: uma vez ao abrir o app e de novo se voltar depois de 30 min fora (sem repetir em recarregamentos rápidos)
+{ let fora = 0; const entra = () => { try { const u = Number(localStorage.getItem("validamais-ult-entrada") || 0); if (Date.now() - u < 2 * 60 * 1000) return; localStorage.setItem("validamais-ult-entrada", String(Date.now())); logAtv("entrou", "Abriu o app"); } catch (e) {} };
+  setTimeout(entra, 2500);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") fora = Date.now(); else if (fora && Date.now() - fora > 30 * 60 * 1000) { fora = 0; try { localStorage.setItem("validamais-ult-entrada", "0"); } catch (e) {} entra(); } }); }
+const ATV_ICO = { entrou: "🚪", cadastrou: "➕", editou: "✏️", retirou: "📦", devolveu: "↩️", removeu: "🗑️", "doação": "🎁", etiqueta: "🏷️", importou: "📥", oferta: "🔥" };
+const ATV_VERBO = { entrou: "entrou no app", cadastrou: "cadastrou", editou: "editou", retirou: "retirou da loja", devolveu: "devolveu à loja", removeu: "removeu", "doação": "fez doação", etiqueta: "lançou etiqueta", importou: "importou", oferta: "criou oferta" };
+let atvUn = null;
+function atvAbrir() {
+  const bg = document.createElement("div"); bg.className = "modal"; bg.id = "atvModal";
+  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Atividade dos usuários"><div class="sheethead"><h2>🕘 Atividade dos usuários</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
+    <div class="atvf" id="atvF"></div><div id="atvSum" class="atvsum"></div><div id="atvL" class="atvl"><p class="note">Carregando…</p></div></section>`;
+  document.body.appendChild(bg);
+  let dados = [], filtro = "";
+  const hm = t => new Date(t).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), dia = t => { const d = new Date(t), h = new Date(); h.setHours(0, 0, 0, 0); const ontem = new Date(h - 864e5); return d >= h ? "Hoje" : d >= ontem ? "Ontem" : d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" }); };
+  const desenha = () => {
+    const nomes = [...new Set(dados.map(r => r.quem))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+    bg.querySelector("#atvF").innerHTML = ["", ...nomes].map(n => `<button type="button" class="${n === filtro ? "on" : ""}" data-n="${esc(n)}">${n ? esc(n) : "Todos"}</button>`).join("");
+    const l = dados.filter(r => !filtro || r.quem === filtro), hj = new Date(); hj.setHours(0, 0, 0, 0);
+    const res = {}; dados.filter(r => r.t >= hj).forEach(r => { const o = res[r.quem] || (res[r.quem] = { ent: 0, n: 0, ult: 0 }); if (r.a === "entrou") { if (!o.ent || r.t < o.ent) o.ent = r.t; } else o.n++; o.ult = Math.max(o.ult, r.t); });
+    bg.querySelector("#atvSum").innerHTML = Object.keys(res).length ? "<b>Hoje</b>" + Object.entries(res).filter(([n]) => !filtro || n === filtro).map(([n, o]) => `<div><span>${esc(n)}</span><small>${o.ent ? "entrou às " + hm(o.ent) + " · " : ""}${o.n} ação(ões) · última às ${hm(o.ult)}</small></div>`).join("") : "";
+    let ult = "";
+    bg.querySelector("#atvL").innerHTML = l.length ? l.map(r => { const d = dia(r.t), h = d !== ult ? `<div class="atvd">${esc(d)}</div>` : ""; ult = d;
+      return h + `<div class="atvr"><time>${hm(r.t)}</time><div><b>${esc(r.quem)}</b> ${ATV_ICO[r.a] || "•"} ${esc(ATV_VERBO[r.a] || r.a)}${r.txt && r.a !== "entrou" ? `<small>${esc(r.txt)}</small>` : ""}${r.perfil || r.setor ? `<em>${esc(r.perfil || "")}${r.setor && r.setor !== r.perfil ? " · " + esc(r.setor) : ""}</em>` : ""}</div></div>`; }).join("") : '<p class="note">Nenhuma atividade registrada ainda. Ela começa a ser gravada a partir desta versão.</p>';
+  };
+  const fecha = () => { try { atvUn && atvUn(); } catch (e) {} atvUn = null; bg.remove(); };
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) fecha(); const b = e.target.closest("[data-n]"); if (b) { filtro = b.dataset.n; desenha(); } };
+  if (db) { try { atvUn = V.onSnapshot(V.query(V.collection(db, "acessos"), V.orderBy("t", "desc"), V.limit(400)), sn => { dados = sn.docs.map(d => d.data()).filter(r => r && r.tipo === "atv" && r.t); desenha(); }, e => { console.warn(e); bg.querySelector("#atvL").innerHTML = '<p class="note">Não consegui ler o histórico na nuvem (confira se as regras permitem ler «acessos»).</p>'; }); } catch (e) { console.warn(e); } }
+  else { dados = store.get(ATK, []); desenha(); }
+}
+$("mnAtv").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } atvAbrir(); };
 $("mnPerfil").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } perfilEscolher(true); };
 // ---------- notificações de vencimento (cada pessoa liga e escolhe quantos dias antes quer ser avisada) ----------
 const NTK = "validamais-notif";
@@ -2027,7 +2069,7 @@ $("eCodSave").onclick = () => { if (!pend) return; const v = saveCode(pend.src, 
   pend.src = { ...pend.src, codigo_balanca: v }; const c = labelCode(pend.src); pend.code = c.code; pend.kg = c.kg; $("eCod").textContent = codeText(c); $("eCodBal").value = v; };
 $("eCancela").onclick = () => { pend = null; $("ePend").classList.add("hidden"); };
 $("eAdd").onclick = () => {
-  if (!pend) return; if (!pend.tam) return toast("Escolha o tamanho: P, M ou G."); buzz();
+  if (!pend) return; if (!pend.tam) return toast("Escolha o tamanho: P, M ou G."); buzz(); logAtv("etiqueta", `${pend.nome} · ${pend.tam} × ${Math.max(1, Math.round(Number($("eQtd").value) || 1))}`);
   labels.push({ nome: pend.nome, code: uniCode(pend.code), orig: pend.code, kg: pend.kg, tam: pend.tam || "M", key: pkey(pend.src), qtd: Math.max(1, Math.round(Number($("eQtd").value) || 1)) }); store.set(EK, labels);
   pend = null; $("ePend").classList.add("hidden"); $("eBusca").value = ""; $("eRes").innerHTML = ""; renderLabels(); { const tgt = labels[labels.length - 1], q = () => document.querySelector('#eLista .crw[data-li="' + labels.indexOf(tgt) + '"]'); vmOk(q); setTimeout(() => etqEscrever(q()), 120); } toast("Item adicionado à lista.");
 };
@@ -2181,6 +2223,7 @@ function analyzeList(text) {
   return out;
 }
 function applyImport(rows) {
+  logAtv("importou", `${rows.filter(x => x.st !== "erro").length} cadastro(s)`);
   const ts = db ? V.serverTimestamp() : null, fail = e => { console.error(e); toast("Erro ao salvar na nuvem."); }; let n = 0, u = 0;
   for (const r of rows.filter(x => x.st !== "erro")) {
     const f = {}; if (r.bal) f.codigo_balanca = r.bal; if (r.doa) f.codigo_doacao = r.doa; if (r.ean) f.barcode = r.ean; if (r.cat) f.category = r.cat;
