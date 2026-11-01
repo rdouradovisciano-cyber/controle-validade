@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-01T20:55:00-03:00",
+  "itens": [
+   "Etiqueta de oferta: saiu a linha “Preço por unidade”; no lugar há um campo de texto livre (ex.: preço por kg, leve 2 pague 1) que aparece na etiqueta"
+  ]
+ },
+ {
   "t": "2026-11-01T20:45:00-03:00",
   "itens": [
    "Perecíveis: ícone por tipo de produto ao lado do nome (🧀 queijos, 🥓 frios, 🥛 laticínios, 🍝 massas, 🧊 congelados…). Para voltar ao visual antigo: ⋮ → 🎨 Cores e prazos → desligar “Ícones nos produtos”"

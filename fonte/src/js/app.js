@@ -285,8 +285,8 @@ function ean13Svg(code) {
   let x = "", k = 0; while (k < b.length) { if (b[k] === "1") { let n = 1; while (b[k + n] === "1") n++; x += `<rect x="${k}" y="0" width="${n}" height="40"/>`; k += n; } else k++; }
   return `<svg viewBox="0 0 95 40" preserveAspectRatio="none" aria-hidden="true" shape-rendering="crispEdges">${x}</svg>`;
 }
-const OFH = "validamais-ofhd", OFT = "validamais-oftam";
-function ofHtml(p, d, preco, hd) {
+const OFH = "validamais-ofhd", OFT = "validamais-oftam", OFO = "validamais-ofobs";
+function ofHtml(p, d, preco, hd, obs) {
   const hoje = new Date(), por = preco > 0 ? Math.round(preco * (100 - d)) / 100 : 0, bar = ean13Svg(String(p.barcode || "")), cod = p.codigo_doacao || p.codigo_balanca || "";
   const [pi, pc] = por ? brl(por).split(",") : ["", ""], [di, dc] = preco > 0 ? brl(preco).split(",") : ["", ""];
   const dt = String(hoje.getDate()).padStart(2, "0") + "/" + String(hoje.getMonth() + 1).padStart(2, "0") + "/" + hoje.getFullYear();
@@ -294,18 +294,18 @@ function ofHtml(p, d, preco, hd) {
   return `<div class="o3"><div><div class="o3-top"><b class="o3-hd">${esc(hd || "")}</b><span class="o3-cod">${esc(cod)}</span></div><div class="o3-nome">${esc(p.name)}</div></div>` +
     `<div class="o3-mid"><div class="o3-de">${preco > 0 ? `<small>DE:</small><div class="o3-dep"><em>R$</em><b>${di}</b><sup>,${dc}</sup></div>` : ""}</div>` +
     `<div class="o3-por">${por ? `<small>POR:</small><div class="o3-pv" data-n="${pi.length}"><em>R$</em><b>${pi}</b><sup>,${pc}</sup></div>` : `<small>OFERTA</small><div class="o3-pct">${d}<sup>%</sup><span>OFF</span></div>`}</div></div>` +
-    `<div class="o3-bot"><div class="o3-left">${por ? `<div class="o3-un">PREÇO POR UNIDADE: <b>R$ ${brl(por)}</b></div>` : `<div class="o3-un"><b>${d}% DE DESCONTO</b></div>`}${bar ? `<div class="o3-bar">${bar}<span>${esc(String(p.barcode))}</span></div>` : ""}</div><div class="o3-val">${val}</div><span class="o3-dt">${dt}</span></div></div>`;
+    `<div class="o3-bot"><div class="o3-left">${obs ? `<div class="o3-un">${esc(obs)}</div>` : ""}${bar ? `<div class="o3-bar">${bar}<span>${esc(String(p.barcode))}</span></div>` : ""}</div><div class="o3-val">${val}</div><span class="o3-dt">${dt}</span></div></div>`;
 }
 function ofRender() {
   if (!ofP) return;
   const preco = parseFloat(String($("ofPreco").value).replace(",", ".")) || 0;
   document.querySelectorAll("#ofChips button").forEach(b => b.classList.toggle("on", Number(b.dataset.d) === ofD && !$("ofOutro").value));
   $("ofOutro").classList.toggle("on", !!$("ofOutro").value);
-  $("ofCard").innerHTML = ofHtml(ofP, ofD, preco, $("ofHd").value.trim().toUpperCase());
+  $("ofCard").innerHTML = ofHtml(ofP, ofD, preco, $("ofHd").value.trim().toUpperCase(), $("ofObs").value.trim().toUpperCase());
 }
 function ofertaAbrir(id) {
   const p = products.find(x => x.id === id); if (!p) return;
-  ofP = p; ofD = ofSugestao(p); $("ofOutro").value = ""; $("ofHd").value = store.get(OFH, "") || (p.category === PER ? "PERECÍVEIS" : "HORTIFRUTI");
+  ofP = p; ofD = ofSugestao(p); $("ofOutro").value = ""; $("ofObs").value = store.get(OFO, {})[p.barcode || p.id] || ""; $("ofHd").value = store.get(OFH, "") || (p.category === PER ? "PERECÍVEIS" : "HORTIFRUTI");
   const dl = daysLeft(p.expiry), sv = store.get(OFK, {})[p.barcode || p.id];
   $("ofPreco").value = sv ? String(sv).replace(".", ",") : "";
   $("ofInfo").textContent = `${p.name} · ${dl === null ? "sem validade" : dl <= 0 ? "vence hoje" : dl === 1 ? "vence amanhã" : "vence em " + dl + " dias"} · sugestão: ${ofD}% de desconto`;
@@ -317,6 +317,7 @@ $("ofChips").onclick = e => { const b = e.target.closest("button[data-d]"); if (
 $("ofOutro").oninput = () => { const v = $("ofOutro").value.replace(/\D/g, ""); $("ofOutro").value = v; const n = Number(v); if (n >= 1 && n <= 90) ofD = n; ofRender(); };
 const ofTamMarca = () => document.querySelectorAll("#ofTam button").forEach(b => b.classList.toggle("on", b.dataset.t === store.get(OFT, "full")));
 $("ofTam").onclick = e => { const b = e.target.closest("button[data-t]"); if (!b) return; store.set(OFT, b.dataset.t); ofTamMarca(); };
+$("ofObs").oninput = () => { const m = store.get(OFO, {}); m[ofP ? (ofP.barcode || ofP.id) : "_"] = $("ofObs").value.slice(0, 80); store.set(OFO, m); ofRender(); };
 $("ofHd").oninput = () => { store.set(OFH, $("ofHd").value.slice(0, 30)); ofRender(); };
 $("ofPreco").oninput = () => { $("ofPreco").value = $("ofPreco").value.replace(/[^\d,.]/g, ""); ofRender(); };
 $("ofPrintBtn").onclick = () => {
@@ -324,7 +325,7 @@ $("ofPrintBtn").onclick = () => {
   const preco = parseFloat(String($("ofPreco").value).replace(",", ".")) || 0;
   logAtv("oferta", `${ofP.name} · ${ofD}% de desconto`);
   if (preco > 0) { const m = store.get(OFK, {}); m[ofP.barcode || ofP.id] = preco; store.set(OFK, m); }
-  const box = $("ofPrint"); box.innerHTML = `<div class="ofcard print ${store.get(OFT, "full") === "full" ? "full" : "small"}">${ofHtml(ofP, ofD, preco, $("ofHd").value.trim().toUpperCase())}</div>`;
+  const box = $("ofPrint"); box.innerHTML = `<div class="ofcard print ${store.get(OFT, "full") === "full" ? "full" : "small"}">${ofHtml(ofP, ofD, preco, $("ofHd").value.trim().toUpperCase(), $("ofObs").value.trim().toUpperCase())}</div>`;
   document.body.classList.add("printOf");
   const fim = () => { document.body.classList.remove("printOf"); box.innerHTML = ""; window.removeEventListener("afterprint", fim); };
   window.addEventListener("afterprint", fim); setTimeout(() => { try { window.print(); } catch (e) { fim(); } }, 60);
