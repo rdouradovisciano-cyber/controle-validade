@@ -405,8 +405,8 @@ function dupReview() {
 window.dupReview = dupReview;
 // ---------- histórico de atividade (Admin vê quem entrou e o que fez; gravado na coleção "acessos", que as regras já aceitam) ----------
 const ATK = "validamais-atv";
-function logAtv(a, txt) {
-  try { const rec = { tipo: "atv", t: Date.now(), quem: myName().slice(0, 40), perfil: PERFIL || "", setor: SETOR || "", dev: myId, a, txt: String(txt || "").slice(0, 140) };
+function logAtv(a, txt, extra) {
+  try { const rec = { tipo: "atv", t: Date.now(), quem: myName().slice(0, 40), perfil: PERFIL || "", setor: SETOR || "", dev: myId, a, txt: String(txt || "").slice(0, 140), ...(extra || {}) };
     if (db) V.addDoc(V.collection(db, "acessos"), rec).catch(e => console.warn("atividade:", e && (e.code || e.message)));
     else { const l = store.get(ATK, []); l.unshift(rec); store.set(ATK, l.slice(0, 300)); } } catch (e) { console.warn(e); }
 }
@@ -447,11 +447,12 @@ function efeitoSai(id) {
   el.style.maxHeight = el.offsetHeight + "px"; void el.offsetHeight; el.classList.add("saindo");
   return new Promise(r => setTimeout(r, 420));
 }
+const MOTIVOS = ["Vencido", "Quebra/estragou", "Vendido em oferta", "Outro"];
 async function retirar(id, sai, semPerguntar) {
   const p = products.find(x => x.id === id); if (!p) return;
-  if (sai && !semPerguntar) { const ok = await askConfirm({ icon: "📦", title: "Retirar?", text: p.name + " · validade " + fmt(p.expiry), sub: "Retirar: sai da lista e do alerta e fica guardado em «Ver retirados da loja», com a data e quem retirou. Só remover da lista: tira este lote sem registrar nada (use se foi lançado por engano). O cadastro continua nos dois casos.", ok: "Retirar", cancel: "Cancelar", alt: "Só remover da lista" }); if (ok === "alt") return remover(id); if (ok !== true) return; }
+  if (sai && !semPerguntar) { const ok = await askConfirm({ icon: "📦", title: "Retirar?", text: p.name + " · validade " + fmt(p.expiry), sub: "Retirar: sai da lista e do alerta e fica guardado em «Ver retirados da loja», com a data e quem retirou. Só remover da lista: tira este lote sem registrar nada (use se foi lançado por engano). O cadastro continua nos dois casos.", motivos: MOTIVOS, motivo: (daysLeft(p.expiry) !== null && daysLeft(p.expiry) <= 0) ? "Vencido" : "Outro", ok: "Retirar", cancel: "Cancelar", alt: "Só remover da lista" }); if (ok === "alt") return remover(id); if (ok !== true) return; }
   if (sai) await efeitoSai(id);
-  logAtv(sai ? "retirou" : "devolveu", `${p.name} · vence ${fmt(p.expiry)}`);
+  { const mot = sai ? (semPerguntar ? "Outro" : (window.vmMotivo || "Outro")) : ""; logAtv(sai ? "retirou" : "devolveu", `${p.name} · vence ${fmt(p.expiry)}${mot ? " · " + mot : ""}`, sai ? { motivo: mot, qtd: Number(p.quantity) || 0, prod: String(p.name || "").slice(0, 80), cat: p.category || "", dl: daysLeft(p.expiry) ?? 99 } : null); }
   const em = Date.now(), por = myName(), campos = sai ? { retirado: true, retEm: em, retPor: por } : { retirado: false };
   const salvarLocal = () => { if (sai) retLoc[id] = { em, por }; else delete retLoc[id]; store.set(RLK, retLoc); Object.assign(p, campos); render(); };
   const fim = (nuvem, motivo) => toast((sai ? "✓ " + p.name + " retirado da loja" : p.name + " voltou para a loja") + (nuvem ? "." : " (só neste aparelho: a nuvem recusou" + (motivo ? " — " + motivo : "") + ")."), "Desfazer", () => retirar(id, !sai, true));
@@ -1147,16 +1148,16 @@ const dStatKey = (n, u) => norm(n) + "|" + u;
 function dStatLearn(n, u, q) { const s = store.get(DSTAT, {}), k = dStatKey(n, u), o = s[k] || { n: 0, sum: 0, max: 0 };
   o.n++; o.sum += q; o.max = Math.max(o.max, q); s[k] = o; store.set(DSTAT, s); }
 // diálogo no tema do app (substitui o confirm() do navegador)
-function askConfirm({ icon = "⚠️", title, big, bigUnit, text, sub, ok = "Confirmar", cancel = "Cancelar", alt = "" }) {   // alt: terceira opção (devolve "alt")
+function askConfirm({ icon = "⚠️", title, big, bigUnit, text, sub, ok = "Confirmar", cancel = "Cancelar", alt = "", motivos = null, motivo = "" }) {   // alt: terceira opção (devolve "alt")
   return new Promise(res => {
     if (window.npClose) window.npClose();
     const bg = document.createElement("div"); bg.className = "askbg";
     bg.innerHTML = `<div class="ask" role="alertdialog" aria-modal="true"><div class="ai">${icon}</div><h3>${esc(title)}</h3>` +
       (big ? `<div class="big">${esc(big)} <small>${esc(bigUnit || "")}</small></div>` : "") +
-      (text ? `<p><b>${esc(text)}</b></p>` : "") + (sub ? `<p>${esc(sub)}</p>` : "") +
+      (text ? `<p><b>${esc(text)}</b></p>` : "") + (motivos ? `<div class="amot" role="radiogroup" aria-label="Motivo">${motivos.map(m => `<button type="button" data-m="${esc(m)}" class="${m === motivo ? "on" : ""}">${esc(m)}</button>`).join("")}</div>` : "") + (sub ? `<p>${esc(sub)}</p>` : "") +
       `<div class="arow"><button type="button" data-a="0">${esc(cancel)}</button><button type="button" class="ok" data-a="1">${esc(ok)}</button></div>` + (alt ? `<button type="button" class="askalt" data-a="2">${esc(alt)}</button>` : "") + `</div>`;
-    const done = v => { bg.remove(); res(v); };
-    bg.onclick = e => { const b = e.target.closest("[data-a]"); if (b) done(b.dataset.a === "2" ? "alt" : b.dataset.a === "1"); else if (e.target === bg) done(null); };
+    window.vmMotivo = motivo; const done = v => { bg.remove(); res(v); };
+    bg.onclick = e => { const mb = e.target.closest("[data-m]"); if (mb) { window.vmMotivo = mb.dataset.m; bg.querySelectorAll("[data-m]").forEach(x => x.classList.toggle("on", x === mb)); return; } const b = e.target.closest("[data-a]"); if (b) done(b.dataset.a === "2" ? "alt" : b.dataset.a === "1"); else if (e.target === bg) done(null); };
     document.body.appendChild(bg); bg.querySelector(".ok").focus({ preventScroll: true });
   });
 }
@@ -1812,6 +1813,19 @@ function erroAbrir() {
     bg.remove(); };
 }
 $("mnErro").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } erroAbrir(); };
+function perdasHtml(dados, dias, setor) {
+  const desde = Date.now() - dias * 864e5, setDe = r => (r.cat === PER ? PER : "FLV");
+  const l = dados.filter(r => r.a === "retirou" && r.t >= desde && r.motivo && (!setor || setDe(r) === setor));
+  const por = {}; MOTIVOS.forEach(m => por[m] = { n: 0, q: 0 }); l.forEach(r => { const o = por[r.motivo] || (por[r.motivo] = { n: 0, q: 0 }); o.n++; o.q += Number(r.qtd) || 0; });
+  const perda = l.filter(r => r.motivo === "Vencido" || r.motivo === "Quebra/estragou"), pq = perda.reduce((a, r) => a + (Number(r.qtd) || 0), 0);
+  const prod = {}; perda.forEach(r => { const k = r.prod || "—"; const o = prod[k] || (prod[k] = { n: 0, q: 0 }); o.n++; o.q += Number(r.qtd) || 0; });
+  const top = Object.entries(prod).sort((a, b) => b[1].q - a[1].q || b[1].n - a[1].n).slice(0, 8);
+  const ctl = `<div class="atvf"><button type="button" data-pd="7" class="${dias === 7 ? "on" : ""}">7 dias</button><button type="button" data-pd="30" class="${dias === 30 ? "on" : ""}">30 dias</button><button type="button" data-ps="" class="${!setor ? "on" : ""}">Todos</button><button type="button" data-ps="FLV" class="${setor === "FLV" ? "on" : ""}">FLV</button><button type="button" data-ps="Perecíveis" class="${setor === PER ? "on" : ""}">Perecíveis</button></div>`;
+  if (!l.length) return ctl + '<p class="note">Sem retiradas com motivo neste período. O motivo passa a ser registrado a partir desta versão.</p>';
+  return ctl + `<div class="perres"><div class="perbig"><b>${pq}</b><span>un. perdidas (vencido + quebra) em ${perda.length} retirada${perda.length === 1 ? "" : "s"}</span></div>` +
+    MOTIVOS.map(m => { const o = por[m]; return `<div class="permot ${m === "Vencido" || m === "Quebra/estragou" ? "perda" : ""}"><span>${esc(m)}</span><b>${o.n}</b><small>${o.q} un.</small></div>`; }).join("") + `</div>` +
+    (top.length ? `<div class="atvd">Mais perdidos</div>` + top.map(([n, o]) => `<div class="atvr"><time>${o.q}</time><div><b>${esc(n)}</b><small>${o.n} retirada${o.n === 1 ? "" : "s"} · ${o.q} un.</small></div></div>`).join("") : "");
+}
 const ATV_ICO = { entrou: "🚪", cadastrou: "➕", editou: "✏️", retirou: "📦", devolveu: "↩️", removeu: "🗑️", "doação": "🎁", etiqueta: "🏷️", importou: "📥", oferta: "🔥", erro: "🐞" };
 const ATV_VERBO = { entrou: "entrou no app", cadastrou: "cadastrou", editou: "editou", retirou: "retirou da loja", devolveu: "devolveu à loja", removeu: "removeu", "doação": "fez doação", etiqueta: "lançou etiqueta", importou: "importou", oferta: "criou oferta", erro: "reportou um erro" };
 let atvUn = null;
@@ -1820,12 +1834,13 @@ function atvAbrir() {
   bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Atividade dos usuários"><div class="sheethead"><h2>🕘 Atividade dos usuários</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
     <div class="atvf" id="atvF"></div><div id="atvSum" class="atvsum"></div><div id="atvL" class="atvl"><p class="note">Carregando…</p></div></section>`;
   document.body.appendChild(bg);
-  let dados = [], filtro = "";
+  let dados = [], filtro = "", perD = 7, perS = "";
   const hm = t => new Date(t).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), dia = t => { const d = new Date(t), h = new Date(); h.setHours(0, 0, 0, 0); const ontem = new Date(h - 864e5); return d >= h ? "Hoje" : d >= ontem ? "Ontem" : d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" }); };
   const desenha = () => {
     const nomes = [...new Set(dados.map(r => r.quem))].sort((a, b) => a.localeCompare(b, "pt-BR"));
     const nErr = dados.filter(r => r.a === "erro").length;
-    bg.querySelector("#atvF").innerHTML = ["", "@erros", ...nomes].map(n => `<button type="button" class="${n === filtro ? "on" : ""}" data-n="${esc(n)}">${n === "" ? "Todos" : n === "@erros" ? "🐞 Erros (" + nErr + ")" : esc(n)}</button>`).join("");
+    bg.querySelector("#atvF").innerHTML = ["", "@perdas", "@erros", ...nomes].map(n => `<button type="button" class="${n === filtro ? "on" : ""}" data-n="${esc(n)}">${n === "" ? "Todos" : n === "@erros" ? "🐞 Erros (" + nErr + ")" : n === "@perdas" ? "📉 Perdas" : esc(n)}</button>`).join("");
+    if (filtro === "@perdas") { bg.querySelector("#atvSum").innerHTML = ""; bg.querySelector("#atvL").innerHTML = perdasHtml(dados, perD, perS); return; }
     const l = dados.filter(r => filtro === "@erros" ? r.a === "erro" : (!filtro || r.quem === filtro)), hj = new Date(); hj.setHours(0, 0, 0, 0);
     const res = {}; dados.filter(r => r.t >= hj).forEach(r => { const o = res[r.quem] || (res[r.quem] = { ent: 0, n: 0, ult: 0 }); if (r.a === "entrou") { if (!o.ent || r.t < o.ent) o.ent = r.t; } else o.n++; o.ult = Math.max(o.ult, r.t); });
     bg.querySelector("#atvSum").innerHTML = Object.keys(res).length ? "<b>Hoje</b>" + Object.entries(res).filter(([n]) => !filtro || filtro === "@erros" || n === filtro).map(([n, o]) => `<div><span>${esc(n)}</span><small>${o.ent ? "entrou às " + hm(o.ent) + " · " : ""}${o.n} ação(ões) · última às ${hm(o.ult)}</small></div>`).join("") : "";
@@ -1834,7 +1849,7 @@ function atvAbrir() {
       return h + `<div class="atvr"><time>${hm(r.t)}</time><div><b>${esc(r.quem)}</b> ${ATV_ICO[r.a] || "•"} ${esc(ATV_VERBO[r.a] || r.a)}${r.a === "erro" ? `<span class="atverr"><b>${esc(r.cat || "")}</b> ${esc(r.txt || "")}<small>${esc(r.ctx || "")}</small></span>` : r.txt && r.a !== "entrou" ? `<small>${esc(r.txt)}</small>` : ""}${r.perfil || r.setor ? `<em>${esc(r.perfil || "")}${r.setor && r.setor !== r.perfil ? " · " + esc(r.setor) : ""}</em>` : ""}</div></div>`; }).join("") : '<p class="note">Nenhuma atividade registrada ainda. Ela começa a ser gravada a partir desta versão.</p>';
   };
   const fecha = () => { try { atvUn && atvUn(); } catch (e) {} atvUn = null; bg.remove(); };
-  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) fecha(); const b = e.target.closest("[data-n]"); if (b) { filtro = b.dataset.n; desenha(); } };
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) fecha(); const b = e.target.closest("[data-n]"); if (b) { filtro = b.dataset.n; desenha(); } const pd = e.target.closest("[data-pd]"); if (pd) { perD = Number(pd.dataset.pd); desenha(); } const ps = e.target.closest("[data-ps]"); if (ps) { perS = ps.dataset.ps; desenha(); } };
   if (db) { try { atvUn = V.onSnapshot(V.query(V.collection(db, "acessos"), V.orderBy("t", "desc"), V.limit(400)), sn => { dados = sn.docs.map(d => d.data()).filter(r => r && r.tipo === "atv" && r.t); desenha(); }, e => { console.warn(e); bg.querySelector("#atvL").innerHTML = '<p class="note">Não consegui ler o histórico na nuvem (confira se as regras permitem ler «acessos»).</p>'; }); } catch (e) { console.warn(e); } }
   else { dados = store.get(ATK, []); desenha(); }
 }
