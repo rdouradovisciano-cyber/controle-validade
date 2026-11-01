@@ -281,7 +281,7 @@ function ean13Svg(code) {
   let x = "", k = 0; while (k < b.length) { if (b[k] === "1") { let n = 1; while (b[k + n] === "1") n++; x += `<rect x="${k}" y="0" width="${n}" height="40"/>`; k += n; } else k++; }
   return `<svg viewBox="0 0 95 40" preserveAspectRatio="none" aria-hidden="true" shape-rendering="crispEdges">${x}</svg>`;
 }
-const OFH = "validamais-ofhd";
+const OFH = "validamais-ofhd", OFT = "validamais-oftam";
 function ofHtml(p, d, preco, hd) {
   const dl = daysLeft(p.expiry), por = preco > 0 ? Math.round(preco * (100 - d)) / 100 : 0, hoje = new Date();
   const quando = dl === null ? "" : dl <= 0 ? "SÓ HOJE" : dl === 1 ? "ATÉ AMANHÃ" : "ATÉ " + fmt(p.expiry).slice(0, 5);
@@ -289,7 +289,7 @@ function ofHtml(p, d, preco, hd) {
   const dt = String(hoje.getDate()).padStart(2, "0") + "/" + String(hoje.getMonth() + 1).padStart(2, "0") + "/" + String(hoje.getFullYear()).slice(2);
   return `<div class="o2-top"><b class="o2-hd">${esc(hd || "")}</b><span class="o2-cod">${esc(cod)}</span></div><div class="o2-nome">${esc(p.name)}</div>` +
     `<div class="o2-tag"><b>OFERTA</b> −${d}%${quando ? " · " + quando : ""}</div>` +
-    (por ? `<div class="o2-preco"><small>R$</small><b>${inteiro}</b><sup>,${cent}</sup></div><div class="o2-de">DE <s>R$ ${brl(preco)}</s> POR <b>R$ ${brl(por)}</b></div>` : `<div class="o2-preco o2-off"><b>${d}</b><sup>%</sup><small>OFF</small></div>`) +
+    (por ? `<div class="o2-preco" data-n="${inteiro.length}"><small>R$</small><b>${inteiro}</b><sup>,${cent}</sup></div><div class="o2-de">DE <s>R$ ${brl(preco)}</s> POR <b>R$ ${brl(por)}</b></div>` : `<div class="o2-preco o2-off"><b>${d}</b><sup>%</sup><small>OFF</small></div>`) +
     `<div class="o2-bot">${bar ? `<div class="o2-bar">${bar}<span>${esc(String(p.barcode))}</span></div>` : "<div></div>"}<span class="o2-dt">${dt}</span></div>`;
 }
 function ofRender() {
@@ -305,12 +305,14 @@ function ofertaAbrir(id) {
   const dl = daysLeft(p.expiry), sv = store.get(OFK, {})[p.barcode || p.id];
   $("ofPreco").value = sv ? String(sv).replace(".", ",") : "";
   $("ofInfo").textContent = `${p.name} · ${dl === null ? "sem validade" : dl <= 0 ? "vence hoje" : dl === 1 ? "vence amanhã" : "vence em " + dl + " dias"} · sugestão: ${ofD}% de desconto`;
-  $("ofModal").classList.remove("hidden"); ofRender();
+  $("ofModal").classList.remove("hidden"); ofTamMarca(); ofRender();
 }
 function ofFecha() { $("ofModal").classList.add("hidden"); ofP = null; }
 $("ofX").onclick = $("ofFecha").onclick = ofFecha;
 $("ofChips").onclick = e => { const b = e.target.closest("button[data-d]"); if (!b) return; ofD = Number(b.dataset.d); $("ofOutro").value = ""; ofRender(); };
 $("ofOutro").oninput = () => { const v = $("ofOutro").value.replace(/\D/g, ""); $("ofOutro").value = v; const n = Number(v); if (n >= 1 && n <= 90) ofD = n; ofRender(); };
+const ofTamMarca = () => document.querySelectorAll("#ofTam button").forEach(b => b.classList.toggle("on", b.dataset.t === store.get(OFT, "full")));
+$("ofTam").onclick = e => { const b = e.target.closest("button[data-t]"); if (!b) return; store.set(OFT, b.dataset.t); ofTamMarca(); };
 $("ofHd").oninput = () => { store.set(OFH, $("ofHd").value.slice(0, 30)); ofRender(); };
 $("ofPreco").oninput = () => { $("ofPreco").value = $("ofPreco").value.replace(/[^\d,.]/g, ""); ofRender(); };
 $("ofPrintBtn").onclick = () => {
@@ -318,7 +320,7 @@ $("ofPrintBtn").onclick = () => {
   const preco = parseFloat(String($("ofPreco").value).replace(",", ".")) || 0;
   logAtv("oferta", `${ofP.name} · ${ofD}% de desconto`);
   if (preco > 0) { const m = store.get(OFK, {}); m[ofP.barcode || ofP.id] = preco; store.set(OFK, m); }
-  const box = $("ofPrint"); box.innerHTML = `<div class="ofcard print">${ofHtml(ofP, ofD, preco, $("ofHd").value.trim().toUpperCase())}</div>`;
+  const box = $("ofPrint"); box.innerHTML = `<div class="ofcard print ${store.get(OFT, "full") === "full" ? "full" : "small"}">${ofHtml(ofP, ofD, preco, $("ofHd").value.trim().toUpperCase())}</div>`;
   document.body.classList.add("printOf");
   const fim = () => { document.body.classList.remove("printOf"); box.innerHTML = ""; window.removeEventListener("afterprint", fim); };
   window.addEventListener("afterprint", fim); setTimeout(() => { try { window.print(); } catch (e) { fim(); } }, 60);

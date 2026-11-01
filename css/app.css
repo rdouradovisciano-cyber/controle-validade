@@ -1429,3 +1429,28 @@ html .pgh i{box-shadow:none}
 html .pitem.pra .pi-nome::before{background:var(--ca,#c7514a)}
 .pitem .pi-sub{letter-spacing:.01em;font-size:12px}
 html .pitem.prok{border-left-color:var(--cg,#4a9a78)}
+
+/* impressão em folha inteira: A4 em pé, etiqueta girada 90° (fica "deitada") ocupando a página toda */
+@media print{
+  body.printOf:has(.ofcard.full){}
+  body.printOf #ofPrint{left:0;top:0;width:auto}
+  body.printOf .ofcard.print.full{position:absolute;left:0;top:0;box-sizing:border-box;width:281mm;height:194mm;max-width:none;margin:0;padding:6mm 9mm;border:3mm solid #000!important;border-radius:0;display:flex;flex-direction:column;justify-content:space-between;transform-origin:top left;transform:translateX(194mm) rotate(90deg)}
+  body.printOf .ofcard.print.full .o2-hd{font-size:7mm}
+  body.printOf .ofcard.print.full .o2-cod{font-size:7mm}
+  body.printOf .ofcard.print.full .o2-nome{font-size:15mm;line-height:1.05;margin:2mm 0;max-height:33mm;overflow:hidden}
+  body.printOf .ofcard.print.full .o2-tag{align-self:flex-start;font-size:8mm;padding:1.5mm 6mm;border-radius:2mm}
+  body.printOf .ofcard.print.full .o2-preco{margin:0;justify-content:center;gap:4mm}
+  body.printOf .ofcard.print.full .o2-preco b{font-size:88mm}
+  body.printOf .ofcard.print.full .o2-preco sup{font-size:40mm;margin-top:6mm}
+  body.printOf .ofcard.print.full .o2-preco small{font-size:15mm;margin-top:18mm}
+  body.printOf .ofcard.print.full .o2-preco[data-n="3"] b{font-size:72mm}body.printOf .ofcard.print.full .o2-preco[data-n="3"] sup{font-size:34mm}
+  body.printOf .ofcard.print.full .o2-preco[data-n="4"] b{font-size:58mm}body.printOf .ofcard.print.full .o2-preco[data-n="4"] sup{font-size:28mm}
+  body.printOf .ofcard.print.full .o2-off b{font-size:80mm}body.printOf .ofcard.print.full .o2-off small{font-size:22mm;margin-top:24mm}
+  body.printOf .ofcard.print.full .o2-de{font-size:9mm}body.printOf .ofcard.print.full .o2-de b{font-size:10mm}
+  body.printOf .ofcard.print.full .o2-bot{margin:0}
+  body.printOf .ofcard.print.full .o2-bar{width:100mm;max-width:none}
+  body.printOf .ofcard.print.full .o2-bar svg{height:24mm}
+  body.printOf .ofcard.print.full .o2-bar span{font-size:5mm;margin-top:1mm}
+  body.printOf .ofcard.print.full .o2-dt{font-size:6mm}
+  @page{size:A4 portrait;margin:8mm}
+}
