@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-01T21:00:00-03:00",
+  "itens": [
+   "Ícones: salsicha, linguiça e calabresa agora têm 🌭 (antes saíam como bacon)"
+  ]
+ },
+ {
   "t": "2026-11-01T20:55:00-03:00",
   "itens": [
    "Etiqueta de oferta: saiu a linha “Preço por unidade”; no lugar há um campo de texto livre (ex.: preço por kg, leve 2 pague 1) que aparece na etiqueta"
