@@ -1454,3 +1454,5 @@ html .pitem.prok{border-left-color:var(--cg,#4a9a78)}
   body.printOf .ofcard.print.full .o2-dt{font-size:6mm}
   @page{size:A4 portrait;margin:8mm}
 }
+
+.atvlimpa{display:block;width:100%;margin-top:12px;min-height:44px;font-weight:700;opacity:.85}

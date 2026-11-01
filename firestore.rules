@@ -15,6 +15,7 @@ service cloud.firestore {
     // Acessos (presença/contagem)
     match /acessos/{id} {
       allow read, create: if true;
+      allow delete: if resource.data.tipo == 'atv';   // Admin limpa o histórico de atividade
     }
 
     // Fotos dos produtos (uma miniatura por nome de produto)
