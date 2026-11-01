@@ -216,11 +216,11 @@ function render() {
   const base = products.filter(p => !p.retirado && (!cat || p.category === cat)), ex = base.filter(p => status(p) === "expired").length, so = base.filter(p => status(p) === "soon").length;
   const ainda = carregando && !products.length;   // Firebase ainda não respondeu: não mostra "0"
   $("countAll").textContent = ainda ? "–" : products.length;
-  { const nr = products.filter(p => p.retirado).length; $("verRet").classList.toggle("hidden", !nr && !retView); $("verRet").textContent = retView ? "← Voltar às validades" : `📦 Ver retirados da loja (${nr})`; }
+  { const nr = products.filter(p => p.retirado).length; $("verRet").classList.toggle("hidden", !nr && !retView); $("verRet").textContent = retView ? "← Voltar às validades" : `📦 Retirados da loja (${nr})`; $("verRetTop").classList.toggle("hidden", !retView); }
   { const vt = $("verTodos"); if (vt) vt.textContent = ainda ? "Conectando…" : cat ? `Ver todos os ${products.length} cadastrados` : "Voltar ao " + SETOR; }
   // os dois atalhos saíram da tela: ficam no menu ⋮; o link só aparece quando é preciso voltar
-  { $("verRet").classList.toggle("hidden", !retView); $("verTodos").classList.toggle("hidden", !!cat);
-    const nr2 = products.filter(p => p.retirado).length; if ($("mnRetT")) $("mnRetT").textContent = `Retirados da loja (${nr2})`; if ($("mnTodosT")) $("mnTodosT").textContent = `Ver todos os ${products.length} cadastrados`; }
+  { $("verTodos").classList.toggle("hidden", !!cat);
+    const nr2 = products.filter(p => p.retirado).length; if ($("mnTodosT")) $("mnTodosT").textContent = `Ver todos os ${products.length} cadastrados`; }
   document.querySelectorAll("#tabLoja .stats .stat").forEach((e, i) => e.classList.toggle("on", (i === 1 && st === "soon") || (i === 2 && st === "expired"))); $("countSoon").textContent = ainda ? "–" : so; $("countExpired").textContent = ainda ? "–" : ex;
   { const fora = cat ? products.filter(p => !p.retirado && p.category !== cat && daysLeft(p.expiry) !== null && daysLeft(p.expiry) >= 0 && daysLeft(p.expiry) <= 1).length : 0;
     $("outAlert").classList.toggle("hidden", !fora); $("outAlert").textContent = `⚠ ${fora} produto(s) de OUTROS setores vencem em até 1 dia — toque para ver todos`; }
@@ -250,7 +250,7 @@ function render() {
     const pr = prioDe(p), g = pr || "ok", lim = limit(cat || CATSET); let hd = "";
     if (cat && !q && !tierF && g !== lastG) { lastG = g; const GN = { v: "⛔ Vencidos", h: "🚨 Vence hoje", a: "🔴 Vence em 1 a 3 dias — agir já", y: "🟡 De 4 a " + lim + " dias", ok: "✅ Dentro do prazo" }; hd = `<div class="pgh g${g}"><span>${GN[g]}</span><i>${gcnt[g]}</i></div>`; }
     const big = dl === null ? "—" : dl < 0 ? "VENCIDO" : dl === 0 ? "HOJE" : dl === 1 ? "AMANHÃ" : String(dl), small = dl === null ? "sem validade" : dl < 0 ? "há " + (-dl) + (dl < -1 ? " dias" : " dia") : dl <= 1 ? "" : "dias";
-    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${esc(p.name)}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act"><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="secondary of" data-of="${esc(p.id)}">🏷️ Oferta</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button></div></div></article>`;
+    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${esc(p.name)}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act"><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="secondary of" data-of="${esc(p.id)}">🏷️ Oferta</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
   if (typeof renderPesaveis === "function") renderPesaveis();
 }
@@ -421,9 +421,17 @@ let retView = false;
 const RLK = "validamais-retlocal"; let retLoc = store.get(RLK, {});
 // dados que a nuvem recusou ficam marcados só neste aparelho
 function retOverlay() { products.forEach(p => { if (p.retirado == null && retLoc[p.id]) { p.retirado = true; p.retEm = retLoc[p.id].em; p.retPor = retLoc[p.id].por; } }); }
+// efeito ao retirar: o cartão desliza para fora e a lista fecha o espaço (some em ~0,4 s)
+function efeitoSai(id) {
+  const el = [...document.querySelectorAll("#list .pitem")].find(x => x.dataset.id === id);
+  if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return Promise.resolve();
+  el.style.maxHeight = el.offsetHeight + "px"; void el.offsetHeight; el.classList.add("saindo");
+  return new Promise(r => setTimeout(r, 420));
+}
 async function retirar(id, sai, semPerguntar) {
   const p = products.find(x => x.id === id); if (!p) return;
-  if (sai && !semPerguntar) { const ok = await askConfirm({ icon: "📦", title: "Retirar da loja?", text: p.name + " · validade " + fmt(p.expiry), sub: "Retirar da loja: sai da lista e do alerta e fica guardado em «Ver retirados da loja», com a data e quem retirou. Só remover da lista: tira este lote sem registrar nada (use se foi lançado por engano). O cadastro continua nos dois casos.", ok: "Retirar da loja", cancel: "Cancelar", alt: "Só remover da lista" }); if (ok === "alt") return remover(id); if (ok !== true) return; }
+  if (sai && !semPerguntar) { const ok = await askConfirm({ icon: "📦", title: "Retirar?", text: p.name + " · validade " + fmt(p.expiry), sub: "Retirar: sai da lista e do alerta e fica guardado em «Ver retirados da loja», com a data e quem retirou. Só remover da lista: tira este lote sem registrar nada (use se foi lançado por engano). O cadastro continua nos dois casos.", ok: "Retirar", cancel: "Cancelar", alt: "Só remover da lista" }); if (ok === "alt") return remover(id); if (ok !== true) return; }
+  if (sai) await efeitoSai(id);
   const em = Date.now(), por = myName(), campos = sai ? { retirado: true, retEm: em, retPor: por } : { retirado: false };
   const salvarLocal = () => { if (sai) retLoc[id] = { em, por }; else delete retLoc[id]; store.set(RLK, retLoc); Object.assign(p, campos); render(); };
   const fim = (nuvem, motivo) => toast((sai ? "✓ " + p.name + " retirado da loja" : p.name + " voltou para a loja") + (nuvem ? "." : " (só neste aparelho: a nuvem recusou" + (motivo ? " — " + motivo : "") + ")."), "Desfazer", () => retirar(id, !sai, true));
@@ -457,7 +465,7 @@ async function remover(id) {   // tira só o lote da lista, sem registrar como r
 }
 const TIERK = "validamais-tiers-aberto", tiersAberto = () => store.get(TIERK, false);
 $("tiers").onclick = e => { if (e.target.closest("#tiersBar")) { store.set(TIERK, !tiersAberto()); render(); return; } const b = e.target.closest("[data-t]"); if (!b) return; tierF = tierF === b.dataset.t ? "" : b.dataset.t; render(); };
-$("verRet").onclick = () => { retView = !retView; render(); window.scrollTo(0, 0); };
+$("verRet").onclick = $("verRetTop").onclick = () => { retView = !retView; render(); window.scrollTo(0, 0); };
 
 // ---------- scanner ----------
 const buzz = () => { try { if (navigator.vibrate) navigator.vibrate(50); } catch {} }; // pulso tátil de 50 ms
@@ -1774,7 +1782,6 @@ function notifAbrir() {
 }
 $("mnNotif").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } notifAbrir(); };
 const mnFecha = () => { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); };
-$("mnRet").onclick = () => { mnFecha(); if (curTab !== "Loja") tab("Loja"); retView = true; render(); window.scrollTo(0, 0); };
 $("mnTodos").onclick = () => { mnFecha(); if (curTab !== "Loja") tab("Loja"); retView = false; $("categoryFilter").value = ""; render(); window.scrollTo(0, 0); };
 $("mnSaude").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } saudeAbrir(); };
 const tabInicial = () => SETOR === PER ? "Loja" : SETOR === KOR ? "Contagem" : "Doacao";

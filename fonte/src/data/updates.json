@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-01T03:00:00-03:00",
+  "itens": [
+   "Botão agora é só “Retirar”; “Retirados da loja” foi para o rodapé das Validades; ao retirar, o cartão desliza para fora e a lista fecha o espaço"
+  ]
+ },
+ {
   "t": "2026-11-01T02:40:00-03:00",
   "itens": [
    "Pesáveis: quando o item não tem PLU, o balão mostra o código de barras que ele tem (lilás); só fica cinza se não houver nenhum código"
