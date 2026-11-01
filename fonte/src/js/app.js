@@ -1788,8 +1788,32 @@ $("mnVis").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("h
 { let fora = 0; const entra = () => { try { const u = Number(localStorage.getItem("validamais-ult-entrada") || 0); if (Date.now() - u < 2 * 60 * 1000) return; localStorage.setItem("validamais-ult-entrada", String(Date.now())); logAtv("entrou", "Abriu o app"); } catch (e) {} };
   setTimeout(entra, 2500);
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") fora = Date.now(); else if (fora && Date.now() - fora > 30 * 60 * 1000) { fora = 0; try { localStorage.setItem("validamais-ult-entrada", "0"); } catch (e) {} entra(); } }); }
-const ATV_ICO = { entrou: "🚪", cadastrou: "➕", editou: "✏️", retirou: "📦", devolveu: "↩️", removeu: "🗑️", "doação": "🎁", etiqueta: "🏷️", importou: "📥", oferta: "🔥" };
-const ATV_VERBO = { entrou: "entrou no app", cadastrou: "cadastrou", editou: "editou", retirou: "retirou da loja", devolveu: "devolveu à loja", removeu: "removeu", "doação": "fez doação", etiqueta: "lançou etiqueta", importou: "importou", oferta: "criou oferta" };
+// ---------- reportar erro (qualquer pessoa envia; o Admin lê em "Atividade dos usuários → Erros") ----------
+const errBuf = []; const errPush = m => { errBuf.unshift(String(m).slice(0, 160)); errBuf.length = Math.min(errBuf.length, 5); };
+window.addEventListener("error", e => errPush(e.message || "erro")); window.addEventListener("unhandledrejection", e => errPush("promessa: " + ((e.reason && (e.reason.message || e.reason)) || "")));
+function erroAbrir() {
+  const bg = document.createElement("div"); bg.className = "modal"; bg.id = "erroModal"; let cat = "Outro";
+  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Reportar erro"><div class="sheethead"><h2>🐞 Reportar erro</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
+    <p class="note">Conte o que aconteceu. O app já anexa a versão, a tela e o horário.</p>
+    <div class="vspre" id="erCat" style="flex-wrap:wrap">${["Validades", "Cadastro", "Etiquetas", "Pesáveis", "Doação", "Outro"].map(c => `<button type="button" data-c="${c}" class="${c === cat ? "on" : ""}">${c}</button>`).join("")}</div>
+    <textarea id="erTxt" rows="5" maxlength="500" placeholder="O que você estava fazendo e o que deu errado?" style="width:100%;box-sizing:border-box"></textarea>
+    <p class="note" id="erN" style="text-align:right;margin:2px 0 8px">0/500</p>
+    <div class="toolbar"><button class="primary big" type="button" id="erEnv">Enviar</button><button class="secondary" type="button" data-x>Cancelar</button></div></section>`;
+  document.body.appendChild(bg);
+  const q = x => bg.querySelector(x);
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) bg.remove(); const c = e.target.closest("[data-c]"); if (c) { cat = c.dataset.c; bg.querySelectorAll("[data-c]").forEach(b => b.classList.toggle("on", b === c)); } };
+  q("#erTxt").oninput = () => { q("#erN").textContent = q("#erTxt").value.length + "/500"; };
+  q("#erEnv").onclick = () => {
+    const txt = q("#erTxt").value.trim(); if (txt.length < 5) return toast("Descreva o problema em poucas palavras.");
+    const ctx = `v${(window.APP_VERSION || "").split("-").pop()} · aba ${curTab} · ${innerWidth}x${innerHeight} · ${navigator.onLine ? "online" : "offline"}${errBuf.length ? " · erros: " + errBuf.join(" | ") : ""}`.slice(0, 600);
+    try { const rec = { tipo: "atv", t: Date.now(), quem: myName().slice(0, 40), perfil: PERFIL || "", setor: SETOR || "", dev: myId, a: "erro", cat, txt: txt.slice(0, 500), ctx };
+      if (db) V.addDoc(V.collection(db, "acessos"), rec).then(() => toast("Erro enviado. Obrigado!")).catch(e => { console.warn(e); toast("Não consegui enviar agora. Tente de novo mais tarde."); });
+      else { const l = store.get(ATK, []); l.unshift(rec); store.set(ATK, l.slice(0, 300)); toast("Erro registrado neste aparelho (sem nuvem)."); } } catch (e) { console.warn(e); return toast("Não consegui enviar."); }
+    bg.remove(); };
+}
+$("mnErro").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } erroAbrir(); };
+const ATV_ICO = { entrou: "🚪", cadastrou: "➕", editou: "✏️", retirou: "📦", devolveu: "↩️", removeu: "🗑️", "doação": "🎁", etiqueta: "🏷️", importou: "📥", oferta: "🔥", erro: "🐞" };
+const ATV_VERBO = { entrou: "entrou no app", cadastrou: "cadastrou", editou: "editou", retirou: "retirou da loja", devolveu: "devolveu à loja", removeu: "removeu", "doação": "fez doação", etiqueta: "lançou etiqueta", importou: "importou", oferta: "criou oferta", erro: "reportou um erro" };
 let atvUn = null;
 function atvAbrir() {
   const bg = document.createElement("div"); bg.className = "modal"; bg.id = "atvModal";
@@ -1800,13 +1824,14 @@ function atvAbrir() {
   const hm = t => new Date(t).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), dia = t => { const d = new Date(t), h = new Date(); h.setHours(0, 0, 0, 0); const ontem = new Date(h - 864e5); return d >= h ? "Hoje" : d >= ontem ? "Ontem" : d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" }); };
   const desenha = () => {
     const nomes = [...new Set(dados.map(r => r.quem))].sort((a, b) => a.localeCompare(b, "pt-BR"));
-    bg.querySelector("#atvF").innerHTML = ["", ...nomes].map(n => `<button type="button" class="${n === filtro ? "on" : ""}" data-n="${esc(n)}">${n ? esc(n) : "Todos"}</button>`).join("");
-    const l = dados.filter(r => !filtro || r.quem === filtro), hj = new Date(); hj.setHours(0, 0, 0, 0);
+    const nErr = dados.filter(r => r.a === "erro").length;
+    bg.querySelector("#atvF").innerHTML = ["", "@erros", ...nomes].map(n => `<button type="button" class="${n === filtro ? "on" : ""}" data-n="${esc(n)}">${n === "" ? "Todos" : n === "@erros" ? "🐞 Erros (" + nErr + ")" : esc(n)}</button>`).join("");
+    const l = dados.filter(r => filtro === "@erros" ? r.a === "erro" : (!filtro || r.quem === filtro)), hj = new Date(); hj.setHours(0, 0, 0, 0);
     const res = {}; dados.filter(r => r.t >= hj).forEach(r => { const o = res[r.quem] || (res[r.quem] = { ent: 0, n: 0, ult: 0 }); if (r.a === "entrou") { if (!o.ent || r.t < o.ent) o.ent = r.t; } else o.n++; o.ult = Math.max(o.ult, r.t); });
-    bg.querySelector("#atvSum").innerHTML = Object.keys(res).length ? "<b>Hoje</b>" + Object.entries(res).filter(([n]) => !filtro || n === filtro).map(([n, o]) => `<div><span>${esc(n)}</span><small>${o.ent ? "entrou às " + hm(o.ent) + " · " : ""}${o.n} ação(ões) · última às ${hm(o.ult)}</small></div>`).join("") : "";
+    bg.querySelector("#atvSum").innerHTML = Object.keys(res).length ? "<b>Hoje</b>" + Object.entries(res).filter(([n]) => !filtro || filtro === "@erros" || n === filtro).map(([n, o]) => `<div><span>${esc(n)}</span><small>${o.ent ? "entrou às " + hm(o.ent) + " · " : ""}${o.n} ação(ões) · última às ${hm(o.ult)}</small></div>`).join("") : "";
     let ult = "";
     bg.querySelector("#atvL").innerHTML = l.length ? l.map(r => { const d = dia(r.t), h = d !== ult ? `<div class="atvd">${esc(d)}</div>` : ""; ult = d;
-      return h + `<div class="atvr"><time>${hm(r.t)}</time><div><b>${esc(r.quem)}</b> ${ATV_ICO[r.a] || "•"} ${esc(ATV_VERBO[r.a] || r.a)}${r.txt && r.a !== "entrou" ? `<small>${esc(r.txt)}</small>` : ""}${r.perfil || r.setor ? `<em>${esc(r.perfil || "")}${r.setor && r.setor !== r.perfil ? " · " + esc(r.setor) : ""}</em>` : ""}</div></div>`; }).join("") : '<p class="note">Nenhuma atividade registrada ainda. Ela começa a ser gravada a partir desta versão.</p>';
+      return h + `<div class="atvr"><time>${hm(r.t)}</time><div><b>${esc(r.quem)}</b> ${ATV_ICO[r.a] || "•"} ${esc(ATV_VERBO[r.a] || r.a)}${r.a === "erro" ? `<span class="atverr"><b>${esc(r.cat || "")}</b> ${esc(r.txt || "")}<small>${esc(r.ctx || "")}</small></span>` : r.txt && r.a !== "entrou" ? `<small>${esc(r.txt)}</small>` : ""}${r.perfil || r.setor ? `<em>${esc(r.perfil || "")}${r.setor && r.setor !== r.perfil ? " · " + esc(r.setor) : ""}</em>` : ""}</div></div>`; }).join("") : '<p class="note">Nenhuma atividade registrada ainda. Ela começa a ser gravada a partir desta versão.</p>';
   };
   const fecha = () => { try { atvUn && atvUn(); } catch (e) {} atvUn = null; bg.remove(); };
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) fecha(); const b = e.target.closest("[data-n]"); if (b) { filtro = b.dataset.n; desenha(); } };

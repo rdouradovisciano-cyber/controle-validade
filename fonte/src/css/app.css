@@ -1343,3 +1343,6 @@ body:not([data-perfil="Admin"]) #mnAtv{display:none!important}
 .atvl{max-height:55dvh;overflow:auto}.atvd{position:sticky;top:0;background:var(--bg,#0c0f0d);padding:8px 0 4px;font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--mut,#8a9a90)}
 .atvr{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--ln)}.atvr time{flex:none;width:44px;font-weight:900;font-variant-numeric:tabular-nums}
 .atvr small{display:block;color:var(--mut,#8a9a90);font-size:12.5px;margin-top:1px}.atvr em{display:block;font-style:normal;font-size:11px;opacity:.6;margin-top:1px}
+
+.atverr{display:block;margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere}.atverr b{color:#ff8a5c}.atverr small{display:block;color:var(--mut,#8a9a90);font-size:11.5px;margin-top:3px}
+#erroModal textarea{min-height:110px;font-size:16px}

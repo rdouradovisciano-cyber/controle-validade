@@ -1,1 +1,1 @@
-{"versao":"2026.11.01-267","nota":"Admin: menu ⋮ → “🕘 Atividade dos usuários” mostra quem entrou no app, a que horas e o que fez (cadastrou, editou, retirou, doação, etiqueta, importou, oferta), com filtro por pessoa. O registro começa a ser gravado a partir desta versão"}
+{"versao":"2026.11.01-268","nota":"Novo “🐞 Reportar erro” no menu ⋮ (para todos): escolha a área, descreva o problema e envie; o app anexa versão, tela e erros recentes. O Admin lê em Atividade dos usuários → 🐞 Erros"}
