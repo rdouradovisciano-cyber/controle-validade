@@ -1396,3 +1396,11 @@ html,body,button,input,select,textarea{font-variant-numeric:tabular-nums;font-fe
 .ofcard .o2-bar span{display:block;font-size:11px;letter-spacing:.2em;margin-top:2px}
 .ofcard .o2-dt{font-size:11px;font-weight:800}
 @media print{ body.printOf .ofcard.print .o2-preco b{font-size:34mm} body.printOf .ofcard.print .o2-nome{font-size:7mm} body.printOf .ofcard.print .o2-preco sup{font-size:15mm} }
+
+/* impressão da oferta: a regra de impressão do inventário esconde tudo (visibility); aqui reexibimos só a etiqueta */
+@media print{
+  @page{margin:8mm}
+  body.printOf #ofPrint,body.printOf #ofPrint *{visibility:visible!important}
+  body.printOf #ofPrint{display:block!important;position:absolute;left:0;top:0;width:100%}
+  body.printOf .ofcard.print{border:2px solid #000!important}
+}
