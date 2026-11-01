@@ -120,7 +120,7 @@ const today = () => { const t = new Date(); t.setHours(0,0,0,0); return t; };
 const iso = d => new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 const daysLeft = e => /^\d{4}-\d\d-\d\d$/.test(e || "") ? Math.round((new Date(e + "T00:00:00") - today()) / 864e5) : null;
 // ---------- aparência e prazos personalizáveis (cores + dias do vermelho/amarelo + tamanho da letra) ----------
-const VK = "validamais-visual", VIS_PAD = { red: 3, yel: null, cores: { v: "#8f1020", h: "#e11d2e", a: "#e5202e", y: "#f2c200", g: "#3aa676" }, fonte: "normal" };
+const VK = "validamais-visual", VIS_PAD = { red: 3, yel: null, cores: { v: "#8a3a45", h: "#bf4a52", a: "#c7514a", y: "#c9a22f", g: "#4a9a78" }, fonte: "normal" };
 let visCloud = null;   // padrão da loja (Firestore sh_cfg/visual), definido pelo Admin
 const visNorm = o => { const c = o || {}; return { red: Number(c.red) >= 1 ? Math.min(30, Number(c.red)) : VIS_PAD.red, yel: Number(c.yel) >= 1 ? Math.min(60, Number(c.yel)) : null, cores: { ...VIS_PAD.cores, ...(c.cores || {}) }, fonte: c.fonte === "grande" ? "grande" : "normal" }; };
 const visCfg = () => visNorm(store.get(VK, null) || visCloud);
@@ -1772,7 +1772,7 @@ function visAbrir() {
   const bg = document.createElement("div"); bg.className = "modal"; bg.id = "visModal";
   const nomes = { v: "Vencido", h: "Vence hoje", a: "Urgente (vermelho)", y: "Atenção (amarelo)", g: "Dentro do prazo (verde)" };
   const optR = [1, 2, 3, 4, 5, 7], optY = [3, 5, 7, 10, 15, 20, 30, 45, 60], num = (l, sel, cur) => l.concat(l.includes(cur) ? [] : [cur]).sort((x, y) => x - y).map(d => `<option value="${d}" ${d === sel ? "selected" : ""}>${d} dia${d > 1 ? "s" : ""}</option>`).join("");
-  const PRE = { pad: { v: "#8f1020", h: "#e11d2e", a: "#e5202e", y: "#f2c200", g: "#3aa676" }, dal: { v: "#4a2a00", h: "#d55e00", a: "#e69f00", y: "#f0e442", g: "#0072b2" }, sua: { v: "#5b0f6e", h: "#d6336c", a: "#f76707", y: "#fcc419", g: "#2b8a3e" } };
+  const PRE = { pad: { v: "#8a3a45", h: "#bf4a52", a: "#c7514a", y: "#c9a22f", g: "#4a9a78" }, dal: { v: "#4a2a00", h: "#d55e00", a: "#e69f00", y: "#f0e442", g: "#0072b2" }, sua: { v: "#5b0f6e", h: "#d6336c", a: "#f76707", y: "#fcc419", g: "#2b8a3e" } };
   bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Cores e prazos"><div class="sheethead"><h2>🎨 Cores e prazos</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
     <p class="note">${admin ? "Como Admin, o que você salvar vale para <b>todos os aparelhos</b>." : "O que você salvar vale só <b>neste aparelho</b>."}</p>
     <label class="nfrow"><span><b>🔴 Vermelho: vence em até</b><small>Ação imediata (de 1 dia até este prazo)</small></span><select id="vsR">${num(optR, v.red, v.red)}</select></label>

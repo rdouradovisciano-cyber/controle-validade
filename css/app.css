@@ -1414,3 +1414,18 @@ button:active:not(:disabled){transform:scale(.94);filter:brightness(.88);box-sha
 .pesrow:active,.moremenu button:active{background:rgba(255,255,255,.07)}
 html:not([data-tema=dark]) .pi-main:active,html:not([data-tema=dark]) .pesrow:active{background:rgba(0,0,0,.06)}
 @media (prefers-reduced-motion:reduce){button:active:not(:disabled){transform:none}}
+
+/* cores calmas: menos saturação, fundos mais discretos, sem brilho nem pulsação */
+html .pitem.prv,html .pitem.prh,html .pitem.pra,html .pitem.pry{border-width:1px;border-left-width:6px;border-color:color-mix(in srgb,var(--tc) 65%,transparent);border-left-color:var(--tc);box-shadow:none}
+html[data-tema=dark] .pitem.prv,html[data-tema=dark] .pitem.prh,html[data-tema=dark] .pitem.pra,html[data-tema=dark] .pitem.pry{background:color-mix(in srgb,var(--tc) 12%,#0f1311)}
+html:not([data-tema=dark]) .pitem.prv,html:not([data-tema=dark]) .pitem.prh,html:not([data-tema=dark]) .pitem.pra,html:not([data-tema=dark]) .pitem.pry{background:color-mix(in srgb,var(--tc) 10%,#fff)}
+html .pitem.pra .pi-badge,html .pitem.prh .pi-badge{box-shadow:none;animation:none}
+html .pitem .pi-badge{border-radius:12px}
+html .pitem.prok{border-color:var(--ln)}
+html[data-tema=dark] .pitem .pi-nome{color:#ebe7da}
+html[data-tema=dark] .pitem .pi-sub{color:#a9a595;opacity:1}
+html .pitem.prv .pi-badge{background:repeating-linear-gradient(135deg,var(--cv,#8a3a45) 0 10px,color-mix(in srgb,var(--cv,#8a3a45) 78%,#000) 10px 20px)}
+html .pgh i{box-shadow:none}
+html .pitem.pra .pi-nome::before{background:var(--ca,#c7514a)}
+.pitem .pi-sub{letter-spacing:.01em;font-size:12px}
+html .pitem.prok{border-left-color:var(--cg,#4a9a78)}
