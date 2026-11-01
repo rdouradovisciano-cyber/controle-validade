@@ -1296,3 +1296,7 @@ html[data-tema=dark] .peslista .pesrow .pesn .pesc.cod b{color:inherit}
 .pitem.saindo::after{content:"✓ Retirado";position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:900;color:#1f8a52}
 .lnk.rodape{margin:18px auto 90px}
 .pitem.saindo{position:relative}
+
+.listtotal{text-align:center;margin:14px 0 0;font-size:14px;font-weight:800;color:var(--mut,#8a9a90);letter-spacing:.02em}
+.listtotal.hidden{display:none}
+.listtotal + .lnk.rodape{margin-top:4px}
