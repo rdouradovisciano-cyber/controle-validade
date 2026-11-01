@@ -218,6 +218,9 @@ function render() {
   $("countAll").textContent = ainda ? "–" : products.length;
   { const nr = products.filter(p => p.retirado).length; $("verRet").classList.toggle("hidden", !nr && !retView); $("verRet").textContent = retView ? "← Voltar às validades" : `📦 Ver retirados da loja (${nr})`; }
   { const vt = $("verTodos"); if (vt) vt.textContent = ainda ? "Conectando…" : cat ? `Ver todos os ${products.length} cadastrados` : "Voltar ao " + SETOR; }
+  // os dois atalhos saíram da tela: ficam no menu ⋮; o link só aparece quando é preciso voltar
+  { $("verRet").classList.toggle("hidden", !retView); $("verTodos").classList.toggle("hidden", !!cat);
+    const nr2 = products.filter(p => p.retirado).length; if ($("mnRetT")) $("mnRetT").textContent = `Retirados da loja (${nr2})`; if ($("mnTodosT")) $("mnTodosT").textContent = `Ver todos os ${products.length} cadastrados`; }
   document.querySelectorAll("#tabLoja .stats .stat").forEach((e, i) => e.classList.toggle("on", (i === 1 && st === "soon") || (i === 2 && st === "expired"))); $("countSoon").textContent = ainda ? "–" : so; $("countExpired").textContent = ainda ? "–" : ex;
   { const fora = cat ? products.filter(p => !p.retirado && p.category !== cat && daysLeft(p.expiry) !== null && daysLeft(p.expiry) >= 0 && daysLeft(p.expiry) <= 1).length : 0;
     $("outAlert").classList.toggle("hidden", !fora); $("outAlert").textContent = `⚠ ${fora} produto(s) de OUTROS setores vencem em até 1 dia — toque para ver todos`; }
@@ -1725,6 +1728,9 @@ function notifAbrir() {
     const c2 = le(); store.set(NTK, { ...c2, on: bg.querySelector("#nfOn").checked }); const ok = await notifVerifica(true); if (ok) toast("Notificação enviada. Veja a barra do celular."); };
 }
 $("mnNotif").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } notifAbrir(); };
+const mnFecha = () => { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); };
+$("mnRet").onclick = () => { mnFecha(); if (curTab !== "Loja") tab("Loja"); retView = true; render(); window.scrollTo(0, 0); };
+$("mnTodos").onclick = () => { mnFecha(); if (curTab !== "Loja") tab("Loja"); retView = false; $("categoryFilter").value = ""; render(); window.scrollTo(0, 0); };
 $("mnSaude").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } saudeAbrir(); };
 const tabInicial = () => SETOR === PER ? "Loja" : SETOR === KOR ? "Contagem" : "Doacao";
 function trocaSetor(alvo) {   // troca FLV / Perecíveis / KÓRIN sem recarregar a página
