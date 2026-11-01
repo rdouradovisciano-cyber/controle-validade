@@ -1218,3 +1218,13 @@ html:not([data-tema=dark]) .peslista .pesrow .pesn .pesc.cod{background:#e6e6e6;
 .peslista .pesrow .pesb{white-space:nowrap;font-size:12px;padding:0 6px;width:90px;display:inline-flex;align-items:center;justify-content:center;gap:3px}
 .peslista .pesrow .pesn .pesc{width:106px}.peslista .pesrow .pesn .pesc.itn{width:142px}
 .peslista .pesrow .pesn .pesc b{font-size:18px}
+
+/* Pesáveis: a ação (Lançar etiqueta / Editar) só aparece ao tocar no item */
+.peslista .pesrow{flex-wrap:wrap;cursor:pointer;min-height:64px;position:relative;-webkit-tap-highlight-color:transparent}
+.peslista .pesrow .pesn{flex:1}
+.pescar{position:absolute;right:8px;top:10px;font-style:normal;opacity:.45;font-size:14px}
+.peslista .pesrow.open .pescar{transform:rotate(180deg)}
+.peslista .pesrow .pesact{display:none;flex-basis:100%;gap:8px;padding:4px 0 6px}
+.peslista .pesrow.open .pesact{display:flex}
+.peslista .pesrow .pesact .pesb{flex:1;width:auto;min-height:44px;font-size:14px;font-weight:800}
+.peslista .pesrow.open{background:rgba(243,216,122,.08);border-radius:12px}

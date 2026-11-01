@@ -65,7 +65,8 @@ function perfilEscolher(troca) {   // pergunta uma vez qual é o setor deste apa
 if (!PERFIL) perfilEscolher(false);
 const $ = id => document.getElementById(id);
 const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria", TK = "validamais-tam";
-let curTab = "Loja", tierF = "", openId = "";   // tierF: filtro por faixa de urgência (v/h/a/y); openId: linha de validade aberta
+let curTab = "Loja", tierF = "", openId = "", pesOpen = "";   // pesOpen: pesável aberta (só ela mostra «Lançar etiqueta» e «Editar»)
+//    // tierF: filtro por faixa de urgência (v/h/a/y); openId: linha de validade aberta
 const LOJA = C.loja || "Sam's Club Radial Leste";
 const EMPTY_FLV = '<div class="empty"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="#9db8a4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 28h44l-5 22a4 4 0 0 1-4 3H19a4 4 0 0 1-4-3z"/><path d="M22 28c0-9 4-16 10-16s10 7 10 16"/><path d="M32 12c0-4 3-7 8-7 0 5-3 8-8 7z"/></svg><p>Nenhum produto do FLV com validade para vencer no momento.</p></div>';
 const SKEL = '<div class="skel" role="status" aria-label="Carregando produtos">' + [58, 72, 46, 64].map((w, k) => `<div class="product skelc" aria-hidden="true" style="--d:${k * 0.15}s"><div class="sk sk-t" style="width:${w}%"></div><div class="sk sk-m"></div><div class="sk-row"><div class="sk sk-d"></div><div class="sk sk-p"></div></div></div>`).join("") + '</div>';
@@ -1875,13 +1876,14 @@ function renderPesaveis() {
   box.innerHTML = rows.length ? rows.map(p => {
     const dl = daysLeft(p.expiry), plu = p.codigo_balanca || "", itn = p.codigo_doacao || "";
     const cods = (plu ? `<span class="pesc plu"><i>PLU</i><b>${esc(plu)}</b></span>` : (!itn ? `<span class="pesc cod"><i>CÓD</i><b>${esc(p.barcode || "—")}</b></span>` : `<span class="pesc ph"></span>`)) + (itn ? `<span class="pesc itn"><i>INTERNO</i><b>${esc(itn)}</b></span>` : `<span class="pesc ph itn"></span>`);
-    return `<div class="pesrow" data-pes="${esc(p.id)}"><div class="pesn"><span class="pescods">${cods}</span><div class="pesl"><b class="pesnome">${pesHl(p.name, toks)}</b>${dl === null ? "" : `<small class="pesv${dl <= 0 ? " r" : dl <= 7 ? " y" : ""}">${dl < 0 ? "vencido" : dl === 0 ? "hoje" : dl + " d"}</small>`}</div></div><button type="button" class="pesb" data-etq="${esc(p.id)}" aria-label="Etiqueta de ${esc(p.name)}">🏷️ Etiqueta</button></div>`;
+    return `<div class="pesrow${pesOpen === p.id ? " open" : ""}" data-pes="${esc(p.id)}"><div class="pesn"><span class="pescods">${cods}</span><div class="pesl"><b class="pesnome">${pesHl(p.name, toks)}</b>${dl === null ? "" : `<small class="pesv${dl <= 0 ? " r" : dl <= 7 ? " y" : ""}">${dl < 0 ? "vencido" : dl === 0 ? "hoje" : dl + " d"}</small>`}</div></div><i class="pescar" aria-hidden="true">▾</i><div class="pesact"><button type="button" class="pesb primary" data-etq="${esc(p.id)}">🏷️ Lançar etiqueta</button><button type="button" class="pesb secondary" data-pedit="${esc(p.id)}">✏️ Editar</button></div></div>`;
   }).join("") : `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
 }
 $("pesBusca").oninput = renderPesaveis;
 $("pesLista").onclick = e => {
   const b = e.target.closest("[data-etq]"); if (b) { const p = products.find(x => x.id === b.dataset.etq); if (p) labelPick(p); return; }
-  const r = e.target.closest("[data-pes]"); if (r) edit(r.dataset.pes);
+  const ed = e.target.closest("[data-pedit]"); if (ed) { edit(ed.dataset.pedit); return; }
+  const r = e.target.closest("[data-pes]"); if (r) { pesOpen = pesOpen === r.dataset.pes ? "" : r.dataset.pes; document.querySelectorAll("#pesLista .pesrow").forEach(x => x.classList.toggle("open", x.dataset.pes === pesOpen)); }
 };
 $("pesBipar").onclick = () => openScan("etiqueta");
 $("pesNovo").onclick = () => openForm();
