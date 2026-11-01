@@ -1360,3 +1360,11 @@ body:not([data-perfil="Admin"]) #mnAtv{display:none!important}
 .perbig b{display:block;font-size:40px;line-height:1;font-weight:900}.perbig span{font-size:13px;opacity:.85}
 .permot{border:1px solid var(--ln);border-radius:12px;padding:8px 10px}.permot.perda{border-color:#e5202e}
 .permot span{display:block;font-size:12.5px;opacity:.8}.permot b{font-size:24px;font-weight:900}.permot small{margin-left:6px;opacity:.7}
+
+/* diálogo de retirar mais limpo: motivos em grade, sem texto longo */
+.ask .asub{margin:10px 0 0;font-size:14px;opacity:.7}
+.ask .amot{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 16px}
+.ask .amot button{min-height:46px;padding:0 8px;font-size:15px}
+.ask .amot button:last-child{grid-column:1/-1;border-style:dashed;opacity:.8;font-weight:600}
+.ask .amot button:last-child.on{opacity:1;font-weight:800}
+html[data-tema=dark] .ask .arow button.ok{color:#1a1405}

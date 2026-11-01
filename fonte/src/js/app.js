@@ -447,10 +447,10 @@ function efeitoSai(id) {
   el.style.maxHeight = el.offsetHeight + "px"; void el.offsetHeight; el.classList.add("saindo");
   return new Promise(r => setTimeout(r, 420));
 }
-const MOTIVOS = ["Vencido", "Quebra/estragou", "Vendido em oferta", "Outro"];
+const MOTIVOS = ["Vencido", "Quebra/estragou", "Vendido em oferta", "Outro"], ENGANO = ["Lançado por engano"];   // "engano" só apaga o lote da lista, sem registro
 async function retirar(id, sai, semPerguntar) {
   const p = products.find(x => x.id === id); if (!p) return;
-  if (sai && !semPerguntar) { const ok = await askConfirm({ icon: "📦", title: "Retirar?", text: p.name + " · validade " + fmt(p.expiry), sub: "Retirar: sai da lista e do alerta e fica guardado em «Ver retirados da loja», com a data e quem retirou. Só remover da lista: tira este lote sem registrar nada (use se foi lançado por engano). O cadastro continua nos dois casos.", motivos: MOTIVOS, motivo: (daysLeft(p.expiry) !== null && daysLeft(p.expiry) <= 0) ? "Vencido" : "Outro", ok: "Retirar", cancel: "Cancelar", alt: "Só remover da lista" }); if (ok === "alt") return remover(id); if (ok !== true) return; }
+  if (sai && !semPerguntar) { const ok = await askConfirm({ icon: "📦", title: "Retirar produto", text: p.name + " · vence " + fmt(p.expiry), subtitle: "Por que está saindo?", motivos: MOTIVOS.concat(ENGANO), motivo: (daysLeft(p.expiry) !== null && daysLeft(p.expiry) <= 0) ? "Vencido" : "Outro", okMap: { [ENGANO[0]]: "Remover" }, ok: "Retirar", cancel: "Cancelar" }); if (ok !== true) return; if (window.vmMotivo === ENGANO[0]) return remover(id); }
   if (sai) await efeitoSai(id);
   { const mot = sai ? (semPerguntar ? "Outro" : (window.vmMotivo || "Outro")) : ""; logAtv(sai ? "retirou" : "devolveu", `${p.name} · vence ${fmt(p.expiry)}${mot ? " · " + mot : ""}`, sai ? { motivo: mot, qtd: Number(p.quantity) || 0, prod: String(p.name || "").slice(0, 80), cat: p.category || "", dl: daysLeft(p.expiry) ?? 99 } : null); }
   const em = Date.now(), por = myName(), campos = sai ? { retirado: true, retEm: em, retPor: por } : { retirado: false };
@@ -1148,16 +1148,16 @@ const dStatKey = (n, u) => norm(n) + "|" + u;
 function dStatLearn(n, u, q) { const s = store.get(DSTAT, {}), k = dStatKey(n, u), o = s[k] || { n: 0, sum: 0, max: 0 };
   o.n++; o.sum += q; o.max = Math.max(o.max, q); s[k] = o; store.set(DSTAT, s); }
 // diálogo no tema do app (substitui o confirm() do navegador)
-function askConfirm({ icon = "⚠️", title, big, bigUnit, text, sub, ok = "Confirmar", cancel = "Cancelar", alt = "", motivos = null, motivo = "" }) {   // alt: terceira opção (devolve "alt")
+function askConfirm({ icon = "⚠️", title, big, bigUnit, text, sub, ok = "Confirmar", cancel = "Cancelar", alt = "", motivos = null, motivo = "", okMap = null, subtitle = "" }) {   // alt: terceira opção (devolve "alt")
   return new Promise(res => {
     if (window.npClose) window.npClose();
     const bg = document.createElement("div"); bg.className = "askbg";
     bg.innerHTML = `<div class="ask" role="alertdialog" aria-modal="true"><div class="ai">${icon}</div><h3>${esc(title)}</h3>` +
       (big ? `<div class="big">${esc(big)} <small>${esc(bigUnit || "")}</small></div>` : "") +
-      (text ? `<p><b>${esc(text)}</b></p>` : "") + (motivos ? `<div class="amot" role="radiogroup" aria-label="Motivo">${motivos.map(m => `<button type="button" data-m="${esc(m)}" class="${m === motivo ? "on" : ""}">${esc(m)}</button>`).join("")}</div>` : "") + (sub ? `<p>${esc(sub)}</p>` : "") +
+      (text ? `<p><b>${esc(text)}</b></p>` : "") + (subtitle ? `<p class="asub">${esc(subtitle)}</p>` : "") + (motivos ? `<div class="amot" role="radiogroup" aria-label="Motivo">${motivos.map(m => `<button type="button" data-m="${esc(m)}" class="${m === motivo ? "on" : ""}">${esc(m)}</button>`).join("")}</div>` : "") + (sub ? `<p>${esc(sub)}</p>` : "") +
       `<div class="arow"><button type="button" data-a="0">${esc(cancel)}</button><button type="button" class="ok" data-a="1">${esc(ok)}</button></div>` + (alt ? `<button type="button" class="askalt" data-a="2">${esc(alt)}</button>` : "") + `</div>`;
     window.vmMotivo = motivo; const done = v => { bg.remove(); res(v); };
-    bg.onclick = e => { const mb = e.target.closest("[data-m]"); if (mb) { window.vmMotivo = mb.dataset.m; bg.querySelectorAll("[data-m]").forEach(x => x.classList.toggle("on", x === mb)); return; } const b = e.target.closest("[data-a]"); if (b) done(b.dataset.a === "2" ? "alt" : b.dataset.a === "1"); else if (e.target === bg) done(null); };
+    bg.onclick = e => { const mb = e.target.closest("[data-m]"); if (mb) { window.vmMotivo = mb.dataset.m; bg.querySelectorAll("[data-m]").forEach(x => x.classList.toggle("on", x === mb)); if (okMap) bg.querySelector(".ok").textContent = okMap[mb.dataset.m] || ok; return; } const b = e.target.closest("[data-a]"); if (b) done(b.dataset.a === "2" ? "alt" : b.dataset.a === "1"); else if (e.target === bg) done(null); };
     document.body.appendChild(bg); bg.querySelector(".ok").focus({ preventScroll: true });
   });
 }
