@@ -227,8 +227,8 @@ function render() {
   $("topAlert").classList.toggle("hidden", !(ex || so));
   $("topAlert").textContent = `Atenção: ${ex} vencido(s) e ${so} vencendo em breve.`;
   sirene();
-  // escala de atenção: vencido · vence hoje · até 2 dias (laranja) · até o prazo de alerta (amarelo; 7 dias em Perecíveis)
-  const prioDe = p => { const dl = daysLeft(p.expiry); if (dl === null || p.retirado) return ""; if (dl < 0) return "v"; if (dl === 0) return "h"; if (status(p) !== "soon") return ""; return dl <= 2 ? "a" : "y"; };
+  // escala de atenção: vencido · vence hoje · 1 a 3 dias (vermelho, ação imediata) · até o prazo de alerta (amarelo; 7 dias em Perecíveis)
+  const prioDe = p => { const dl = daysLeft(p.expiry); if (dl === null || p.retirado) return ""; if (dl < 0) return "v"; if (dl === 0) return "h"; if (status(p) !== "soon") return ""; return dl <= 3 ? "a" : "y"; };
   const PRIOI = { v: "⛔", h: "🚨", a: "⚠️", y: "⏳" };
   { const c = { v: 0, h: 0, a: 0, y: 0 }, lim = limit(cat || CATSET); base.forEach(p => { const k = prioDe(p); if (k) c[k]++; });
     const t = $("tiers"); if (t) { t.classList.toggle("hidden", retView); t.querySelectorAll("[data-t]").forEach(b => { b.querySelector("b").textContent = ainda ? "–" : c[b.dataset.t]; b.classList.toggle("on", tierF === b.dataset.t); b.classList.toggle("zero", !c[b.dataset.t]); });
@@ -248,7 +248,7 @@ function render() {
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p);
     if (p.retirado) return `<article class="product retirado"><div class="ctop"><h3>${esc(p.name)}</h3><span class="upd">${esc(p.category)}</span></div><div class="vbox"><div class="vd"><small>RETIRADO DA LOJA</small><b>${p.retEm ? new Date(Number(p.retEm)).toLocaleDateString("pt-BR") : "—"}</b></div><div class="vr"><span class="pill">${p.retPor ? "por " + esc(p.retPor) : ""}</span><small>validade era ${fmt(p.expiry)}</small></div></div><div class="actions"><button class="secondary" data-volta="${esc(p.id)}">↩ Voltar para a loja</button></div></article>`;
     const pr = prioDe(p), g = pr || "ok", lim = limit(cat || CATSET); let hd = "";
-    if (cat && !q && !tierF && g !== lastG) { lastG = g; const GN = { v: "⛔ Vencidos", h: "🚨 Vence hoje", a: "⚠️ Em até 2 dias", y: "⏳ Em até " + lim + " dias", ok: "✅ Dentro do prazo" }; hd = `<div class="pgh g${g}"><span>${GN[g]}</span><i>${gcnt[g]}</i></div>`; }
+    if (cat && !q && !tierF && g !== lastG) { lastG = g; const GN = { v: "⛔ Vencidos", h: "🚨 Vence hoje", a: "🔴 Vence em 1 a 3 dias — agir já", y: "🟡 De 4 a " + lim + " dias", ok: "✅ Dentro do prazo" }; hd = `<div class="pgh g${g}"><span>${GN[g]}</span><i>${gcnt[g]}</i></div>`; }
     const big = dl === null ? "—" : dl < 0 ? "VENCIDO" : dl === 0 ? "HOJE" : dl === 1 ? "AMANHÃ" : String(dl), small = dl === null ? "sem validade" : dl < 0 ? "há " + (-dl) + (dl < -1 ? " dias" : " dia") : dl <= 1 ? "" : "dias";
     return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${esc(p.name)}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act"><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar da loja</button></div></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');

@@ -1237,3 +1237,18 @@ html:not([data-tema=dark]) .peslista .pesrow .pesn .pesc.cod{background:#e6e6e6;
 #modal.scanning #reader{max-height:48dvh;margin-top:0}
 #modal.scanning #scannerArea{padding-top:4px}
 #modal.scanning #scanMsg{padding-right:48px;min-height:20px}
+
+/* urgência: 1 a 3 dias = VERMELHO com ícone de alerta; 4 a 7 dias = amarelo (calmo) */
+.pitem.pra,.product.pra{--tc:#e5202e;--tx:#fff}
+.pgh.ga{--tc:#e5202e;--tx:#fff}
+.pitem.pra{border-width:2px;border-left-width:10px;background:color-mix(in srgb,#e5202e 16%,#fff)}
+html[data-tema=dark] .pitem.pra{background:color-mix(in srgb,#e5202e 26%,#0c0f0d)}
+.pitem.pra .pi-nome::before,.pitem.prh .pi-nome::before{content:"⚠";display:inline-block;margin-right:6px;padding:0 6px;border-radius:7px;background:#e5202e;color:#fff;font-size:15px;line-height:22px;vertical-align:1px}
+.pitem.prh .pi-nome::before{content:"🚨";background:none;padding:0;font-size:17px}
+.pitem.prv .pi-nome::before{content:"⛔";margin-right:6px;font-size:16px}
+.pitem.pra .pi-badge,.pitem.prh .pi-badge{box-shadow:0 0 0 3px color-mix(in srgb,#e5202e 35%,transparent)}
+.pitem.prh .pi-badge{animation:vmPulso 1.4s ease-in-out infinite}
+@keyframes vmPulso{50%{box-shadow:0 0 0 7px color-mix(in srgb,#e5202e 10%,transparent)}}
+@media (prefers-reduced-motion:reduce){.pitem.prh .pi-badge{animation:none}}
+.pitem.pry{border-width:1.5px;border-left-width:6px;background:color-mix(in srgb,#f2c200 10%,#fff)}
+.pitem.pry .pi-nome{font-weight:700}
