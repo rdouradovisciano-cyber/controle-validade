@@ -7,7 +7,7 @@ r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".c
 const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
 const pg=await (await br.newContext({viewport:{width:411,height:860}})).newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
 const dt=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
-const nomes=["Queijo minas búfala","Nestle vitamina de frutas","Peito de peru","Rana ravioli azul escuro","Bacon tablete","Manteiga aviação","Pop cheese","Salmão fresco","Produto xyz","Salsicha Viena","Linguiça calabresa"];
+const nomes=["Queijo minas búfala","Coalho bufala","Salsicha Viena","Pop cheese","Linguiça calabresa cert","Polengh frescal light","Presunto Sadia 180 g","Presunto Seara 350 g","Quero member 1kg fatiado","Mortadela Perdigão","Embutido de peru Seara","Peito de peru","Bacon tablete","Queijo mussarela","Salame italiano","Requeijão"];
 await pg.addInitScript(([ns,e])=>{if(localStorage.getItem("s"))return;localStorage.setItem("s","1");localStorage.setItem("validamais-operador",JSON.stringify("T"));localStorage.setItem("validamais-perfil","Perecíveis");localStorage.setItem("validamais-produtos-v1",JSON.stringify(ns.map((n,i)=>({id:"p"+i,name:n,barcode:"789000"+i,quantity:"1",expiry:e[i%e.length],category:"Perecíveis"}))))},[nomes,[dt(2),dt(5),dt(9)]]);
 await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(1500);
 console.log(await pg.evaluate(()=>[...document.querySelectorAll(".pi-nome")].map(e=>e.textContent.trim())));
