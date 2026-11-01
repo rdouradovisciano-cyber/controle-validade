@@ -1228,3 +1228,4 @@ html:not([data-tema=dark]) .peslista .pesrow .pesn .pesc.cod{background:#e6e6e6;
 .peslista .pesrow.open .pesact{display:flex}
 .peslista .pesrow .pesact .pesb{flex:1;width:auto;min-height:44px;font-size:14px;font-weight:800}
 .peslista .pesrow.open{background:rgba(243,216,122,.08);border-radius:12px}
+#tiers{display:none!important}
