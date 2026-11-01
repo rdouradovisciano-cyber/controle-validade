@@ -1283,3 +1283,9 @@ html[data-tema=dark] .pi-act .actions button.of{background:#3a2d00;color:#ffd75e
 html[data-tema=dark] .peslista .pesrow .pesn .pesc.vz{background:rgba(255,255,255,.12);color:#9aa39e}
 html[data-tema=dark] .peslista .pesrow .pesn .pesc.vz b{color:inherit}
 .pescar{display:none!important}
+
+/* sem PLU: mostra o código de barras que o item tem (balão lilás), nunca fica sem código */
+.peslista .pesrow .pesn .pesc.cod{background:#d9c7f5;color:#2a0f55}
+html[data-tema=dark] .peslista .pesrow .pesn .pesc.cod{background:#5b3e99;color:#fff}
+html[data-tema=dark] .peslista .pesrow .pesn .pesc.cod b{color:inherit}
+.peslista .pesrow .pesn .pesc.cod b{font-size:15px}
