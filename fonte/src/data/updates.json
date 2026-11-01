@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-10-31T22:20:00-03:00",
+  "itens": [
+   "Leitura de código de barras: saiu o título do topo (fica só o ✕ sobre a câmera) e a câmera ficou mais baixa, para o campo de digitar o código e os botões aparecerem sempre"
+  ]
+ },
+ {
   "t": "2026-10-31T22:00:00-03:00",
   "itens": [
    "Validades: saiu a barra «Urgência» (recolher/ver); no topo fica só a busca. A lista continua separada por faixas de urgência"

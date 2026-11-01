@@ -255,7 +255,7 @@ function render() {
 // ---------- modal e formulário ----------
 function show(title, scan) {
   $("modalTitle").textContent = title; $("modal").classList.remove("hidden");
-  $("scannerArea").classList.toggle("hidden", !scan); $("productForm").classList.toggle("hidden", !!scan);
+  $("modal").classList.toggle("scanning", !!scan); $("scannerArea").classList.toggle("hidden", !scan); $("productForm").classList.toggle("hidden", !!scan);
 }
 // ----- fotos de produto: recurso removido. Limpeza única das que já estavam salvas (cadastros ficam) -----
 const FOTO_LIMPA = "validamais-fotos-limpas";

@@ -1229,3 +1229,11 @@ html:not([data-tema=dark]) .peslista .pesrow .pesn .pesc.cod{background:#e6e6e6;
 .peslista .pesrow .pesact .pesb{flex:1;width:auto;min-height:44px;font-size:14px;font-weight:800}
 .peslista .pesrow.open{background:rgba(243,216,122,.08);border-radius:12px}
 #tiers{display:none!important}
+
+/* leitura de código: sem título no topo (só o ✕ sobre a câmera) e câmera mais baixa, para o campo de digitar e os botões ficarem sempre visíveis */
+#modal.scanning .sheethead{position:relative;height:0;margin:0;padding:0;min-height:0;border:0}
+#modal.scanning .sheethead h2{display:none}
+#modal.scanning #closeModal{position:absolute;right:6px;top:2px;z-index:5;background:rgba(255,255,255,.9);color:#111;width:42px;height:42px;min-height:0;padding:0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+#modal.scanning #reader{max-height:48dvh;margin-top:0}
+#modal.scanning #scannerArea{padding-top:4px}
+#modal.scanning #scanMsg{padding-right:48px;min-height:20px}
