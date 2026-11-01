@@ -47,7 +47,7 @@ function montaAviso(docs, cfg, ref) {
 async function cfgGet() { try { const c = await caches.open("vm-cfg"), r = await c.match("vm-cfg.json"); return r ? await r.json() : null; } catch (e) { return null; } }
 async function cfgSet(o) { try { const c = await caches.open("vm-cfg"); await c.put("vm-cfg.json", new Response(JSON.stringify(o), { headers: { "content-type": "application/json" } })); } catch (e) {} }
 async function verificaVenc() {
-  const cfg = await cfgGet(); if (!cfg || !cfg.on || !cfg.pid || cfg.ultimo === diaKey()) return;
+  const cfg = await cfgGet(); if (!cfg || !cfg.on || !cfg.pid || cfg.ultimo === diaKey() || new Date().getHours() < 8) return;   // todo dia, a partir das 08h
   let docs = [], tok = "";
   for (let i = 0; i < 6; i++) {
     const r = await fetch("https://firestore.googleapis.com/v1/projects/" + cfg.pid + "/databases/(default)/documents/products?pageSize=300&key=" + encodeURIComponent(cfg.key) + (tok ? "&pageToken=" + encodeURIComponent(tok) : ""));

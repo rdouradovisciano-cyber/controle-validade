@@ -1716,6 +1716,7 @@ function saudeAbrir() {
 $("mnPerfil").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } perfilEscolher(true); };
 // ---------- notificações de vencimento (cada pessoa liga e escolhe quantos dias antes quer ser avisada) ----------
 const NTK = "validamais-notif";
+const NOTIF_HORA = 8;   // avisa todos os dias (seg a dom) a partir das 08h
 const notifSuporte = () => "Notification" in window && "serviceWorker" in navigator;
 const notifCfg = () => { const c = store.get(NTK, null) || {}; return { on: !!c.on, dias: Number(c.dias) > 0 ? Number(c.dias) : (PERFIL === PER ? 7 : 2), setores: c.setores || (PERFIL === PER ? [PER] : PERFIL === "FLV" ? ["FLV"] : ["FLV", PER]), ultimo: c.ultimo || "" }; };
 const diaKey = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
@@ -1725,7 +1726,7 @@ async function notifGravaCache(c) {   // o service worker lê esta cópia para a
 async function notifSalva(c) {
   store.set(NTK, c); await notifGravaCache(c);
   try { const reg = await navigator.serviceWorker.ready;
-    if (reg.periodicSync) { if (c.on) await reg.periodicSync.register("vm-venc", { minInterval: 12 * 3600 * 1000 }); else await reg.periodicSync.unregister("vm-venc"); } } catch (e) { console.warn(e); }
+    if (reg.periodicSync) { if (c.on) await reg.periodicSync.register("vm-venc", { minInterval: 3600 * 1000 }); else await reg.periodicSync.unregister("vm-venc"); } } catch (e) { console.warn(e); }
 }
 function notifLista(c) {   // [{name, dl}] dos produtos que pedem aviso, do mais urgente ao menos
   const out = [], vistos = new Set();
@@ -1740,24 +1741,27 @@ function notifTexto(l, dias) {
   return { title: "Valida+ · produtos para vencer", body: partes.join(" · ") + "\n" + l.slice(0, 4).map(x => `${x.name} (${when(x.dl).toLowerCase()})`).join("\n") + (l.length > 4 ? `\n+ ${l.length - 4} outros` : "") };
 }
 async function notifVerifica(forcar) {   // avisa no máximo uma vez por dia (ou quando o usuário pede o teste)
-  try { const c = notifCfg(); if (!notifSuporte() || Notification.permission !== "granted" || (!c.on && !forcar)) return false; if (!forcar && (c.ultimo === diaKey() || !(db ? window.__hReady : true))) return false;
+  try { const c = notifCfg(); if (!notifSuporte() || Notification.permission !== "granted" || (!c.on && !forcar)) return false; if (!forcar && (new Date().getHours() < NOTIF_HORA || c.ultimo === diaKey() || !(db ? window.__hReady : true))) return false;
     const l = notifLista(c); if (!l.length) { if (forcar) toast("Nenhum produto dentro do prazo escolhido. Está tudo em dia."); return false; }
     const t = notifTexto(l, c.dias), reg = await navigator.serviceWorker.ready;
     await reg.showNotification(t.title, { body: t.body, tag: "vm-venc", icon: "icon-192.png", badge: "icon-192.png", data: { url: "./" } });
     if (!forcar) { c.ultimo = diaKey(); await notifSalva(c); } return true; } catch (e) { console.warn(e); return false; }
 }
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") notifVerifica(); });
+// app aberto antes das 08h: dispara na hora certa; depois confere de novo a cada 15 min (cobre o celular que dormiu)
+function notifAgenda() { const n = new Date(), alvo = new Date(n.getFullYear(), n.getMonth(), n.getDate(), NOTIF_HORA, 0, 5); if (alvo > n) setTimeout(() => { notifVerifica(); notifAgenda(); }, alvo - n); else setTimeout(() => { notifVerifica(); notifAgenda(); }, 15 * 60 * 1000); }
+notifAgenda();
 function notifAbrir() {
   const bg = document.createElement("div"); bg.className = "modal"; bg.id = "notifModal";
   const sup = notifSuporte(), perm = sup ? Notification.permission : "unsupported", c = notifCfg(), admin = PERFIL === "Admin";
-  const opc = [1, 2, 3, 5, 7, 10, 15], estado = !sup ? "Este navegador não permite notificações." : perm === "denied" ? "As notificações estão bloqueadas para o app. Libere nas configurações do celular (Configurações → Apps → Valida+/Chrome → Notificações)." : c.on && perm === "granted" ? "Ativadas neste aparelho." : "Desativadas.";
+  const opc = [1, 2, 3, 5, 7, 10, 15, 20, 30], estado = !sup ? "Este navegador não permite notificações." : perm === "denied" ? "As notificações estão bloqueadas para o app. Libere nas configurações do celular (Configurações → Apps → Valida+/Chrome → Notificações)." : c.on && perm === "granted" ? "Ativadas neste aparelho." : "Desativadas.";
   bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Notificações"><div class="sheethead"><h2>🔔 Notificações</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
     <p class="note" id="nfEst">${esc(estado)}</p>
-    <label class="nfrow"><span><b>Avisar sobre vencimentos</b><small>Uma notificação por dia com o que está perto de vencer</small></span><input type="checkbox" id="nfOn" ${c.on && perm === "granted" ? "checked" : ""} ${!sup || perm === "denied" ? "disabled" : ""}></label>
+    <label class="nfrow"><span><b>Avisar sobre vencimentos</b><small>Todos os dias, de segunda a domingo, às 08h</small></span><input type="checkbox" id="nfOn" ${c.on && perm === "granted" ? "checked" : ""} ${!sup || perm === "denied" ? "disabled" : ""}></label>
     <label class="nfrow"><span><b>Avisar quando faltar até</b><small>Você escolhe o prazo</small></span><select id="nfDias">${opc.concat(opc.includes(c.dias) ? [] : [c.dias]).sort((a, b) => a - b).map(d => `<option value="${d}" ${d === c.dias ? "selected" : ""}>${d} dia${d > 1 ? "s" : ""}</option>`).join("")}</select></label>
     ${admin ? `<label class="nfrow"><span><b>Setores</b><small>Só você, Admin, escolhe</small></span><select id="nfSet"><option value="both" ${c.setores.length > 1 ? "selected" : ""}>FLV e Perecíveis</option><option value="FLV" ${c.setores.length === 1 && c.setores[0] === "FLV" ? "selected" : ""}>Só FLV</option><option value="PER" ${c.setores.length === 1 && c.setores[0] === PER ? "selected" : ""}>Só Perecíveis</option></select></label>` : ""}
     <button type="button" class="primary big" id="nfTeste" style="margin-top:8px" ${!sup || perm === "denied" ? "disabled" : ""}>Testar agora</button>
-    <p class="note" style="margin-top:12px">Como funciona: no <b>Android</b>, com o app instalado na tela inicial, o aviso chega mesmo com o app fechado (o Chrome escolhe o horário, em geral 1 a 2 vezes por dia). No <b>iPhone</b> o aviso aparece quando você abre o app. Vale por aparelho: cada pessoa configura o seu.</p></section>`;
+    <p class="note" style="margin-top:12px">Como funciona: no <b>Android</b>, com o app instalado na tela inicial, o aviso chega mesmo com o app fechado (o aviso sai a partir das 08h; o horário exato quem decide é o Android, então pode chegar alguns minutos ou horas depois). No <b>iPhone</b> o aviso aparece quando você abre o app depois das 08h. Vale por aparelho: cada pessoa configura o seu.</p></section>`;
   document.body.appendChild(bg);
   const le = () => { const v = bg.querySelector("#nfSet") ? bg.querySelector("#nfSet").value : null; return { on: bg.querySelector("#nfOn").checked, dias: Number(bg.querySelector("#nfDias").value), setores: v === "FLV" ? ["FLV"] : v === "PER" ? [PER] : v === "both" ? ["FLV", PER] : c.setores, ultimo: "" }; };
   const salva = async () => { await notifSalva(le()); };

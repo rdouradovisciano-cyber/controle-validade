@@ -1,0 +1,25 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve("dist"), R="/home/claude/controle-validade";
+const srv=http.createServer((q,r)=>{let u=q.url.split("?")[0];let f=u==="/sw.js"?R+"/sw.js":u==="/icon-192.png"?R+"/icon-192.png":path.join(D,u);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f)&&u!=="/sw.js")b=Buffer.from(b.toString().replace(/apiKey:\s*"[^"]*"/g,'apiKey:"COLE_"').replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css",".png":"image/png"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const ctx=await br.newContext({viewport:{width:411,height:860}});const url=`http://localhost:${srv.address().port}/`;
+await ctx.grantPermissions(["notifications"],{origin:url});
+const pg=await ctx.newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
+await pg.clock.install({time:new Date(2026,10,1,7,30,0)});
+await pg.addInitScript(()=>{window.__n=[];const o=ServiceWorkerRegistration.prototype.showNotification;ServiceWorkerRegistration.prototype.showNotification=function(t,op){window.__n.push(t+"|"+(op&&op.body||"").split("\n")[0]);return Promise.resolve()};
+const iso=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+localStorage.setItem("validamais-operador",JSON.stringify("T"));localStorage.setItem("validamais-perfil","Perecíveis");
+localStorage.setItem("validamais-notif",JSON.stringify({on:true,dias:15,setores:["Perecíveis"],ultimo:""}));
+localStorage.setItem("validamais-produtos-v1",JSON.stringify([{id:"1",name:"Iogurte",category:"Perecíveis",barcode:"1",expiry:iso(1),quantity:1},{id:"2",name:"Queijo",category:"Perecíveis",barcode:"2",expiry:iso(12),quantity:1},{id:"3",name:"Longe",category:"Perecíveis",barcode:"3",expiry:iso(40),quantity:1}]))});
+await pg.goto(url);await pg.clock.runFor(3000);
+console.log("07:30 notificações:",await pg.evaluate(()=>window.__n.length));
+await pg.clock.runFor(31*60*1000);await pg.waitForTimeout(500);
+console.log("08:01 notificações:",await pg.evaluate(()=>window.__n));
+await pg.clock.runFor(60*60*1000);await pg.waitForTimeout(300);
+console.log("09:01 (sem repetir):",await pg.evaluate(()=>window.__n.length));
+await pg.clock.runFor(24*60*60*1000);await pg.waitForTimeout(500);
+console.log("dia seguinte:",await pg.evaluate(()=>window.__n.length));
+console.log("erros",errs);await br.close();srv.close();
