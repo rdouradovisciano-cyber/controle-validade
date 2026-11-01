@@ -1346,3 +1346,7 @@ body:not([data-perfil="Admin"]) #mnAtv{display:none!important}
 
 .atverr{display:block;margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere}.atverr b{color:#ff8a5c}.atverr small{display:block;color:var(--mut,#8a9a90);font-size:11.5px;margin-top:3px}
 #erroModal textarea{min-height:110px;font-size:16px}
+
+/* atalho discreto de "Reportar erro" ao lado dos três pontinhos */
+#errBtn{flex:none;width:34px;height:44px;padding:0;border:0;background:transparent;box-shadow:none;font-size:17px;line-height:1;opacity:.38;filter:grayscale(1);border-radius:10px;transition:opacity .2s}
+#errBtn:hover,#errBtn:active,#errBtn:focus-visible{opacity:.9;filter:none}

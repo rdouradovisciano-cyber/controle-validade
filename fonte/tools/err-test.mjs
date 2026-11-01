@@ -11,7 +11,7 @@ const ps=[[-1,"Vencido"],[0,"Hoje"],[1,"Um dia"],[3,"Tres dias"],[4,"Quatro dias
 await pg.addInitScript(([ps])=>{localStorage.setItem("validamais-operador",JSON.stringify("T"));localStorage.setItem("validamais-perfil","Admin");localStorage.setItem("validamais-produtos-v1",JSON.stringify(ps));},[ps]);
 await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(1500);
 await pg.waitForTimeout(1500);
-await pg.click("#moreBtn");await pg.click("#mnErro");await pg.waitForTimeout(300);
+await pg.screenshot({path:"/tmp/claude-0/-home-claude/8acfd74b-066d-5685-9053-e1d75c13691f/scratchpad/hdr.png",clip:{x:0,y:0,width:411,height:110}});await pg.click("#errBtn");await pg.waitForTimeout(300);
 await pg.click('#erCat [data-c="Cadastro"]');await pg.fill("#erTxt","Ao salvar o produto o botão não responde");
 await pg.click("#erEnv");await pg.waitForTimeout(400);
 await pg.click("#moreBtn");await pg.click("#mnAtv");await pg.waitForTimeout(300);await pg.locator('#atvF button:has-text("Erros")').click();await pg.waitForTimeout(200);
