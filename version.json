@@ -1,1 +1,1 @@
-{"versao":"2026.11.01-258","nota":"Novo botão “🏷️ Oferta” ao lado de Editar e Retirar da loja: gera a etiqueta promocional (20%, 30%, 50% ou outro %), já sugerindo 50% quando vence hoje/amanhã e 30% nos demais, com “De/Por” se informar o preço e “até dd/mm”. Dá para imprimir"}
+{"versao":"2026.11.01-259","nota":"Pesáveis: sem validade e sem seta; PLU e INTERNO esticam ocupando a linha toda, e quando falta um dos códigos o balão continua lá, em cinza"}

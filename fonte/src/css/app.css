@@ -1275,3 +1275,11 @@ html[data-tema=dark] .pi-act .actions button.of{background:#3a2d00;color:#ffd75e
   body.printOf .ofcard.print{margin:0 auto;width:100%;max-width:100mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body.printOf .ofcard.print .of-pct{font-size:110px}
 }
+
+/* Pesáveis: PLU e INTERNO esticam para ocupar a linha toda (sem seta); sem código = mesmo balão em cinza */
+.peslista .pesrow .pesn .pescods{display:flex;flex-wrap:nowrap;gap:8px;width:100%}
+.peslista .pesrow .pesn .pesc,.peslista .pesrow .pesn .pesc.itn{flex:1 1 0;width:auto;min-width:0}
+.peslista .pesrow .pesn .pesc.vz{background:#d3d6d4;color:#6b716e}
+html[data-tema=dark] .peslista .pesrow .pesn .pesc.vz{background:rgba(255,255,255,.12);color:#9aa39e}
+html[data-tema=dark] .peslista .pesrow .pesn .pesc.vz b{color:inherit}
+.pescar{display:none!important}
