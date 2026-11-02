@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-02T19:15:00-03:00",
+  "itens": [
+   "Saúde do app (Admin): nova seção “Memória e armazenamento” com o que foi usado e o que está livre"
+  ]
+ },
+ {
   "t": "2026-11-02T14:40:00-03:00",
   "itens": [
    "Menu ⋮ mais limpo: “Reportar erro” virou “Feedback” (o 🐞 de fora saiu), “Ver todos os cadastrados” saiu e “Histórico de produtos” ficou só para o Admin"

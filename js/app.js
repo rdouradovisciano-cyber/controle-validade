@@ -1780,6 +1780,19 @@ async function autoteste(log) {
   await passo("Etiquetas compartilhadas (sh_etiquetas)", async () => { await com(V.setDoc(V.doc(db, "sh_etiquetas", eid), { nome: ST_NOME, ord: 1 })); await com(V.deleteDoc(V.doc(db, "sh_etiquetas", eid))); });
   for (const id of ids) { try { await V.deleteDoc(V.doc(db, "products", id)); } catch (e) {} }   // limpeza de segurança
 }
+// ---------- memória e armazenamento (só no Saúde do app, que é Admin) ----------
+let memHtml = "";
+const fmtB = n => n >= 1073741824 ? (n / 1073741824).toFixed(2).replace(".", ",") + " GB" : n >= 1048576 ? (n / 1048576).toFixed(1).replace(".", ",") + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
+async function memCalc() {
+  const bar = (u, t) => { const pc = Math.min(100, Math.max(1, Math.round(u / t * 100))); return `<div class="memb"><i style="width:${pc}%"></i></div><small class="note">${fmtB(u)} usados · ${fmtB(Math.max(0, t - u))} livres de ${fmtB(t)} (${pc}%)</small>`; };
+  let h = "";
+  try { if (navigator.storage && navigator.storage.estimate) { const e = await navigator.storage.estimate(); if (e.quota) h += `<div class="memi"><b>Armazenamento do app neste aparelho</b>${bar(e.usage || 0, e.quota)}</div>`; } } catch (e) {}
+  try { let ls = 0; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); ls += (k.length + (localStorage.getItem(k) || "").length) * 2; } h += `<div class="memi"><b>Dados guardados no navegador (configurações, rascunhos)</b>${bar(ls, 5242880)}</div>`; } catch (e) {}
+  try { const m = performance.memory; if (m && m.jsHeapSizeLimit) h += `<div class="memi"><b>Memória em uso pelo app agora</b>${bar(m.usedJSHeapSize, m.jsHeapSizeLimit)}</div>`; } catch (e) {}
+  try { const j = JSON.stringify(products).length; h += `<div class="memi"><b>Cadastros na nuvem (estimativa)</b>${bar(j * 1.6, 1073741824)}<small class="note">${products.length} produtos. Cota gratuita do Firebase: 1 GB. É uma estimativa pelo tamanho dos dados; o valor exato só aparece no painel do Firebase.</small></div>`; } catch (e) {}
+  if (navigator.deviceMemory) h += `<small class="note">Memória (RAM) deste celular: cerca de ${navigator.deviceMemory} GB.</small>`;
+  return h || '<small class="note">Este aparelho não informa o uso de memória.</small>';
+}
 function saudeAbrir() {
   const bg = document.createElement("div"); bg.className = "modal"; bg.id = "saudeModal";
   const cloud = $("syncState") ? $("syncState").textContent : "";
@@ -1789,10 +1802,11 @@ function saudeAbrir() {
     <div class="shsum ${probs ? "aten" : "ok"}">${probs ? "⚠ " + probs + " ponto(s) de atenção" : "✓ Nada para corrigir"}</div>
     ${sec.map(s => `<div class="shsec"><div class="shh"><span class="shb ${s.n ? "aten" : "ok"}">${s.n ? s.n : "✓"}</span><b>${esc(s.t)}</b></div>${s.n ? `<small class="note">${esc(s.d)}</small><div class="shit">${s.it.slice(0, 10).map(h => `<div>${h}</div>`).join("")}${s.it.length > 10 ? `<div class="muted">+ ${s.it.length - 10} outros (resolva estes e abra de novo)</div>` : ""}</div>` : ""}</div>`).join("")}
     <div class="shsec"><div class="shh"><span class="shb info">ⓘ</span><b>Guardado só neste aparelho</b></div>${loc.length ? `<div class="shit">${loc.map(t => `<div>${esc(t)}</div>`).join("")}</div><small class="note">Outros celulares não veem isso.</small>` : '<small class="note">Nada. Tudo o que importa está na nuvem.</small>'}</div>
+    <div class="shsec"><div class="shh"><span class="shb info">ⓘ</span><b>Memória e armazenamento</b></div><div id="shMem">${memHtml || '<small class="note">Calculando…</small>'}</div></div>
     <div class="shsec"><div class="shh"><b>Autoteste da nuvem</b></div><small class="note">Cria um item de teste em cada setor, altera, apaga e diz se o Firebase aceitou. Não deixa nada para trás.</small>
       <button type="button" class="primary big" id="shRun" style="margin-top:10px">Rodar autoteste</button><div id="shRes" class="shit">${run}</div></div></section>`;
     bg.querySelector(".sheet").scrollTop = y; };
-  paint(); document.body.appendChild(bg);
+  paint(); document.body.appendChild(bg); memCalc().then(h => { memHtml = h; const m = bg.querySelector("#shMem"); if (m) m.innerHTML = h; });
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) { bg.remove(); return; }
     const ac = e.target.closest("[data-a]"); if (ac) { saudeAcao({ ...ac.dataset }, paint); return; }
     const n = e.target.closest("[data-sn]"); if (n) { const nome = n.dataset.sn, set = n.dataset.ss; bg.remove(); if (set && set !== (SETOR === PER ? PER : "FLV") && SETOR !== KOR) trocaSetor(set); $("navCadastros").click(); $("cBusca").value = nome; cadPaint(); window.scrollTo(0, 0); return; }
