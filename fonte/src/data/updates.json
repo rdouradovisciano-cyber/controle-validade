@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-02T19:30:00-03:00",
+  "itens": [
+   "Cadastros: removido o botão “Importar lista de cadastros”"
+  ]
+ },
+ {
   "t": "2026-11-02T19:25:00-03:00",
   "itens": [
    "Menu ⋮: bloco “Admin” separado (Atividade, Perfil, Histórico de produtos e Saúde), visível só para o Admin"

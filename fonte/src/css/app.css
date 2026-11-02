@@ -1477,3 +1477,4 @@ html .pitem.prok{border-left-color:var(--cg,#4a9a78)}
 .memi{margin:8px 0 12px}.memi b{font-size:13px}.memb{height:8px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden;margin:6px 0 4px}.memb i{display:block;height:100%;background:var(--cg,#4a9d6f);border-radius:6px}
 
 body:not([data-perfil="Admin"]) #mnhAdm{display:none!important}
+#cImportar,#navImport{display:none!important}
