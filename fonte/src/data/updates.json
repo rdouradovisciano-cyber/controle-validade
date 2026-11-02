@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-01T23:00:00-03:00",
+  "itens": [
+   "A abertura fica um pouco mais de tempo na tela (cerca de 3 segundos) e a data de hoje ganhou destaque em dourado, junto com o Bom dia, Boa tarde ou Boa noite"
+  ]
+ },
+ {
   "t": "2026-11-01T22:58:00-03:00",
   "itens": [
    "A abertura agora cumprimenta: Bom dia, Boa tarde ou Boa noite, com o seu nome e a data de hoje. Saiu a animação de abertura e o bip"

@@ -20,21 +20,22 @@
 #splash{position:fixed;inset:0;z-index:9999;background:#08090c;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:32px 24px;text-align:center;color:#ece8dc;opacity:1;transition:opacity .3s ease}
 #splash.sx{opacity:0;pointer-events:none}
 #splash .oi{font-family:Outfit,'Montserrat',Arial,sans-serif;font-weight:700;font-size:clamp(30px,9vw,44px);line-height:1.15;color:#f3d87a;margin:0;max-width:100%;overflow-wrap:anywhere}
-#splash .sub{margin:2px 0 0;font-size:15px;color:#a39e8f}
+#splash .data{display:inline-block;margin:12px 0 0;padding:10px 18px;border-radius:999px;border:1px solid rgba(243,216,122,.38);background:rgba(243,216,122,.08);color:#f3d87a;font-weight:700;font-size:clamp(15px,4.4vw,20px);line-height:1.25;letter-spacing:.2px}
 #splash .brand{margin:22px 0 0;font-size:12px;font-weight:700;letter-spacing:5px;color:#6c6a63}
 </style>
 <p class="oi" id="splashOi">Bom dia</p>
-<p class="sub" id="splashSub"></p>
+<p class="data" id="splashData"></p>
 <p class="brand">VALIDA+</p>
 <script>(function(){var s=document.getElementById("splash");try{if(sessionStorage.getItem("vm-splash")){s.remove();return}sessionStorage.setItem("vm-splash","1")}catch(e){}
 var h=new Date().getHours(),oi=h>=5&&h<12?"Bom dia":h>=12&&h<18?"Boa tarde":"Boa noite",nome="";
 try{nome=JSON.parse(localStorage.getItem("validamais-operador"))||""}catch(e){}
 if(typeof nome!=="string")nome="";
 document.getElementById("splashOi").textContent=nome?oi+", "+nome:oi;
-document.getElementById("splashSub").textContent=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
+var dt=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+document.getElementById("splashData").textContent=dt.charAt(0).toUpperCase()+dt.slice(1);
 var t0=Date.now(),fim=function(){s.classList.add("sx");setTimeout(function(){s.remove()},340)};
-var done=function(){setTimeout(fim,Math.max(0,1600-(Date.now()-t0)))};
-if(document.readyState==="complete")done();else window.addEventListener("load",done);setTimeout(function(){if(s.parentNode)fim()},3500)})()</script></div>
+var done=function(){setTimeout(fim,Math.max(0,3200-(Date.now()-t0)))};
+if(document.readyState==="complete")done();else window.addEventListener("load",done);setTimeout(function(){if(s.parentNode)fim()},6500)})()</script></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
 <symbol id="i-doa" viewBox="0 0 24 24"><path d="M9 3.5h6V7H9z"/><path d="M15 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4.5"/></symbol>
 <symbol id="i-etq" viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V5a2 2 0 0 1 2-2h8l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.4"/></symbol>
