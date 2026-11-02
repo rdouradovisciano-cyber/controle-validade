@@ -1873,7 +1873,7 @@ const errBuf = []; const errPush = m => { errBuf.unshift(String(m).slice(0, 160)
 window.addEventListener("error", e => errPush(e.message || "erro")); window.addEventListener("unhandledrejection", e => errPush("promessa: " + ((e.reason && (e.reason.message || e.reason)) || "")));
 function erroAbrir() {
   const bg = document.createElement("div"); bg.className = "modal"; bg.id = "erroModal"; let cat = "Outro";
-  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Reportar erro"><div class="sheethead"><h2>🐞 Reportar erro</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
+  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Feedback"><div class="sheethead"><h2>💬 Feedback</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
     <p class="note">Conte o que aconteceu. O app já anexa a versão, a tela e o horário.</p>
     <div class="vspre" id="erCat" style="flex-wrap:wrap">${["Validades", "Cadastro", "Etiquetas", "Pesáveis", "Doação", "Outro"].map(c => `<button type="button" data-c="${c}" class="${c === cat ? "on" : ""}">${c}</button>`).join("")}</div>
     <textarea id="erTxt" rows="5" maxlength="500" placeholder="O que você estava fazendo e o que deu errado?" style="width:100%;box-sizing:border-box"></textarea>

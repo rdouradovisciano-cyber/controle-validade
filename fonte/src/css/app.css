@@ -1332,8 +1332,8 @@ html[data-fonte=grande] .pgh{font-size:16px}
 #search{display:none!important}
 
 /* menu ⋮ enxuto: atalhos que já existem em outro lugar saem; Perfil e Saúde só para o Admin */
-#mnSetor,#mnSetor2,#mnImp,#mnEtqHist{display:none!important}
-body:not([data-perfil="Admin"]) #mnPerfil,body:not([data-perfil="Admin"]) #mnSaude{display:none!important}
+#mnSetor,#mnSetor2,#mnImp,#mnEtqHist,#mnTodos{display:none!important}
+body:not([data-perfil="Admin"]) #mnPerfil,body:not([data-perfil="Admin"]) #mnSaude,body:not([data-perfil="Admin"]) #mnHist{display:none!important}
 
 /* atividade dos usuários (Admin) */
 body:not([data-perfil="Admin"]) #mnAtv{display:none!important}

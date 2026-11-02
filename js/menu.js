@@ -5,7 +5,7 @@ function abre(){m.classList.remove("hidden");bg.classList.remove("hidden")}
 function msg(t){var e=g("toast");e.textContent=t;e.classList.remove("hidden");clearTimeout(msg.t);msg.t=setTimeout(function(){e.classList.add("hidden")},7000)}
 var h=document.querySelector("header");
 if(h&&!g("moreBtn")){var b=document.createElement("button");b.id="moreBtn";b.type="button";b.textContent="⋮";b.setAttribute("aria-label","Mais opções");b.setAttribute("aria-haspopup","menu");h.appendChild(b);
-b.onclick=function(){m.classList.contains("hidden")?abre():fecha()};var r=document.createElement("button");r.id="errBtn";r.type="button";r.textContent="🐞";r.title="Reportar erro";r.setAttribute("aria-label","Reportar erro");h.insertBefore(r,b);r.onclick=function(){var x=g("mnErro");if(x)x.click()}}
+b.onclick=function(){m.classList.contains("hidden")?abre():fecha()};}
 bg.onclick=fecha;document.addEventListener("keydown",function(e){if(e.key==="Escape")fecha()});
 if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)g("mnInstall").classList.add("hidden");
 g("mnCad").onclick=function(){fecha();g("navCadastros").click();window.scrollTo(0,0)};
