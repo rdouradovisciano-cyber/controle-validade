@@ -65,6 +65,7 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 <input id="search" type="search" hidden tabindex="-1" aria-hidden="true" placeholder="Buscar por nome ou código" aria-label="Buscar produto">
 <div class="filters"><select id="categoryFilter" class="hidden" aria-label="Categoria"></select><select id="statusFilter" class="hidden" aria-label="Status"><option value="">Todos os status</option><option value="expired">Vencidos</option><option value="soon">Vencem em breve</option><option value="ok">Dentro do prazo</option></select></div>
 <button type="button" class="lnk" id="verTodos"></button><button type="button" class="lnk hidden" id="verRetTop">← Voltar às validades</button>
+<div id="acaoBar" class="acaobar hidden"><span>🔎 Só o que venceu ou vence hoje</span><button type="button" id="acaoX" class="secondary">Ver tudo</button></div>
 <div id="list"></div>
 <p id="listTotal" class="listtotal"></p>
 <button type="button" class="lnk rodape" id="verRet"></button>

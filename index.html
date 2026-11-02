@@ -11,10 +11,10 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=292">
+<link rel="stylesheet" href="css/app.css?v=293">
 <title>Valida+ | Controle de validade</title>
-<script src="js/tema.js?v=292"></script>
-<!-- const APP_VERSION = "2026.11.01-292" -->
+<script src="js/tema.js?v=293"></script>
+<!-- const APP_VERSION = "2026.11.02-293" -->
 </head>
 <body data-tab="Loja">
 <div id="splash" role="status" aria-live="polite"><style>
@@ -66,6 +66,7 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 <input id="search" type="search" hidden tabindex="-1" aria-hidden="true" placeholder="Buscar por nome ou código" aria-label="Buscar produto">
 <div class="filters"><select id="categoryFilter" class="hidden" aria-label="Categoria"></select><select id="statusFilter" class="hidden" aria-label="Status"><option value="">Todos os status</option><option value="expired">Vencidos</option><option value="soon">Vencem em breve</option><option value="ok">Dentro do prazo</option></select></div>
 <button type="button" class="lnk" id="verTodos"></button><button type="button" class="lnk hidden" id="verRetTop">← Voltar às validades</button>
+<div id="acaoBar" class="acaobar hidden"><span>🔎 Só o que venceu ou vence hoje</span><button type="button" id="acaoX" class="secondary">Ver tudo</button></div>
 <div id="list"></div>
 <p id="listTotal" class="listtotal"></p>
 <button type="button" class="lnk rodape" id="verRet"></button>
@@ -242,16 +243,16 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 </div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
-<script src="js/config.js?v=292"></script>
+<script src="js/config.js?v=293"></script>
 <script src="vendor.js"></script>
-<script src="js/version.js?v=292"></script>
-<script src="js/login.js?v=292"></script>
-<script src="js/app.js?v=292"></script>
-<script src="js/nav.js?v=292"></script>
-<script src="js/operador.js?v=292"></script>
-<script src="js/teclado.js?v=292"></script>
-<script src="js/menu.js?v=292"></script>
-<script src="js/status.js?v=292"></script>
-<script src="js/inventario.js?v=292"></script>
-<script src="js/doacao-busca.js?v=292"></script>
+<script src="js/version.js?v=293"></script>
+<script src="js/login.js?v=293"></script>
+<script src="js/app.js?v=293"></script>
+<script src="js/nav.js?v=293"></script>
+<script src="js/operador.js?v=293"></script>
+<script src="js/teclado.js?v=293"></script>
+<script src="js/menu.js?v=293"></script>
+<script src="js/status.js?v=293"></script>
+<script src="js/inventario.js?v=293"></script>
+<script src="js/doacao-busca.js?v=293"></script>
 </body></html>

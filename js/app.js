@@ -65,7 +65,7 @@ function perfilEscolher(troca) {   // pergunta uma vez qual é o setor deste apa
 if (!PERFIL) perfilEscolher(false);
 const $ = id => document.getElementById(id);
 const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria", TK = "validamais-tam";
-let curTab = "Loja", tierF = "", openId = "", pesOpen = "";   // pesOpen: pesável aberta (só ela mostra «Lançar etiqueta» e «Editar»)
+let curTab = "Loja", tierF = "", openId = "", pesOpen = "", acaoF = "";   // pesOpen: pesável aberta (só ela mostra «Lançar etiqueta» e «Editar»)
 //    // tierF: filtro por faixa de urgência (v/h/a/y); openId: linha de validade aberta
 const LOJA = C.loja || "Sam's Club Radial Leste";
 const EMPTY_FLV = '<div class="empty"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="#9db8a4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 28h44l-5 22a4 4 0 0 1-4 3H19a4 4 0 0 1-4-3z"/><path d="M22 28c0-9 4-16 10-16s10 7 10 16"/><path d="M32 12c0-4 3-7 8-7 0 5-3 8-8 7z"/></svg><p>Nenhum produto do FLV com validade para vencer no momento.</p></div>';
@@ -266,7 +266,7 @@ function render() {
   $("todayBanner").textContent = `⚠ VENCEM HOJE (${hoje.length}): ` + hoje.slice(0, 5).map(p => p.name).join(", ") + (hoje.length > 5 ? "…" : "");
   if (!hoje.length) alarmed = false; else if (!alarmed && actx) { alarmed = true; alarm(); }
   const rows = retView ? products.filter(p => p.retirado).sort((a, b) => (Number(b.retEm) || 0) - (Number(a.retEm) || 0)) : products.filter(p => q ? ((p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q) || String(p.codigo_balanca || "") === q || String(p.codigo_doacao || "").toLowerCase() === q)   // buscando: procura em TODOS os setores, com ou sem validade
-      : (!p.retirado && (!cat || p.category === cat) && !((cat === "FLV" || cat === PER) && daysLeft(p.expiry) === null) && (!st || status(p) === st) && (!tierF || prioDe(p) === tierF)))
+      : (!p.retirado && (!cat || p.category === cat) && !((cat === "FLV" || cat === PER) && daysLeft(p.expiry) === null) && (!st || status(p) === st) && (!tierF || prioDe(p) === tierF) && (!acaoF || (daysLeft(p.expiry) ?? 9) <= 0)))
     .sort((a, b) => cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"));
   let lastG = ""; const gcnt = {}; rows.forEach(p => { const k = retView ? "x" : (prioDe(p) || "ok"); gcnt[k] = (gcnt[k] || 0) + 1; });
@@ -277,6 +277,8 @@ function render() {
     const big = dl === null ? "—" : dl < 0 ? "VENCIDO" : dl === 0 ? "HOJE" : dl === 1 ? "AMANHÃ" : String(dl), small = dl === null ? "sem validade" : dl < 0 ? "há " + (-dl) + (dl < -1 ? " dias" : " dia") : dl <= 1 ? "" : "dias";
     return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${iconeDe(p) ? `<span class="ico">${iconeDe(p)}</span>` : ""}${esc(p.name)}${notaDe(p.id) ? `<i class="pi-nt" title="${esc(notaDe(p.id).t)}">📝</i>` : ""}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act"><label class="pi-nota"><span>📝</span><input type="text" maxlength="60" data-nota="${esc(p.id)}" value="${esc((notaDe(p.id) || {}).t || "")}" placeholder="Nota (ex.: gôndola 3, já na promoção)" autocomplete="off" enterkeyhint="done"></label><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="secondary of" data-of="${esc(p.id)}">🏷️ Oferta</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
+  $("acaoBar").classList.toggle("hidden", !acaoF);
+  { const urg = base.filter(p => { const k = prioDe(p); return k === "v" || k === "h" || k === "a"; }).length; try { if (navigator.setAppBadge) { if (urg > 0) navigator.setAppBadge(urg).catch(() => {}); else navigator.clearAppBadge && navigator.clearAppBadge().catch(() => {}); } } catch (e) {} }   // número no ícone do app = itens em vermelho
   { const n = rows.length, lt = $("listTotal"); lt.classList.toggle("hidden", !n); lt.textContent = retView ? `${n} ${n === 1 ? "item retirado" : "itens retirados"}` : `${n} ${n === 1 ? "item" : "itens"} na lista`; }
   if (typeof renderPesaveis === "function") renderPesaveis();
 }
@@ -1823,6 +1825,23 @@ function visAbrir() {
 }
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "notas"), sn => { notasNuvem = (sn.exists() && sn.data().n) || {}; const f = document.activeElement; if (!(f && f.matches && f.matches("[data-nota]"))) render(); }, e => console.warn("notas", e)); } catch (e) { console.warn(e); } }
 visAplica();
+
+// ---------- atalhos do ícone (segurar o ícone do app): ?acao=bipar | hoje | oferta ----------
+function ofertaEscolher() {
+  const cand = products.filter(p => { const dl = daysLeft(p.expiry); return !p.retirado && dl !== null && dl >= 0 && dl <= visCfg().red; }).sort((a, b) => (a.expiry || "").localeCompare(b.expiry || ""));
+  if (!cand.length) return toast("Nenhum item perto de vencer para fazer oferta.");
+  const bg = document.createElement("div"); bg.className = "modal"; bg.id = "ofEscModal";
+  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Criar oferta"><div class="sheethead"><h2>🏷️ Criar oferta</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div><p class="note">Escolha o item que vai para promoção:</p><div class="atvl">${cand.map(p => { const dl = daysLeft(p.expiry); return `<button type="button" class="ofesc" data-id="${esc(p.id)}"><b>${esc(p.name)}</b><small>${dl <= 0 ? "vence hoje" : dl === 1 ? "vence amanhã" : "vence em " + dl + " dias"}</small></button>`; }).join("")}</div></section>`;
+  document.body.appendChild(bg);
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) return bg.remove(); const b = e.target.closest("[data-id]"); if (b) { bg.remove(); ofertaAbrir(b.dataset.id); } };
+}
+$("acaoX").onclick = () => { acaoF = ""; render(); };
+function acaoRoda(a) {
+  if (a === "bipar") { $("fab").click(); }
+  else if (a === "hoje") { if (curTab !== "Loja") tab("Loja"); acaoF = "hoje"; render(); window.scrollTo(0, 0); }
+  else if (a === "oferta") { if (curTab !== "Loja") tab("Loja"); ofertaEscolher(); }
+}
+{ const a = new URLSearchParams(location.search).get("acao"); if (a) { try { history.replaceState(null, "", location.pathname); } catch (e) {} let n = 0; const t = setInterval(() => { n++; if (products.length || n > 12) { clearInterval(t); setTimeout(() => acaoRoda(a), 700); } }, 500); } }
 $("mnVis").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } visAbrir(); };
 
 // entrada: uma vez ao abrir o app e de novo se voltar depois de 30 min fora (sem repetir em recarregamentos rápidos)
