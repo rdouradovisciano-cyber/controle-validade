@@ -1453,3 +1453,10 @@ html .pitem.prok{border-left-color:var(--cg,#4a9a78)}
 
 /* ícone por tipo de produto */
 .ico{display:inline-block;margin-right:7px;font-size:.95em;line-height:1;vertical-align:-1px;text-transform:none;font-style:normal;filter:saturate(.9)}
+
+/* nota curta no item */
+.pi-nota{display:flex;align-items:center;gap:8px;margin:0 0 10px;padding:0 10px;border:1px dashed var(--ln,#555);border-radius:12px;background:rgba(255,255,255,.04)}
+.pi-nota span{font-size:16px}
+.pi-nota input{flex:1;min-width:0;border:0!important;background:transparent!important;box-shadow:none!important;padding:11px 0;font-size:15px;font-weight:600;color:inherit;outline:none}
+.pi-nota:focus-within{border-style:solid;border-color:#e5b92b}
+.pi-nt{font-style:normal;font-size:.8em;margin-left:6px;opacity:.75;text-transform:none}

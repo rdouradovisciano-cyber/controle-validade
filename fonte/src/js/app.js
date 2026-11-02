@@ -119,6 +119,17 @@ if (confMode()) return;
 const today = () => { const t = new Date(); t.setHours(0,0,0,0); return t; };
 const iso = d => new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 const daysLeft = e => /^\d{4}-\d\d-\d\d$/.test(e || "") ? Math.round((new Date(e + "T00:00:00") - today()) / 864e5) : null;
+// ---------- nota curta por item (aparece no cartão aberto; vale para todos os aparelhos via sh_cfg/notas) ----------
+const NTLK = "validamais-notas";
+let notasNuvem = {};
+const notaDe = id => { const l = store.get(NTLK, {})[id], c = notasNuvem[id], v = (c && c.em >= ((l && l.em) || 0)) ? c : (l || c); return v && v.t ? v : null; };
+function notaSalva(id, texto) {
+  const t = String(texto || "").trim().slice(0, 60), v = { t, por: myName().slice(0, 40), em: Date.now() };
+  if (!t && !notaDe(id)) return;
+  const m = store.get(NTLK, {}); m[id] = v; store.set(NTLK, m);
+  if (db) V.setDoc(V.doc(db, "sh_cfg", "notas"), { n: { [id]: v } }, { merge: true }).catch(e => { console.warn(e); toast("Nota salva só neste aparelho (a nuvem recusou)."); });
+  render();
+}
 // ícone por tipo de produto (só Perecíveis; dá para desligar em 🎨 Cores e prazos)
 const ICK = "validamais-icones", iconesOn = () => store.get(ICK, true) !== false;
 const ICONES = [[/ravioli|\brana\b|massa|nhoque|lasanha|tortellini|capeletti|capelete|fettuccine|espaguete/, "🍝"], [/pop ?cheese/, "🧀"], [/b[uú]fala/, "🐃"], [/coalho/, "🍢"], [/requeij|cream cheese|polengh|polenghi|catupiry|cottage|ricota|ricotta|frescal|petit suisse/, "🥣"], [/queijo|qj|qjo|q\.j|muss|mozz|mussarela|muçarela|minas|parmes|provolone|prato|gorgonzola|brie|gouda|cheese|reino|canastra|colonial|meia cura|emmental|edam|azul|montanhes|le vin|su[ií]ço|grana|tilsit|raclette|pecorino|halloumi|padr[aã]o zero/, "🧀"], [/manteiga/, "🧈"], [/ovo/, "🥚"], [/iogurte|leite|vitamina|nata|coalhada|danone|creme de leite|kefir|bebida l[aá]ctea|molico|ninho/, "🥛"], [/camar[aã]o/, "🦐"], [/polvo|tent[aá]culo|lula/, "🐙"], [/peixe|salm[aã]o|til[aá]pia|bacalhau|atum|sardinha|merluza/, "🐟"], [/peru|blanquet/, "🦃"], [/frango|chester|coxa|sobrecoxa/, "🍗"], [/salsicha|linguica|linguiça|calabresa|hot ?dog|vienna|viena|frankfurt/, "🌭"], [/bacon|torresmo/, "🥓"], [/presunto|lombo|copa|pernil|apresuntado|fiambre|tender/, "🐖"], [/mortadela/, "🍖"], [/salame|salaminho|peperoni|pepperoni|pastrami/, "🍕"], [/carne|bife|picanha|alcatra|maminha|patinho|costela|hamb[uú]rguer|fil[eé]|bovin|su[ií]n/, "🥩"], [/guioza|gyoza/, "🥟"], [/sorvete|congelad|pizza|nuggets|empanad|polpa|açaí|acai|steak/, "🧊"], [/p[aã]o|bolo|torta|biscoito|massa folhada|croissant/, "🥖"], [/suco|refrigerante|[aá]gua|cerveja|vinho/, "🥤"], [/salada|alface|r[uú]cula|folha|verdura|legume/, "🥗"], [/doce|chocolate|sobremesa|pudim|mousse|gelatina/, "🍮"]];
@@ -264,7 +275,7 @@ function render() {
     const pr = prioDe(p), g = pr || "ok", lim = limit(cat || CATSET); let hd = "";
     if (cat && !q && !tierF && g !== lastG) { lastG = g; const GN = { v: "⛔ Vencidos", h: "🚨 Vence hoje", a: "🔴 Vence em 1 a " + visCfg().red + " dia" + (visCfg().red > 1 ? "s" : "") + " — agir já", y: "🟡 De " + (visCfg().red + 1) + " a " + lim + " dias", ok: "✅ Dentro do prazo" }; hd = `<div class="pgh g${g}"><span>${GN[g]}</span><i>${gcnt[g]}</i></div>`; }
     const big = dl === null ? "—" : dl < 0 ? "VENCIDO" : dl === 0 ? "HOJE" : dl === 1 ? "AMANHÃ" : String(dl), small = dl === null ? "sem validade" : dl < 0 ? "há " + (-dl) + (dl < -1 ? " dias" : " dia") : dl <= 1 ? "" : "dias";
-    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${iconeDe(p) ? `<span class="ico">${iconeDe(p)}</span>` : ""}${esc(p.name)}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act"><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="secondary of" data-of="${esc(p.id)}">🏷️ Oferta</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
+    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${iconeDe(p) ? `<span class="ico">${iconeDe(p)}</span>` : ""}${esc(p.name)}${notaDe(p.id) ? `<i class="pi-nt" title="${esc(notaDe(p.id).t)}">📝</i>` : ""}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act"><label class="pi-nota"><span>📝</span><input type="text" maxlength="60" data-nota="${esc(p.id)}" value="${esc((notaDe(p.id) || {}).t || "")}" placeholder="Nota (ex.: gôndola 3, já na promoção)" autocomplete="off" enterkeyhint="done"></label><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="secondary of" data-of="${esc(p.id)}">🏷️ Oferta</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
   { const n = rows.length, lt = $("listTotal"); lt.classList.toggle("hidden", !n); lt.textContent = retView ? `${n} ${n === 1 ? "item retirado" : "itens retirados"}` : `${n} ${n === 1 ? "item" : "itens"} na lista`; }
   if (typeof renderPesaveis === "function") renderPesaveis();
@@ -648,7 +659,9 @@ const fname = () => ($("exportScope").value === "products" ? "produtos-cadastrad
 fillCategories();
 ["search"].forEach(i => $(i).oninput = render);
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
-$("list").onclick = e => { const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.of) ofertaAbrir(b.dataset.of); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
+$("list").addEventListener("change", e => { const n = e.target.closest && e.target.closest("[data-nota]"); if (n) notaSalva(n.dataset.nota, n.value); });
+$("list").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches && e.target.matches("[data-nota]")) { e.preventDefault(); e.target.blur(); } });
+$("list").onclick = e => { if (e.target.closest(".pi-nota")) return; const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.of) ofertaAbrir(b.dataset.of); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
 $("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Pesaveis" ? "etiqueta" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : curTab === "Contagem" ? "contagem" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = () => { stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
@@ -1808,6 +1821,7 @@ function visAbrir() {
     try { localStorage.removeItem(VK); } catch (e) {} visAplica(); render(); bg.remove(); toast(admin ? "Padrão restaurado." : "Voltou ao padrão da loja."); };
   prev();
 }
+if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "notas"), sn => { notasNuvem = (sn.exists() && sn.data().n) || {}; const f = document.activeElement; if (!(f && f.matches && f.matches("[data-nota]"))) render(); }, e => console.warn("notas", e)); } catch (e) { console.warn(e); } }
 visAplica();
 $("mnVis").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } visAbrir(); };
 
