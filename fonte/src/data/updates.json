@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-02T19:25:00-03:00",
+  "itens": [
+   "Menu ⋮: bloco “Admin” separado (Atividade, Perfil, Histórico de produtos e Saúde), visível só para o Admin"
+  ]
+ },
+ {
   "t": "2026-11-02T19:15:00-03:00",
   "itens": [
    "Saúde do app (Admin): nova seção “Memória e armazenamento” com o que foi usado e o que está livre"
