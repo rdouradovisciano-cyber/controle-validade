@@ -3,8 +3,9 @@
 // Gera dist/: copia src/, escreve js/version.js e version.json, e põe ?v=<seq> nos css/js do index.html.
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const src = path.join(root, "src"), dist = path.join(root, "dist");
 const verFile = path.join(src, "version.json");
 
