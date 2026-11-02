@@ -1915,9 +1915,17 @@ function notifLista(c) {   // [{name, dl}] dos produtos que pedem aviso, do mais
   return out.sort((a, b) => a.dl - b.dl || a.name.localeCompare(b.name, "pt-BR"));
 }
 function notifTexto(l, dias) {
-  const n = (f) => l.filter(f).length, ven = n(x => x.dl < 0), hoje = n(x => x.dl === 0), prox = n(x => x.dl > 0), partes = [];
-  if (ven) partes.push(`🔴 ${ven} vencido${ven > 1 ? "s" : ""}`); if (hoje) partes.push(`🟠 ${hoje} vence${hoje > 1 ? "m" : ""} hoje`); if (prox) partes.push(`🟡 ${prox} em até ${dias} dia${dias > 1 ? "s" : ""}`);
-  return { title: "Valida+ · produtos para vencer", body: partes.join(" · ") + "\n" + l.slice(0, 4).map(x => `${x.name} (${when(x.dl).toLowerCase()})`).join("\n") + (l.length > 4 ? `\n+ ${l.length - 4} outros` : "") };
+  const n = (f) => l.filter(f).length, ven = n(x => x.dl < 0), hoje = n(x => x.dl === 0), prox = n(x => x.dl > 0);
+  const total = l.length, plural = total > 1;
+  const titulo = ven === total ? `${total} produto${plural ? "s" : ""} vencido${plural ? "s" : ""}` : `${total} produto${plural ? "s" : ""} para vencer`;
+  const partes = [];
+  if (ven) partes.push(`${ven} vencido${ven > 1 ? "s" : ""}`);
+  if (hoje) partes.push(`${hoje} ${hoje > 1 ? "vencem" : "vence"} hoje`);
+  if (prox) partes.push(`${prox} em até ${dias} dia${dias > 1 ? "s" : ""}`);
+  const resumo = partes.length > 1 ? partes.join(" · ") : "";
+  const itens = l.slice(0, 3).map(x => `${x.name.length > 32 ? x.name.slice(0, 31) + "…" : x.name} — ${when(x.dl).toLowerCase()}`);
+  const resto = total > 3 ? `+ ${total - 3} produto${total - 3 > 1 ? "s" : ""}` : "";
+  return { title: titulo, body: [resumo, ...itens, resto].filter(Boolean).join("\n") };
 }
 async function notifVerifica(forcar) {   // avisa no máximo uma vez por dia (ou quando o usuário pede o teste)
   try { const c = notifCfg(); if (!notifSuporte() || Notification.permission !== "granted" || (!c.on && !forcar)) return false; if (!forcar && (new Date().getHours() < NOTIF_HORA || c.ultimo === diaKey() || !(db ? window.__hReady : true))) return false;

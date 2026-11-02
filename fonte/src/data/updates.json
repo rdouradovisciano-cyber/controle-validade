@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-01T23:06:00-03:00",
+  "itens": [
+   "Notificação das 8h mais limpa e direta: o título diz quantos produtos precisam de atenção, o resumo mostra só os números (vencidos, hoje, próximo prazo) e a lista traz até 3 nomes com o prazo. Sem emojis e sem \"outros\""
+  ]
+ },
+ {
   "t": "2026-11-01T23:00:00-03:00",
   "itens": [
    "A abertura fica um pouco mais de tempo na tela (cerca de 3 segundos) e a data de hoje ganhou destaque em dourado, junto com o Bom dia, Boa tarde ou Boa noite"

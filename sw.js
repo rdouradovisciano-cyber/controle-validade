@@ -40,9 +40,16 @@ function montaAviso(docs, cfg, ref) {
     const k = name.toLowerCase() + "|" + exp; if (vistos.has(k)) return; vistos.add(k); out.push({ name, dl }); });
   if (!out.length) return null;
   out.sort((a, b) => a.dl - b.dl || a.name.localeCompare(b.name, "pt-BR"));
-  const n = f => out.filter(f).length, ven = n(x => x.dl < 0), hj = n(x => x.dl === 0), px = n(x => x.dl > 0), partes = [];
-  if (ven) partes.push("🔴 " + ven + " vencido" + (ven > 1 ? "s" : "")); if (hj) partes.push("🟠 " + hj + " vence" + (hj > 1 ? "m" : "") + " hoje"); if (px) partes.push("🟡 " + px + " em até " + cfg.dias + " dia" + (cfg.dias > 1 ? "s" : ""));
-  return { title: "Valida+ · produtos para vencer", body: partes.join(" · ") + "\n" + out.slice(0, 4).map(x => x.name + " (" + quando(x.dl) + ")").join("\n") + (out.length > 4 ? "\n+ " + (out.length - 4) + " outros" : "") };
+  const n = f => out.filter(f).length, ven = n(x => x.dl < 0), hj = n(x => x.dl === 0), px = n(x => x.dl > 0), total = out.length, plural = total > 1;
+  const titulo = ven === total ? total + " produto" + (plural ? "s" : "") + " vencido" + (plural ? "s" : "") : total + " produto" + (plural ? "s" : "") + " para vencer";
+  const partes = [];
+  if (ven) partes.push(ven + " vencido" + (ven > 1 ? "s" : ""));
+  if (hj) partes.push(hj + (hj > 1 ? " vencem hoje" : " vence hoje"));
+  if (px) partes.push(px + " em até " + cfg.dias + " dia" + (cfg.dias > 1 ? "s" : ""));
+  const resumo = partes.length > 1 ? partes.join(" · ") : "";
+  const itens = out.slice(0, 3).map(x => (x.name.length > 32 ? x.name.slice(0, 31) + "…" : x.name) + " — " + quando(x.dl));
+  const resto = total > 3 ? "+ " + (total - 3) + " produto" + (total - 3 > 1 ? "s" : "") : "";
+  return { title: titulo, body: [resumo].concat(itens, resto ? [resto] : []).filter(Boolean).join("\n") };
 }
 async function cfgGet() { try { const c = await caches.open("vm-cfg"), r = await c.match("vm-cfg.json"); return r ? await r.json() : null; } catch (e) { return null; } }
 async function cfgSet(o) { try { const c = await caches.open("vm-cfg"); await c.put("vm-cfg.json", new Response(JSON.stringify(o), { headers: { "content-type": "application/json" } })); } catch (e) {} }
