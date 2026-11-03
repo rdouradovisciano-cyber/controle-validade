@@ -1478,3 +1478,7 @@ html .pitem.prok{border-left-color:var(--cg,#4a9a78)}
 
 body:not([data-perfil="Admin"]) #mnhAdm{display:none!important}
 #cImportar,#navImport{display:none!important}
+
+/* aviso de sem internet / aguardando envio */
+#offBar{position:fixed;left:0;right:0;top:0;z-index:60;display:none;padding:calc(6px + env(safe-area-inset-top)) 12px 6px;text-align:center;font-size:13px;font-weight:700;background:#5a4a1a;color:#ffe9a8;border-bottom:1px solid rgba(255,255,255,.15)}
+#offBar.on{display:block}

@@ -706,14 +706,29 @@ $("shareBtn").onclick = async () => {
 
 // ---------- dados: Firebase ou local ----------
 const setSync = t => $("syncState").textContent = t;
+// ---------- sem internet: o app segue funcionando e avisa o que está aguardando envio ----------
+const NUVEM_K = "validamais-cache-nuvem"; let pendN = 0, foiOff = !navigator.onLine;
+function offBar() {
+  let b = $("offBar"); if (!b) { b = document.createElement("div"); b.id = "offBar"; b.setAttribute("role", "status"); document.body.appendChild(b); }
+  const off = !navigator.onLine, n = pendN;
+  if (off) foiOff = true;
+  b.textContent = off ? "📴 Sem internet. O app continua funcionando" + (n ? ` · ${n} alteração${n > 1 ? "ões" : ""} aguardando envio` : "") : n ? `⏳ Enviando ${n} alteração${n > 1 ? "ões" : ""}…` : "";
+  b.classList.toggle("on", !!b.textContent);
+  if (!off && !n && foiOff) { foiOff = false; toast("✓ Conexão voltou. Tudo enviado."); }
+}
+window.addEventListener("offline", offBar); window.addEventListener("online", () => { setTimeout(offBar, 1500); });
 if (cloud && V.initializeApp) {
   try {
     const app = V.initializeApp(fb);
     db = V.initializeFirestore(app, { localCache: V.persistentLocalCache({ tabManager: V.persistentMultipleTabManager() }) });
     carregando = true; $("list").innerHTML = SKEL;   // silhuetas até chegar o primeiro dado (no máximo 6 s, para não ficar preso sem internet)
     setTimeout(() => { if (carregando) { carregando = false; render(); } }, 6000);
+    // abertura rápida: mostra na hora a última lista guardada neste aparelho; a nuvem substitui em seguida
+    try { const c = JSON.parse(localStorage.getItem(NUVEM_K) || "null"); if (c && Array.isArray(c.l) && c.l.length) { separaLixo(c.l); lixoBtn(); carregando = false; render(); setSync("conectando…"); } } catch (e) {}
     V.onSnapshot(V.collection(db, "products"), { includeMetadataChanges: true }, snap => {
-      separaLixo(snap.docs.map(d => ({ id: d.id, ...d.data() }))); lixoBtn(); window.__hReady = !snap.metadata.fromCache; if (window.__hReady || snap.docs.length) carregando = false;   // há dados no cache (mesmo que nenhum seja deste setor): não segura a tela esperando a nuvem
+      const docsN = snap.docs.map(d => ({ id: d.id, ...d.data() })); pendN = snap.docs.filter(d => d.metadata.hasPendingWrites).length; offBar();
+      try { localStorage.setItem(NUVEM_K, JSON.stringify({ t: Date.now(), l: docsN.map(({ foto, ...r }) => r) }, (k, v) => v && typeof v.toMillis === "function" ? v.toMillis() : v)); } catch (e) {}
+      separaLixo(docsN); lixoBtn(); window.__hReady = !snap.metadata.fromCache; if (window.__hReady || snap.docs.length) carregando = false;   // há dados no cache (mesmo que nenhum seja deste setor): não segura a tela esperando a nuvem
       render();   // repinta sempre que qualquer aparelho altera algo
       if (window.__hReady) { setTimeout(() => { try { limparFotosNuvem(); } catch (e) { console.warn(e); } }, 2000); retSync(); notifVerifica(); }
       setSync(snap.metadata.hasPendingWrites ? "alterações aguardando envio…" : snap.metadata.fromCache ? (navigator.onLine ? "conectando…" : "offline (dados salvos no aparelho)") : "sincronizado");
