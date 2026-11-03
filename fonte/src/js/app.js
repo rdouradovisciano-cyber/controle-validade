@@ -1710,50 +1710,56 @@ function kModoSet(m) {
   kModo = m; kList = store.get(m === "rec" ? KRK : KCK, []); kEscolhe(null);
   document.querySelectorAll("#kModo [data-m]").forEach(b => b.classList.toggle("on", b.dataset.m === m));
   const vend = m === "vend"; $("kEntrada").hidden = vend; $("kListaBox").hidden = vend; $("kVend").hidden = !vend;
-  $("kTitulo").textContent = m === "rec" ? "Recebimento · KÓRIN" : "Contagem · KÓRIN";
-  $("kNota").textContent = m === "rec" ? "Chegou mercadoria? Busque o produto (ou bipe), digite quanto chegou e adicione. Ao terminar, toque em Fechar recebimento." : "Busque o produto (ou bipe), digite a quantidade e adicione. Depois envie a lista.";
-  $("kBase").hidden = m !== "cont"; $("kFecha").hidden = m !== "rec"; $("kLimpa").textContent = m === "rec" ? "Limpar recebimento" : "Limpar contagem";
+  $("kTitulo").textContent = m === "rec" ? "Abastecimento · KÓRIN" : "Contagem · KÓRIN";
+  $("kNota").textContent = m === "rec" ? "Vai abastecer a loja? Busque o produto (ou bipe), digite quanto vai colocar e adicione. Ao terminar, toque em Fechar abastecimento." : "Busque o produto (ou bipe), digite a quantidade e adicione. Depois envie a lista.";
+  $("kBase").hidden = m !== "cont"; $("kFecha").hidden = m !== "rec"; $("kLimpa").textContent = m === "rec" ? "Limpar abastecimento" : "Limpar contagem";
   kPaint(); if (vend) kVendPaint(); }
 $("kModo").onclick = e => { const b = e.target.closest("[data-m]"); if (b) kModoSet(b.dataset.m); };
 $("kBase").onclick = () => { if (!kList.length) return toast("Conte o estoque primeiro.");
   if (!confirm("Salvar esta contagem (" + kList.length + " produtos) como estoque de referência? Depois você compara com o que chegou e com a próxima contagem.")) return;
   const b = store.get(KBK, []); b.unshift({ id: uid().slice(0, 8), t: Date.now(), por: kNome(), itens: kList.map(i => ({ ...i })) }); store.set(KBK, b.slice(0, 12)); toast("📌 Estoque de referência salvo."); };
-$("kFecha").onclick = () => { if (!kList.length) return toast("Nada recebido ainda.");
-  if (!confirm("Fechar este recebimento (" + kList.length + " produtos)? Ele passa a contar nas vendas.")) return;
+$("kFecha").onclick = () => { if (!kList.length) return toast("Nada para abastecer ainda.");
+  if (!confirm("Fechar este abastecimento (" + kList.length + " produtos)? Ele entra na conta das vendas.")) return;
   const h = store.get(KRH, []); h.unshift({ id: uid().slice(0, 8), t: Date.now(), por: kNome(), itens: kList.map(i => ({ ...i })) }); store.set(KRH, h.slice(0, 40));
-  kList = []; kSave(); kPaint(); toast("✔ Recebimento guardado. Veja em Vendas."); };
+  kList = []; kSave(); kPaint(); toast("✔ Abastecimento guardado. Veja em Vendas."); };
 function kCalc(base) {
   const rec = store.get(KRH, []).filter(r => r.t > base.t), atual = store.get(KCK, []), m = new Map();
   const ent = i => { const k = kChave(i); return m.get(k) || (m.set(k, { n: i.n, u: i.u, b: i.b || "", tinha: 0, chegou: 0, agora: 0, contado: false }), m.get(k)); };
   base.itens.forEach(i => { ent(i).tinha += i.q; }); rec.forEach(r => r.itens.forEach(i => { ent(i).chegou += i.q; })); atual.forEach(i => { const e = ent(i); e.agora += i.q; e.contado = true; });
-  const rows = [...m.values()].map(e => ({ ...e, vendeu: Math.round((e.tinha + e.chegou - e.agora) * 1000) / 1000 })).sort((a, b) => a.n.localeCompare(b.n, "pt-BR", { sensitivity: "base" }));
+  const depois = kDepois(), r3 = x => Math.round(x * 1000) / 1000;   // depois: a contagem de hoje já inclui o que abasteci · antes: abasteço depois de contar
+  const rows = [...m.values()].map(e => ({ ...e, vendeu: r3(depois ? e.tinha + e.chegou - e.agora : e.tinha - e.agora), fica: r3(depois ? e.agora : e.agora + e.chegou) })).sort((a, b) => a.n.localeCompare(b.n, "pt-BR", { sensitivity: "base" }));
   return { rec, atual, rows }; }
 let kVSel = "";
+const kDepois = () => store.get("validamais-korin-conta", "antes") === "depois";
 function kVendPaint() {
   const box = $("kVend"), bases = store.get(KBK, []);
-  if (!bases.length) { box.innerHTML = '<h2 class="h2">Vendas · KÓRIN</h2><p class="note">Para comparar:</p><ol class="note" style="margin:0 0 10px 18px;padding:0"><li>Em <b>Contagem</b>, conte o estoque e toque em <b>📌 Salvar como estoque de referência</b>.</li><li>Quando chegar mercadoria, registre em <b>Recebimento</b> e feche.</li><li>Depois conte de novo em <b>Contagem</b> e volte aqui.</li></ol>'; return; }
+  if (!bases.length) { box.innerHTML = '<h2 class="h2">Vendas · KÓRIN</h2><p class="note">Para comparar:</p><ol class="note" style="margin:0 0 10px 18px;padding:0"><li>Em <b>Contagem</b>, conte o que tem na loja e toque em <b>📌 Salvar como estoque de referência</b>.</li><li>Quando chegar mercadoria, registre em <b>Abastecimento</b> o que vai colocar e feche.</li><li>Depois conte de novo em <b>Contagem</b> e volte aqui.</li></ol>'; return; }
   if (!bases.some(b => b.id === kVSel)) kVSel = bases[0].id;
   const base = bases.find(b => b.id === kVSel), c = kCalc(base);
   const vend = c.rows.filter(r => r.vendeu > 0), conf = c.rows.filter(r => r.vendeu < 0), semC = c.rows.filter(r => !r.contado);
   const fmtU = (arr) => { const t = {}; arr.forEach(r => { t[r.u] = (t[r.u] || 0) + r.vendeu; }); return Object.keys(t).map(u => fq(t[u]) + " " + u).join(" · ") || "0"; };
   box.innerHTML = `<h2 class="h2">Vendas · KÓRIN</h2>
   <label class="note" for="kVBase">Comparar com o estoque de</label><select id="kVBase" style="width:100%;margin-bottom:8px">${bases.map(b => `<option value="${b.id}"${b.id === kVSel ? " selected" : ""}>${kQ(b.t)} · ${b.itens.length} produtos${b.por ? " · " + esc(b.por) : ""}</option>`).join("")}</select>
-  <p class="note" style="margin:0 0 8px">Chegou desde então: <b>${c.rec.length}</b> recebimento${c.rec.length === 1 ? "" : "s"} · Contagem atual: <b>${c.atual.length}</b> produtos</p>
-  ${c.rec.length ? `<div class="kvrec">${c.rec.map(r => `<span>${kQ(r.t)} · ${r.itens.length} itens<button type="button" data-krdel="${r.id}" aria-label="Apagar recebimento">✕</button></span>`).join("")}</div>` : ""}
-  ${!c.atual.length ? '<p class="note" style="color:#e5b92b">Falta a contagem atual: conte o estoque agora na aba Contagem.</p>' : ""}
+  <p class="note" style="margin:6px 0 4px">A contagem de hoje foi feita:</p>
+  <div class="vspre" id="kConta" style="margin:0 0 8px"><button type="button" data-c="antes" class="${kDepois() ? "" : "on"}">Antes de abastecer</button><button type="button" data-c="depois" class="${kDepois() ? "on" : ""}">Depois de abastecer</button></div>
+  <p class="note" style="margin:0 0 8px">Abastecido desde a contagem anterior: <b>${c.rec.length}</b> abastecimento${c.rec.length === 1 ? "" : "s"} · Contagem de hoje: <b>${c.atual.length}</b> produtos</p>
+  ${c.rec.length ? `<div class="kvrec">${c.rec.map(r => `<span>${kQ(r.t)} · ${r.itens.length} itens<button type="button" data-krdel="${r.id}" aria-label="Apagar abastecimento">✕</button></span>`).join("")}</div>` : ""}
+  ${!c.atual.length ? '<p class="note" style="color:#e5b92b">Falta a contagem de hoje: conte o que tem na loja na aba Contagem.</p>' : ""}
   <div class="csum"><div><span>VENDEU</span><b>${esc(fmtU(vend))}</b></div><div><span>PRODUTOS</span><b>${vend.length}</b></div></div>
-  <div class="kvh"><span>Produto</span><span>Tinha</span><span>Chegou</span><span>Agora</span><span>Vendeu</span></div>
-  ${c.rows.map(r => `<div class="kvr${r.vendeu < 0 ? " cf" : ""}"><div class="kvn"><b>${esc(r.n)}</b>${!r.contado ? "<small>não contado</small>" : r.vendeu < 0 ? "<small>conferir: sobrou mais do que devia</small>" : ""}</div><span>${fq(r.tinha)}</span><span>${r.chegou ? fq(r.chegou) : "–"}</span><span>${fq(r.agora)}</span><span class="kvv"><b>${fq(r.vendeu)}</b> ${esc(r.u)}</span></div>`).join("")}
+  <div class="kvh"><span>Produto</span><span>Antes</span><span>Hoje</span><span>Abasteci</span><span>Vendeu</span></div>
+  ${c.rows.map(r => `<div class="kvr${r.vendeu < 0 ? " cf" : ""}"><div class="kvn"><b>${esc(r.n)}</b>${!r.contado ? "<small>não contado</small>" : r.vendeu < 0 ? "<small>conferir: sobrou mais do que devia</small>" : ""}</div><span>${fq(r.tinha)}</span><span>${fq(r.agora)}</span><span>${r.chegou ? "+" + fq(r.chegou) : "–"}</span><span class="kvv"><b>${fq(r.vendeu)}</b> ${esc(r.u)}</span></div>`).join("")}
   ${conf.length || semC.length ? `<p class="note" style="margin-top:8px">${semC.length ? semC.length + " produto(s) sem contagem agora (aparecem como vendidos por inteiro). " : ""}${conf.length ? conf.length + " com sobra para conferir." : ""}</p>` : ""}
   <div class="toolbar" style="margin-top:12px"><button type="button" class="primary big" id="kVZap">Enviar no WhatsApp</button><button type="button" class="secondary big" id="kVNova">📌 Novo estoque de referência</button></div>
   <p class="note" style="margin:6px 0 0">«Novo estoque de referência» usa a contagem atual como ponto de partida do próximo período.</p>`;
+  box.querySelector("#kConta").onclick = e => { const b = e.target.closest("[data-c]"); if (b) { store.set("validamais-korin-conta", b.dataset.c); kVendPaint(); } };
   box.querySelector("#kVBase").onchange = e => { kVSel = e.target.value; kVendPaint(); };
-  box.onclick = e => { const d = e.target.closest("[data-krdel]"); if (d) { if (!confirm("Apagar este recebimento?")) return; store.set(KRH, store.get(KRH, []).filter(r => r.id !== d.dataset.krdel)); kVendPaint(); return; }
+  box.onclick = e => { const d = e.target.closest("[data-krdel]"); if (d) { if (!confirm("Apagar este abastecimento?")) return; store.set(KRH, store.get(KRH, []).filter(r => r.id !== d.dataset.krdel)); kVendPaint(); return; }
     if (e.target.id === "kVNova") { const at = store.get(KCK, []); if (!at.length) return toast("Faça a contagem atual primeiro."); if (!confirm("Usar a contagem atual como novo estoque de referência?")) return;
       const b = store.get(KBK, []); const nb = { id: uid().slice(0, 8), t: Date.now(), por: kNome(), itens: at.map(i => ({ ...i })) }; b.unshift(nb); store.set(KBK, b.slice(0, 12)); kVSel = nb.id; kVendPaint(); toast("📌 Novo estoque de referência salvo."); return; }
-    if (e.target.id === "kVZap") { const bs = store.get(KBK, []).find(x => x.id === kVSel); if (!bs) return; const cc = kCalc(bs);
-      const t = ["*VENDAS KÓRIN*", "Período: " + kQ(bs.t) + " até " + kQ(Date.now()), "Loja: " + LOJA, "", ...cc.rows.filter(r => r.vendeu !== 0).map(r => `*${r.n}*\nTinha ${fq(r.tinha)} · Chegou ${fq(r.chegou)} · Agora ${fq(r.agora)}\n*Vendeu ${fq(r.vendeu)} ${r.u}*${r.vendeu < 0 ? " (conferir)" : ""}\n`), `*TOTAL VENDIDO: ${fmtU(cc.rows.filter(r => r.vendeu > 0))}*`].join("\n");
-      if (navigator.share) navigator.share({ title: "Vendas KÓRIN", text: t }).catch(() => {}); else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank"); } };
+    if (e.target.id === "kVZap") { const bs = store.get(KBK, []).find(x => x.id === kVSel); if (!bs) return; const cc = kCalc(bs), dep = kDepois();
+      const lin = cc.rows.filter(r => r.tinha || r.agora || r.chegou).map(r => `*${r.n}*\nAntes: ${fq(r.tinha)} · Hoje: ${fq(r.agora)}${r.chegou ? " · Abasteci: +" + fq(r.chegou) : ""}\n${r.vendeu < 0 ? "⚠ Conferir (tem mais do que devia: " + fq(-r.vendeu) + ")" : "Vendeu: " + fq(r.vendeu)} ${r.vendeu < 0 ? "" : r.u} · Fica na loja: ${fq(r.fica)} ${r.u}\n`);
+      const t = ["*RELATÓRIO KÓRIN*", "Loja: " + LOJA, "Feito por: " + kNome(), "", "Antes: contagem de " + kQ(bs.t), "Hoje: contagem de " + kQ(Date.now()) + (dep ? " (depois de abastecer)" : " (antes de abastecer)"), "Abastecido: " + (cc.rec.length ? cc.rec.reduce((n, r) => n + r.itens.length, 0) + " itens em " + cc.rec.length + " abastecimento" + (cc.rec.length === 1 ? "" : "s") : "nada"), "", ...lin, `*TOTAL VENDIDO: ${fmtU(cc.rows.filter(r => r.vendeu > 0))}*`].join("\n");
+      if (navigator.share) navigator.share({ title: "Relatório KÓRIN", text: t }).catch(() => {}); else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank"); } };
 }
 function contagemScan(code) {
   stopScanner(); closeModal();
@@ -1763,13 +1769,13 @@ function contagemScan(code) {
 const kQuando = () => new Date().toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 const kNome = () => String(myName()).replace(/\s+admin\b/i, "").trim();   // só o nome (sem «admin»)
 function kTexto() { const l = kOrd();   // cada produto em negrito, quantidade em negrito logo abaixo, uma linha em branco entre eles
-  return [kModo === "rec" ? "*RECEBIMENTO KÓRIN*" : "*CONTAGEM KÓRIN*", "Data: " + kQuando(), "Loja: " + LOJA, (kModo === "rec" ? "Recebido por: " : "Contado por: ") + kNome(), "", ...l.map(i => `*${i.n}*\n*${fq(i.q)} ${i.u}*${i.b ? " · EAN " + i.b : ""}\n`), `*TOTAL: ${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}*`].join("\n"); }
+  return [kModo === "rec" ? "*ABASTECIMENTO KÓRIN*" : "*CONTAGEM KÓRIN*", "Data: " + kQuando(), "Loja: " + LOJA, (kModo === "rec" ? "Feito por: " : "Contado por: ") + kNome(), "", ...l.map(i => `*${i.n}*\n*${fq(i.q)} ${i.u}*${i.b ? " · EAN " + i.b : ""}\n`), `*TOTAL: ${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}*`].join("\n"); }
 $("kZap").onclick = async () => { if (!kList.length) return toast("A contagem está vazia.");
   const t = kTexto(); if (navigator.share) { try { await navigator.share({ title: "Contagem KÓRIN", text: t }); } catch (e) { if (e.name !== "AbortError") toast("Não foi possível compartilhar."); } }
   else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank"); };
 $("kPdf").onclick = async () => { if (!kList.length) return toast("A contagem está vazia.");
-  try { const l = kOrd(), pdf = new V.jsPDF(); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text(kModo === "rec" ? "RECEBIMENTO KÓRIN" : "CONTAGEM KÓRIN", 14, 16);
-    pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Data: ${kQuando()}   Loja: ${LOJA}   ${kModo === "rec" ? "Recebido" : "Contado"} por: ${kNome()}`, 14, 23);
+  try { const l = kOrd(), pdf = new V.jsPDF(); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text(kModo === "rec" ? "ABASTECIMENTO KÓRIN" : "CONTAGEM KÓRIN", 14, 16);
+    pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Data: ${kQuando()}   Loja: ${LOJA}   ${kModo === "rec" ? "Feito" : "Contado"} por: ${kNome()}`, 14, 23);
     V.autoTable(pdf, { startY: 28, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [70, 60, 20] }, footStyles: { fillColor: [235, 230, 205], textColor: [40, 35, 10] },
       head: [["CÓDIGO", "PRODUTO", "QUANTIDADE"]], body: l.map(i => [i.b || "-", i.n, `${fq(i.q)} ${i.u}`]), foot: [["", "TOTAL", `${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}`]] });
     const blob = pdf.output("blob"), file = new File([blob], "contagem-korin-" + iso(new Date()) + ".pdf", { type: "application/pdf" });

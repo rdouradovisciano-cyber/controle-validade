@@ -30,4 +30,6 @@ console.log((await pg.innerText("#kVend")).replace(/\n+/g," / "));
 await pg.screenshot({path:SP+"kor-vend.png",fullPage:true});
 await pg.click("#kVNova");await pg.waitForTimeout(300);
 console.log("após novo ref:",(await pg.innerText("#kVend")).replace(/\n+/g," / ").slice(0,200));
+await pg.click('#kConta [data-c="depois"]');await pg.waitForTimeout(200);console.log("depois:",(await pg.innerText("#kVend")).replace(/\n+/g," / ").slice(150,420));
+await pg.evaluate(()=>{navigator.share=t=>{window.__t=t.text;return Promise.resolve()}});await pg.click("#kVZap");await pg.waitForTimeout(200);console.log(await pg.evaluate(()=>window.__t));
 console.log(errs);await br.close();srv.close();
