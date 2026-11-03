@@ -929,7 +929,27 @@ const fq = q => (Math.round(q * 1000) / 1000).toLocaleString("pt-BR", { maximumF
 const sumU = u => don.itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0);
 const dataBR = d => new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 const FERR = ["Etiquetas", "Inventario", "Cadastros"], FK = "validamais-ferr";
+// ---------- transição entre abas: a pílula dourada desliza e estica, e o conteúdo entra pelo lado ----------
+const tabbarEl = () => document.querySelector("nav.tabbar");
+const tbVisiveis = () => [...(tabbarEl() ? tabbarEl().children : [])].filter(b => b.id && b.id.startsWith("tb") && b.offsetParent).sort((a, b) => a.offsetLeft - b.offsetLeft);   // ordem visual (o CSS reordena)
+function pillPlace(anim, dir) {
+  const nav = tabbarEl(); if (!nav) return;
+  let pl = $("tabPill"); if (!pl) { pl = document.createElement("span"); pl.id = "tabPill"; nav.insertBefore(pl, nav.firstChild); }
+  const a = nav.querySelector("button.active"); if (!a || !a.offsetParent) { pl.style.opacity = 0; return; }
+  const L = a.offsetLeft, R = nav.clientWidth - (a.offsetLeft + a.offsetWidth), reduz = matchMedia("(prefers-reduced-motion:reduce)").matches;
+  // a borda da frente anda mais rápido que a de trás: dá o efeito de esticar e encolher
+  pl.style.transition = !anim || reduz ? "none" : dir >= 0 ? "left .36s cubic-bezier(.3,.8,.3,1),right .2s cubic-bezier(.3,.8,.3,1),opacity .2s" : "left .2s cubic-bezier(.3,.8,.3,1),right .36s cubic-bezier(.3,.8,.3,1),opacity .2s";
+  pl.style.left = L + "px"; pl.style.right = R + "px"; pl.style.top = a.offsetTop + "px"; pl.style.height = a.offsetHeight + "px"; pl.style.opacity = 1; nav.classList.add("pill");
+}
+function slideIn(painel, dir) {
+  if (!painel || !dir || matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  painel.classList.remove("slideR", "slideL"); void painel.offsetWidth; painel.classList.add(dir > 0 ? "slideR" : "slideL");
+  painel.addEventListener("animationend", () => painel.classList.remove("slideR", "slideL"), { once: true });
+}
+try { const nv = tabbarEl(); if (nv && window.ResizeObserver) { const ro = new ResizeObserver(() => pillPlace(false)); ro.observe(nv); [...nv.children].forEach(b => ro.observe(b)); } window.addEventListener("resize", () => pillPlace(false)); } catch (e) {}
 function tab(t) {
+  const antes = tbVisiveis().findIndex(b => b.classList.contains("active")), depois0 = tbVisiveis().findIndex(b => b.id === "tb" + t);
+  const dirTab = antes >= 0 && depois0 >= 0 && antes !== depois0 ? (depois0 > antes ? 1 : -1) : 0;
   curTab = t;
   ["Loja", "Doacao", "Pesaveis", "Etiquetas", "Inventario", "Cadastros", "Contagem"].forEach(n => { const p = $("tab" + n); if (p) p.classList.toggle("hidden", n !== t); const nb = $("nav" + n); if (nb) nb.classList.toggle("active", n === t); });
   [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Pesaveis", t === "Pesaveis"], ["Etiquetas", t === "Etiquetas"], ["Cadastros", t === "Cadastros"], ["Contagem", t === "Contagem"]].forEach(([n, on]) => { const b = $("tb" + n); if (b) b.classList.toggle("active", on); });
@@ -937,6 +957,7 @@ function tab(t) {
   if (t === "Doacao" && typeof dView === "function") dView("lista");
   if (t === "Pesaveis" && typeof renderPesaveis === "function") renderPesaveis();
   if (t === "Contagem" && typeof kPaint === "function") kPaint();
+  pillPlace(true, dirTab); slideIn($("tab" + t), dirTab);
 }
 function dCodTxt(i) {   // kg: código de doação · un: código de barras (ou, sem ele, o de doação); nunca o de balança
   const pr = products.find(x => norm(x.name || "") === norm(i.nome)) || {};
