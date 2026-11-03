@@ -1893,10 +1893,10 @@ function acaoRoda(a) {
 { const a = new URLSearchParams(location.search).get("acao"); if (a) { try { history.replaceState(null, "", location.pathname); } catch (e) {} let n = 0; const t = setInterval(() => { n++; if (products.length || n > 12) { clearInterval(t); setTimeout(() => acaoRoda(a), 700); } }, 500); } }
 $("mnVis").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } visAbrir(); };
 
-// entrada: uma vez ao abrir o app e de novo se voltar depois de 30 min fora (sem repetir em recarregamentos rápidos)
-{ let fora = 0; const entra = () => { try { const u = Number(localStorage.getItem("validamais-ult-entrada") || 0); if (Date.now() - u < 2 * 60 * 1000) return; localStorage.setItem("validamais-ult-entrada", String(Date.now())); logAtv("entrou", "Abriu o app"); } catch (e) {} };
+// entrada: uma vez ao abrir o app e de novo se voltar depois de 1 h fora (sem repetir em recarregamentos rápidos)
+{ let fora = 0; const entra = () => { try { const u = Number(localStorage.getItem("validamais-ult-entrada") || 0); if (Date.now() - u < 60 * 60 * 1000) return; localStorage.setItem("validamais-ult-entrada", String(Date.now())); logAtv("entrou", "Abriu o app"); } catch (e) {} };
   setTimeout(entra, 2500);
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") fora = Date.now(); else if (fora && Date.now() - fora > 30 * 60 * 1000) { fora = 0; try { localStorage.setItem("validamais-ult-entrada", "0"); } catch (e) {} entra(); } }); }
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") fora = Date.now(); else if (fora && Date.now() - fora > 60 * 60 * 1000) { fora = 0; try { localStorage.setItem("validamais-ult-entrada", "0"); } catch (e) {} entra(); } }); }
 // ---------- reportar erro (qualquer pessoa envia; o Admin lê em "Atividade dos usuários → Erros") ----------
 const errBuf = []; const errPush = m => { errBuf.unshift(String(m).slice(0, 160)); errBuf.length = Math.min(errBuf.length, 5); };
 window.addEventListener("error", e => errPush(e.message || "erro")); window.addEventListener("unhandledrejection", e => errPush("promessa: " + ((e.reason && (e.reason.message || e.reason)) || "")));
@@ -1955,8 +1955,10 @@ function atvAbrir() {
     const res = {}; dados.filter(r => r.t >= hj).forEach(r => { const o = res[r.quem] || (res[r.quem] = { ent: 0, n: 0, ult: 0 }); if (r.a === "entrou") { if (!o.ent || r.t < o.ent) o.ent = r.t; } else o.n++; o.ult = Math.max(o.ult, r.t); });
     bg.querySelector("#atvSum").innerHTML = Object.keys(res).length ? "<b>Hoje</b>" + Object.entries(res).filter(([n]) => !filtro || filtro === "@erros" || n === filtro).map(([n, o]) => `<div><span>${esc(n)}</span><small>${o.ent ? "entrou às " + hm(o.ent) + " · " : ""}${o.n} ação(ões) · última às ${hm(o.ult)}</small></div>`).join("") : "";
     let ult = "";
-    bg.querySelector("#atvL").innerHTML = l.length ? l.map(r => { const d = dia(r.t), h = d !== ult ? `<div class="atvd">${esc(d)}</div>` : ""; ult = d;
-      return h + `<div class="atvr"><time>${hm(r.t)}</time><div><b>${esc(r.quem)}</b> ${ATV_ICO[r.a] || "•"} ${esc(ATV_VERBO[r.a] || r.a)}${r.a === "erro" ? `<span class="atverr"><b>${esc(r.cat || "")}</b> ${esc(r.txt || "")}<small>${esc(r.ctx || "")}</small></span>` : r.txt && r.a !== "entrou" ? `<small>${esc(r.txt)}</small>` : ""}${r.perfil || r.setor ? `<em>${esc(r.perfil || "")}${r.setor && r.setor !== r.perfil ? " · " + esc(r.setor) : ""}</em>` : ""}</div></div>`; }).join("") : '<p class="note">Nenhuma atividade registrada ainda. Ela começa a ser gravada a partir desta versão.</p>';
+    const gp = {}, l2 = [];   // várias "entrou no app" da mesma pessoa no mesmo dia viram uma linha só
+    l.forEach(r => { if (r.a !== "entrou") { l2.push(r); return; } const k = r.quem + "|" + dia(r.t), g = gp[k]; if (g) { g.n++; g.prim = Math.min(g.prim, r.t); } else { const c = { ...r, n: 1, prim: r.t }; gp[k] = c; l2.push(c); } });
+    bg.querySelector("#atvL").innerHTML = l2.length ? l2.map(r => { const d = dia(r.t), h = d !== ult ? `<div class="atvd">${esc(d)}</div>` : ""; ult = d;
+      return h + `<div class="atvr"><time>${hm(r.t)}</time><div><b>${esc(r.quem)}</b> ${ATV_ICO[r.a] || "•"} ${esc(ATV_VERBO[r.a] || r.a)}${r.n > 1 ? ` <small>· ${r.n} vezes (a primeira às ${hm(r.prim)})</small>` : ""}${r.a === "erro" ? `<span class="atverr"><b>${esc(r.cat || "")}</b> ${esc(r.txt || "")}<small>${esc(r.ctx || "")}</small></span>` : r.txt && r.a !== "entrou" ? `<small>${esc(r.txt)}</small>` : ""}${r.perfil || r.setor ? `<em>${esc(r.perfil || "")}${r.setor && r.setor !== r.perfil ? " · " + esc(r.setor) : ""}</em>` : ""}</div></div>`; }).join("") : '<p class="note">Nenhuma atividade registrada ainda. Ela começa a ser gravada a partir desta versão.</p>';
   };
   const fecha = () => { try { atvUn && atvUn(); } catch (e) {} atvUn = null; bg.remove(); };
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) fecha(); const b = e.target.closest("[data-n]"); if (b) { filtro = b.dataset.n; desenha(); } const pd = e.target.closest("[data-pd]"); if (pd) { perD = Number(pd.dataset.pd); desenha(); } const ps = e.target.closest("[data-ps]"); if (ps) { perS = ps.dataset.ps; desenha(); } };
