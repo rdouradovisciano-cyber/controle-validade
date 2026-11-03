@@ -789,7 +789,7 @@ $("scansBox").ontoggle = () => {
 
 // ---------- setor, menu lateral e voz ----------
 function pintaSetor() {   // botões do topo e itens do menu ⋮ conforme o setor atual
-  const ch = $("setorChip"); if (ch) ch.querySelectorAll("[data-s]").forEach(b => { b.hidden = b.dataset.s === KOR && SETOR !== KOR; b.classList.toggle("on", b.dataset.s === SETOR); b.setAttribute("aria-pressed", b.dataset.s === SETOR); b.onclick = () => trocaSetor(b.dataset.s); });
+  const ch = $("setorChip"); if (ch) ch.querySelectorAll("[data-s]").forEach(b => { b.hidden = false; b.classList.toggle("on", b.dataset.s === SETOR); b.setAttribute("aria-pressed", b.dataset.s === SETOR); b.onclick = () => trocaSetor(b.dataset.s); });
   const outros = ["FLV", PER, KOR].filter(x => x !== SETOR), nome = x => x === KOR ? "KÓRIN" : x;
   [["mnSetor", "mnSetorT", outros[0]], ["mnSetor2", "mnSetor2T", outros[1]]].forEach(([b, t, alvo]) => { if ($(b)) { $(t).textContent = "Ir para " + nome(alvo); $(b).onclick = () => { trocaSetor(alvo); if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } }; } }); }
 function rotulosSetor() {   // Perecíveis: «código de doação» vira «código interno»
