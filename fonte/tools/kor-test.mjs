@@ -1,25 +1,33 @@
 import { chromium } from "playwright-core";
 import http from "node:http"; import fs from "node:fs"; import path from "node:path";
-const D=path.resolve("dist");
+const D=path.resolve("dist"), SP="/tmp/claude-0/-home-claude/8acfd74b-066d-5685-9053-e1d75c13691f/scratchpad/";
 const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
-let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f))b=Buffer.from(b.toString().replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
-r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css",".woff2":"font/woff2"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f))b=Buffer.from(b.toString().replace(/apiKey:\s*"[^"]*"/g,'apiKey:"COLE_"').replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
 const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
-const ctx=await br.newContext({viewport:{width:411,height:860},deviceScaleFactor:2});const pg=await ctx.newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
-const P=(id,name,o)=>({id,name,barcode:"",category:"FLV",quantity:1,expiry:"",...o});
-await pg.addInitScript(p=>{localStorage.setItem("validamais-operador",JSON.stringify("T"));if(!localStorage.getItem("validamais-produtos-v1"))localStorage.setItem("validamais-produtos-v1",JSON.stringify(p))},[P("1","BANANA",{}),P("2","IOGURTE",{category:"Perecíveis"}),P("3","SUSHI",{category:"KÓRIN"}),P("4","PIZZA",{category:"Congelados"})]);
-const url=`http://localhost:${srv.address().port}/`;
-await pg.goto(url);await pg.waitForTimeout(2000);
-console.log("menu:",await pg.evaluate(()=>[document.getElementById("mnSetorT").textContent,document.getElementById("mnSetor2T").textContent]));
-await pg.evaluate(()=>document.getElementById("mnSetor2").click());await pg.waitForTimeout(1500);
-const info=()=>pg.evaluate(()=>({setor:document.body.dataset.setor,tab:document.body.dataset.tab,tabs:[...document.querySelectorAll(".tabbar button")].filter(b=>getComputedStyle(b).display!=="none").map(b=>b.querySelector(".tl").textContent),rows:[...document.querySelectorAll(".cadrow b")].map(b=>b.textContent),chips:[...document.querySelectorAll("#setorChip button")].filter(b=>!b.hidden).map(b=>b.textContent+(b.classList.contains("on")?"*":"")),menu:[document.getElementById("mnSetorT").textContent,document.getElementById("mnSetor2T").textContent]}));
-console.log("KÓRIN:",JSON.stringify(await info()));
-await pg.fill("#cNome","Sushi combinado");await pg.click("#cSalvar");await pg.waitForTimeout(500);
-console.log("fotobox existe:",await pg.evaluate(()=>!!document.getElementById("cFotoBox")),"| storage:",await pg.evaluate(()=>JSON.parse(localStorage.getItem("validamais-produtos-v1")).map(p=>p.name+"|"+p.category)));
-console.log("lista KÓRIN:",await pg.evaluate(()=>[...document.querySelectorAll(".cadrow b")].map(b=>b.textContent)));
-await pg.evaluate(()=>document.getElementById("tbLoja").click());await pg.waitForTimeout(300);
-console.log("validades KÓRIN contagem:",await pg.evaluate(()=>document.getElementById("countAll").textContent));
-await pg.evaluate(()=>document.querySelector('#setorChip [data-s="FLV"]').click());await pg.waitForTimeout(1500);
-await pg.evaluate(()=>document.getElementById("navCadastros").click());await pg.waitForTimeout(300);
-console.log("lista FLV:",await pg.evaluate(()=>[...document.querySelectorAll(".cadrow b")].map(b=>b.textContent)));
-console.log("erros",errs);await br.close();srv.close();
+const ctx=await br.newContext({viewport:{width:411,height:860}});const pg=await ctx.newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
+pg.on("dialog",d=>d.accept());
+await pg.addInitScript(()=>{localStorage.setItem("validamais-operador",JSON.stringify("Renato"));localStorage.setItem("validamais-perfil","Admin");sessionStorage.setItem("validamais-setor","KÓRIN")});
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(2500);
+const vis=async s=>pg.locator(s).isVisible();
+console.log("aba contagem?",await vis("#kModo"),"| botão base:",await vis("#kBase"),"| fechar:",await vis("#kFecha"));
+const add=async(n,q,u="un")=>{await pg.fill("#kBusca",n);await pg.waitForTimeout(150);await pg.click('[data-kp="novo"]');await pg.fill("#kQtd",String(q));await pg.selectOption("#kUn",u);await pg.click("#kAdd");};
+// 1) estoque inicial
+await add("Vinho Tinto",10);await add("Queijo Brie",6);await add("Azeite",8);
+await pg.click("#kBase");await pg.waitForTimeout(200);
+// 2) recebimento
+await pg.click('#kModo [data-m="rec"]');await pg.waitForTimeout(200);
+console.log("modo rec | base visível:",await vis("#kBase"),"| fechar:",await vis("#kFecha"),"| lista:",(await pg.innerText("#kLista")).replace(/\n+/g," ").slice(0,40));
+await add("Vinho Tinto",12);await add("Queijo Brie",6);
+await pg.click("#kFecha");await pg.waitForTimeout(300);
+// 3) contagem atual
+await pg.click('#kModo [data-m="cont"]');await pg.waitForTimeout(200);
+await pg.click("#kLimpa");await pg.waitForTimeout(200);
+await add("Vinho Tinto",15);await add("Queijo Brie",9);await add("Azeite",9);
+// 4) vendas
+await pg.click('#kModo [data-m="vend"]');await pg.waitForTimeout(300);
+console.log((await pg.innerText("#kVend")).replace(/\n+/g," / "));
+await pg.screenshot({path:SP+"kor-vend.png",fullPage:true});
+await pg.click("#kVNova");await pg.waitForTimeout(300);
+console.log("após novo ref:",(await pg.innerText("#kVend")).replace(/\n+/g," / ").slice(0,200));
+console.log(errs);await br.close();srv.close();

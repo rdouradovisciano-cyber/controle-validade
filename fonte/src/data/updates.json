@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-03T18:10:00-03:00",
+  "itens": [
+   "KÓRIN: nova aba Recebimento (registrar o que chegou) e Vendas (tinha + chegou − agora = vendeu), com envio no WhatsApp"
+  ]
+ },
+ {
   "t": "2026-11-03T15:50:00-03:00",
   "itens": [
    "Histórico de atividade mais limpo: várias “entrou no app” da mesma pessoa no dia viram uma linha só, e o app grava uma entrada por hora (antes, a cada retorno de 30 min)"

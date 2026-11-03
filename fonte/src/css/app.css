@@ -1482,3 +1482,11 @@ body:not([data-perfil="Admin"]) #mnhAdm{display:none!important}
 /* aviso de sem internet / aguardando envio */
 #offBar{position:fixed;left:0;right:0;top:0;z-index:60;display:none;padding:calc(6px + env(safe-area-inset-top)) 12px 6px;text-align:center;font-size:13px;font-weight:700;background:#5a4a1a;color:#ffe9a8;border-bottom:1px solid rgba(255,255,255,.15)}
 #offBar.on{display:block}
+
+/* KÓRIN: recebimento e vendas */
+.kvh,.kvr{display:grid;grid-template-columns:minmax(0,1.6fr) .6fr .6fr .6fr 1fr;gap:6px;align-items:center;font-variant-numeric:tabular-nums}
+.kvh{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);padding:6px 0;border-bottom:1px solid var(--ln)}
+.kvr{padding:9px 0;border-bottom:1px solid var(--ln);font-size:14px}.kvr span{text-align:right}.kvh span{text-align:right}.kvh span:first-child{text-align:left}
+.kvn b{display:block;font-size:14px;line-height:1.2;overflow-wrap:anywhere}.kvn small{display:block;font-size:11px;color:var(--mut);margin-top:2px}
+.kvv b{font-size:15px}.kvr.cf .kvv{color:#e5b92b}
+.kvrec{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.kvrec span{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 10px;border-radius:99px;background:rgba(255,255,255,.08);font-size:12px}.kvrec button{min-height:26px;width:26px;padding:0;border-radius:50%}
