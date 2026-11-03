@@ -1482,3 +1482,9 @@ body:not([data-perfil="Admin"]) #mnhAdm{display:none!important}
 /* aviso de sem internet / aguardando envio */
 #offBar{position:fixed;left:0;right:0;top:0;z-index:60;display:none;padding:calc(6px + env(safe-area-inset-top)) 12px 6px;text-align:center;font-size:13px;font-weight:700;background:#5a4a1a;color:#ffe9a8;border-bottom:1px solid rgba(255,255,255,.15)}
 #offBar.on{display:block}
+
+/* transição entre abas: pílula que desliza e estica */
+nav.tabbar{position:relative}
+nav.tabbar>button{position:relative;z-index:1}
+#tabPill{position:absolute;z-index:0;border-radius:99px;background:linear-gradient(180deg,var(--gold1),var(--gold3));box-shadow:0 3px 10px rgba(0,0,0,.35);pointer-events:none;opacity:0}
+nav.tabbar.pill .active,html[data-tema=dark] nav.tabbar.pill .active{background:transparent!important;box-shadow:none!important}
