@@ -216,6 +216,7 @@ function sirene() {   // aba Validades pisca em branco, sem som, só quando há 
 setInterval(() => { if (typeof sirene === "function") sirene(); }, 60000);
 // ---------- histórico de produtos (o que entrou, mudou ou saiu — e quem) ----------
 const PHK = "validamais-phbase", PLK = "validamais-phlog", PHF = ["name", "expiry", "quantity", "category", "barcode", "codigo_balanca", "codigo_doacao", "retirado"];
+const PH_CORTE = (() => { let c = Number(localStorage.getItem("validamais-ph-corte") || 0); if (!c) { c = Date.now(); try { localStorage.setItem("validamais-ph-corte", String(c)); } catch (e) {} } return c; })();   // só entra no histórico o que for cadastrado depois deste momento
 const HIST_MS = 3 * 864e5;   // históricos (produtos e etiquetas) guardam no máximo 3 dias
 let phBase = store.get(PHK, null), phLog = (store.get(PLK, []) || []).filter(e => Date.now() - (e.t || 0) < HIST_MS), lastAct = 0;
 ["pointerdown", "keydown"].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); }, true));
@@ -230,20 +231,19 @@ function phDiff() {
     const d = []; PHF.forEach(f => { if (String(a[f] ?? "") !== String(b[f] ?? "")) d.push(f === "expiry" ? `validade ${fmt(a.expiry)} → ${fmt(b.expiry)}` : f === "quantity" ? `qtd ${a.quantity} → ${b.quantity}` : f === "retirado" ? (b.retirado ? "retirado da loja" : "voltou para a loja") : `${f === "name" ? "nome" : f === "category" ? "setor" : f}: ${a[f] || "—"} → ${b[f] || "—"}`); });
     if (d.length) chg.push({ n: b.name, d: d.join("; ") }); });
   if (add.length) ev.push({ t, who, k: "add", n: add.length, it: add.slice(0, 40).map(i => ({ n: cur[i].name, d: cur[i].expiry ? "validade " + fmt(cur[i].expiry) : "" })) });
-  if (del.length) ev.push({ t, who, k: "del", n: del.length, it: del.slice(0, 300).map(i => phBase[i]) });
-  if (chg.length) ev.push({ t, who, k: "chg", n: chg.length, it: chg.slice(0, 40) });
+  // só produtos novos entram no histórico (saídas e alterações não são mais guardadas)
   phLog = phLog.filter(e => Date.now() - (e.t || 0) < HIST_MS); store.set(PLK, phLog);
   if (ev.length) { phLog = ev.concat(phLog).slice(0, 300); while (phLog.length > 1 && JSON.stringify(phLog).length > 900000) phLog.pop(); store.set(PLK, phLog); phBase = cur; store.set(PHK, cur); if (!$("phModal").classList.contains("hidden")) phDraw(); }
 }
 const phWhen = t => new Date(t).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 function phDraw() {
   const q = norm($("phBusca").value || "");
-  const rows = phLog.map((e, i) => ({ e, i })).filter(({ e }) => !q || e.it.some(x => norm(x.n || x.name || "").includes(q)));
+  const rows = phLog.map((e, i) => ({ e, i })).filter(({ e }) => e.k === "add" && e.t >= PH_CORTE).filter(({ e }) => !q || e.it.some(x => norm(x.n || x.name || "").includes(q)));
   $("phList").innerHTML = rows.length ? rows.map(({ e, i }) => {
     const nm = x => esc(x.n || x.name || "?"), tit = e.k === "add" ? `＋ Entrou · ${e.n} produto(s)` : e.k === "del" ? `🗑 Saiu · ${e.n} produto(s)` : `✎ Alterado · ${e.n} produto(s)`;
     const lines = e.it.slice(0, 8).map(x => `<div>• ${nm(x)}${x.d ? " <small class='muted'>" + esc(x.d) + "</small>" : x.expiry ? " <small class='muted'>validade " + fmt(x.expiry) + "</small>" : ""}</div>`).join("") + (e.n > 8 ? `<div class="muted">… e mais ${e.n - 8}</div>` : "");
     return `<div class="phe ${e.k}"><b>${tit}</b><small class="muted">${phWhen(e.t)} · ${esc(e.who)}</small>${lines}${e.k === "del" ? (e.rest ? '<small class="muted">✓ já restaurado</small>' : `<button type="button" class="secondary" data-phr="${i}">↩ Restaurar ${e.it.length > 1 ? "estes " + e.it.length : "este"}</button>`) : ""}</div>`;
-  }).join("") : '<p class="muted">Nada registrado ainda. A partir de agora, o que entrar, mudar ou sair aparece aqui.</p>';
+  }).join("") : '<p class="muted">Nenhum produto novo ainda. Quando alguém cadastrar um produto, ele aparece aqui.</p>';
 }
 window.phOpen = () => { phLog = phLog.filter(e => Date.now() - (e.t || 0) < HIST_MS); store.set(PLK, phLog); $("phBusca").value = ""; phDraw(); $("phModal").classList.remove("hidden"); };
 async function phRestore(i) {
