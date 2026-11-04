@@ -443,17 +443,23 @@ function similarNames(name, ignoreName = "") {   // nomes já cadastrados pareci
   return [...out.values()];
 }
 function dupGroups() {   // grupos de nomes parecidos entre si
-  const cnt = new Map(); products.forEach(p => { const nm = (p.name || "").trim(); if (!nm) return; const nn = norm(nm), o = cnt.get(nn) || { nome: nm, n: 0 }; o.n++; cnt.set(nn, o); });
+  const cnt = new Map(); products.forEach(p => { const nm = (p.name || "").trim(); if (!nm) return; const nn = norm(nm), o = cnt.get(nn) || { nome: nm, n: 0, ean: new Set(), plu: new Set(), doa: new Set(), lots: [] }; o.n++; if (p.barcode) o.ean.add(p.barcode); if (p.codigo_balanca) o.plu.add(p.codigo_balanca); if (p.codigo_doacao) o.doa.add(p.codigo_doacao); if (p.expiry) o.lots.push({ q: p.quantity, e: p.expiry, ret: !!p.retirado }); cnt.set(nn, o); });
   const items = [...cnt.values()], par = items.map((_, i) => i), find = i => par[i] === i ? i : (par[i] = find(par[i]));
   for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) if (similarKeys(nameKey(items[i].nome), nameKey(items[j].nome))) par[find(j)] = find(i);
   const g = new Map(); items.forEach((it, i) => { const r = find(i); (g.get(r) || g.set(r, []).get(r)).push(it); });
   return [...g.values()].filter(a => a.length > 1);
 }
+function dupInfo(x) {   // EAN, códigos e o que há na loja (lotes com quantidade e validade), para decidir qual nome é o certo
+  const cods = [x.ean && x.ean.size ? "EAN " + [...x.ean].join(" / ") : "sem EAN", x.plu && x.plu.size ? "PLU " + [...x.plu].join(" / ") : "", x.doa && x.doa.size ? "Cód. " + [...x.doa].join(" / ") : ""].filter(Boolean).join(" · ");
+  const ls = (x.lots || []).filter(l => !l.ret).sort((a, b) => String(a.e).localeCompare(String(b.e))), ret = (x.lots || []).length - ls.length;
+  const loja = ls.length ? "Na loja: " + ls.slice(0, 4).map(l => `${esc(l.q)} un · vence ${fmt(l.e)}`).join(" | ") + (ls.length > 4 ? ` | +${ls.length - 4}` : "") : "Na loja: nenhum lote com validade";
+  return `<small class="dupi">${esc(cods)}</small><small class="dupi">${loja}${ret ? ` · ${ret} retirado(s)` : ""}</small>`;
+}
 function dupReview() {
   const bg = document.createElement("div"); bg.className = "askbg";
   const paint = () => { const gs = dupGroups(); bg.dataset.g = JSON.stringify(gs.map(a => a.map(x => x.nome)));
     bg.innerHTML = `<div class="ask" style="max-height:86dvh;overflow:auto;text-align:left"><div class="ai" style="text-align:center">🔍</div><h3 style="text-align:center">Cadastros parecidos</h3>` +
-      (gs.length ? `<p style="text-align:center">Escolha o nome certo de cada grupo. Os outros serão renomeados.</p>` + gs.map((a, gi) => `<div class="dupg">${a.map((x, ni) => `<div class="dupr"><span><b>${esc(x.nome)}</b> <small>${x.n} cadastro(s)</small></span><button type="button" data-g="${gi}" data-n="${ni}">Usar este</button></div>`).join("")}</div>`).join("")
+      (gs.length ? `<p style="text-align:center">Escolha o nome certo de cada grupo. Os outros serão renomeados.</p>` + gs.map((a, gi) => `<div class="dupg">${a.map((x, ni) => `<div class="dupr"><span><b>${esc(x.nome)}</b> <small>${x.n} cadastro(s)</small>${dupInfo(x)}</span><button type="button" data-g="${gi}" data-n="${ni}">Usar este</button></div>`).join("")}</div>`).join("")
         : `<p style="text-align:center"><b>Nenhum nome parecido encontrado ✓</b></p>`) +
       `<div class="arow"><button type="button" class="ok" data-x="1">Fechar</button></div></div>`; };
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) return bg.remove();
