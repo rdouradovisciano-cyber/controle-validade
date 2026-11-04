@@ -6,7 +6,7 @@ let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f))b=Buffer.from(b.toString().re
 r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
 const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
 const ctx=await br.newContext({viewport:{width:411,height:860}});const pg=await ctx.newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
-pg.on("dialog",d=>d.accept());
+pg.on("dialog",d=>d.type()=="prompt"?d.accept("28/10"):d.accept());
 await pg.addInitScript(()=>{localStorage.setItem("validamais-operador",JSON.stringify("Renato"));localStorage.setItem("validamais-perfil","Admin");sessionStorage.setItem("validamais-setor","KÓRIN")});
 await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(2500);
 const vis=async s=>pg.locator(s).isVisible();
@@ -28,6 +28,7 @@ console.log("lista após salvar antes:",(await pg.innerText("#kLista")).replace(
 await pg.click('#kModo [data-m="vend"]');await pg.waitForTimeout(300);
 console.log((await pg.innerText("#kVend")).replace(/\n+/g," / "));
 await pg.screenshot({path:SP+"kor-vend.png",fullPage:true});
+await pg.click("#kVData");await pg.waitForTimeout(300);console.log("data do antes:",await pg.locator("#kVBase option:checked").textContent());
 await pg.evaluate(()=>{navigator.share=t=>{window.__t=t.text;return Promise.resolve()}});await pg.click("#kVZap");await pg.waitForTimeout(200);console.log(await pg.evaluate(()=>window.__t));
 await pg.click("#kVNova");await pg.waitForTimeout(300);console.log("após novo antes, contagem:",(await pg.evaluate(()=>localStorage.getItem("validamais-contagem-kor"))));
 console.log(errs);await br.close();srv.close();

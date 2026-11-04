@@ -1705,6 +1705,7 @@ $("kLista").onclick = e => { const d = e.target.closest("[data-kdel]"), ed = e.t
 $("kLimpa").onclick = () => { if (!kList.length) return; if (!confirm("Limpar toda a contagem?")) return; kList = []; kSave(); kPaint(); };
 // ----- recebimento e vendas do KÓRIN: tinha (estoque de referência) + chegou (recebimentos) − agora (contagem atual) = vendeu -----
 const kChave = i => norm(i.n) + "|" + i.u;
+const kD = t => new Date(t).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
 const kQ = t => new Date(t).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 function kModoSet(m) {
   kModo = m; kList = store.get(m === "rec" ? KRK : KCK, []); kEscolhe(null);
@@ -1741,7 +1742,8 @@ function kVendPaint() {
   const fmtU2 = rows => { const t = {}; rows.forEach(r => { t[r.u] = (t[r.u] || 0) + r.fica; }); return Object.keys(t).map(u => fq(t[u]) + " " + u).join(" · ") || "0"; };
   const fmtU = (arr) => { const t = {}; arr.forEach(r => { t[r.u] = (t[r.u] || 0) + r.vendeu; }); return Object.keys(t).map(u => fq(t[u]) + " " + u).join(" · ") || "0"; };
   box.innerHTML = `<h2 class="h2">Vendas · KÓRIN</h2>
-  <label class="note" for="kVBase">Comparar com o estoque de</label><select id="kVBase" style="width:100%;margin-bottom:8px">${bases.map(b => `<option value="${b.id}"${b.id === kVSel ? " selected" : ""}>${kQ(b.t)} · ${b.itens.length} produtos${b.por ? " · " + esc(b.por) : ""}</option>`).join("")}</select>
+  <label class="note" for="kVBase">Comparar com o estoque de</label><select id="kVBase" style="width:100%;margin-bottom:8px">${bases.map(b => `<option value="${b.id}"${b.id === kVSel ? " selected" : ""}>${kD(b.t)} · ${b.itens.length} produtos${b.por ? " · " + esc(b.por) : ""}</option>`).join("")}</select>
+  <button type="button" class="secondary" id="kVData" style="min-height:36px;padding:4px 12px;font-size:13px;margin-bottom:6px">📅 Mudar a data do «antes»</button>
   <p class="note" style="margin:6px 0 4px">A contagem de hoje foi feita:</p>
   <div class="vspre" id="kConta" style="margin:0 0 8px"><button type="button" data-c="antes" class="${kDepois() ? "" : "on"}">Antes de abastecer</button><button type="button" data-c="depois" class="${kDepois() ? "on" : ""}">Depois de abastecer</button></div>
   <p class="note" style="margin:0 0 8px">Abastecido desde a contagem anterior: <b>${c.rec.length}</b> abastecimento${c.rec.length === 1 ? "" : "s"} · Contagem de hoje: <b>${c.atual.length}</b> produtos</p>
@@ -1755,12 +1757,19 @@ function kVendPaint() {
   <p class="note" style="margin:6px 0 0">«Novo estoque de referência» usa a contagem atual como ponto de partida do próximo período.</p>`;
   box.querySelector("#kConta").onclick = e => { const b = e.target.closest("[data-c]"); if (b) { store.set("validamais-korin-conta", b.dataset.c); kVendPaint(); } };
   box.querySelector("#kVBase").onchange = e => { kVSel = e.target.value; kVendPaint(); };
-  box.onclick = e => { const inc = e.target.closest("[data-krinc]"); if (inc) { kInc.add(inc.dataset.krinc); kVendPaint(); return; } const d = e.target.closest("[data-krdel]"); if (d) { if (!confirm("Apagar este abastecimento?")) return; store.set(KRH, store.get(KRH, []).filter(r => r.id !== d.dataset.krdel)); kVendPaint(); return; }
+  box.onclick = e => { if (e.target.id === "kVData") { const bs = store.get(KBK, []), b0 = bs.find(x => x.id === kVSel); if (!b0) return;
+      const v = prompt("Em que dia foi feita a contagem «antes»? (dia/mês, ex.: 28/10)", new Date(b0.t).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })); if (v === null) return;
+      const m = String(v).match(/(\d{1,2})\s*[\/\-.]\s*(\d{1,2})(?:\s*[\/\-.]\s*(\d{2,4}))?/); if (!m) return toast("Data inválida. Use dia/mês, por exemplo 28/10.");
+      const hoje = new Date(); let ano = m[3] ? Number(m[3]) : hoje.getFullYear(); if (ano < 100) ano += 2000; let dt = new Date(ano, Number(m[2]) - 1, Number(m[1]), 12, 0);
+      if (!m[3] && dt > hoje) dt = new Date(ano - 1, Number(m[2]) - 1, Number(m[1]), 12, 0);
+      if (isNaN(dt) || dt.getMonth() !== Number(m[2]) - 1) return toast("Data inválida. Use dia/mês, por exemplo 28/10.");
+      b0.t = dt.getTime(); store.set(KBK, bs); kVendPaint(); toast("📅 «Antes» agora é de " + kD(b0.t) + "."); return; }
+    const inc = e.target.closest("[data-krinc]"); if (inc) { kInc.add(inc.dataset.krinc); kVendPaint(); return; } const d = e.target.closest("[data-krdel]"); if (d) { if (!confirm("Apagar este abastecimento?")) return; store.set(KRH, store.get(KRH, []).filter(r => r.id !== d.dataset.krdel)); kVendPaint(); return; }
     if (e.target.id === "kVNova") { const at = store.get(KCK, []); if (!at.length) return toast("Faça a contagem atual primeiro."); if (!confirm("Usar a contagem de hoje (mais o que foi abastecido, se contou depois) como novo «antes» e zerar a contagem?")) return;
       const b = store.get(KBK, []); const nb = { id: uid().slice(0, 8), t: Date.now(), por: kNome(), itens: at.map(i => ({ ...i })) }; b.unshift(nb); store.set(KBK, b.slice(0, 12)); kVSel = nb.id; kInc.clear(); store.set(KCK, []); kList = []; kVendPaint(); toast("📌 Novo «antes» salvo. A contagem foi zerada para o próximo período."); return; }
     if (e.target.id === "kVZap") { const bs = store.get(KBK, []).find(x => x.id === kVSel); if (!bs) return; const cc = kCalc(bs), dep = kDepois();
       const lin = cc.rows.filter(r => r.tinha || r.agora || r.chegou).map(r => `*${r.n}*\nAntes: ${fq(r.tinha)} · Hoje: ${fq(r.agora)}${r.chegou ? " · Abasteci: +" + fq(r.chegou) : ""}\n${r.vendeu < 0 ? "⚠ Conferir (tem mais do que devia: " + fq(-r.vendeu) + ")" : "Vendeu: " + fq(r.vendeu)} ${r.vendeu < 0 ? "" : r.u} · Total agora: ${fq(r.fica)} ${r.u}\n`);
-      const t = ["*RELATÓRIO KÓRIN*", "Loja: " + LOJA, "Feito por: " + kNome(), "", "Antes: contagem de " + kQ(bs.t), "Hoje: contagem de " + kQ(Date.now()) + (dep ? " (depois de abastecer)" : " (antes de abastecer)"), "Abastecido: " + (cc.rec.length ? cc.rec.reduce((n, r) => n + r.itens.length, 0) + " itens em " + cc.rec.length + " abastecimento" + (cc.rec.length === 1 ? "" : "s") : "nada"), "", ...lin, `*TOTAL VENDIDO: ${fmtU(cc.rows.filter(r => r.vendeu > 0))}*`].join("\n");
+      const t = ["*RELATÓRIO KÓRIN*", "Loja: " + LOJA, "Feito por: " + kNome(), "", "Antes: contagem de " + kD(bs.t), "Hoje: contagem de " + kQ(Date.now()) + (dep ? " (depois de abastecer)" : " (antes de abastecer)"), "Abastecido: " + (cc.rec.length ? cc.rec.reduce((n, r) => n + r.itens.length, 0) + " itens em " + cc.rec.length + " abastecimento" + (cc.rec.length === 1 ? "" : "s") : "nada"), "", ...lin, `*TOTAL VENDIDO: ${fmtU(cc.rows.filter(r => r.vendeu > 0))}*`].join("\n");
       if (navigator.share) navigator.share({ title: "Relatório KÓRIN", text: t }).catch(() => {}); else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank"); } };
 }
 function contagemScan(code) {

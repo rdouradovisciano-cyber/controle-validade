@@ -1,1 +1,1 @@
-{"versao":"2026.11.03-308","nota":"KÓRIN, Vendas: cada produto mostra Antes, Hoje, Vendeu, Abasteci e Total agora. Ao salvar o «antes» a contagem é zerada (não soma mais na antiga), e abastecimentos fechados antes do «antes» podem ser incluídos"}
+{"versao":"2026.11.03-309","nota":"KÓRIN, Vendas: botão para mudar a data do «antes» (ex.: 28/10). O relatório mostra só a data"}
