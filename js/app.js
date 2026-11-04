@@ -2021,10 +2021,10 @@ function acaoRoda(a) {
 { const a = new URLSearchParams(location.search).get("acao"); if (a) { try { history.replaceState(null, "", location.pathname); } catch (e) {} let n = 0; const t = setInterval(() => { n++; if (products.length || n > 12) { clearInterval(t); setTimeout(() => acaoRoda(a), 700); } }, 500); } }
 $("mnVis").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } visAbrir(); };
 
-// entrada: uma vez ao abrir o app e de novo se voltar depois de 1 h fora (sem repetir em recarregamentos rápidos)
-{ let fora = 0; const entra = () => { try { const u = Number(localStorage.getItem("validamais-ult-entrada") || 0); if (Date.now() - u < 60 * 60 * 1000) return; localStorage.setItem("validamais-ult-entrada", String(Date.now())); logAtv("entrou", "Abriu o app"); } catch (e) {} };
+// entrada: ao abrir o app (sem repetir se foi há menos de 10 min) e ao voltar depois de 30 min fora; a tela de Atividade junta as do mesmo dia numa linha só
+{ let fora = 0; const entra = () => { try { const u = Number(localStorage.getItem("validamais-ult-entrada") || 0); if (Date.now() - u < 10 * 60 * 1000) return; localStorage.setItem("validamais-ult-entrada", String(Date.now())); logAtv("entrou", "Abriu o app"); } catch (e) {} };
   setTimeout(entra, 2500);
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") fora = Date.now(); else if (fora && Date.now() - fora > 60 * 60 * 1000) { fora = 0; try { localStorage.setItem("validamais-ult-entrada", "0"); } catch (e) {} entra(); } }); }
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") fora = Date.now(); else if (fora && Date.now() - fora > 30 * 60 * 1000) { fora = 0; try { localStorage.setItem("validamais-ult-entrada", "0"); } catch (e) {} entra(); } }); }
 // ---------- reportar erro (qualquer pessoa envia; o Admin lê em "Atividade dos usuários → Erros") ----------
 const errBuf = []; const errPush = m => { errBuf.unshift(String(m).slice(0, 160)); errBuf.length = Math.min(errBuf.length, 5); };
 window.addEventListener("error", e => errPush(e.message || "erro")); window.addEventListener("unhandledrejection", e => errPush("promessa: " + ((e.reason && (e.reason.message || e.reason)) || "")));
