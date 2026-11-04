@@ -1754,7 +1754,8 @@ function kVendPaint() {
   <div class="csum"><div><span>VENDEU</span><b>${esc(fmtU(vend))}</b></div><div><span>TOTAL AGORA</span><b>${esc(fmtU2(c.rows))}</b></div></div>
   ${c.rows.map(r => `<div class="kvr${r.vendeu < 0 ? " cf" : ""}"><div class="kvn"><b>${esc(r.n)}</b>${!r.contado ? "<small>não contado hoje</small>" : r.vendeu < 0 ? "<small>conferir: tem mais do que devia</small>" : ""}</div><div class="kvg"><div><small>${kDM(base.t)}</small>${fq(r.tinha)}</div><div><small>Hoje</small>${fq(r.agora)}</div><div class="kvv"><small>Vendeu</small><b>${fq(r.vendeu)}</b></div><div><small>Abasteci</small>${r.chegou ? "+" + fq(r.chegou) : "–"}</div><div class="kvt"><small>Total agora</small><b>${fq(r.fica)}</b></div></div></div>`).join("")}
   ${conf.length || semC.length ? `<p class="note" style="margin-top:8px">${semC.length ? semC.length + " produto(s) sem contagem agora (aparecem como vendidos por inteiro). " : ""}${conf.length ? conf.length + " com sobra para conferir." : ""}</p>` : ""}
-  <div class="toolbar" style="margin-top:12px"><button type="button" class="primary big" id="kVZap">Enviar no WhatsApp</button><button type="button" class="secondary big" id="kVNova">📌 Novo estoque de referência</button></div>
+  <div class="toolbar" style="margin-top:12px"><button type="button" class="primary big" id="kVZap">Enviar no WhatsApp</button><button type="button" class="primary big" id="kVPdf">Enviar em PDF</button></div>
+  <div class="toolbar" style="margin-top:8px"><button type="button" class="secondary big" id="kVNova">📌 Novo estoque de referência</button></div>
   <p class="note" style="margin:6px 0 0">«Novo estoque de referência» usa a contagem atual como ponto de partida do próximo período.</p>`;
   box.querySelector("#kConta").onclick = e => { const b = e.target.closest("[data-c]"); if (b) { store.set("validamais-korin-conta", b.dataset.c); kVendPaint(); } };
   box.querySelector("#kVBase").onchange = e => { kVSel = e.target.value; kVendPaint(); };
@@ -1768,6 +1769,20 @@ function kVendPaint() {
     const inc = e.target.closest("[data-krinc]"); if (inc) { kInc.add(inc.dataset.krinc); kVendPaint(); return; } const d = e.target.closest("[data-krdel]"); if (d) { if (!confirm("Apagar este abastecimento?")) return; store.set(KRH, store.get(KRH, []).filter(r => r.id !== d.dataset.krdel)); kVendPaint(); return; }
     if (e.target.id === "kVNova") { const at = store.get(KCK, []); if (!at.length) return toast("Faça a contagem atual primeiro."); if (!confirm("Usar a contagem de hoje (mais o que foi abastecido, se contou depois) como novo «antes» e zerar a contagem?")) return;
       const b = store.get(KBK, []); const nb = { id: uid().slice(0, 8), t: Date.now(), por: kNome(), itens: at.map(i => ({ ...i })) }; b.unshift(nb); store.set(KBK, b.slice(0, 12)); kVSel = nb.id; kInc.clear(); store.set(KCK, []); kList = []; kVendPaint(); toast("📌 Novo «antes» salvo. A contagem foi zerada para o próximo período."); return; }
+    if (e.target.id === "kVPdf") { const bs = store.get(KBK, []).find(x => x.id === kVSel); if (!bs) return; const cc = kCalc(bs), dep = kDepois();
+      (async () => { try { const pdf = new V.jsPDF(); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text("RELATÓRIO KÓRIN", 14, 16);
+        pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Loja: ${LOJA}   Feito por: ${kNome()}`, 14, 23);
+        pdf.text(`${kDM(bs.t)}: contagem de ${kD(bs.t)}   Hoje: ${kQ(Date.now())} (${dep ? "depois" : "antes"} de abastecer)`, 14, 29);
+        const tv = {}, tf = {}; cc.rows.forEach(r => { if (r.vendeu > 0) tv[r.u] = (tv[r.u] || 0) + r.vendeu; tf[r.u] = (tf[r.u] || 0) + r.fica; });
+        const sm = t => Object.keys(t).map(u => fq(t[u]) + " " + u).join(" · ") || "0";
+        V.autoTable(pdf, { startY: 34, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [70, 60, 20] }, footStyles: { fillColor: [235, 230, 205], textColor: [40, 35, 10] },
+          columnStyles: { 1: { halign: "right" }, 2: { halign: "right" }, 3: { halign: "right", fontStyle: "bold" }, 4: { halign: "right" }, 5: { halign: "right", fontStyle: "bold" } }, didParseCell: d => { if (d.column.index > 0 && (d.section === "head" || d.section === "foot")) d.cell.styles.halign = "right"; },
+          head: [["PRODUTO", kDM(bs.t), "HOJE", "VENDEU", "ABASTECI", "TOTAL AGORA"]],
+          body: cc.rows.filter(r => r.tinha || r.agora || r.chegou).map(r => [r.n + (!r.contado ? " (não contado hoje)" : r.vendeu < 0 ? " (conferir)" : ""), fq(r.tinha), fq(r.agora), fq(r.vendeu), r.chegou ? "+" + fq(r.chegou) : "-", fq(r.fica)]),
+          foot: [["TOTAL", "", "", sm(tv), "", sm(tf)]] });
+        const blob = pdf.output("blob"), file = new File([blob], "vendas-korin-" + iso(new Date()) + ".pdf", { type: "application/pdf" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Relatório KÓRIN", files: [file] }); else download(blob, file.name);
+      } catch (er) { if (er.name !== "AbortError") { console.error(er); toast("Não foi possível gerar o PDF."); } } })(); return; }
     if (e.target.id === "kVZap") { const bs = store.get(KBK, []).find(x => x.id === kVSel); if (!bs) return; const cc = kCalc(bs), dep = kDepois();
       const lin = cc.rows.filter(r => r.tinha || r.agora || r.chegou).map(r => `*${r.n}*\n${kDM(bs.t)}: ${fq(r.tinha)} · Hoje: ${fq(r.agora)}${r.chegou ? " · Abasteci: +" + fq(r.chegou) : ""}\n${r.vendeu < 0 ? "⚠ Conferir (tem mais do que devia: " + fq(-r.vendeu) + ")" : "Vendeu: " + fq(r.vendeu)} ${r.vendeu < 0 ? "" : r.u} · Total agora: ${fq(r.fica)} ${r.u}\n`);
       const t = ["*RELATÓRIO KÓRIN*", "Loja: " + LOJA, "Feito por: " + kNome(), "", "Antes: contagem de " + kD(bs.t), "Hoje: contagem de " + kQ(Date.now()) + (dep ? " (depois de abastecer)" : " (antes de abastecer)"), "Abastecido: " + (cc.rec.length ? cc.rec.reduce((n, r) => n + r.itens.length, 0) + " itens em " + cc.rec.length + " abastecimento" + (cc.rec.length === 1 ? "" : "s") : "nada"), "", ...lin, `*TOTAL VENDIDO: ${fmtU(cc.rows.filter(r => r.vendeu > 0))}*`].join("\n");
