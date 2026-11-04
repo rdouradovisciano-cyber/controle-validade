@@ -1332,7 +1332,7 @@ html[data-fonte=grande] .pgh{font-size:16px}
 #search{display:none!important}
 
 /* menu ⋮ enxuto: atalhos que já existem em outro lugar saem; Perfil e Saúde só para o Admin */
-#mnSetor,#mnSetor2,#mnImp,#mnEtqHist,#mnTodos{display:none!important}
+
 body:not([data-perfil="Admin"]) #mnSaude,body:not([data-perfil="Admin"]) #mnHist{display:none!important}
 
 /* atividade dos usuários (Admin) */
@@ -1477,7 +1477,7 @@ html .pitem.prok{border-left-color:var(--cg,#4a9a78)}
 .memi{margin:8px 0 12px}.memi b{font-size:13px}.memb{height:8px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden;margin:6px 0 4px}.memb i{display:block;height:100%;background:var(--cg,#4a9d6f);border-radius:6px}
 
 body:not([data-perfil="Admin"]) #mnhAdm{display:none!important}
-#cImportar,#navImport{display:none!important}
+
 
 /* aviso de sem internet / aguardando envio */
 #offBar{position:fixed;left:0;right:0;top:0;z-index:60;display:none;padding:calc(6px + env(safe-area-inset-top)) 12px 6px;text-align:center;font-size:13px;font-weight:700;background:#5a4a1a;color:#ffe9a8;border-bottom:1px solid rgba(255,255,255,.15)}
