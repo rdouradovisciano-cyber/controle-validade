@@ -132,6 +132,7 @@ function notaSalva(id, texto) {
 }
 // ícone por tipo de produto (só Perecíveis; dá para desligar em 🎨 Cores e prazos)
 const ICK = "validamais-icones", iconesOn = () => store.get(ICK, true) !== false;
+const FXK = "validamais-fx", fxOn = () => store.get(FXK, true) !== false, fxAplica = () => { document.documentElement.dataset.fx = fxOn() ? "on" : "off"; }; fxAplica();
 const ICONES = [[/ravioli|\brana\b|massa|nhoque|lasanha|tortellini|capeletti|capelete|fettuccine|espaguete/, "🍝"], [/pop ?cheese/, "🧀"], [/b[uú]fala/, "🐃"], [/coalho/, "🍢"], [/requeij|cream cheese|polengh|polenghi|catupiry|cottage|ricota|ricotta|frescal|petit suisse/, "🥣"], [/queijo|qj|qjo|q\.j|muss|mozz|mussarela|muçarela|minas|parmes|provolone|prato|gorgonzola|brie|gouda|cheese|reino|canastra|colonial|meia cura|emmental|edam|azul|montanhes|le vin|su[ií]ço|grana|tilsit|raclette|pecorino|halloumi|padr[aã]o zero/, "🧀"], [/manteiga/, "🧈"], [/ovo/, "🥚"], [/iogurte|leite|vitamina|nata|coalhada|danone|creme de leite|kefir|bebida l[aá]ctea|molico|ninho/, "🥛"], [/camar[aã]o/, "🦐"], [/polvo|tent[aá]culo|lula/, "🐙"], [/peixe|salm[aã]o|til[aá]pia|bacalhau|atum|sardinha|merluza/, "🐟"], [/peru|blanquet/, "🦃"], [/frango|chester|coxa|sobrecoxa/, "🍗"], [/salsicha|linguica|linguiça|calabresa|hot ?dog|vienna|viena|frankfurt/, "🌭"], [/bacon|torresmo/, "🥓"], [/presunto|lombo|copa|pernil|apresuntado|fiambre|tender/, "🐖"], [/mortadela/, "🍖"], [/salame|salaminho|peperoni|pepperoni|pastrami/, "🍕"], [/carne|bife|picanha|alcatra|maminha|patinho|costela|hamb[uú]rguer|fil[eé]|bovin|su[ií]n/, "🥩"], [/guioza|gyoza/, "🥟"], [/sorvete|congelad|pizza|nuggets|empanad|polpa|açaí|acai|steak/, "🧊"], [/p[aã]o|bolo|torta|biscoito|massa folhada|croissant/, "🥖"], [/suco|refrigerante|[aá]gua|cerveja|vinho/, "🥤"], [/salada|alface|r[uú]cula|folha|verdura|legume/, "🥗"], [/doce|chocolate|sobremesa|pudim|mousse|gelatina/, "🍮"]];
 // ícone escolhido à mão (vale para todos os lotes do produto e para todos os aparelhos: sh_cfg/icones)
 const ICMK = "validamais-icones-map", icKey = n => norm(n).replace(/[.\/\[\]*`~]/g, "_").slice(0, 80) || "_";
@@ -205,8 +206,8 @@ function fillCategories() {
   opt("category", "Selecione"); opt("categoryFilter", "Todas as categorias"); opt("exportCategory", "Selecione a categoria");
 }
 function sirene() {   // aba Validades pisca em branco, sem som, só quando há produto que vence hoje (os já vencidos não contam)
-  const n = products.filter(p => { const d = daysLeft(p.expiry); return !p.retirado && d !== null && d === 0; }).length, b = $("tbLoja");
-  b.classList.toggle("siren", n > 0); $("sirN").textContent = n > 99 ? "99+" : n; b.title = n ? n + " produto(s) vencendo hoje" : "";
+  const fx = fxOn(), lim = visCfg().red, n = products.filter(p => { const d = daysLeft(p.expiry); return !p.retirado && d !== null && (fx ? d <= lim : d === 0); }).length, b = $("tbLoja");
+  b.classList.toggle("siren", n > 0); $("sirN").textContent = n > 99 ? "99+" : n; b.title = n ? n + (fx ? " produto(s) vencidos ou vencendo em até " + lim + " dia(s)" : " produto(s) vencendo hoje") : "";
 }
 setInterval(() => { if (typeof sirene === "function") sirene(); }, 60000);
 // ---------- histórico de produtos (o que entrou, mudou ou saiu — e quem) ----------
@@ -297,7 +298,7 @@ function render() {
     return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${iconeDe(p) ? `<span class="ico" data-id="${esc(p.id)}">${iconeDe(p)}</span>` : ""}${esc(p.name)}${notaDe(p.id) ? `<i class="pi-nt" title="${esc(notaDe(p.id).t)}">📝</i>` : ""}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act"><label class="pi-nota"><span>📝</span><input type="text" maxlength="60" data-nota="${esc(p.id)}" value="${esc((notaDe(p.id) || {}).t || "")}" placeholder="Nota (ex.: gôndola 3, já na promoção)" autocomplete="off" enterkeyhint="done"></label><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="secondary of" data-of="${esc(p.id)}">🏷️ Oferta</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
   $("acaoBar").classList.toggle("hidden", !acaoF);
-  { const urg = base.filter(p => { const k = prioDe(p); return k === "v" || k === "h" || k === "a"; }).length; try { if (navigator.setAppBadge) { if (urg > 0) navigator.setAppBadge(urg).catch(() => {}); else navigator.clearAppBadge && navigator.clearAppBadge().catch(() => {}); } } catch (e) {} }   // número no ícone do app = itens em vermelho
+  { const urg = base.filter(p => { const k = prioDe(p); return k === "v" || k === "h" || k === "a"; }).length; try { if (urg > 0 && fxOn() && !window.__sirV && document.visibilityState === "visible") { window.__sirV = 1; if (navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 450]); } } catch (e) {} try { if (navigator.setAppBadge) { if (urg > 0) navigator.setAppBadge(urg).catch(() => {}); else navigator.clearAppBadge && navigator.clearAppBadge().catch(() => {}); } } catch (e) {} }   // número no ícone do app = itens em vermelho
   { const n = rows.length, lt = $("listTotal"); lt.classList.toggle("hidden", !n); lt.textContent = retView ? `${n} ${n === 1 ? "item retirado" : "itens retirados"}` : `${n} ${n === 1 ? "item" : "itens"} na lista`; }
   if (typeof renderPesaveis === "function") renderPesaveis();
 }
@@ -1935,6 +1936,7 @@ function visAbrir() {
     <p class="note" style="margin:2px 0 8px">🟢 Verde: tudo que vence depois do amarelo.</p>
     <label>Conjuntos de cores</label><div class="vspre"><button type="button" data-p="pad">Padrão</button><button type="button" data-p="dal">Daltonismo</button><button type="button" data-p="sua">Vivas</button></div>
     <div class="vscores">${Object.keys(nomes).map(k => `<label class="vsc"><span>${nomes[k]}</span><input type="color" data-c="${k}" value="${v.cores[k]}"></label>`).join("")}</div>
+    <label class="nfrow"><span><b>🚨 Sirene e efeitos de urgência</b><small>Vencidos e 1 a 3 dias piscam, brilham e vibram ao abrir o app</small></span><input type="checkbox" id="vsFx" ${fxOn() ? "checked" : ""}></label>
     <label class="nfrow"><span><b>🧀 Ícones nos produtos</b><small>Um desenho por tipo (queijo, frios, laticínios…) nos Perecíveis</small></span><input type="checkbox" id="vsIco" ${iconesOn() ? "checked" : ""}></label>
     <label>Tamanho da letra da lista</label><div class="vspre" id="vsF"><button type="button" data-f="normal">Normal</button><button type="button" data-f="grande">Grande</button></div>
     <div class="vsprev" id="vsPrev"></div>
@@ -1944,6 +1946,7 @@ function visAbrir() {
   const prev = () => { q("#vsPrev").innerHTML = [["a", `1 a ${v.red} dias`], ["y", `${v.red + 1} a ${v.yel || "…"} dias`], ["g", "depois"]].map(([k, t]) => `<span style="background:${v.cores[k]};color:${txt(v.cores[k])}">${k === "a" ? "🔴" : k === "y" ? "🟡" : "🟢"} ${t}</span>`).join("");
     bg.querySelectorAll("[data-f]").forEach(b => b.classList.toggle("on", b.dataset.f === v.fonte)); bg.querySelectorAll("[data-c]").forEach(i => { i.value = v.cores[i.dataset.c]; }); };
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) bg.remove(); const p = e.target.closest("[data-p]"); if (p) { v.cores = { ...PRE[p.dataset.p] }; prev(); } const f = e.target.closest("[data-f]"); if (f) { v.fonte = f.dataset.f; prev(); } };
+  q("#vsFx").onchange = e => { store.set(FXK, e.target.checked); fxAplica(); sirene(); };
   q("#vsIco").onchange = e => { store.set(ICK, e.target.checked); render(); };
   q("#vsR").onchange = e => { v.red = Number(e.target.value); prev(); }; q("#vsY").onchange = e => { v.yel = e.target.value ? Number(e.target.value) : null; prev(); };
   bg.querySelectorAll("[data-c]").forEach(i => i.oninput = () => { v.cores[i.dataset.c] = i.value; prev(); });
