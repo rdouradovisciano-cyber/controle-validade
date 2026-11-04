@@ -23,13 +23,11 @@ await pg.click("#kFecha");await pg.waitForTimeout(300);
 // 3) contagem atual
 await pg.click('#kModo [data-m="cont"]');await pg.waitForTimeout(200);
 await pg.click("#kLimpa");await pg.waitForTimeout(200);
-await add("Vinho Tinto",15);await add("Queijo Brie",9);await add("Azeite",9);
+console.log("lista após salvar antes:",(await pg.innerText("#kLista")).replace(/\n+/g," ").slice(0,30));await add("Vinho Tinto",3);await add("Queijo Brie",2);await add("Azeite",5);
 // 4) vendas
 await pg.click('#kModo [data-m="vend"]');await pg.waitForTimeout(300);
 console.log((await pg.innerText("#kVend")).replace(/\n+/g," / "));
 await pg.screenshot({path:SP+"kor-vend.png",fullPage:true});
-await pg.click("#kVNova");await pg.waitForTimeout(300);
-console.log("após novo ref:",(await pg.innerText("#kVend")).replace(/\n+/g," / ").slice(0,200));
-await pg.click('#kConta [data-c="depois"]');await pg.waitForTimeout(200);console.log("depois:",(await pg.innerText("#kVend")).replace(/\n+/g," / ").slice(150,420));
 await pg.evaluate(()=>{navigator.share=t=>{window.__t=t.text;return Promise.resolve()}});await pg.click("#kVZap");await pg.waitForTimeout(200);console.log(await pg.evaluate(()=>window.__t));
+await pg.click("#kVNova");await pg.waitForTimeout(300);console.log("após novo antes, contagem:",(await pg.evaluate(()=>localStorage.getItem("validamais-contagem-kor"))));
 console.log(errs);await br.close();srv.close();

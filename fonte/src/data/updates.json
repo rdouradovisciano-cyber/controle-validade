@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-03T21:20:00-03:00",
+  "itens": [
+   "KÓRIN, Vendas: cada produto mostra Antes, Hoje, Vendeu, Abasteci e Total agora. Ao salvar o «antes» a contagem é zerada (não soma mais na antiga), e abastecimentos fechados antes do «antes» podem ser incluídos"
+  ]
+ },
+ {
   "t": "2026-11-03T20:55:00-03:00",
   "itens": [
    "“Perfil deste aparelho” volta para todos no menu ⋮ (em Preferências). Trocar de perfil continua pedindo a senha do Admin"
