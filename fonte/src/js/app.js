@@ -1772,7 +1772,7 @@ function kVendPaint() {
     if (e.target.id === "kVPdf") { const bs = store.get(KBK, []).find(x => x.id === kVSel); if (!bs) return; const cc = kCalc(bs), dep = kDepois();
       (async () => { try { const pdf = new V.jsPDF(); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text("RELATÓRIO KÓRIN", 14, 16);
         pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Loja: ${LOJA}   Feito por: ${kNome()}`, 14, 23);
-        pdf.text(`${kDM(bs.t)}: contagem de ${kD(bs.t)}   Hoje: ${kD(Date.now())} (${dep ? "depois" : "antes"} de abastecer)`, 14, 29);
+        pdf.text(`${kDM(bs.t)}: contagem de ${kD(bs.t)}   Hoje: ${kD(Date.now())}`, 14, 29);
         const tv = {}, tf = {}; cc.rows.forEach(r => { if (r.vendeu > 0) tv[r.u] = (tv[r.u] || 0) + r.vendeu; tf[r.u] = (tf[r.u] || 0) + r.fica; });
         const sm = t => Object.keys(t).map(u => fq(t[u]) + " " + u).join(" · ") || "0";
         V.autoTable(pdf, { startY: 34, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [70, 60, 20] }, footStyles: { fillColor: [235, 230, 205], textColor: [40, 35, 10] },
@@ -1780,12 +1780,12 @@ function kVendPaint() {
           head: [["PRODUTO", kDM(bs.t), "HOJE", "VENDEU", "ABASTECI", "TOTAL AGORA"]],
           body: cc.rows.filter(r => r.tinha || r.agora || r.chegou).map(r => [r.n + (!r.contado ? " (não contado hoje)" : r.vendeu < 0 ? " (conferir)" : ""), fq(r.tinha), fq(r.agora), fq(r.vendeu), r.chegou ? "+" + fq(r.chegou) : "-", fq(r.fica)]),
           foot: [["TOTAL", "", "", sm(tv), "", sm(tf)]] });
-        const blob = pdf.output("blob"), file = new File([blob], "vendas-korin-" + iso(new Date()) + ".pdf", { type: "application/pdf" });
+        const blob = pdf.output("blob"), file = new File([blob], "Contagem frango KÓRIN Sam's Radial.pdf", { type: "application/pdf" });
         if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Relatório KÓRIN", files: [file] }); else download(blob, file.name);
       } catch (er) { if (er.name !== "AbortError") { console.error(er); toast("Não foi possível gerar o PDF."); } } })(); return; }
     if (e.target.id === "kVZap") { const bs = store.get(KBK, []).find(x => x.id === kVSel); if (!bs) return; const cc = kCalc(bs), dep = kDepois();
       const lin = cc.rows.filter(r => r.tinha || r.agora || r.chegou).map(r => `*${r.n}*\n${kDM(bs.t)}: ${fq(r.tinha)} · Hoje: ${fq(r.agora)}${r.chegou ? " · Abasteci: +" + fq(r.chegou) : ""}\n${r.vendeu < 0 ? "⚠ Conferir (tem mais do que devia: " + fq(-r.vendeu) + ")" : "Vendeu: " + fq(r.vendeu)} ${r.vendeu < 0 ? "" : r.u} · Total agora: ${fq(r.fica)} ${r.u}\n`);
-      const t = ["*RELATÓRIO KÓRIN*", "Loja: " + LOJA, "Feito por: " + kNome(), "", "Antes: contagem de " + kD(bs.t), "Hoje: contagem de " + kD(Date.now()) + (dep ? " (depois de abastecer)" : " (antes de abastecer)"), "Abastecido: " + (cc.rec.length ? cc.rec.reduce((n, r) => n + r.itens.length, 0) + " itens em " + cc.rec.length + " abastecimento" + (cc.rec.length === 1 ? "" : "s") : "nada"), "", ...lin, `*TOTAL VENDIDO: ${fmtU(cc.rows.filter(r => r.vendeu > 0))}*`].join("\n");
+      const t = ["*RELATÓRIO KÓRIN*", "Loja: " + LOJA, "Feito por: " + kNome(), "", "Antes: contagem de " + kD(bs.t), "Hoje: contagem de " + kD(Date.now()), "Abastecido: " + (cc.rec.length ? cc.rec.reduce((n, r) => n + r.itens.length, 0) + " itens em " + cc.rec.length + " abastecimento" + (cc.rec.length === 1 ? "" : "s") : "nada"), "", ...lin, `*TOTAL VENDIDO: ${fmtU(cc.rows.filter(r => r.vendeu > 0))}*`].join("\n");
       if (navigator.share) navigator.share({ title: "Relatório KÓRIN", text: t }).catch(() => {}); else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank"); } };
 }
 function contagemScan(code) {
