@@ -1505,3 +1505,8 @@ html[data-fx="on"] .pitem.prv::after{content:"";position:absolute;top:0;bottom:0
 html[data-fx="on"] .pitem.prv .pi-badge{background:repeating-linear-gradient(135deg,#8f1020 0 10px,#5e0a15 10px 20px);background-size:56px 28px;animation:fxStripe 1.2s linear infinite}
 html[data-fx="on"] .pitem.prv .pi-nome::before{animation:fxWig 2.6s ease-in-out infinite;transform-origin:50% 60%}
 @media (prefers-reduced-motion:reduce){html[data-fx="on"] .pitem.prv,html[data-fx="on"] .pitem.prv::after,html[data-fx="on"] .pitem.prv .pi-badge,html[data-fx="on"] .pitem.prv .pi-nome::before{animation:none!important}}
+
+/* itens do KÓRIN */
+body:not([data-setor="KÓRIN"]) #cKorEsc{display:none!important}
+.kqlist{max-height:52vh;overflow:auto;margin:8px 0;border:1px solid var(--ln);border-radius:12px}
+.kqrow{display:flex;align-items:center;gap:12px;padding:11px 12px;border-bottom:1px solid var(--ln);cursor:pointer}.kqrow input{width:22px;height:22px;flex:none}.kqrow span{font-weight:700;overflow-wrap:anywhere}
