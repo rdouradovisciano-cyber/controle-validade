@@ -7,7 +7,7 @@ r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".c
 const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
 const ctx=await br.newContext({viewport:{width:411,height:860}});const pg=await ctx.newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
 pg.on("dialog",d=>d.type()=="prompt"?d.accept("28/10"):d.accept());
-await pg.addInitScript(()=>{localStorage.setItem("validamais-operador",JSON.stringify("Renato"));localStorage.setItem("validamais-perfil","Admin");sessionStorage.setItem("validamais-setor","KÓRIN")});
+await pg.addInitScript(()=>{localStorage.setItem("validamais-operador",JSON.stringify("Renato(Admin)"));localStorage.setItem("validamais-perfil","Admin");sessionStorage.setItem("validamais-setor","KÓRIN")});
 await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(2500);
 const vis=async s=>pg.locator(s).isVisible();
 console.log("aba contagem?",await vis("#kModo"),"| botão base:",await vis("#kBase"),"| fechar:",await vis("#kFecha"));
