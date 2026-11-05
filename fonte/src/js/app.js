@@ -456,15 +456,28 @@ function dupInfo(x) {   // EAN, códigos e o que há na loja (lotes com quantida
   const loja = ls.length ? "Na loja: " + ls.slice(0, 4).map(l => `${esc(l.q)} un · vence ${fmt(l.e)}`).join(" | ") + (ls.length > 4 ? ` | +${ls.length - 4}` : "") : "Na loja: nenhum lote com validade";
   return `<small class="dupi">${esc(cods)}</small><small class="dupi">${loja}${ret ? ` · ${ret} retirado(s)` : ""}</small>`;
 }
+async function dupUnir(gi, ni, paint) {   // une o grupo num só cadastro: nome do escolhido + EAN/PLU/código completos (os que faltam vêm dos outros)
+  const g = dupGroups()[gi]; if (!g || !g[ni]) return; const alvo = g[ni];
+  const pega = k => { const own = [...alvo[k]]; if (own.length) return own[0]; for (const o of g) if (o[k].size) return [...o[k]][0]; return ""; };
+  const ean = pega("ean"), plu = pega("plu"), doa = pega("doa"), set = new Set(g.map(x => norm(x.nome)));
+  const ok = await askConfirm({ icon: "🔗", title: "Unir cadastros?", text: "«" + alvo.nome + "»", sub: `Todos ficam com este nome e com ${ean ? "EAN " + ean : "sem EAN"}${plu ? " · PLU " + plu : ""}${doa ? " · Cód. " + doa : ""}. As validades e quantidades na loja continuam.`, ok: "Unir", cancel: "Cancelar" });
+  if (!ok) return; let n = 0;
+  products.forEach(p => { if (!set.has(norm(p.name || ""))) return; const d = { name: alvo.nome }; if (ean) d.barcode = ean; if (plu) d.codigo_balanca = plu; if (doa) d.codigo_doacao = doa;
+    if (Object.keys(d).every(k => (p[k] || "") === d[k])) return; n++;
+    if (db) V.updateDoc(V.doc(db, "products", p.id), { ...d, updatedAt: V.serverTimestamp() }).catch(err => console.error(err)); else Object.assign(p, d); });
+  persist(); if (!db) render(); toast(`${n} cadastro(s) unidos em «${alvo.nome}».`); paint();
+}
 function dupReview() {
   const bg = document.createElement("div"); bg.className = "askbg";
   const paint = () => { const gs = dupGroups(); bg.dataset.g = JSON.stringify(gs.map(a => a.map(x => x.nome)));
     bg.innerHTML = `<div class="ask" style="max-height:86dvh;overflow:auto;text-align:left"><div class="ai" style="text-align:center">🔍</div><h3 style="text-align:center">Cadastros parecidos</h3>` +
-      (gs.length ? `<p style="text-align:center">Escolha o nome certo de cada grupo. Os outros serão renomeados.</p>` + gs.map((a, gi) => `<div class="dupg">${a.map((x, ni) => `<div class="dupr"><span><b>${esc(x.nome)}</b> <small>${x.n} cadastro(s)</small>${dupInfo(x)}</span><button type="button" data-g="${gi}" data-n="${ni}">Usar este</button></div>`).join("")}</div>`).join("")
+      (gs.length ? `<p style="text-align:center">Escolha o nome certo de cada grupo. Os outros serão renomeados.</p>` + gs.map((a, gi) => `<div class="dupg">${a.map((x, ni) => `<div class="dupr"><span><b>${esc(x.nome)}</b> <small>${x.n} cadastro(s)</small>${dupInfo(x)}</span><span style="display:flex;flex-direction:column;gap:6px"><button type="button" data-g="${gi}" data-n="${ni}">Usar este</button><button type="button" class="secondary" data-u="1" data-g="${gi}" data-n="${ni}">Unir neste</button></span></div>`).join("")}</div>`).join("")
         : `<p style="text-align:center"><b>Nenhum nome parecido encontrado ✓</b></p>`) +
       `<div class="arow"><button type="button" class="ok" data-x="1">Fechar</button></div></div>`; };
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) return bg.remove();
-    const b = e.target.closest("[data-g]"); if (!b) return; const gs = JSON.parse(bg.dataset.g), alvo = gs[b.dataset.g][b.dataset.n], set = new Set(gs[b.dataset.g].map(norm)); let n = 0;
+    const b = e.target.closest("[data-g]"); if (!b) return;
+    if (b.dataset.u) return dupUnir(+b.dataset.g, +b.dataset.n, paint);
+    const gs = JSON.parse(bg.dataset.g), alvo = gs[b.dataset.g][b.dataset.n], set = new Set(gs[b.dataset.g].map(norm)); let n = 0;
     products.forEach(p => { if (set.has(norm(p.name || "")) && (p.name || "").trim() !== alvo) { n++;
       if (db) V.updateDoc(V.doc(db, "products", p.id), { name: alvo, updatedAt: V.serverTimestamp() }).catch(err => console.error(err)); else p.name = alvo; } });
     persist(); if (!db) render(); toast(`${n} cadastro(s) renomeado(s) para «${alvo}».`); paint(); };
