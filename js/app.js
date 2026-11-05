@@ -1027,6 +1027,8 @@ function balIco(w, fb, soft) { const n = norm(String(w || "")); for (const [re, 
   if (fb) return balIco(fb);
   if (soft) return "";
   return `<span class="bi bl">${esc((String(w || "?").trim().charAt(0) || "?").toUpperCase())}</span>`; }
+// atalhos (balões) da aba de baixo: o que o Admin deixa aqui vale para todos os aparelhos (sh_cfg/atalhos)
+function dBalSave(c) { store.set("validamais-dbal", c || null); if (db) V.setDoc(V.doc(db, "sh_cfg", "atalhos"), { l: c || [], em: Date.now() }).catch(e => { console.warn(e); toast("Atalhos salvos só neste aparelho (a nuvem recusou)."); }); }
 function dBalCfg(){ const v=store.get("validamais-dbal",null); return Array.isArray(v)&&v.length?v:null; }
 function dBalEnsure(){ let c=dBalCfg(); if(c) return c; const a=$("dTop6")._auto||[]; c=a.map(f=>({w:dTitle(f.w),v:f.list.map(o=>({n:o.n,c:o.c||"",u:o.u||"kg"}))})); store.set("validamais-dbal",c); return c; }
 let dbIdx=-1, dbDraft=null;
@@ -1044,18 +1046,18 @@ $("dbSug").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; let n
   $("dbBusca").value=""; $("dbSug").innerHTML=""; dbRender(); };
 $("dbTipos").onclick=e=>{ const b=e.target.closest("[data-dx]"); if(!b) return; dbDraft.v.splice(Number(b.dataset.dx),1); dbRender(); };
 function dbMvUpd(){ const c=dBalCfg()||[]; $("dbMv").style.display=dbIdx>=0?"":"none"; $("dbEsq").disabled=!(dbIdx>0); $("dbDir").disabled=!(dbIdx>=0&&dbIdx<c.length-1); }
-function dbMove(d){ const c=dBalEnsure(), j=dbIdx+d; if(dbIdx<0||j<0||j>=c.length) return; [c[dbIdx],c[j]]=[c[j],c[dbIdx]]; store.set("validamais-dbal",c); dbIdx=j; dbMvUpd(); dTop6Render(); }
+function dbMove(d){ const c=dBalEnsure(), j=dbIdx+d; if(dbIdx<0||j<0||j>=c.length) return; [c[dbIdx],c[j]]=[c[j],c[dbIdx]]; dBalSave(c); dbIdx=j; dbMvUpd(); dTop6Render(); }
 $("dbEsq").onclick=()=>dbMove(-1); $("dbDir").onclick=()=>dbMove(1);
 function dbClose(){ $("dBalModal").classList.add("hidden"); }
 $("dbX").onclick=dbClose;
 $("dbSalvar").onclick=()=>{ const w=$("dbNome").value.trim().slice(0,24); if(!w) return toast("Dê um nome ao balão."); if(!dbDraft.v.length) return toast("Adicione pelo menos um tipo."); dbDraft.w=w;
-  const c=dBalEnsure(); if(dbIdx>=0) c[dbIdx]=dbDraft; else c.push(dbDraft); store.set("validamais-dbal",c.slice(0,9)); dbClose(); dTop6Render(); };
-$("dbExcluir").onclick=()=>{ const c=dBalEnsure(); if(dbIdx<0) return; const rem=c.splice(dbIdx,1)[0]; store.set("validamais-dbal",c.length?c:null); dbClose(); dTop6Render(); toast(`Balão "${rem.w}" excluído.`); };
+  const c=dBalEnsure(); if(dbIdx>=0) c[dbIdx]=dbDraft; else c.push(dbDraft); dBalSave(c.slice(0,9)); dbClose(); dTop6Render(); };
+$("dbExcluir").onclick=()=>{ const c=dBalEnsure(); if(dbIdx<0) return; const rem=c.splice(dbIdx,1)[0]; dBalSave(c.length?c:null); dbClose(); dTop6Render(); toast(`Balão "${rem.w}" excluído.`); };
 $("dBalCol").onclick=()=>{ store.set("validamais-dcol",!store.get("validamais-dcol",false)); dTop6Render(); };
 $("dT6L").onclick=()=>{ if(window.dEditBal||$("dTop6")._open>=0) return; $("dBalCol").onclick(); };   // tocar no título recolhe/mostra os atalhos
 $("dT6L").onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); $("dT6L").onclick(); } };
 $("dBalEdit").onclick=()=>{ window.dEditBal=!window.dEditBal; $("dTop6")._open=-1; dTop6Render(); };
-$("dBalAuto").onclick=()=>{ if(!confirm("Voltar aos atalhos automáticos? Os seus atalhos serão apagados.")) return; store.set("validamais-dbal",null); dTop6Render(); };
+$("dBalAuto").onclick=()=>{ if(!confirm("Voltar aos atalhos automáticos? Os seus atalhos serão apagados.")) return; dBalSave(null); dTop6Render(); };
 function dFinOpen(){ if(!don.itens.length) return toast("Nada lançado ainda."); const nomes=[...don.itens].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR")).map(i=>esc(i.nome.replace(/\s+(kg|un)$/i,""))).join(" · ");
   $("dFinBody").innerHTML=`<div class="ft"><span>Itens</span><b>${don.itens.length}</b></div><div class="ft"><span>Total</span><b>${[sumU("kg")>0?fq(sumU("kg"))+" kg":"",sumU("un")>0?fq(sumU("un"))+" un":""].filter(Boolean).join(" + ")}</b></div><div class="ft" style="font-weight:600;font-size:13px">${nomes}</div>`;
   $("dFinSheet").classList.remove("hidden"); }
@@ -2019,6 +2021,10 @@ function visAbrir() {
   prev();
 }
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "korin"), sn => { korNuvem = (sn.exists() && sn.data().m) || {}; separaLixo(rawAll); lixoBtn(); render(); try { cadPaint(); kPaint(); } catch (e) {} }, e => console.warn("korin", e)); } catch (e) { console.warn(e); } }
+if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "atalhos"), sn => {
+  if (sn.exists() && Array.isArray(sn.data().l)) { const l = sn.data().l, at = JSON.stringify(store.get("validamais-dbal", null)), nv = JSON.stringify(l.length ? l : null); if (at !== nv) { store.set("validamais-dbal", l.length ? l : null); try { dTop6Render(); } catch (e) {} } }
+  else if (!sn.exists() && PERFIL === "Admin" && dBalCfg()) dBalSave(dBalCfg());   // primeira vez: os atalhos do Admin viram os oficiais
+}, e => console.warn("atalhos", e)); } catch (e) { console.warn(e); } }
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "icones"), sn => { icoNuvem = (sn.exists() && sn.data().m) || {}; render(); }, e => console.warn("icones", e)); } catch (e) { console.warn(e); } }
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "notas"), sn => { notasNuvem = (sn.exists() && sn.data().n) || {}; const f = document.activeElement; if (!(f && f.matches && f.matches("[data-nota]"))) render(); }, e => console.warn("notas", e)); } catch (e) { console.warn(e); } }
 visAplica();

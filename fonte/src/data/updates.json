@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-05T00:25:00-03:00",
+  "itens": [
+   "Atalhos da aba de baixo (Doação): os atalhos que o Admin montou viram oficiais e aparecem iguais em todos os aparelhos; mudanças feitas depois também são passadas para todos"
+  ]
+ },
+ {
   "t": "2026-11-05T00:10:00-03:00",
   "itens": [
    "Cadastros parecidos: novo botão «Unir neste» — junta os cadastros num só, com o nome escolhido e o EAN/PLU/código completos (preenche o que faltava num deles); validades e quantidades na loja continuam"
