@@ -11,10 +11,10 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=331">
+<link rel="stylesheet" href="css/app.css?v=333">
 <title>Valida+ | Controle de validade</title>
-<script src="js/tema.js?v=331"></script>
-<!-- const APP_VERSION = "2026.11.05-331" -->
+<script src="js/tema.js?v=333"></script>
+<!-- const APP_VERSION = "2026.11.05-333" -->
 </head>
 <body data-tab="Loja">
 <div id="splash" role="status" aria-live="polite"><style>
@@ -130,14 +130,14 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 <div id="cIdx" class="cadindex" hidden aria-label="Índice A a Z"></div>
 </div>
 <div id="tabContagem" class="hidden">
-<div class="vspre" id="kModo" style="margin:0 0 10px"><button type="button" data-m="cont" class="on">Contagem</button><button type="button" data-m="rec">Abastecimento</button><button type="button" data-m="vend">Vendas</button></div>
+<div class="kpass" id="kModo"><button type="button" data-m="ant"><b>① Tinha antes</b><small id="kS1"></small></button><button type="button" data-m="rec"><b>② Chegou</b><small id="kS2"></small></button><button type="button" data-m="cont" class="on"><b>③ Tem agora</b><small id="kS3"></small></button><button type="button" data-m="vend"><b>④ Vendeu</b><small id="kS4"></small></button></div>
 <section class="panel" id="kEntrada"><h2 class="h2" id="kTitulo">Contagem · KÓRIN</h2><p class="note" id="kNota">Busque o produto (ou bipe), digite a quantidade e adicione. Depois envie a lista.</p>
 <input id="kBusca" type="search" placeholder="Buscar produto ou digitar o nome" autocomplete="off"><div id="kSug" class="rows sug"></div>
 <div id="kSel" hidden><div class="kselnome" id="kSelNome"></div><div class="stepper"><input id="kQtd" type="text" inputmode="decimal" autocomplete="off" placeholder="Quantidade"><select id="kUn" aria-label="Unidade"><option value="un">un</option><option value="cx">cx</option><option value="pct">pct</option><option value="kg">kg</option></select></div>
 <div class="toolbar" style="margin-top:10px"><button type="button" class="primary big" id="kAdd">＋ Adicionar</button><button type="button" class="secondary" id="kCancela">Cancelar</button></div></div></section>
 <section class="panel" id="kListaBox"><div class="csum"><div><span>PRODUTOS</span><b id="kSumP">0</b></div><div><span>TOTAL</span><b id="kSumT">0</b></div></div><div id="kLista"></div>
 <div class="toolbar" style="margin-top:12px"><button type="button" class="primary big" id="kZap">Enviar no WhatsApp</button><button type="button" class="secondary big" id="kPdf">PDF</button></div>
-<button type="button" class="secondary big" id="kBase" style="margin-top:10px;width:100%">📌 Salvar como estoque de referência</button><button type="button" class="primary big" id="kFecha" style="margin-top:10px;width:100%" hidden>✔ Fechar abastecimento</button>
+<button type="button" class="secondary big" id="kBase" style="margin-top:10px;width:100%">📌 Salvar «Tinha antes»</button><button type="button" class="primary big" id="kFecha" style="margin-top:10px;width:100%" hidden>✔ Guardar o que chegou</button>
 <button type="button" id="kLimpa" class="secondary" style="display:block;margin:10px 0 0 auto;min-height:34px;padding:4px 12px;font-size:13px">Limpar contagem</button></section>
 <section class="panel" id="kVend" hidden></section>
 </div>
@@ -242,16 +242,16 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 </div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
-<script src="js/config.js?v=331"></script>
+<script src="js/config.js?v=333"></script>
 <script src="vendor.js"></script>
-<script src="js/version.js?v=331"></script>
-<script src="js/login.js?v=331"></script>
-<script src="js/app.js?v=331"></script>
-<script src="js/nav.js?v=331"></script>
-<script src="js/operador.js?v=331"></script>
-<script src="js/teclado.js?v=331"></script>
-<script src="js/menu.js?v=331"></script>
-<script src="js/status.js?v=331"></script>
-<script src="js/inventario.js?v=331"></script>
-<script src="js/doacao-busca.js?v=331"></script>
+<script src="js/version.js?v=333"></script>
+<script src="js/login.js?v=333"></script>
+<script src="js/app.js?v=333"></script>
+<script src="js/nav.js?v=333"></script>
+<script src="js/operador.js?v=333"></script>
+<script src="js/teclado.js?v=333"></script>
+<script src="js/menu.js?v=333"></script>
+<script src="js/status.js?v=333"></script>
+<script src="js/inventario.js?v=333"></script>
+<script src="js/doacao-busca.js?v=333"></script>
 </body></html>

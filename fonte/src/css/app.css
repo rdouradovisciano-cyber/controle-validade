@@ -1529,3 +1529,9 @@ body:not([data-setor="KÓRIN"]) #cKorEsc{display:none!important}
 .moremenu button .mi{flex:none;width:26px;text-align:center;font-style:normal;font-size:20px;line-height:1}
 .moremenu button{min-height:46px!important;gap:10px!important}
 .moremenu .mnh{padding:14px 14px 4px!important}
+
+/* KÓRIN em passos */
+.kpass{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px}
+.kpass button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:58px;padding:8px 12px;border-radius:14px;text-align:left}
+.kpass button b{font-size:15px;font-weight:800}.kpass button small{font-size:12px;font-weight:600;opacity:.75}
+.kpass button.on{background:#e5b92b;color:#241c00}.kpass button.on small{opacity:.8}

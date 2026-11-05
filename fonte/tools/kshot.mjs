@@ -1,0 +1,24 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve("/home/claude/valida/dist");
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f))b=Buffer.from(b.toString().replace(/apiKey:\s*"[^"]*"/g,'apiKey:"COLE_"').replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const pg=await (await br.newContext({viewport:{width:411,height:860}})).newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
+await pg.addInitScript(()=>{if(localStorage.getItem("s"))return;localStorage.setItem("s","1");localStorage.setItem("validamais-operador",JSON.stringify("Renato"));localStorage.setItem("validamais-perfil","Admin");sessionStorage.setItem("validamais-setor","KÓRIN");});
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(2500);
+const shot=async n=>{await pg.screenshot({path:"/tmp/claude-0/-home-claude/8acfd74b-066d-5685-9053-e1d75c13691f/scratchpad/k"+n+".png"})};
+await pg.click("#tbContagem");await pg.waitForTimeout(400);await shot(1);
+pg.on("dialog",d=>d.accept(d.type()==="prompt"?"28/10":undefined));
+const add=async(n,q)=>{await pg.fill("#kBusca",n);await pg.click('#kSug [data-kp="novo"]');await pg.fill("#kQtd",String(q));await pg.click("#kAdd");};
+await add("Coxa 700g",10);await add("Sobrecoxa 700g",20);
+await pg.click("#kBase");await pg.waitForTimeout(300);
+console.log("modo após salvar:",await pg.innerText("#kTitulo"));
+await add("Coxa 700g",5);await pg.click("#kFecha");await pg.waitForTimeout(300);
+console.log("modo após guardar:",await pg.innerText("#kTitulo"));
+await add("Coxa 700g",8);await add("Sobrecoxa 700g",12);
+console.log(await pg.evaluate(()=>[...document.querySelectorAll("#kModo button")].map(b=>b.innerText.replace(/\n/g," – "))));
+await pg.click('#kModo [data-m="vend"]');await pg.waitForTimeout(400);await shot(2);
+console.log((await pg.innerText("#kVend")).replace(/\n+/g," | ").slice(0,900));
+await br.close();srv.close();console.log(errs);
