@@ -7,7 +7,7 @@ r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".c
 const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
 const pg=await (await br.newContext({viewport:{width:411,height:860}})).newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
 await pg.addInitScript(()=>{if(localStorage.getItem("s"))return;localStorage.setItem("s","1");localStorage.setItem("validamais-operador",JSON.stringify("Renato"));localStorage.setItem("validamais-perfil","Admin");
-const now=Date.now(),h=3600e3;const l=[];[0.2,1,3,8,15,16].forEach(x=>l.push({t:now-x*h,a:"entrou",quem:"Renato",txt:"Abriu o app",perfil:"Admin",setor:"FLV"}));l.push({t:now-2*h,a:"retirou",quem:"Renato",txt:"Queijo",perfil:"Admin",setor:"Perecíveis"});l.push({t:now-30*h,a:"entrou",quem:"Renato",txt:"Abriu o app",perfil:"Admin",setor:"FLV"});l.push({t:now-31*h,a:"entrou",quem:"Renato",txt:"Abriu o app",perfil:"Admin",setor:"FLV"});
+const now=Date.now(),h=3600e3;const l=[];[0.2,1,3,8,15,16].forEach(x=>l.push({t:now-x*h,a:"entrou",quem:"Renato",txt:"Abriu o app",perfil:"Admin",setor:"FLV"}));l.push({t:now-5*h,a:"cadastrou",quem:"Rodolfo Teixeira",txt:"Queijo member 1kg · vence 28/11/2026 · qtd 1",perfil:"Perecíveis",setor:"Perecíveis"});l.push({t:now-2*h,a:"retirou",quem:"Renato",txt:"Queijo",perfil:"Admin",setor:"Perecíveis"});l.push({t:now-30*h,a:"entrou",quem:"Renato",txt:"Abriu o app",perfil:"Admin",setor:"FLV"});l.push({t:now-31*h,a:"entrou",quem:"Renato",txt:"Abriu o app",perfil:"Admin",setor:"FLV"});
 localStorage.setItem("validamais-atv",JSON.stringify(l))});
 await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(2000);
 await pg.click("#moreBtn");await pg.click("#mnAtv");await pg.waitForTimeout(500);
