@@ -1524,3 +1524,8 @@ body:not([data-setor="KÓRIN"]) #cKorEsc{display:none!important}
 .atvsum div{display:block!important;padding:6px 0!important}.atvsum div+div{border-top:1px solid var(--ln)}.atvsum div span{display:block;font-size:15px}.atvsum div small{display:block;text-align:left!important;margin-top:1px;font-size:12.5px}
 .atvr.ent{padding:5px 0;opacity:.62}.atvr.ent b{font-size:13px}.atvr.ent time{font-weight:700;font-size:13px}.atvr.ent small{display:inline;margin:0}
 .atvt button{white-space:nowrap;font-size:13px!important;padding:0 4px!important}.atvr.ent small{white-space:nowrap}
+
+/* menu ⋮ organizado: ícone emoji alinhado, itens mais compactos */
+.moremenu button .mi{flex:none;width:26px;text-align:center;font-style:normal;font-size:20px;line-height:1}
+.moremenu button{min-height:46px!important;gap:10px!important}
+.moremenu .mnh{padding:14px 14px 4px!important}

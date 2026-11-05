@@ -22,7 +22,7 @@ alt();if(window.ResizeObserver)new ResizeObserver(alt).observe(top);
 /* menu ⋮: tema (claro/escuro; o escuro é sempre preto OLED) */(function(){
 var g=function(i){return document.getElementById(i)};
 function lab(){var dk=document.documentElement.dataset.tema==="dark",b=g("mnTema");
-if(b){var u=b.querySelector("use");if(u)u.setAttribute("href",dk?"#i-sol":"#i-lua");b.lastChild.textContent=dk?"Mudar para tema claro":"Mudar para tema escuro"}}
+if(b){var u=b.querySelector(".mi");if(u)u.textContent=dk?"☀️":"🌙";b.lastChild.textContent=dk?"Mudar para tema claro":"Mudar para tema escuro"}}
 function clk(id){var m=g("moreMenu"),bg=g("moreBg");if(m)m.classList.add("hidden");if(bg)bg.classList.add("hidden");var e=g(id);if(e)e.click();setTimeout(lab,80)}
 var b=g("mnTema");if(b)b.onclick=function(){clk("temaBtn")};
 var mb=g("moreBtn");if(mb)mb.addEventListener("click",lab);
