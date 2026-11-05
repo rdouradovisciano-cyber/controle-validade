@@ -2,7 +2,7 @@
  {
   "t": "2026-11-05T20:40:00-03:00",
   "itens": [
-   "Fiscal de loja: toque no produto para ver o código de barras desenhado (ler no caixa), o PLU de peso e o código interno/doação; filtro por setor; e agora ela também pode cadastrar produto novo escolhendo o setor (FLV, Perecíveis, Açougue, Mercearia, Padaria…)"
+   "Fiscal de loja: botão de bipar como nos outros setores (bipou, aparecem os códigos); códigos EAN, PLU e interno/doação em letra grande na lista; filtro Todos/FLV/Perecíveis; o cadastro fica escondido e só abre em «Não achou? Cadastrar produto»"
   ]
  },
  {
