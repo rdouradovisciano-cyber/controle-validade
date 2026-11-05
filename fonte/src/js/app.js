@@ -216,7 +216,7 @@ function sirene() {   // aba Validades pisca em branco, sem som, só quando há 
 setInterval(() => { if (typeof sirene === "function") sirene(); }, 60000);
 // ---------- histórico de produtos (o que entrou, mudou ou saiu — e quem) ----------
 const PHK = "validamais-phbase", PLK = "validamais-phlog", PHF = ["name", "expiry", "quantity", "category", "barcode", "codigo_balanca", "codigo_doacao", "retirado"];
-const PH_CORTE = (() => { let c = Number(localStorage.getItem("validamais-ph-corte") || 0); if (!c) { c = Date.now(); try { localStorage.setItem("validamais-ph-corte", String(c)); } catch (e) {} } return c; })();   // só entra no histórico o que for cadastrado depois deste momento
+const PH_CORTE = (() => { let c = Number(localStorage.getItem("validamais-ph-corte2") || 0); if (!c) { c = Date.now(); try { localStorage.setItem("validamais-ph-corte2", String(c)); } catch (e) {} } return c; })();   // só entra no histórico o que for cadastrado depois deste momento
 const HIST_MS = 3 * 864e5;   // históricos (produtos e etiquetas) guardam no máximo 3 dias
 let phBase = store.get(PHK, null), phLog = (store.get(PLK, []) || []).filter(e => Date.now() - (e.t || 0) < HIST_MS), lastAct = 0;
 ["pointerdown", "keydown"].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); }, true));
@@ -226,7 +226,8 @@ function phDiff() {
   const cur = {}; products.forEach(p => { cur[p.id] = phLite(p); });
   if (!phBase) { phBase = cur; store.set(PHK, cur); return; }
   const t = Date.now(), who = (t - lastAct < 8000) ? myName() : "outro aparelho (ou com o app fechado)", ev = [];
-  const add = Object.keys(cur).filter(i => !phBase[i]), del = Object.keys(phBase).filter(i => !cur[i]), chg = [];
+  const nasc = i => { const o = products.find(x => x.id === i) || {}, v = o.createdAt || o.updatedAt, n = v && v.toMillis ? v.toMillis() : Number(v); return n || 0; };
+  const add = Object.keys(cur).filter(i => !phBase[i] && nasc(i) >= PH_CORTE), del = Object.keys(phBase).filter(i => !cur[i]), chg = [];
   Object.keys(cur).forEach(i => { const a = phBase[i], b = cur[i]; if (!a) return;
     const d = []; PHF.forEach(f => { if (String(a[f] ?? "") !== String(b[f] ?? "")) d.push(f === "expiry" ? `validade ${fmt(a.expiry)} → ${fmt(b.expiry)}` : f === "quantity" ? `qtd ${a.quantity} → ${b.quantity}` : f === "retirado" ? (b.retirado ? "retirado da loja" : "voltou para a loja") : `${f === "name" ? "nome" : f === "category" ? "setor" : f}: ${a[f] || "—"} → ${b[f] || "—"}`); });
     if (d.length) chg.push({ n: b.name, d: d.join("; ") }); });
