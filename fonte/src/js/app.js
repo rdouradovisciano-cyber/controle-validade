@@ -3,20 +3,20 @@
 "use strict";
 if (window.__LOGIN_WAIT) return;
 const C = window.VALIDA_CONFIG || {}, V = window.V || {}, fb = C.firebase || {};
-const PER = "Perecíveis", KOR = "KÓRIN";
+const PER = "Perecíveis", KOR = "KÓRIN", FIS = "Fiscal";   // Fiscal de loja: só consulta, vê os cadastros de FLV e Perecíveis juntos
 const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros", PER, KOR];
 // setor escolhido na abertura (sessionStorage): "FLV" (tudo que não é Perecíveis, como sempre foi) ou "Perecíveis" (cadastros e validades próprios)
 // perfil do aparelho (escolhido uma vez): "FLV" e "Perecíveis" entram direto e só nesse setor; "Admin" acessa os dois
 const PERFIL_K = "validamais-perfil";
-let PERFIL = (() => { try { const s = localStorage.getItem(PERFIL_K); return s === "FLV" || s === PER || s === "Admin" ? s : null; } catch (e) { return null; } })();
-let SETOR = (() => { if (PERFIL === "FLV" || PERFIL === PER) return PERFIL; try { const s = sessionStorage.getItem("validamais-setor"); return s === PER || s === KOR ? s : "FLV"; } catch (e) { return "FLV"; } })();
+let PERFIL = (() => { try { const s = localStorage.getItem(PERFIL_K); return s === "FLV" || s === PER || s === FIS || s === "Admin" ? s : null; } catch (e) { return null; } })();
+let SETOR = (() => { if (PERFIL === "FLV" || PERFIL === PER || PERFIL === FIS) return PERFIL; try { const s = sessionStorage.getItem("validamais-setor"); return s === PER || s === KOR || s === FIS ? s : "FLV"; } catch (e) { return "FLV"; } })();
 const setorDe = p => p.category === PER ? PER : "FLV";   // Perecíveis tem cadastro próprio; FLV e KÓRIN usam o mesmo cadastro (categoria «FLV» e as demais)
 // KÓRIN usa o mesmo banco do FLV; quais produtos são dele fica em sh_cfg/korin (e uma cópia neste aparelho)
 const KORK = "validamais-korin-itens"; let korSet = {}, korNuvem = null; try { korSet = JSON.parse(localStorage.getItem(KORK) || "{}") || {}; } catch (e) {}
 const korMapa = () => ({ ...korSet, ...(korNuvem || {}) }), korChave = p => norm(p.name || ""), isKor = p => !!korMapa()[korChave(p)];
-const doSetor = p => { const s = setorDe(p); if (SETOR === PER) return s === PER; if (s === PER) return false; return SETOR === KOR ? isKor(p) : !isKor(p); };
+const doSetor = p => { const s = setorDe(p); if (SETOR === FIS) return !isKor(p); if (SETOR === PER) return s === PER; if (s === PER) return false; return SETOR === KOR ? isKor(p) : !isKor(p); };
 let CATS_VIS, CATSET;   // CATSET = categoria gravada nos cadastros do setor atual
-const derivaSetor = () => { CATS_VIS = SETOR === PER ? [PER] : CATS.filter(c => c !== PER && c !== KOR); CATSET = SETOR === PER ? PER : "FLV"; document.body.dataset.setor = SETOR; document.body.dataset.perfil = PERFIL || ""; };
+const derivaSetor = () => { CATS_VIS = SETOR === PER ? [PER] : SETOR === FIS ? CATS.filter(c => c !== KOR) : CATS.filter(c => c !== PER && c !== KOR); CATSET = SETOR === PER ? PER : "FLV"; document.body.dataset.setor = SETOR; document.body.dataset.perfil = PERFIL || ""; };
 derivaSetor();
 const ADM_L = "validamais-admin-h";
 const adminHash = async pin => { const b = new TextEncoder().encode("valida+|" + pin); try { return [...new Uint8Array(await crypto.subtle.digest("SHA-256", b))].map(x => x.toString(16).padStart(2, "0")).join(""); } catch (e) { let h = 5381; for (const c of "valida+|" + pin) h = ((h << 5) + h + c.charCodeAt(0)) >>> 0; return "x" + h; } };
@@ -53,7 +53,7 @@ function perfilEscolher(troca) {   // pergunta uma vez qual é o setor deste apa
   const bg = document.createElement("div"); bg.className = "askbg"; bg.id = "perfilBg";
   const op = (v, ic, t, s) => `<button type="button" class="perfop${PERFIL === v ? " on" : ""}" data-p="${v}"><span>${ic}</span><b>${t}</b><small>${s}</small></button>`;
   bg.innerHTML = `<div class="ask perfil"><div class="ai">👤</div><h3>${troca ? "Perfil deste aparelho" : "Qual é o seu setor?"}</h3><p>${troca ? "Escolha o novo perfil." : "Você escolhe uma vez e o app abre direto no seu setor."}</p>
-    ${op("FLV", "🥬", "FLV", "Hortifruti")}${op(PER, "🧀", "Perecíveis", "Validades e etiquetas")}${op("Admin", "🛡️", "Admin", "Acesso a FLV e Perecíveis")}${troca ? '<button type="button" class="secondary" data-x style="margin-top:8px;width:100%">Cancelar</button>' : ""}</div>`;
+    ${op("FLV", "🥬", "FLV", "Hortifruti")}${op(PER, "🧀", "Perecíveis", "Validades e etiquetas")}${op(FIS, "🔎", "Fiscal de loja", "Consulta cadastros e códigos")}${op("Admin", "🛡️", "Admin", "Acesso a todos os setores")}${troca ? '<button type="button" class="secondary" data-x style="margin-top:8px;width:100%">Cancelar</button>' : ""}</div>`;
   const aplica = v => { try { localStorage.setItem(PERFIL_K, v); sessionStorage.removeItem("validamais-setor"); } catch (err) {} location.reload(); };
   let ocupado = false;
   bg.onclick = async e => { if (troca && (e.target === bg || e.target.closest("[data-x]"))) return bg.remove();
@@ -1482,18 +1482,18 @@ function filtBar(el, ativo, nRev, nDup) {
 let cadEdit = null, cFiltro = "";
 try { indexedDB.deleteDatabase("validamais-fotos-kor"); } catch (e) {}   // recurso de foto removido: apaga o que ficou guardado neste aparelho
    // chave do produto em edição
-const cadKey = p => p.barcode ? "b" + p.barcode + "|" + norm(p.name || "") : "n" + norm(p.name || "");   // mesmo EAN com nomes diferentes = produtos diferentes (linhas separadas)
+const cadKey = p => (SETOR === FIS ? (p.category === PER ? "p" : "f") : "") + (p.barcode ? "b" + p.barcode + "|" + norm(p.name || "") : "n" + norm(p.name || ""));   // mesmo EAN com nomes diferentes = produtos diferentes (linhas separadas)
 function cadGroups() { const m = new Map(); products.forEach(p => { if (!p.name) return; const k = cadKey(p); if (!m.has(k)) m.set(k, []); m.get(k).push(p); });
   return [...m.entries()].map(([k, l]) => ({ k, l, p: l[0], name: l[0].name, barcode: l.map(x => x.barcode).find(Boolean) || "", plu: l.map(x => x.codigo_balanca).find(Boolean) || "", don: l.map(x => x.codigo_doacao).find(Boolean) || "" })).sort((a, b) => a.name.localeCompare(b.name, "pt-BR")); }
 function cadPaint() {
   const q = norm($("cBusca").value.trim()), all = cadGroups(), mapa = codMapa();
   all.forEach(x => { x.dup = dupGrupo(x, mapa); x.rev = revOn(x.name); });
   filtBar($("cFilt"), cFiltro, all.filter(x => x.rev).length, all.filter(x => x.dup.length).length);
-  const g = all.filter(x => !q || norm(x.name).includes(q) || x.barcode.includes(q) || x.plu === q || x.don.toLowerCase() === q).filter(x => !cFiltro || (cFiltro === "rev" ? x.rev : x.dup.length));
+  const g = all.filter(x => !q || norm(x.name).includes(q) || x.barcode.includes(q) || (SETOR === FIS ? x.plu.includes(q) || x.don.toLowerCase().includes(q) : x.plu === q || x.don.toLowerCase() === q)).filter(x => !cFiltro || (cFiltro === "rev" ? x.rev : x.dup.length));
   lixoBtn(); $("cCount").textContent = all.length + (q ? " · " + g.length + " achados" : "");
   const ini = x => { const c = x.name.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").charAt(0).toUpperCase(); return /[A-Z]/.test(c) ? c : "#"; };
   let ult = "", letras = [];
-  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}"><div class="ci"><b>${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"}${SETOR === KOR ? "" : ` · PLU ${x.plu ? esc(x.plu) : "—"} · ${SETOR === PER ? "Interno" : "Doação"} ${x.don ? esc(x.don) : "—"}`}</small>${PERFIL === "Admin" ? `<small class="porx">👤 ${esc(x.l.map(l => l.por).find(Boolean) || "autor não registrado")} · ${dayOf(x.l[0])}</small>` : ""}${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small><button type="button" class="dpres" data-cres="${esc(x.k)}">Resolver código repetido</button>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
+  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}"><div class="ci"><b>${SETOR === FIS ? (x.p.category === PER ? "🧀 " : "🥬 ") : ""}${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"}${SETOR === KOR ? "" : ` · PLU ${x.plu ? esc(x.plu) : "—"} · ${SETOR === PER || (SETOR === FIS && x.p.category === PER) ? "Interno" : "Doação"} ${x.don ? esc(x.don) : "—"}`}</small>${PERFIL === "Admin" ? `<small class="porx">👤 ${esc(x.l.map(l => l.por).find(Boolean) || "autor não registrado")} · ${dayOf(x.l[0])}</small>` : ""}${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small><button type="button" class="dpres" data-cres="${esc(x.k)}">Resolver código repetido</button>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
   $("cLista").innerHTML = g.length ? g.map(x => { const l = ini(x); let h = ""; if (l !== ult) { ult = l; letras.push(l); h = `<div class="cadlt" id="cl-${l === "#" ? "num" : l}">${l}</div>`; } return h + row(x); }).join("") : '<p class="empty">Nenhum produto encontrado.</p>';
   const rail = $("cIdx"); rail.hidden = g.length < 12 || letras.length < 2; $("cLista").classList.toggle("cadidx", !rail.hidden);
   rail.innerHTML = rail.hidden ? "" : letras.map(l => `<button type="button" tabindex="-1" data-l="${l}">${l}</button>`).join("");
@@ -2255,9 +2255,9 @@ function notifAbrir() {
 $("mnNotif").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } notifAbrir(); };
 const mnFecha = () => { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); };
 $("mnSaude").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } saudeAbrir(); };
-const tabInicial = () => SETOR === PER ? "Loja" : SETOR === KOR ? "Contagem" : "Doacao";
+const tabInicial = () => SETOR === FIS ? "Cadastros" : SETOR === PER ? "Loja" : SETOR === KOR ? "Contagem" : "Doacao";
 function trocaSetor(alvo) {   // troca FLV / Perecíveis / KÓRIN sem recarregar a página
-  if (alvo === SETOR || ![ "FLV", PER, KOR ].includes(alvo)) return;
+  if (alvo === SETOR || ![ "FLV", PER, KOR, FIS ].includes(alvo)) return;
   if (PERFIL !== "Admin" && alvo !== PERFIL) return;   // só o Admin troca de setor
   try { if (typeof stopScanner === "function") stopScanner(); closeModal(); } catch (e) {}
   const todos = db ? rawAll : products.concat(lixeira, outros);   // todos os cadastros, de todos os setores
@@ -2274,7 +2274,7 @@ function trocaSetor(alvo) {   // troca FLV / Perecíveis / KÓRIN sem recarregar
   pintaSetor(); rotulosSetor();
   render(); cadPaint(); renderDon(); renderLabels(); kPaint();
   tab(tabInicial()); window.scrollTo(0, 0); }
-tab(tabInicial());
+tab(tabInicial()); if (SETOR === FIS) cadPaint();
 
 // ---------- aba Etiquetas ----------
 const EK_FLV = "validamais-etiquetas";

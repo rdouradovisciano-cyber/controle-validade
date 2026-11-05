@@ -11,10 +11,10 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=333">
+<link rel="stylesheet" href="css/app.css?v=337">
 <title>Valida+ | Controle de validade</title>
-<script src="js/tema.js?v=333"></script>
-<!-- const APP_VERSION = "2026.11.05-333" -->
+<script src="js/tema.js?v=337"></script>
+<!-- const APP_VERSION = "2026.11.05-337" -->
 </head>
 <body data-tab="Loja">
 <div id="splash" role="status" aria-live="polite"><style>
@@ -55,7 +55,7 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 <symbol id="i-pes" viewBox="0 0 24 24"><path d="M12 3.5v16.5M8.5 20.5h7M4.5 6.5h15"/><path d="M4.5 6.5v4M19.5 6.5v4"/><path d="M1.5 10.5a3 3 0 0 0 6 0M16.5 10.5a3 3 0 0 0 6 0"/><circle cx="12" cy="3" r="1"/></symbol>
 </defs></svg>
 <main class="app">
-<div class="top"><header><h1><span class="vmsr">Valida+</span><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1><span id="setorChip" class="setorsw" role="group" aria-label="Setor"><button type="button" data-s="FLV">🥬 FLV</button><button type="button" data-s="Perecíveis">🧀 Perecíveis</button><button type="button" data-s="KÓRIN" hidden>KÓRIN</button></span></header><nav class="tabbar"><button id="tbDoacao"><svg class="ic" aria-hidden="true"><use href="#i-doa"/></svg><span class="tl">Doação</span></button><button id="tbEtiquetas"><svg class="ic" aria-hidden="true"><use href="#i-etq"/></svg><span class="tl">Etiquetas</span></button><button id="tbLoja"><svg class="ic" aria-hidden="true"><use href="#i-val"/></svg><span class="tl">Validades</span><span class="sirn" id="sirN"></span></button><button id="tbPesaveis"><svg class="ic" aria-hidden="true"><use href="#i-pes"/></svg><span class="tl">Pesáveis</span></button><button id="tbCadastros"><svg class="ic" aria-hidden="true"><use href="#i-cad"/></svg><span class="tl">Cadastros</span></button><button id="tbContagem"><svg class="ic" aria-hidden="true"><use href="#i-inv"/></svg><span class="tl">Contagem</span></button></nav></div>
+<div class="top"><header><h1><span class="vmsr">Valida+</span><button type="button" id="onChip" class="onchip hidden" aria-label="Quem está online"></button></h1><span id="setorChip" class="setorsw" role="group" aria-label="Setor"><button type="button" data-s="FLV">🥬 FLV</button><button type="button" data-s="Perecíveis">🧀 Perecíveis</button><button type="button" data-s="KÓRIN" hidden>KÓRIN</button><button type="button" data-s="Fiscal">🔎 Fiscal</button></span></header><nav class="tabbar"><button id="tbDoacao"><svg class="ic" aria-hidden="true"><use href="#i-doa"/></svg><span class="tl">Doação</span></button><button id="tbEtiquetas"><svg class="ic" aria-hidden="true"><use href="#i-etq"/></svg><span class="tl">Etiquetas</span></button><button id="tbLoja"><svg class="ic" aria-hidden="true"><use href="#i-val"/></svg><span class="tl">Validades</span><span class="sirn" id="sirN"></span></button><button id="tbPesaveis"><svg class="ic" aria-hidden="true"><use href="#i-pes"/></svg><span class="tl">Pesáveis</span></button><button id="tbCadastros"><svg class="ic" aria-hidden="true"><use href="#i-cad"/></svg><span class="tl">Cadastros</span></button><button id="tbContagem"><svg class="ic" aria-hidden="true"><use href="#i-inv"/></svg><span class="tl">Contagem</span></button></nav></div>
 <div id="todayBanner" class="today hidden" role="alert"></div>
 <p id="iosHint" class="alert hidden">Para instalar no iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
 <div id="tabLoja">
@@ -120,7 +120,7 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 <div class="csum"><div><span>PRODUTOS</span><b id="eSumP">0</b></div><div><span>QUANTIDADE TOTAL</span><b id="eSumQ">0</b></div></div><div id="eFilt" class="fbar" hidden></div><div id="eLista" class="clist"></div><p class="emarc" id="eMarc"></p><button type="button" id="eLimpa" class="secondary hidden" style="display:block;width:auto;min-height:32px;margin:8px 0 0 auto;padding:4px 12px;font-size:12px;font-weight:600;border-radius:10px">🗑 Remover todos (já imprimi)</button>
 </div>
 <div id="tabCadastros" class="hidden">
-<section class="panel"><h2 class="h2" id="cTitulo">Novo cadastro</h2><p class="note">Cadastro sem foto: digite ou bipe o código de barras (no máximo 13 dígitos).</p>
+<section class="panel" id="cForm"><h2 class="h2" id="cTitulo">Novo cadastro</h2><p class="note">Cadastro sem foto: digite ou bipe o código de barras (no máximo 13 dígitos).</p>
 <label for="cNome">Nome do produto</label><input id="cNome" maxlength="60" autocomplete="off" placeholder="Ex.: Couve-flor">
 <label for="cEan">Código de barras (EAN) <span class="cadcnt" id="cEanN">0/13</span></label><div class="stepper"><input id="cEan" inputmode="numeric" maxlength="13" autocomplete="off" placeholder="Até 13 dígitos"><button type="button" class="secondary" id="cBipar" style="padding:0 14px;white-space:nowrap;font-size:14px">▦ Bipar</button></div>
 <label for="cPlu">Código de balança (PLU)</label><input id="cPlu" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Opcional, até 6 números">
@@ -242,16 +242,16 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 </div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
-<script src="js/config.js?v=333"></script>
+<script src="js/config.js?v=337"></script>
 <script src="vendor.js"></script>
-<script src="js/version.js?v=333"></script>
-<script src="js/login.js?v=333"></script>
-<script src="js/app.js?v=333"></script>
-<script src="js/nav.js?v=333"></script>
-<script src="js/operador.js?v=333"></script>
-<script src="js/teclado.js?v=333"></script>
-<script src="js/menu.js?v=333"></script>
-<script src="js/status.js?v=333"></script>
-<script src="js/inventario.js?v=333"></script>
-<script src="js/doacao-busca.js?v=333"></script>
+<script src="js/version.js?v=337"></script>
+<script src="js/login.js?v=337"></script>
+<script src="js/app.js?v=337"></script>
+<script src="js/nav.js?v=337"></script>
+<script src="js/operador.js?v=337"></script>
+<script src="js/teclado.js?v=337"></script>
+<script src="js/menu.js?v=337"></script>
+<script src="js/status.js?v=337"></script>
+<script src="js/inventario.js?v=337"></script>
+<script src="js/doacao-busca.js?v=337"></script>
 </body></html>
