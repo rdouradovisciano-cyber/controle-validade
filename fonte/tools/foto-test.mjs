@@ -16,7 +16,7 @@ const big=await pg.evaluate(()=>{const c=document.createElement("canvas");c.widt
 fs.writeFileSync("/tmp/foto.jpg",Buffer.from(big.split(",")[1],"base64"));console.log("original KB",Math.round(fs.statSync("/tmp/foto.jpg").size/1024));
 await pg.click('.pitem[data-id="a"] .pi-main');await pg.waitForTimeout(400);
 console.log("btn:",await pg.innerText('.pitem[data-id="a"] .pi-foto'));
-await pg.setInputFiles('.pitem[data-id="a"] [data-fin]',"/tmp/foto.jpg");await pg.waitForTimeout(1200);
+await pg.setInputFiles('.pitem[data-id="a"] [data-fin]:not([capture])',"/tmp/foto.jpg");await pg.waitForTimeout(1200);
 console.log("img:",await pg.evaluate(()=>{const i=document.querySelector('.pitem[data-id="a"] .pf-img');return i?[i.naturalWidth,i.naturalHeight,Math.round(i.src.length*0.75/1024)+" KB"]:null}));
 await pg.click('.pitem[data-id="b"] .pi-main');await pg.waitForTimeout(300);console.log("outro item:",await pg.innerText('.pitem[data-id="b"] .pi-foto'));
 await pg.screenshot({path:"/tmp/foto-"+perfil+".png"});console.log(errs);await br.close();srv.close();
