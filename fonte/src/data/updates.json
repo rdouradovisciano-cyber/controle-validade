@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-05T20:55:00-03:00",
+  "itens": [
+   "Fiscal de loja: «PLU» virou «Cód. de balança» com o último número em vermelho, e os códigos aparecem em blocos coloridos como na aba Pesáveis, com o nome embaixo"
+  ]
+ },
+ {
   "t": "2026-11-05T20:40:00-03:00",
   "itens": [
    "Fiscal de loja: botão de bipar como nos outros setores (bipou, aparecem os códigos); códigos EAN, PLU e interno/doação em letra grande na lista; filtro Todos/FLV/Perecíveis; o cadastro fica escondido e só abre em «Não achou? Cadastrar produto»"

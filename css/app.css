@@ -1553,7 +1553,16 @@ body[data-setor="Fiscal"] .cadrow .ci{cursor:pointer}
 body[data-setor="Fiscal"] #cForm{display:none}body[data-setor="Fiscal"] #cForm.fisopen{display:block}
 #cFisNovo{display:none}body[data-setor="Fiscal"] #cFisNovo{display:block;width:100%;margin:0 0 10px;min-height:44px}
 body[data-setor="Fiscal"] #cSetorF{margin:0 0 10px}
-.fcod{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:6px;margin-top:6px}.fcod span{min-width:0}
-.fcod small{display:block;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
-.fcod b{display:block;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink);overflow-wrap:anywhere;line-height:1.15}
 body[data-setor="Fiscal"] .cadrow .ci small[hidden]{display:none!important}
+
+/* Fiscal: códigos em blocos coloridos, como na aba Pesáveis (nome embaixo) */
+.fcod{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 4px}
+.fch{display:inline-flex;align-items:baseline;gap:6px;padding:3px 11px 4px;border-radius:10px;flex:1 1 0;min-width:0;white-space:nowrap}
+.fch i{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.06em}
+.fch b{font-size:22px;font-weight:900;letter-spacing:.02em;line-height:1.1;font-variant-numeric:tabular-nums;color:inherit!important}
+.fch.bal{background:#f3d87a;color:#1a1405}.fch.itn{background:#8fe0ec;color:#06242a}
+.fch.ean{flex:1 1 100%;background:#d9c7f5;color:#2a0f55}html[data-tema=dark] .fch.ean{background:#5b3e99;color:#fff}
+.fch.vz{opacity:.45}
+em.ult{font-style:normal;color:#d1121f}.fch.bal em.ult{color:#c1121f}
+html[data-tema=dark] .codgrid em.ult{color:#ff5a5f}
+body[data-setor="Fiscal"] .cadrow .fnome{display:block;font-size:13.5px;font-weight:600;color:var(--mut,#a9a38f);white-space:normal}
