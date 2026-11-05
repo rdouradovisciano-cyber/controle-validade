@@ -1512,3 +1512,8 @@ body:not([data-setor="KÓRIN"]) #cKorEsc{display:none!important}
 .kqrow{display:flex;align-items:center;gap:12px;padding:11px 12px;border-bottom:1px solid var(--ln);cursor:pointer}.kqrow input{width:22px;height:22px;flex:none}.kqrow span{font-weight:700;overflow-wrap:anywhere}
 
 .dupr>span{min-width:0}.dupi{display:block;font-size:12px;color:var(--mut);margin-top:3px;line-height:1.35;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+
+.pi-foto{display:flex;align-items:center;gap:8px;margin:0 0 10px}
+.pi-foto:empty{display:none}
+.pf-img{width:96px;height:96px;object-fit:cover;border-radius:12px;border:1px solid var(--ln,#555);background:#000}
+.pf-btn{padding:9px 12px!important;font-size:14px!important}

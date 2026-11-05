@@ -157,6 +157,39 @@ function iconePicker(id) {
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) return bg.remove(); const b = e.target.closest("[data-e]"); if (b) { iconeSalva(p, b.dataset.e); return bg.remove(); } if (e.target.closest("[data-auto]")) { iconeSalva(p, null); return bg.remove(); } if (e.target.closest("[data-nenhum]")) { iconeSalva(p, ""); bg.remove(); } };
 }
 const iconeDe = p => { if (!iconesOn() || !p || p.category !== PER) return ""; const esc1 = icoEscolhido(p); if (esc1 !== null && esc1 !== undefined) return esc1; const n = String(p.name || "").toLowerCase(); const m = ICONES.find(([r]) => r.test(n + " ")); return m ? m[1] : "📦"; };
+// ---------- foto do produto (só Perecíveis): uma miniatura por nome, em sh_cfg/foto-<nome>; só é baixada quando o item é aberto ----------
+const FTK = "validamais-fotos-per", fotoK = n => "foto-" + icKey(n), fotoCache = {};
+function fotoHtml(k) { const d = fotoCache[k]; if (d === undefined) return '<small class="muted">…</small>';
+  const adm = PERFIL === "Admin";
+  return (d ? `<img class="pf-img" src="${d}" alt="Foto do produto" data-fz="1">` : "") +
+    (!d || adm ? `<button type="button" class="secondary pf-btn" data-fadd="1">📷 ${d ? "Trocar foto" : "Adicionar foto"}</button>` : "") + (d && adm ? `<button type="button" class="secondary pf-btn" data-fdel="1" aria-label="Apagar foto">🗑</button>` : ""); }
+function fotoPaint(id) { const el = document.querySelector(`.pi-foto[data-id="${CSS.escape(id)}"]`), p = products.find(x => x.id === id); if (!el || !p) return; el.innerHTML = fotoHtml(fotoK(p.name)); }
+function fotoCarrega(id) {
+  const p = products.find(x => x.id === id); if (!p || p.category !== PER) return; const k = fotoK(p.name);
+  if (fotoCache[k] !== undefined) return fotoPaint(id);
+  if (!db) { const m = store.get(FTK, {}); fotoCache[k] = m[k] || ""; return fotoPaint(id); }
+  let un = null, fim = false; const t = setTimeout(() => { if (!fim) { fim = true; fotoCache[k] = ""; fotoPaint(id); try { un && un(); } catch (e) {} } }, 6000);
+  try { un = V.onSnapshot(V.doc(db, "sh_cfg", k), sn => { if (fim) return; fim = true; clearTimeout(t); fotoCache[k] = sn.exists() && sn.data().d ? sn.data().d : ""; fotoPaint(id); try { un && un(); } catch (e) {} }, () => { if (fim) return; fim = true; fotoCache[k] = ""; fotoPaint(id); }); } catch (e) { fotoCache[k] = ""; fotoPaint(id); }
+}
+function fotoReduz(file) {   // miniatura: lado maior 360 px, JPEG (~10–25 KB)
+  return new Promise((ok, no) => { const im = new Image(), u = URL.createObjectURL(file);
+    im.onload = () => { URL.revokeObjectURL(u); const f = Math.min(1, 360 / Math.max(im.width, im.height)), c = document.createElement("canvas"); c.width = Math.round(im.width * f); c.height = Math.round(im.height * f);
+      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); let q = 0.65, d = c.toDataURL("image/jpeg", q); while (d.length > 90000 && q > 0.3) { q -= 0.1; d = c.toDataURL("image/jpeg", q); } ok(d); };
+    im.onerror = () => { URL.revokeObjectURL(u); no(new Error("img")); }; im.src = u; });
+}
+async function fotoSalva(id, file) {
+  const p = products.find(x => x.id === id); if (!p || !file) return; const k = fotoK(p.name);
+  try { const d = await fotoReduz(file); fotoCache[k] = d;
+    if (db) await V.setDoc(V.doc(db, "sh_cfg", k), { d, n: p.name.slice(0, 120), por: myName().slice(0, 40), em: Date.now() }); else { const m = store.get(FTK, {}); m[k] = d; store.set(FTK, m); }
+    fotoPaint(id); toast("Foto salva para todos os lotes deste produto."); }
+  catch (e) { console.warn(e); delete fotoCache[k]; fotoPaint(id); toast("Não consegui salvar a foto."); }
+}
+async function fotoApaga(id) {
+  const p = products.find(x => x.id === id); if (!p || PERFIL !== "Admin") return; const k = fotoK(p.name);
+  if (!(await askConfirm({ icon: "🗑", title: "Apagar a foto?", text: p.name, sub: "Vale para todos os aparelhos.", ok: "Apagar", cancel: "Cancelar" }))) return;
+  fotoCache[k] = ""; if (db) V.deleteDoc(V.doc(db, "sh_cfg", k)).catch(e => console.warn(e)); else { const m = store.get(FTK, {}); delete m[k]; store.set(FTK, m); } fotoPaint(id);
+}
+function fotoZoom(src) { const bg = document.createElement("div"); bg.className = "askbg"; bg.innerHTML = `<img src="${src}" alt="Foto do produto" style="max-width:92vw;max-height:80dvh;border-radius:14px;background:#000">`; bg.onclick = () => bg.remove(); document.body.appendChild(bg); }
 // ---------- aparência e prazos personalizáveis (cores + dias do vermelho/amarelo + tamanho da letra) ----------
 const VK = "validamais-visual", VIS_PAD = { red: 3, yel: null, cores: { v: "#8a3a45", h: "#bf4a52", a: "#c7514a", y: "#c9a22f", g: "#4a9a78" }, fonte: "normal" };
 let visCloud = null;   // padrão da loja (Firestore sh_cfg/visual), definido pelo Admin
@@ -300,13 +333,14 @@ function render() {
     const pr = prioDe(p), g = pr || "ok", lim = limit(cat || CATSET); let hd = "";
     if (cat && !q && !tierF && g !== lastG) { lastG = g; const GN = { v: "⛔ Vencidos", h: "🚨 Vence hoje", a: "🔴 Vence em 1 a " + visCfg().red + " dia" + (visCfg().red > 1 ? "s" : "") + " — agir já", y: "🟡 De " + (visCfg().red + 1) + " a " + lim + " dias", ok: "✅ Dentro do prazo" }; hd = `<div class="pgh g${g}"><span>${GN[g]}</span><i>${gcnt[g]}</i></div>`; }
     const big = dl === null ? "—" : dl < 0 ? "VENCIDO" : dl === 0 ? "HOJE" : dl === 1 ? "AMANHÃ" : String(dl), small = dl === null ? "sem validade" : dl < 0 ? "há " + (-dl) + (dl < -1 ? " dias" : " dia") : dl <= 1 ? "" : "dias";
-    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${iconeDe(p) ? `<span class="ico" data-id="${esc(p.id)}">${iconeDe(p)}</span>` : ""}${esc(p.name)}${notaDe(p.id) ? `<i class="pi-nt" title="${esc(notaDe(p.id).t)}">📝</i>` : ""}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act"><label class="pi-nota"><span>📝</span><input type="text" maxlength="60" data-nota="${esc(p.id)}" value="${esc((notaDe(p.id) || {}).t || "")}" placeholder="Nota (ex.: gôndola 3, já na promoção)" autocomplete="off" enterkeyhint="done"></label><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="secondary of" data-of="${esc(p.id)}">🏷️ Oferta</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
+    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${iconeDe(p) ? `<span class="ico" data-id="${esc(p.id)}">${iconeDe(p)}</span>` : ""}${esc(p.name)}${notaDe(p.id) ? `<i class="pi-nt" title="${esc(notaDe(p.id).t)}">📝</i>` : ""}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act">${p.category === PER ? `<div class="pi-foto" data-id="${esc(p.id)}"></div><input type="file" accept="image/*" capture="environment" hidden data-fin="${esc(p.id)}">` : ""}<label class="pi-nota"><span>📝</span><input type="text" maxlength="60" data-nota="${esc(p.id)}" value="${esc((notaDe(p.id) || {}).t || "")}" placeholder="Nota (ex.: gôndola 3, já na promoção)" autocomplete="off" enterkeyhint="done"></label><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="secondary of" data-of="${esc(p.id)}">🏷️ Oferta</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
   $("acaoBar").classList.toggle("hidden", !acaoF);
   { const urg = base.filter(p => { const k = prioDe(p); return k === "v" || k === "h" || k === "a"; }).length; try { if (base.some(p => prioDe(p) === "v") && fxOn() && !window.__sirV) { window.__sirV = 1;   // o Chrome só deixa vibrar depois do primeiro toque na tela: espera esse toque
       document.addEventListener("pointerdown", () => { try { if (fxOn() && navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 450]); } catch (e) {} }, { once: true, passive: true }); } } catch (e) {} try { if (navigator.setAppBadge) { if (urg > 0) navigator.setAppBadge(urg).catch(() => {}); else navigator.clearAppBadge && navigator.clearAppBadge().catch(() => {}); } } catch (e) {} }   // número no ícone do app = itens em vermelho
   { const n = rows.length, lt = $("listTotal"); lt.classList.toggle("hidden", !n); lt.textContent = retView ? `${n} ${n === 1 ? "item retirado" : "itens retirados"}` : `${n} ${n === 1 ? "item" : "itens"} na lista`; }
   if (typeof renderPesaveis === "function") renderPesaveis();
+  if (openId) fotoCarrega(openId);
 }
 
 // ---------- oferta / etiqueta promocional (desconto de última hora) ----------
@@ -708,7 +742,9 @@ fillCategories();
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
 $("list").addEventListener("change", e => { const n = e.target.closest && e.target.closest("[data-nota]"); if (n) notaSalva(n.dataset.nota, n.value); });
 $("list").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches && e.target.matches("[data-nota]")) { e.preventDefault(); e.target.blur(); } });
-$("list").onclick = e => { const ic = e.target.closest(".ico"); if (ic) { iconePicker(ic.dataset.id); return; } if (e.target.closest(".pi-nota")) return; const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.of) ofertaAbrir(b.dataset.of); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
+$("list").addEventListener("change", e => { const f = e.target.closest && e.target.closest("[data-fin]"); if (f && f.files && f.files[0]) { fotoSalva(f.dataset.fin, f.files[0]); f.value = ""; } });
+$("list").onclick = e => { const ic = e.target.closest(".ico"); if (ic) { iconePicker(ic.dataset.id); return; } if (e.target.closest(".pi-nota")) return;
+  { const pf = e.target.closest(".pi-foto"); if (pf) { const id = pf.dataset.id; if (e.target.closest("[data-fz]")) fotoZoom(e.target.closest("[data-fz]").src); else if (e.target.closest("[data-fadd]")) { const f = pf.parentElement.querySelector("[data-fin]"); if (f) f.click(); } else if (e.target.closest("[data-fdel]")) fotoApaga(id); return; } } const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); if (openId) fotoCarrega(openId); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.of) ofertaAbrir(b.dataset.of); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
 $("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Pesaveis" ? "etiqueta" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : curTab === "Contagem" ? "contagem" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = () => { stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
