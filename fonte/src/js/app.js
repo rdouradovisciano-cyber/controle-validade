@@ -159,11 +159,13 @@ function iconePicker(id) {
 const iconeDe = p => { if (!iconesOn() || !p || p.category !== PER) return ""; const esc1 = icoEscolhido(p); if (esc1 !== null && esc1 !== undefined) return esc1; const n = String(p.name || "").toLowerCase(); const m = ICONES.find(([r]) => r.test(n + " ")); return m ? m[1] : "📦"; };
 // ---------- foto do produto (só Perecíveis): uma miniatura por nome, em sh_cfg/foto-<nome>; só é baixada quando o item é aberto ----------
 const FTK = "validamais-fotos-per", fotoK = n => "foto-" + icKey(n), fotoCache = {};
-function fotoHtml(k) { const d = fotoCache[k]; if (d === undefined) return '<small class="muted">…</small>';
-  const adm = PERFIL === "Admin";
-  return (d ? `<img class="pf-img" src="${d}" alt="Foto do produto" data-fz="1">` : "") +
-    (!d || adm ? `<button type="button" class="secondary pf-btn" data-fadd="1">📷 ${d ? "Trocar foto" : "Tirar foto"}</button><button type="button" class="secondary pf-btn" data-fgal="1">🖼 ${d ? "Outra imagem" : "Escolher imagem"}</button>` : "") + (d && adm ? `<button type="button" class="secondary pf-btn" data-fdel="1" aria-label="Apagar foto">🗑</button>` : ""); }
-function fotoPaint(id) { const el = document.querySelector(`.pi-foto[data-id="${CSS.escape(id)}"]`), p = products.find(x => x.id === id); if (!el || !p) return; el.innerHTML = fotoHtml(fotoK(p.name)); }
+function fotoHtml(k, ed) { const d = fotoCache[k]; if (d === undefined) return '<small class="muted">…</small>';
+  const adm = PERFIL === "Admin", img = d ? `<img class="pf-img" src="${d}" alt="Foto do produto" data-fz="1">` : "";
+  const bt = (a, t) => `<button type="button" class="secondary pf-btn" ${a}="1">${t}</button>`;
+  if (!d) return bt("data-fadd", "📷 Tirar foto") + bt("data-fgal", "🖼 Escolher imagem");   // sem foto: botões no cartão
+  if (!ed) return img;                                                                            // com foto: só a imagem (trocar fica no Editar)
+  return img + (adm ? bt("data-fadd", "📷 Trocar") + bt("data-fgal", "🖼 Outra imagem") + bt("data-fdel", "🗑 Apagar") : ""); }
+function fotoPaint(id) { const p = products.find(x => x.id === id); if (!p) return; document.querySelectorAll(`.pi-foto[data-id="${CSS.escape(id)}"]`).forEach(el => { el.innerHTML = fotoHtml(fotoK(p.name), el.dataset.ed === "1"); }); }
 function fotoCarrega(id) {
   const p = products.find(x => x.id === id); if (!p || p.category !== PER) return; const k = fotoK(p.name);
   if (fotoCache[k] !== undefined) return fotoPaint(id);
@@ -432,7 +434,7 @@ function limparFotosNuvem() {   // coleção "fotos" + campo foto dentro dos cad
       else if (lido) store.set(FOTO_LIMPA, true);   // sem internet: tenta de novo na próxima abertura
       fotosLimpando = false; });
 }
-function resetForm() {
+function resetForm() { { const fe = $("fotoEd"); if (fe) fe.classList.add("hidden"); }
   $("productForm").reset(); $("docId").value = ""; $("quantity").value = 1;
   $("category").value = CATSET; $("saveNext").classList.remove("hidden"); toggleCodes();
   $("productForm").classList.remove("lote"); $("loteInfo").classList.add("hidden"); $("loteEdit").classList.add("hidden");
@@ -466,6 +468,7 @@ function edit(id) {
   $("docId").value = id; $("barcode").value = p.barcode || ""; $("name").value = p.name || "";
   $("category").value = p.category || ""; $("quantity").value = p.quantity; $("expiry").value = p.expiry || "";
   $("cBalanca").value = p.codigo_balanca || ""; $("cDoacao").value = p.codigo_doacao || ""; toggleCodes();
+  { const fe = $("fotoEd"), per = p.category === PER; fe.classList.toggle("hidden", !per); $("fotoEdBox").dataset.id = per ? id : ""; $("fotoEdBox").innerHTML = ""; $("fotoEdCam").dataset.fin = id; $("fotoEdGal").dataset.fin = id; if (per) fotoCarrega(id); }
 }
 // ----- nomes parecidos / duplicados -----
 const nameKey = n => norm(n || "").replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(w => w && !/^(kg|un|und|unid|unidade|unidades|g|gr|grs|kilo|quilo)$/.test(w)).map(w => w.length > 3 && w.endsWith("s") ? w.slice(0, -1) : w).sort().join(" ");
@@ -742,9 +745,12 @@ fillCategories();
 $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
 $("list").addEventListener("change", e => { const n = e.target.closest && e.target.closest("[data-nota]"); if (n) notaSalva(n.dataset.nota, n.value); });
 $("list").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches && e.target.matches("[data-nota]")) { e.preventDefault(); e.target.blur(); } });
-$("list").addEventListener("change", e => { const f = e.target.closest && e.target.closest("[data-fin]"); if (f && f.files && f.files[0]) { fotoSalva(f.dataset.fin, f.files[0]); f.value = ""; } });
+function fotoClique(e) { const pf = e.target.closest(".pi-foto"); if (!pf) return false; const id = pf.dataset.id, q = sel => pf.parentElement.querySelector(sel);
+  if (e.target.closest("[data-fz]")) fotoZoom(e.target.closest("[data-fz]").src); else if (e.target.closest("[data-fadd]")) { const f = q("[data-fin][capture]"); if (f) f.click(); } else if (e.target.closest("[data-fgal]")) { const f = q("[data-fin]:not([capture])"); if (f) f.click(); } else if (e.target.closest("[data-fdel]")) fotoApaga(id); return true; }
+const fotoMuda = e => { const f = e.target.closest && e.target.closest("[data-fin]"); if (f && f.files && f.files[0]) { fotoSalva(f.dataset.fin, f.files[0]); f.value = ""; } };
+$("list").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("click", fotoClique);
 $("list").onclick = e => { const ic = e.target.closest(".ico"); if (ic) { iconePicker(ic.dataset.id); return; } if (e.target.closest(".pi-nota")) return;
-  { const pf = e.target.closest(".pi-foto"); if (pf) { const id = pf.dataset.id; if (e.target.closest("[data-fz]")) fotoZoom(e.target.closest("[data-fz]").src); else if (e.target.closest("[data-fadd]")) { const f = pf.parentElement.querySelector("[data-fin][capture]"); if (f) f.click(); } else if (e.target.closest("[data-fgal]")) { const f = pf.parentElement.querySelector("[data-fin]:not([capture])"); if (f) f.click(); } else if (e.target.closest("[data-fdel]")) fotoApaga(id); return; } } const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); if (openId) fotoCarrega(openId); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.of) ofertaAbrir(b.dataset.of); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
+  if (fotoClique(e)) return; const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); if (openId) fotoCarrega(openId); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.of) ofertaAbrir(b.dataset.of); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
 $("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(curTab === "Doacao" ? "doacao" : curTab === "Pesaveis" ? "etiqueta" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : curTab === "Contagem" ? "contagem" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = () => { stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
