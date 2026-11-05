@@ -12,7 +12,7 @@ await pg.addInitScript(p=>{localStorage.setItem("validamais-operador",JSON.strin
 const d=new Date(Date.now()+5*864e5).toISOString().slice(0,10);
 localStorage.setItem("validamais-produtos-v1",JSON.stringify([
 {id:"a",name:"Banana prata",barcode:"7890001",codigo_balanca:"1234",codigo_doacao:"500",quantity:"2",expiry:d,category:"FLV"},
-{id:"b",name:"Queijo minas frescal",barcode:"7890002",codigo_balanca:"94320",codigo_doacao:"133423",quantity:"2",expiry:d,category:"Perecíveis"},
+{id:"b",name:"Queijo minas frescal",barcode:"7891000100103",codigo_balanca:"94320",codigo_doacao:"133423",quantity:"2",expiry:d,category:"Perecíveis"},
 {id:"c",name:"Peito de frango",barcode:"",codigo_balanca:"777",codigo_doacao:"",quantity:"2",expiry:d,category:"Perecíveis"}]))},perfil);
 await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(5500);
 if(perfil==="Admin"){await pg.click('#setorChip [data-s="Fiscal"]');await pg.waitForTimeout(500);}
@@ -20,5 +20,14 @@ const st=await pg.evaluate(()=>({setor:document.body.dataset.setor,tab:document.
 console.log(perfil,JSON.stringify(st));
 console.log((await pg.innerText("#cLista")).replace(/\n+/g," | "));
 await pg.fill("#cBusca","943");console.log("busca parcial 943:",(await pg.innerText("#cLista")).replace(/\n+/g," | "));
-await pg.fill("#cBusca","");await pg.screenshot({path:shot+"fiscal-"+perfil+".png"});console.log(errs);}
+await pg.fill("#cBusca","");
+await pg.fill("#cNome","Coxão mole");await pg.fill("#cPlu","321");await pg.click("#cSalvar");await pg.waitForTimeout(300);
+console.log("sem setor:",await pg.evaluate(()=>document.querySelector("#toast")?.innerText||""));
+await pg.selectOption("#cCat","Açougue");await pg.click("#cSalvar");await pg.waitForTimeout(500);
+console.log("lista:",(await pg.innerText("#cLista")).replace(/\n+/g," | ").slice(0,300));
+await pg.selectOption("#cSetorF","Açougue");console.log("filtro Açougue:",(await pg.innerText("#cLista")).replace(/\n+/g," | "));await pg.selectOption("#cSetorF","");
+await pg.click('.cadrow:has-text("Queijo") .ci');await pg.waitForTimeout(300);
+console.log("modal:",(await pg.innerText("#codModal")).replace(/\n+/g," | "),"svg:",await pg.locator("#codModal svg").count());
+await pg.screenshot({path:shot+"fiscal-cod-"+perfil+".png"});await pg.click("#codModal [data-x]");
+await pg.screenshot({path:shot+"fiscal-"+perfil+".png"});console.log(errs);}
 await br.close();srv.close();

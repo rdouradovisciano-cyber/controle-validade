@@ -36,7 +36,7 @@ service cloud.firestore {
           ['barcode','name','category','expiry','quantity','por','codigo_balanca','codigo_doacao','foto','lixo','retirado','retEm','retPor','createdAt','updatedAt'])
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 120
-        && request.resource.data.category in ['Ovos','FLV','Padaria','Laticínios','Mercearia','Bebidas','Congelados','Higiene e limpeza','Outros','Perecíveis']
+        && request.resource.data.category in ['Ovos','FLV','Padaria','Laticínios','Mercearia','Bebidas','Congelados','Higiene e limpeza','Açougue','Outros','Perecíveis']
         && request.resource.data.expiry is string
         && (request.resource.data.expiry == '' || request.resource.data.expiry.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'))
         && request.resource.data.quantity is number

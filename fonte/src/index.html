@@ -120,12 +120,13 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 </div>
 <div id="tabCadastros" class="hidden">
 <section class="panel" id="cForm"><h2 class="h2" id="cTitulo">Novo cadastro</h2><p class="note">Cadastro sem foto: digite ou bipe o código de barras (no máximo 13 dígitos).</p>
+<div id="cCatBox"><label for="cCat">Setor do produto *</label><select id="cCat"></select></div>
 <label for="cNome">Nome do produto</label><input id="cNome" maxlength="60" autocomplete="off" placeholder="Ex.: Couve-flor">
 <label for="cEan">Código de barras (EAN) <span class="cadcnt" id="cEanN">0/13</span></label><div class="stepper"><input id="cEan" inputmode="numeric" maxlength="13" autocomplete="off" placeholder="Até 13 dígitos"><button type="button" class="secondary" id="cBipar" style="padding:0 14px;white-space:nowrap;font-size:14px">▦ Bipar</button></div>
 <label for="cPlu">Código de balança (PLU)</label><input id="cPlu" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Opcional, até 6 números">
 <label for="cDon">Código de doação</label><input id="cDon" maxlength="12" autocomplete="off" placeholder="Opcional, ex.: B1" style="text-transform:uppercase">
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="cSalvar">Cadastrar</button><button class="secondary" id="cCancela" hidden>Cancelar</button></div></section>
-<section class="panel"><h2 class="h2">Produtos cadastrados <span class="cadcnt" id="cCount"></span></h2><button type="button" class="secondary" id="cKorEsc" style="width:100%;margin-bottom:10px">🗂️ Escolher itens do KÓRIN</button><input id="cBusca" type="search" placeholder="Buscar por nome ou código" autocomplete="off"><div id="cFilt" class="fbar" hidden></div><button type="button" id="cLixo" class="secondary lixobtn" hidden>🗑 Lixeira</button><div id="cLista"></div></section>
+<section class="panel"><h2 class="h2">Produtos cadastrados <span class="cadcnt" id="cCount"></span></h2><button type="button" class="secondary" id="cKorEsc" style="width:100%;margin-bottom:10px">🗂️ Escolher itens do KÓRIN</button><select id="cSetorF" aria-label="Filtrar por setor"></select><input id="cBusca" type="search" placeholder="Buscar por nome ou código" autocomplete="off"><div id="cFilt" class="fbar" hidden></div><button type="button" id="cLixo" class="secondary lixobtn" hidden>🗑 Lixeira</button><div id="cLista"></div></section>
 <div id="cIdx" class="cadindex" hidden aria-label="Índice A a Z"></div>
 </div>
 <div id="tabContagem" class="hidden">

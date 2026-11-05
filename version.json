@@ -1,1 +1,1 @@
-{"versao":"2026.11.05-337","nota":"Novo setor «Fiscal de loja»: consulta todos os cadastros de FLV e Perecíveis juntos (inclusive os novos), com EAN, PLU e códigos interno/doação; busca também por parte do código. Só consulta — não altera nada"}
+{"versao":"2026.11.05-338","nota":"Fiscal de loja: toque no produto para ver o código de barras desenhado (ler no caixa), o PLU de peso e o código interno/doação; filtro por setor; e agora ela também pode cadastrar produto novo escolhendo o setor (FLV, Perecíveis, Açougue, Mercearia, Padaria…)"}

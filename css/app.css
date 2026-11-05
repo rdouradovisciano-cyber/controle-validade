@@ -1540,5 +1540,12 @@ body:not([data-setor="KÓRIN"]) #cKorEsc{display:none!important}
 body[data-setor="Fiscal"] #tbCadastros{display:flex}
 body[data-setor="Fiscal"] #tbLoja,body[data-setor="Fiscal"] #tbDoacao,body[data-setor="Fiscal"] #tbEtiquetas,body[data-setor="Fiscal"] #tbPesaveis,body[data-setor="Fiscal"] #tbContagem,body[data-setor="Fiscal"] .fabwrap,body[data-setor="Fiscal"] #cLixo,body[data-setor="Fiscal"] #cKorEsc,body[data-setor="Fiscal"] #mnInv,body[data-setor="Fiscal"] #mnDoaAnt,body[data-setor="Fiscal"] #mnEtqHist,body[data-setor="Fiscal"] .cadrow .dpres,body[data-setor="Fiscal"] .cadrow [data-ced],body[data-setor="Fiscal"] .cadrow [data-cdel],body[data-setor="Fiscal"] .cadrow [data-crev]{display:none!important}
 body[data-setor="Fiscal"] .setorsw button.on{background:linear-gradient(180deg,#b9d6ff,#6aa0e8);color:#0b1f3d}
-body[data-setor="Fiscal"] #cForm{display:none!important}
 body[data-perfil="Admin"] .setorsw button{padding:0 7px;font-size:12px}body[data-perfil="Admin"] .setorsw{margin-right:2px}
+
+#cCatBox,#cSetorF{display:none}
+body[data-setor="Fiscal"] #cCatBox{display:block}body[data-setor="Fiscal"] #cSetorF{display:block;width:100%;margin-bottom:8px}
+body[data-setor="Fiscal"] .cadrow .ci{cursor:pointer}
+.codbar{background:#fff;border-radius:14px;padding:14px 12px 10px;text-align:center;margin:6px 0 10px;color:#111}
+.codsvg svg{width:100%;height:96px;display:block}.codnum{display:block;font-size:22px;letter-spacing:.12em;margin-top:6px;font-variant-numeric:tabular-nums}.codbar small{display:block;color:#555;margin-top:4px}
+.codgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.codgrid>div{border:1px solid var(--ln);border-radius:14px;padding:10px 12px}
+.codgrid small{display:block;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}.codgrid b{font-size:24px;font-variant-numeric:tabular-nums}

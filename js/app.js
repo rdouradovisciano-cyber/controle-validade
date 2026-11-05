@@ -4,7 +4,7 @@
 if (window.__LOGIN_WAIT) return;
 const C = window.VALIDA_CONFIG || {}, V = window.V || {}, fb = C.firebase || {};
 const PER = "Perecíveis", KOR = "KÓRIN", FIS = "Fiscal";   // Fiscal de loja: só consulta, vê os cadastros de FLV e Perecíveis juntos
-const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros", PER, KOR];
+const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Açougue","Outros", PER, KOR];
 // setor escolhido na abertura (sessionStorage): "FLV" (tudo que não é Perecíveis, como sempre foi) ou "Perecíveis" (cadastros e validades próprios)
 // perfil do aparelho (escolhido uma vez): "FLV" e "Perecíveis" entram direto e só nesse setor; "Admin" acessa os dois
 const PERFIL_K = "validamais-perfil";
@@ -1483,17 +1483,18 @@ let cadEdit = null, cFiltro = "";
 try { indexedDB.deleteDatabase("validamais-fotos-kor"); } catch (e) {}   // recurso de foto removido: apaga o que ficou guardado neste aparelho
    // chave do produto em edição
 const cadKey = p => (SETOR === FIS ? (p.category === PER ? "p" : "f") : "") + (p.barcode ? "b" + p.barcode + "|" + norm(p.name || "") : "n" + norm(p.name || ""));   // mesmo EAN com nomes diferentes = produtos diferentes (linhas separadas)
+const SET_EMO = { FLV: "🥬", [PER]: "🧀", "Açougue": "🥩", Mercearia: "🛒", Padaria: "🥖", "Laticínios": "🥛", Bebidas: "🥤", Congelados: "🧊", "Higiene e limpeza": "🧴", Ovos: "🥚", Outros: "📦" }, setEmo = c => SET_EMO[c] || "📦";
 function cadGroups() { const m = new Map(); products.forEach(p => { if (!p.name) return; const k = cadKey(p); if (!m.has(k)) m.set(k, []); m.get(k).push(p); });
   return [...m.entries()].map(([k, l]) => ({ k, l, p: l[0], name: l[0].name, barcode: l.map(x => x.barcode).find(Boolean) || "", plu: l.map(x => x.codigo_balanca).find(Boolean) || "", don: l.map(x => x.codigo_doacao).find(Boolean) || "" })).sort((a, b) => a.name.localeCompare(b.name, "pt-BR")); }
 function cadPaint() {
   const q = norm($("cBusca").value.trim()), all = cadGroups(), mapa = codMapa();
   all.forEach(x => { x.dup = dupGrupo(x, mapa); x.rev = revOn(x.name); });
   filtBar($("cFilt"), cFiltro, all.filter(x => x.rev).length, all.filter(x => x.dup.length).length);
-  const g = all.filter(x => !q || norm(x.name).includes(q) || x.barcode.includes(q) || (SETOR === FIS ? x.plu.includes(q) || x.don.toLowerCase().includes(q) : x.plu === q || x.don.toLowerCase() === q)).filter(x => !cFiltro || (cFiltro === "rev" ? x.rev : x.dup.length));
+  const g = all.filter(x => !q || norm(x.name).includes(q) || x.barcode.includes(q) || (SETOR === FIS ? x.plu.includes(q) || x.don.toLowerCase().includes(q) : x.plu === q || x.don.toLowerCase() === q)).filter(x => !cFiltro || (cFiltro === "rev" ? x.rev : x.dup.length)).filter(x => SETOR !== FIS || !$("cSetorF").value || x.p.category === $("cSetorF").value);
   lixoBtn(); $("cCount").textContent = all.length + (q ? " · " + g.length + " achados" : "");
   const ini = x => { const c = x.name.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").charAt(0).toUpperCase(); return /[A-Z]/.test(c) ? c : "#"; };
   let ult = "", letras = [];
-  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}"><div class="ci"><b>${SETOR === FIS ? (x.p.category === PER ? "🧀 " : "🥬 ") : ""}${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"}${SETOR === KOR ? "" : ` · PLU ${x.plu ? esc(x.plu) : "—"} · ${SETOR === PER || (SETOR === FIS && x.p.category === PER) ? "Interno" : "Doação"} ${x.don ? esc(x.don) : "—"}`}</small>${PERFIL === "Admin" ? `<small class="porx">👤 ${esc(x.l.map(l => l.por).find(Boolean) || "autor não registrado")} · ${dayOf(x.l[0])}</small>` : ""}${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small><button type="button" class="dpres" data-cres="${esc(x.k)}">Resolver código repetido</button>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
+  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}"><div class="ci"${SETOR === FIS ? ` data-cdet="${esc(x.k)}"` : ""}><b>${SETOR === FIS ? setEmo(x.p.category) + " " : ""}${esc(x.name)}</b><small>EAN ${x.barcode ? esc(x.barcode) : "—"}${SETOR === KOR ? "" : ` · PLU ${x.plu ? esc(x.plu) : "—"} · ${SETOR === PER || (SETOR === FIS && x.p.category === PER) ? "Interno" : "Doação"} ${x.don ? esc(x.don) : "—"}`}</small>${PERFIL === "Admin" ? `<small class="porx">👤 ${esc(x.l.map(l => l.por).find(Boolean) || "autor não registrado")} · ${dayOf(x.l[0])}</small>` : ""}${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small><button type="button" class="dpres" data-cres="${esc(x.k)}">Resolver código repetido</button>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
   $("cLista").innerHTML = g.length ? g.map(x => { const l = ini(x); let h = ""; if (l !== ult) { ult = l; letras.push(l); h = `<div class="cadlt" id="cl-${l === "#" ? "num" : l}">${l}</div>`; } return h + row(x); }).join("") : '<p class="empty">Nenhum produto encontrado.</p>';
   const rail = $("cIdx"); rail.hidden = g.length < 12 || letras.length < 2; $("cLista").classList.toggle("cadidx", !rail.hidden);
   rail.innerHTML = rail.hidden ? "" : letras.map(l => `<button type="button" tabindex="-1" data-l="${l}">${l}</button>`).join("");
@@ -1551,6 +1552,7 @@ $("cSalvar").onclick = () => {
   if (plu && (d = outros.find(x => x.codigo_balanca && Number(x.codigo_balanca) === Number(plu)))) return toast(`Esse código de balança já pertence a «${d.name}».`);
   if (don && (d = outros.find(x => String(x.codigo_doacao || "").toUpperCase() === don))) return toast(`Esse código de doação já pertence a «${d.name}».`);
   if (!ean && !mine.length && outros.some(x => norm(x.name || "") === norm(name) && !x.barcode)) return toast("Já existe um produto com esse nome.");
+  if (SETOR === FIS && !cadEdit && !$("cCat").value) { toast("Escolha o setor do produto."); return $("cCat").focus(); }
   const f = { name, barcode: ean, codigo_balanca: plu, codigo_doacao: don }, fail = e => { console.error(e); toast("Erro ao salvar na nuvem (confira as regras do Firebase)."); };
   if (mine.length) {
     if (db) { const ts = V.serverTimestamp(); mine.forEach(x => V.updateDoc(V.doc(db, "products", x.id), { ...f, updatedAt: ts }).catch(fail)); }
@@ -1558,16 +1560,29 @@ $("cSalvar").onclick = () => {
     if (SETOR === KOR && mine[0] && norm(mine[0].name) !== norm(name)) { const antigo = mine[0].name; setTimeout(() => { korMarca([antigo], false); korMarca([name], true); }, db ? 700 : 0); }
     toast("Cadastro atualizado.");
   } else {
-    const rec = { ...f, category: CATSET, expiry: "", quantity: 1, por: myName() };
+    const rec = { ...f, category: SETOR === FIS ? $("cCat").value : CATSET, expiry: "", quantity: 1, por: myName() };
     if (db) { const ts = V.serverTimestamp(); V.addDoc(V.collection(db, "products"), { ...rec, createdAt: ts, updatedAt: ts }).catch(fail); }
     else { products.push({ ...rec, id: uid(), updatedAt: Date.now() }); persist(); render(); }
     if (SETOR === KOR) korMarca([name], true);
     toast("«" + name + "» cadastrado.");
   }
-  cadReset(); setTimeout(cadPaint, db ? 600 : 0);
+  cadReset(); if ($("cCat")) $("cCat").value = ""; setTimeout(cadPaint, db ? 600 : 0);
 };
+{ const opt = c => `<option value="${esc(c)}">${setEmo(c)} ${esc(c)}</option>`, lista = CATS.filter(c => c !== KOR);
+  $("cCat").innerHTML = '<option value="">Escolha o setor…</option>' + lista.map(opt).join(""); $("cSetorF").innerHTML = '<option value="">Todos os setores</option>' + lista.map(opt).join(""); $("cSetorF").onchange = () => cadPaint(); }
 $("cFilt").onclick = e => { const b = e.target.closest("[data-f]"); if (!b) return; cFiltro = cFiltro === b.dataset.f ? "" : b.dataset.f; cadPaint(); };
-$("cLista").onclick = e => { const b = e.target.closest("[data-ced],[data-cdel],[data-crev],[data-cres]"); if (!b) return;
+function cadCodigos(x) {   // Fiscal: mostra o código de barras para ler no caixa, e os demais códigos grandes
+  const e0 = x.barcode, e13 = /^\d{12}$/.test(e0) ? "0" + e0 : e0, svg = /^\d{13}$/.test(e13) ? ean13Svg(e13) : "", cat = x.p.category, interno = cat === PER ? "Código interno" : "Código de doação";
+  const bg = document.createElement("div"); bg.className = "modal"; bg.id = "codModal";
+  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Códigos do produto"><div class="sheethead"><h2>${setEmo(cat)} ${esc(x.name)}</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
+    <p class="note">${esc(cat === PER ? "Perecíveis" : cat)}</p>
+    ${e0 ? `<div class="codbar">${svg ? `<div class="codsvg">${svg}</div>` : ""}<b class="codnum">${esc(e0)}</b>${svg ? "" : '<small>Sem desenho (não é EAN-13): digite no caixa.</small>'}</div>` : '<p class="note">Sem código de barras (EAN) cadastrado.</p>'}
+    <div class="codgrid"><div><small>PLU (balança / peso)</small><b>${x.plu ? esc(x.plu) : "—"}</b></div><div><small>${interno}</small><b>${x.don ? esc(x.don) : "—"}</b></div></div>
+    <p class="note" style="margin-top:8px">Para produto de peso, a etiqueta nova sai da balança com o PLU acima.</p></section>`;
+  bg.onclick = ev => { if (ev.target === bg || ev.target.closest("[data-x]")) bg.remove(); };
+  document.body.appendChild(bg); }
+$("cLista").onclick = e => { const dt = e.target.closest("[data-cdet]"); if (dt && SETOR === FIS) { const x = cadGroups().find(y => y.k === dt.dataset.cdet); if (x) cadCodigos(x); return; }
+  const b = e.target.closest("[data-ced],[data-cdel],[data-crev],[data-cres]"); if (!b) return;
   if (b.dataset.cres !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.cres); if (x) dupResolver(x); return; }
   if (b.dataset.crev !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.crev); if (!x) return; const on = !revOn(x.name); revSet(x.name, on); cadPaint(); toast(on ? "Marcado para revisar." : "Marca de revisão removida."); return; }
   if (b.dataset.ced !== undefined) { const x = cadGroups().find(y => y.k === b.dataset.ced); if (x) cadAbrir(x); return; }
