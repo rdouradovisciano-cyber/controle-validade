@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-06T17:30:00-03:00",
+  "itens": [
+   "Escala 5x2: Renato e Yossef agora aparecem juntos no mesmo calendário, e os dias em que ninguém trabalha ficam destacados"
+  ]
+ },
+ {
   "t": "2026-11-06T17:00:00-03:00",
   "itens": [
    "Nova aba «Escala 5x2» (menu ⋮): escala do mês de Renato e Yossef, 42h por semana. Só aparece para o perfil BENASSI e para o Admin"
