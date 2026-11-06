@@ -1566,3 +1566,5 @@ body[data-setor="Fiscal"] .cadrow .ci small[hidden]{display:none!important}
 em.ult{font-style:normal;color:#d1121f}.fch.bal em.ult{color:#c1121f}
 html[data-tema=dark] .codgrid em.ult{color:#ff5a5f}
 body[data-setor="Fiscal"] .cadrow .fnome{display:block;font-size:13.5px;font-weight:600;color:var(--mut,#a9a38f);white-space:normal}
+body[data-setor="Fiscal"] #cForm:not(.perSel) label[for="cDon"],body[data-setor="Fiscal"] #cForm:not(.perSel) #cDon{display:none!important}
+.codgrid:has(> div:only-child){grid-template-columns:1fr}

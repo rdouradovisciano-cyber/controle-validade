@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-05T21:35:00-03:00",
+  "itens": [
+   "Fiscal de loja: tirado o código de doação (fica só o código interno nos Perecíveis)"
+  ]
+ },
+ {
   "t": "2026-11-05T20:55:00-03:00",
   "itens": [
    "Fiscal de loja: «PLU» virou «Cód. de balança» com o último número em vermelho, e os códigos aparecem em blocos coloridos como na aba Pesáveis, com o nome embaixo"
