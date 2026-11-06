@@ -2179,7 +2179,7 @@ if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "atalhos"), sn => {
 
 // ---------- Escala 5x2 (só perfis BENASSI e Admin): Renato e Yossef, 42 h semanais ----------
 const ESC_K = "validamais-escala", ESC_ANC = Date.UTC(2026, 10, 8);   // domingo 08/11/2026: semana 1 da escala nova (começa na segunda 09/11); antes disso vale a escala antiga
-const ESC_P = [{ k: "r", n: "Renato", ent: 12 * 60 }, { k: "y", n: "Yossef", ent: 7 * 60 }];
+const ESC_P = [{ k: "r", n: "Renato", ent: 11 * 60 }, { k: "y", n: "Yossef", ent: 7 * 60 }];
 const ESC_CICLO = { r: ["FTTFTTT", "TTFFTTT", "FTTFTTT"], y: ["TTFTFTT", "FTTTFTT", "TTFFTTT"] };   // proposta lida da nota amarela (D S T Q Q S S); o Admin ajusta tocando nos dias
 const ESC_DIA = 8 * 60 + 24, ESC_INT = 60, ESC_META = 42 * 60;
 let escO = store.get(ESC_K, {}) || {}, escMes = (() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; })();
