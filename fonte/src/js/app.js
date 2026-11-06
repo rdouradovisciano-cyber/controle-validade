@@ -8,7 +8,7 @@ const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congel
 // setor escolhido na abertura (sessionStorage): "FLV" (tudo que não é Perecíveis, como sempre foi) ou "Perecíveis" (cadastros e validades próprios)
 // perfil do aparelho (escolhido uma vez): "FLV" e "Perecíveis" entram direto e só nesse setor; "Admin" acessa os dois
 const PERFIL_K = "validamais-perfil";
-let PERFIL = (() => { try { const s = localStorage.getItem(PERFIL_K); return s === "FLV" || s === PER || s === FIS || s === "Admin" ? s : null; } catch (e) { return null; } })();
+let PERFIL = (() => { try { const s = localStorage.getItem(PERFIL_K); return s === "FLV" || s === PER || s === FIS || s === "Admin" || s === "BENASSI" ? s : null; } catch (e) { return null; } })();
 let SETOR = (() => { if (PERFIL === "FLV" || PERFIL === PER || PERFIL === FIS) return PERFIL; try { const s = sessionStorage.getItem("validamais-setor"); return s === PER || s === KOR || s === FIS ? s : "FLV"; } catch (e) { return "FLV"; } })();
 const setorDe = p => p.category === PER ? PER : "FLV";   // Perecíveis tem cadastro próprio; FLV e KÓRIN usam o mesmo cadastro (categoria «FLV» e as demais)
 // KÓRIN usa o mesmo banco do FLV; quais produtos são dele fica em sh_cfg/korin (e uma cópia neste aparelho)
@@ -54,14 +54,14 @@ function perfilEscolher(troca) {   // pergunta uma vez qual é o setor deste apa
   const bg = document.createElement("div"); bg.className = "askbg"; bg.id = "perfilBg";
   const op = (v, ic, t, s) => `<button type="button" class="perfop${PERFIL === v ? " on" : ""}" data-p="${v}"><span>${ic}</span><b>${t}</b><small>${s}</small></button>`;
   bg.innerHTML = `<div class="ask perfil"><div class="ai">👤</div><h3>${troca ? "Perfil deste aparelho" : "Qual é o seu setor?"}</h3><p>${troca ? "Escolha o novo perfil." : "Você escolhe uma vez e o app abre direto no seu setor."}</p>
-    ${op("FLV", "🥬", "FLV", "Hortifruti")}${op(PER, "🧀", "Perecíveis", "Validades e etiquetas")}${op(FIS, "🔎", "Fiscal de loja", "Consulta cadastros e códigos")}${op("Admin", "🛡️", "Admin", "Acesso a todos os setores")}${troca ? '<button type="button" class="secondary" data-x style="margin-top:8px;width:100%">Cancelar</button>' : ""}</div>`;
+    ${op("FLV", "🥬", "FLV", "Hortifruti")}${op(PER, "🧀", "Perecíveis", "Validades e etiquetas")}${op(FIS, "🔎", "Fiscal de loja", "Consulta cadastros e códigos")}${op("BENASSI", "🗓️", "BENASSI", "Escala 5x2 (acompanhamento)")}${op("Admin", "🛡️", "Admin", "Acesso a todos os setores")}${troca ? '<button type="button" class="secondary" data-x style="margin-top:8px;width:100%">Cancelar</button>' : ""}</div>`;
   const aplica = v => { try { localStorage.setItem(PERFIL_K, v); sessionStorage.removeItem("validamais-setor"); } catch (err) {} location.reload(); };
   let ocupado = false;
   bg.onclick = async e => { if (troca && (e.target === bg || e.target.closest("[data-x]"))) return bg.remove();
     const b = e.target.closest("[data-p]"); if (!b || ocupado) return; const v = b.dataset.p; if (v === PERFIL) return bg.remove();
     ocupado = true;
     try {
-      if (v === "Admin" || (troca && PERFIL !== "Admin")) { if (!(await adminSenha(v === "Admin" ? "Admin" : "troca"))) return; }   // Admin e troca de perfil exigem a senha do Admin
+      if (v === "Admin" || v === "BENASSI" || (troca && PERFIL !== "Admin")) { if (!(await adminSenha(v === "Admin" ? "Admin" : "troca"))) return; }   // Admin e troca de perfil exigem a senha do Admin
       aplica(v);
     } finally { ocupado = false; } };
   document.body.appendChild(bg);
@@ -2176,6 +2176,55 @@ if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "atalhos"), sn => {
   if (sn.exists() && Array.isArray(sn.data().l)) { const l = sn.data().l, at = JSON.stringify(store.get("validamais-dbal", null)), nv = JSON.stringify(l.length ? l : null); if (at !== nv) { store.set("validamais-dbal", l.length ? l : null); try { dTop6Render(); } catch (e) {} } }
   else if (!sn.exists() && PERFIL === "Admin" && dBalCfg()) dBalSave(dBalCfg());   // primeira vez: os atalhos do Admin viram os oficiais
 }, e => console.warn("atalhos", e)); } catch (e) { console.warn(e); } }
+
+// ---------- Escala 5x2 (só perfis BENASSI e Admin): Renato e Yossef, 42 h semanais ----------
+const ESC_K = "validamais-escala", ESC_ANC = Date.UTC(2026, 10, 1);   // domingo, 01/11/2026 = início do ciclo de 3 semanas
+const ESC_P = [{ k: "r", n: "Renato", ent: 12 * 60 }, { k: "y", n: "Yossef", ent: 7 * 60 }];
+const ESC_CICLO = { r: ["FTTFTTT", "TTFFTTT", "FTTFTTT"], y: ["TTFTFTT", "FTTTFTT", "TTFFTTT"] };   // proposta lida da nota amarela (D S T Q Q S S); o Admin ajusta tocando nos dias
+const ESC_DIA = 8 * 60 + 24, ESC_INT = 60, ESC_META = 42 * 60;
+let escO = store.get(ESC_K, {}) || {}, escMes = (() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; })();
+const escKey = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const escHm = m => String(Math.floor(m / 60) % 24).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
+const escH = m => Math.floor(m / 60) + "h" + (m % 60 ? String(m % 60).padStart(2, "0") : "");
+function escBase(pk, d) { const n = Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - ESC_ANC) / 864e5), w = Math.floor(n / 7), c = ((w % 3) + 3) % 3, dw = ((n % 7) + 7) % 7; return ESC_CICLO[pk][c][dw]; }
+function escSt(pk, d) { const o = escO[pk] && escO[pk][escKey(d)]; return o || escBase(pk, d); }
+function escSalva() { store.set(ESC_K, escO); if (db) V.setDoc(V.doc(db, "sh_cfg", "escala"), { o: escO, em: Date.now(), por: myName().slice(0, 40) }).catch(e => { console.error(e); toast("Não consegui salvar na nuvem."); }); }
+function escToca(pk, key) {
+  const d = new Date(key + "T12:00:00"), at = escSt(pk, d), nx = at === "T" ? "F" : at === "F" ? "FE" : "T";
+  escO[pk] = escO[pk] || {}; if (nx === escBase(pk, d)) delete escO[pk][key]; else escO[pk][key] = nx; escSalva(); escPaint();
+}
+function escPaint() {
+  const v = $("escV"); if (!v) return; const adm = PERFIL === "Admin", { y, m } = escMes, nomeM = new Date(y, m, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase());
+  const hoje = new Date(), hk = escKey(hoje), ds = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+  const hj = ESC_P.map(p => { const st = escSt(p.k, hoje); return `<span class="eh ${st}"><b>${p.n}</b> ${st === "T" ? escHm(p.ent) + "–" + escHm(p.ent + ESC_DIA + ESC_INT) : st === "FE" ? "férias" : "folga"}</span>`; }).join("");
+  const card = p => {
+    const ini = new Date(y, m, 1), fim = new Date(y, m + 1, 0); let d = new Date(y, m, 1 - ini.getDay()), rows = "", totM = 0;
+    while (d <= fim) {
+      let cels = "", nt = 0;
+      for (let i = 0; i < 7; i++) { const st = escSt(p.k, d), fora = d.getMonth() !== m, key = escKey(d); if (st === "T") nt++; if (!fora && st === "T") totM += ESC_DIA;
+        cels += `<td class="ec ${st}${fora ? " fora" : ""}${key === hk ? " hoje" : ""}"${adm ? ` data-ek="${key}" data-ep="${p.k}"` : ""}><i>${d.getDate()}</i><b>${st === "T" ? "T" : st === "FE" ? "FE" : "F"}</b></td>`; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); }
+      const min = nt * ESC_DIA, ok = min === ESC_META;
+      rows += `<tr>${cels}<td class="es ${ok ? "ok" : "ruim"}">${nt} dia${nt === 1 ? "" : "s"}<br><b>${ok ? "42h ✓" : escH(min)}</b></td></tr>`;
+    }
+    return `<section class="ecard"><h3>${p.n} <small>${escHm(p.ent)} às ${escHm(p.ent + ESC_DIA + ESC_INT)}</small></h3><p class="muted">8h24 por dia · ${escH(ESC_INT)} de intervalo · meta de 42h por semana</p>
+      <table class="etb"><thead><tr>${ds.map(x => `<th>${x}</th>`).join("")}<th>Semana</th></tr></thead><tbody>${rows}</tbody></table><p class="etot">Horas trabalhadas em ${nomeM.split(" ")[0].toLowerCase()}: <b>${escH(totM)}</b></p></section>`;
+  };
+  v.innerHTML = `<div class="eh0"><button type="button" id="escX" class="secondary">${adm ? "Fechar" : "Trocar perfil"}</button><h2>🗓️ Escala 5x2</h2></div>
+    <div class="enav"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div>
+    <div class="ehoje"><small>Hoje, ${hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</small><div>${hj}</div></div>
+    ${ESC_P.map(card).join("")}<p class="muted eleg">T = trabalha · F = folga · FE = férias${adm ? " · Toque em um dia para mudar." : ""}</p>`;
+}
+function escAbrir() {
+  let v = $("escV"); if (!v) { v = document.createElement("div"); v.id = "escV"; v.className = "escv"; document.body.appendChild(v);
+    v.onclick = e => { const t = e.target.closest("[data-ek]"), mn = e.target.closest("[data-em]");
+      if (t) return escToca(t.dataset.ep, t.dataset.ek);
+      if (mn) { escMes = new Date(escMes.y, escMes.m + Number(mn.dataset.em), 1); escMes = { y: escMes.getFullYear(), m: escMes.getMonth() }; return escPaint(); }
+      if (e.target.closest("#escX")) { if (PERFIL === "Admin") v.remove(); else perfilEscolher(true); } }; }
+  document.body.classList.add("escOn"); escPaint();
+}
+if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "escala"), sn => { escO = (sn.exists() && sn.data().o) || {}; store.set(ESC_K, escO); escPaint(); }, e => console.warn("escala", e)); } catch (e) { console.warn(e); } }
+$("mnEscala").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } escAbrir(); };
+if (PERFIL === "BENASSI") escAbrir();
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "icones"), sn => { icoNuvem = (sn.exists() && sn.data().m) || {}; render(); }, e => console.warn("icones", e)); } catch (e) { console.warn(e); } }
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "notas"), sn => { notasNuvem = (sn.exists() && sn.data().n) || {}; const f = document.activeElement; if (!(f && f.matches && f.matches("[data-nota]"))) render(); }, e => console.warn("notas", e)); } catch (e) { console.warn(e); } }
 visAplica();
