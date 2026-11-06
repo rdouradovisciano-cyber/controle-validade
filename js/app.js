@@ -2178,7 +2178,7 @@ if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "atalhos"), sn => {
 }, e => console.warn("atalhos", e)); } catch (e) { console.warn(e); } }
 
 // ---------- Escala 5x2 (só perfis BENASSI e Admin): Renato e Yossef, 42 h semanais ----------
-const ESC_K = "validamais-escala", ESC_ANC = Date.UTC(2026, 10, 1);   // domingo, 01/11/2026 = início do ciclo de 3 semanas
+const ESC_K = "validamais-escala", ESC_ANC = Date.UTC(2026, 10, 8);   // domingo 08/11/2026: semana 1 da escala nova (começa na segunda 09/11); antes disso vale a escala antiga
 const ESC_P = [{ k: "r", n: "Renato", ent: 12 * 60 }, { k: "y", n: "Yossef", ent: 7 * 60 }];
 const ESC_CICLO = { r: ["FTTFTTT", "TTFFTTT", "FTTFTTT"], y: ["TTFTFTT", "FTTTFTT", "TTFFTTT"] };   // proposta lida da nota amarela (D S T Q Q S S); o Admin ajusta tocando nos dias
 const ESC_DIA = 8 * 60 + 24, ESC_INT = 60, ESC_META = 42 * 60;
@@ -2186,7 +2186,7 @@ let escO = store.get(ESC_K, {}) || {}, escMes = (() => { const d = new Date(); r
 const escKey = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
 const escHm = m => String(Math.floor(m / 60) % 24).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
 const escH = m => Math.floor(m / 60) + "h" + (m % 60 ? String(m % 60).padStart(2, "0") : "");
-function escBase(pk, d) { const n = Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - ESC_ANC) / 864e5), w = Math.floor(n / 7), c = ((w % 3) + 3) % 3, dw = ((n % 7) + 7) % 7; return ESC_CICLO[pk][c][dw]; }
+function escBase(pk, d) { const n = Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - ESC_ANC) / 864e5); if (n < 0) return "-"; const w = Math.floor(n / 7), c = ((w % 3) + 3) % 3, dw = ((n % 7) + 7) % 7; return ESC_CICLO[pk][c][dw]; }
 function escSt(pk, d) { const o = escO[pk] && escO[pk][escKey(d)]; return o || escBase(pk, d); }
 function escSalva() { store.set(ESC_K, escO); if (db) V.setDoc(V.doc(db, "sh_cfg", "escala"), { o: escO, em: Date.now(), por: myName().slice(0, 40) }).catch(e => { console.error(e); toast("Não consegui salvar na nuvem."); }); }
 function escToca(pk, key) {
@@ -2196,16 +2196,17 @@ function escToca(pk, key) {
 function escPaint() {
   const v = $("escV"); if (!v) return; const adm = PERFIL === "Admin", { y, m } = escMes, nomeM = new Date(y, m, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }).replace(/^./, c => c.toUpperCase());
   const hoje = new Date(), hk = escKey(hoje), ds = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-  const hj = ESC_P.map(p => { const st = escSt(p.k, hoje); return `<span class="eh ${st}"><b>${p.n}</b> ${st === "T" ? escHm(p.ent) + "–" + escHm(p.ent + ESC_DIA + ESC_INT) : st === "FE" ? "férias" : "folga"}</span>`; }).join("");
+  const hj = ESC_P.map(p => { const st = escSt(p.k, hoje); return `<span class="eh ${st}"><b>${p.n}</b> ${st === "T" ? escHm(p.ent) + "–" + escHm(p.ent + ESC_DIA + ESC_INT) : st === "FE" ? "férias" : st === "-" ? "escala antiga" : "folga"}</span>`; }).join("");
   const ini = new Date(y, m, 1), fim = new Date(y, m + 1, 0), tot = { r: 0, y: 0 }; let d = new Date(y, m, 1 - ini.getDay()), rows = "";
   while (d <= fim) {
-    let cels = "", nt = { r: 0, y: 0 };
+    let cels = "", nt = { r: 0, y: 0 }, semAntiga = true;
     for (let i = 0; i < 7; i++) {
-      const fora = d.getMonth() !== m, key = escKey(d), ss = ESC_P.map(p => escSt(p.k, d)), nenhum = ss.every(x => x !== "T");
+      const fora = d.getMonth() !== m, key = escKey(d), ss = ESC_P.map(p => escSt(p.k, d)), nenhum = ss.every(x => x === "F" || x === "FE");
+      if (ss.some(x => x !== "-")) semAntiga = false;
       ESC_P.forEach((p, q) => { if (ss[q] === "T") { nt[p.k]++; if (!fora) tot[p.k] += ESC_DIA; } });
-      cels += `<td class="ec${fora ? " fora" : ""}${key === hk ? " hoje" : ""}${nenhum && !fora ? " vazio" : ""}"><i>${d.getDate()}</i>${ESC_P.map((p, q) => `<b class="pl ${ss[q]} ${p.k}"${adm ? ` data-ek="${key}" data-ep="${p.k}"` : ""}>${p.n[0]}${ss[q] === "T" ? "" : "·" + ss[q]}</b>`).join("")}</td>`;
+      cels += `<td class="ec${fora ? " fora" : ""}${key === hk ? " hoje" : ""}${nenhum && !fora ? " vazio" : ""}"><i>${d.getDate()}</i>${ESC_P.map((p, q) => `<b class="pl ${ss[q] === "-" ? "N" : ss[q]} ${p.k}"${adm ? ` data-ek="${key}" data-ep="${p.k}"` : ""}>${p.n[0]}${ss[q] === "T" ? "" : "·" + (ss[q] === "-" ? "–" : ss[q])}</b>`).join("")}</td>`;
       d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); }
-    rows += `<tr>${cels}<td class="es">${ESC_P.map(p => { const mn = nt[p.k] * ESC_DIA, ok = mn === ESC_META; return `<span class="${ok ? "ok" : "ruim"}">${p.n[0]} ${ok ? "42h✓" : escH(mn)}</span>`; }).join("")}</td></tr>`;
+    rows += `<tr>${cels}<td class="es">${ESC_P.map(p => { const mn = nt[p.k] * ESC_DIA, ok = mn === ESC_META; return `<span class="${ok ? "ok" : semAntiga ? "ant" : "ruim"}">${p.n[0]} ${semAntiga ? "antiga" : ok ? "42h✓" : escH(mn)}</span>`; }).join("")}</td></tr>`;
   }
   const cab = ESC_P.map(p => `<div class="epc ${p.k}"><b>${p.n}</b><span>${escHm(p.ent)} às ${escHm(p.ent + ESC_DIA + ESC_INT)}</span><small>${escH(tot[p.k])} em ${nomeM.split(" ")[0].toLowerCase()}</small></div>`).join("");
   const card = `<section class="ecard"><div class="epcs">${cab}</div><p class="muted">8h24 por dia · 1h de intervalo · meta de 42h por semana</p>
@@ -2213,7 +2214,7 @@ function escPaint() {
   v.innerHTML = `<div class="eh0"><button type="button" id="escX" class="secondary">${adm ? "Fechar" : "Trocar perfil"}</button><h2>🗓️ Escala 5x2</h2></div>
     <div class="enav"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div>
     <div class="ehoje"><small>Hoje, ${hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</small><div>${hj}</div></div>
-    ${card}<p class="muted eleg"><b class="pl T r">R</b> Renato · <b class="pl T y">Y</b> Yossef · colorido = trabalha · cinza = folga (F) · azul = férias (FE) · contorno vermelho = ninguém trabalha${adm ? " · Toque no R ou Y de um dia para mudar." : ""}</p>`;
+    ${card}<p class="muted eleg"><b class="pl T r">R</b> Renato · <b class="pl T y">Y</b> Yossef · colorido = trabalha · cinza = folga (F) · azul = férias (FE) · contorno vermelho = os dois folgam no mesmo dia · «–» = escala antiga (a nova começa em 09/11)${adm ? " · Toque no R ou Y de um dia para mudar." : ""}</p>`;
 }
 function escAbrir() {
   let v = $("escV"); if (!v) { v = document.createElement("div"); v.id = "escV"; v.className = "escv"; document.body.appendChild(v);

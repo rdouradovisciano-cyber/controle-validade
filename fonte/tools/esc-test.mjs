@@ -20,5 +20,5 @@ console.log("overlay:",await pg.isVisible("#escV"),"| editáveis:",await pg.loca
 // ir ao mês 11/2026 ou mostrar o atual
 const mes=(await pg.innerText(".enav b"));console.log("mês:",mes);
 const c=pg.locator(".pl.r[data-ek]").nth(3);const antes=await c.innerText();await c.click();console.log("toque:",antes.replace(/\n/g," "),"->",(await pg.locator(".pl.r[data-ek]").nth(3).innerText()).replace(/\n/g," "),"| resumo semana:",(await pg.locator(".es").first().innerText()).replace(/\n/g," "));
-await pg.screenshot({path:SP+"esc-adm.png"});
+await pg.evaluate(()=>{});await pg.screenshot({path:SP+"esc-adm.png"});
 console.log(errs);await br.close();srv.close();
