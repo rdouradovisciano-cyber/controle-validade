@@ -1530,3 +1530,4 @@ html[data-tema=dark] .krow .kn em.ult,html[data-tema=dark] .kvn em.ult{color:#ff
 .duph{margin:12px 2px 6px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
 .dupg[hidden],.duph[hidden]{display:none!important}
 .dupr{gap:10px}.dupr>span:first-child{flex:1;min-width:0}.dupr button{white-space:nowrap;min-width:96px;padding:8px 10px!important;font-size:14px!important;min-height:38px}
+.shbts{display:flex;flex-direction:column;gap:6px;flex:none}.shbts .shact{white-space:nowrap}

@@ -408,8 +408,9 @@ function stopScanner() {                                  // volta na hora; a c�
 }
 function closeModal() { stopScanner(); $("modal").classList.add("hidden"); resetForm(); }
 function openForm(code = "") { resetForm(); show("Cadastrar produto"); $("barcode").value = code; fillKnown(code); $("name").focus(); }
+function achaEan(code) { return products.find(p => p.barcode === code) || rawAllAtivos().find(p => p.barcode === code && setSet(p) === (SETOR === PER ? PER : "FLV")); }   // inclui os itens escondidos nesta visão (ex.: KÓRIN x FLV)
 function fillKnown(code) {
-  const k = code && products.find(p => p.barcode === code);
+  const k = code && achaEan(code);
   if (k && !$("docId").value) { if (!$("name").value) $("name").value = k.name || ""; if (k.category) $("category").value = k.category;
     $("cBalanca").value = k.codigo_balanca || ""; $("cDoacao").value = k.codigo_doacao || ""; }
   toggleCodes();
@@ -447,16 +448,16 @@ function dupInfo(x) {   // EAN, códigos e o que há na loja (lotes com quantida
   const loja = ls.length ? "Na loja: " + ls.slice(0, 4).map(l => `${esc(l.q)} un · vence ${fmt(l.e)}`).join(" | ") + (ls.length > 4 ? ` | +${ls.length - 4}` : "") : "Na loja: nenhum lote com validade";
   return `<small class="dupi">${esc(cods)}</small><small class="dupi">${loja}${ret ? ` · ${ret} retirado(s)` : ""}</small>`;
 }
-async function dupUnir(gi, ni, paint) {   // une o grupo num só cadastro: nome do escolhido + EAN/PLU/código completos (os que faltam vêm dos outros)
-  const g = dupGroups()[gi]; if (!g || !g[ni]) return; const alvo = g[ni];
+async function dupUnir(gi, ni, paint) { const g = dupGroups()[gi]; if (!g || !g[ni]) return; return dupUnirCore(g, g[ni], paint); }
+async function dupUnirCore(g, alvo, paint) {   // une o grupo num só cadastro: nome do escolhido + EAN/PLU/código completos (os que faltam vêm dos outros)
   const pega = k => { const own = [...alvo[k]]; if (own.length) return own[0]; for (const o of g) if (o[k].size) return [...o[k]][0]; return ""; };
-  const ean = pega("ean"), plu = pega("plu"), doa = pega("doa"), set = new Set(g.map(x => norm(x.nome)));
+  const ean = pega("ean"), plu = pega("plu"), doa = pega("doa"), set = new Set(g.map(x => norm(x.nome))), pool = SETOR === PER ? PER : "FLV";
   const ok = await askConfirm({ icon: "🔗", title: "Unir cadastros?", text: "«" + alvo.nome + "»", sub: `Todos ficam com este nome e com ${ean ? "EAN " + ean : "sem EAN"}${plu ? " · PLU " + plu : ""}${doa ? " · Cód. " + doa : ""}. As validades e quantidades na loja continuam.`, ok: "Unir", cancel: "Cancelar" });
   if (!ok) return; let n = 0;
-  products.forEach(p => { if (!set.has(norm(p.name || ""))) return; const d = { name: alvo.nome }; if (ean) d.barcode = ean; if (plu) d.codigo_balanca = plu; if (doa) d.codigo_doacao = doa;
+  rawAllAtivos().forEach(p => { if (!set.has(norm(p.name || "")) || setSet(p) !== pool) return; const d = { name: alvo.nome }; if (ean) d.barcode = ean; if (plu) d.codigo_balanca = plu; if (doa) d.codigo_doacao = doa;
     if (Object.keys(d).every(k => (p[k] || "") === d[k])) return; n++;
     if (db) V.updateDoc(V.doc(db, "products", p.id), { ...d, updatedAt: V.serverTimestamp() }).catch(err => console.error(err)); else Object.assign(p, d); });
-  persist(); if (!db) render(); toast(`${n} cadastro(s) unidos em «${alvo.nome}».`); paint();
+  persist(); if (!db) render(); toast(`${n} cadastro(s) unidos em «${alvo.nome}».`); if (paint) paint();
 }
 function dupReview() {
   const bg = document.createElement("div"); bg.className = "askbg";
@@ -927,7 +928,7 @@ function registerProduct({ name, category = CATSET, barcode = "", codigo_balanca
 // ---------- Doação: lançar por EAN digitado (botão +) ----------
 function eanFind(v) {
   if (isScale(v)) { const it = Number(parseScale(v).item); return products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === it); }
-  return products.find(p => p.barcode === v);
+  return achaEan(v);
 }
 function eanPreview() {                              // assim que o código é digitado, mostra o produto e o código de doação
   const v = $("eanCode").value.replace(/\D/g, ""), box = $("eanPrev");
@@ -1644,7 +1645,7 @@ async function cadScan(code) {
   if (isScale(d)) { $("cPlu").value = String(Number(parseScale(d).item)).slice(0, 6); toast("Etiqueta de balança: preenchi o código de balança (PLU)."); }
   else if (d.length > 13) return toast("Código com mais de 13 dígitos. Digite manualmente o que for válido.");
   else {
-    const ja = products.find(p => p.barcode === d);
+    const ja = achaEan(d);
     if (ja && !cadEdit) { toast("«" + ja.name + "» já tem esse código. Abri para editar."); $("cBusca").value = ""; cadPaint(); const b = document.querySelector('[data-ced="' + (cadKey(ja)).replace(/"/g, '\\"') + '"]'); if (b) b.click(); return; }
     $("cEan").value = d; $("cEan").dispatchEvent(new Event("input", { bubbles: true })); toast("Código lido: " + d);
   }
@@ -1928,8 +1929,8 @@ function saudeCalc() {
   const m = new Map(), lots = rawAllAtivos();
   lots.forEach(p => { const set = setSet(p); [["ean", p.barcode], ["plu", p.codigo_balanca], ["doa", p.codigo_doacao]].forEach(([t, c]) => { const k = codChave(t, c); if (!k) return; const o = m.get(k) || { t, c: String(c).trim(), e: new Map() }; o.e.set(set + "|" + norm(p.name), { n: p.name, set }); m.set(k, o); }); });
   const rep = []; m.forEach(o => { if (o.e.size < 2) return; const ents = [...o.e.values()], cruza = new Set(ents.map(e => e.set)).size > 1;
-    rep.push(`<div class="shg"><b>${TNOME[o.t]} ${esc(o.c)}</b>${cruza ? " <small>(entre setores)</small>" : ""}${ents.map(e => `<div class="shrow">${lk(e.n, e.set)}${cruza ? `<small> · ${esc(e.set)}</small>` : ""}<button type="button" class="shact" data-a="lim" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Tirar daqui</button></div>`).join("")}</div>`); });
-  sec.push({ t: "Códigos repetidos", d: "O mesmo código em produtos diferentes. «Tirar daqui» apaga o código só daquele produto (ele continua cadastrado).", n: rep.length, it: rep });
+    rep.push(`<div class="shg"><b>${TNOME[o.t]} ${esc(o.c)}</b>${cruza ? " <small>(entre setores)</small>" : ""}${ents.map(e => `<div class="shrow">${lk(e.n, e.set)}${cruza ? `<small> · ${esc(e.set)}</small>` : ""}<span class="shbts"><button type="button" class="shact pri" data-a="uni2" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Unir neste</button><button type="button" class="shact" data-a="lim" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Tirar daqui</button></span></div>`).join("")}</div>`); });
+  sec.push({ t: "Códigos repetidos", d: "O mesmo código em produtos diferentes (quase sempre é o mesmo produto com dois nomes). «Unir neste» deixa todos com este nome; «Tirar daqui» apaga o código só daquele produto.", n: rep.length, it: rep });
   // mesmo nome, cadastros separados
   const porNome = new Map(); grupos.forEach(x => { const k = norm(x.name); (porNome.get(k) || porNome.set(k, []).get(k)).push(x); });
   const iguais = [];
@@ -1948,7 +1949,10 @@ function saudeSet(lots, campos) {
 }
 async function saudeAcao(d, repaint) {
   const lotes = () => rawAllAtivos().filter(p => norm(p.name) === norm(d.n) && setSet(p) === d.s);
-  if (d.a === "lim") { const campo = CAMPO[d.t], alvo = lotes().filter(p => codChave(d.t, p[campo]) === codChave(d.t, d.c));
+  if (d.a === "uni2") { const ch = codChave(d.t, d.c), campo = CAMPO[d.t], lotes2 = rawAllAtivos().filter(p => setSet(p) === d.s && codChave(d.t, p[campo]) === ch), mp = new Map();
+    lotes2.forEach(p => { const k = norm(p.name), o = mp.get(k) || { nome: p.name, ean: new Set(), plu: new Set(), doa: new Set() }; if (p.barcode) o.ean.add(p.barcode); if (p.codigo_balanca) o.plu.add(p.codigo_balanca); if (p.codigo_doacao) o.doa.add(p.codigo_doacao); mp.set(k, o); });
+    const g = [...mp.values()], alvo = g.find(x => norm(x.nome) === norm(d.n)); if (alvo) await dupUnirCore(g, alvo); }
+  else if (d.a === "lim") { const campo = CAMPO[d.t], alvo = lotes().filter(p => codChave(d.t, p[campo]) === codChave(d.t, d.c));
     const r = await askConfirm({ icon: "🧹", title: "Tirar o código deste produto?", text: `${TNOME[d.t]} ${d.c}`, sub: `de «${d.n}» (${d.s}). O produto continua cadastrado, só sem esse código.`, ok: "Tirar código", cancel: "Cancelar" });
     if (r !== true) return; saudeSet(alvo, { [campo]: "" }); toast(`Código tirado de «${d.n}».`); }
   else if (d.a === "ren") { const alvo = lotes().filter(p => (p.barcode || "") === (d.b || "")); const novo = (prompt("Novo nome para este cadastro:", d.n) || "").trim().slice(0, 120);
