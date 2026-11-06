@@ -1568,3 +1568,8 @@ html[data-tema=dark] .codgrid em.ult{color:#ff5a5f}
 body[data-setor="Fiscal"] .cadrow .fnome{display:block;font-size:13.5px;font-weight:600;color:var(--mut,#a9a38f);white-space:normal}
 body[data-setor="Fiscal"] #cForm:not(.perSel) label[for="cDon"],body[data-setor="Fiscal"] #cForm:not(.perSel) #cDon{display:none!important}
 .codgrid:has(> div:only-child){grid-template-columns:1fr}
+
+/* KÓRIN: últimos 3 números do EAN em vermelho */
+.krow .kn em.ult,.kvn em.ult{font-style:normal;font-weight:900;color:#e53935;font-size:1.12em}
+html[data-tema=dark] .krow .kn em.ult,html[data-tema=dark] .kvn em.ult{color:#ff5a5f}
+.kvn .keanl{display:block;font-size:12px;color:var(--mut);margin-top:1px;font-variant-numeric:tabular-nums}

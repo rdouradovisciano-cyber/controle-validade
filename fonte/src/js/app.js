@@ -1485,6 +1485,11 @@ let cadEdit = null, cFiltro = "", fSet = "";   // fSet: filtro do Fiscal (""/FLV
 try { indexedDB.deleteDatabase("validamais-fotos-kor"); } catch (e) {}   // recurso de foto removido: apaga o que ficou guardado neste aparelho
    // chave do produto em edição
 const cadKey = p => (SETOR === FIS ? (p.category === PER ? "p" : "f") : "") + (p.barcode ? "b" + p.barcode + "|" + norm(p.name || "") : "n" + norm(p.name || ""));   // mesmo EAN com nomes diferentes = produtos diferentes (linhas separadas)
+const eanFin = b => { b = String(b || ""); return b.length > 3 ? esc(b.slice(0, -3)) + `<em class="ult">${esc(b.slice(-3))}</em>` : esc(b); };   // KÓRIN: os 3 últimos números em vermelho
+const eanZap = b => { b = String(b || ""); return b.length > 3 ? b.slice(0, -3) + "*" + b.slice(-3) + "*" : b; };                                    // no WhatsApp: os 3 últimos em negrito
+const eanPdfDraw = (pdf, d, col) => { if (d.section !== "body" || d.column.index !== col) return; const t = String(d.cell.raw || ""); if (t.length < 4 || t === "-") return; const a = t.slice(0, -3), z = t.slice(-3), x = d.cell.x + d.cell.padding("left"), y = d.cell.y + d.cell.height / 2 + 1.2;
+  pdf.setFontSize(9.5); pdf.setFont("helvetica", "normal"); pdf.setTextColor(30, 30, 30); pdf.text(a, x, y); const w = pdf.getTextWidth(a); pdf.setFont("helvetica", "bold"); pdf.setTextColor(209, 18, 31); pdf.text(z, x + w, y); pdf.setTextColor(0, 0, 0); pdf.setFont("helvetica", "normal"); };
+const eanPdfHide = (d, col) => { if (d.section === "body" && d.column.index === col && String(d.cell.raw || "").length > 3 && d.cell.raw !== "-") d.cell.text = [""]; };
 const ultVm = v => { v = String(v || ""); return v.length > 1 ? esc(v.slice(0, -1)) + `<em class="ult">${esc(v.slice(-1))}</em>` : esc(v); };   // último dígito em vermelho (código de balança)
 const SET_EMO = { FLV: "🥬", [PER]: "🧀", Mercearia: "🛒", Padaria: "🥖", "Laticínios": "🥛", Bebidas: "🥤", Congelados: "🧊", "Higiene e limpeza": "🧴", Ovos: "🥚", Outros: "📦" }, setEmo = c => SET_EMO[c] || "📦";
 function cadGroups() { const m = new Map(); products.forEach(p => { if (!p.name) return; const k = cadKey(p); if (!m.has(k)) m.set(k, []); m.get(k).push(p); });
@@ -1798,7 +1803,7 @@ const kOrd = () => kList.slice().sort((a, b) => a.n.localeCompare(b.n, "pt-BR", 
 const kTot = () => { const m = {}; kList.forEach(i => { m[i.u] = (m[i.u] || 0) + i.q; }); return Object.keys(m).map(u => fq(m[u]) + " " + u).join(" · ") || "0"; };
 function kPaint() {
   $("kSumP").textContent = kList.length; $("kSumT").textContent = kTot();
-  $("kLista").innerHTML = kList.length ? kOrd().map(i => `<div class="krow"><div class="kn"><b>${esc(i.n)}</b>${i.b ? `<small>EAN ${esc(i.b)}</small>` : ""}</div><button type="button" class="kq" data-ked="${esc(i.n)}|${i.u}">${fq(i.q)} ${esc(i.u)}</button><button type="button" class="kx" data-kdel="${esc(i.n)}|${i.u}" aria-label="Remover ${esc(i.n)}">✕</button></div>`).join("") : `<p class="empty">${SETOR === KOR && !products.length ? "Nenhum item do KÓRIN ainda. Em Cadastros, toque em «Escolher itens do KÓRIN»." : kModo === "ant" ? "Nada digitado ainda." : kModo === "rec" ? "Nada chegou ainda." : "Nada contado ainda."}</p>`;
+  $("kLista").innerHTML = kList.length ? kOrd().map(i => `<div class="krow"><div class="kn"><b>${esc(i.n)}</b>${i.b ? `<small>EAN ${eanFin(i.b)}</small>` : ""}</div><button type="button" class="kq" data-ked="${esc(i.n)}|${i.u}">${fq(i.q)} ${esc(i.u)}</button><button type="button" class="kx" data-kdel="${esc(i.n)}|${i.u}" aria-label="Remover ${esc(i.n)}">✕</button></div>`).join("") : `<p class="empty">${SETOR === KOR && !products.length ? "Nenhum item do KÓRIN ainda. Em Cadastros, toque em «Escolher itens do KÓRIN»." : kModo === "ant" ? "Nada digitado ainda." : kModo === "rec" ? "Nada chegou ainda." : "Nada contado ainda."}</p>`;
 }
 function kEscolhe(p) { kPick = p; $("kSel").hidden = !p; $("kSug").innerHTML = ""; if (!p) return; $("kBusca").value = ""; $("kSelNome").textContent = p.n; $("kQtd").value = ""; $("kQtd").focus(); }
 function kSug() {
@@ -1885,7 +1890,7 @@ function kVendPaint() {
   ${c.velhos.length ? `<p class="note" style="margin:0 0 8px;color:#e5b92b">${c.velhos.length} abastecimento${c.velhos.length === 1 ? "" : "s"} fechado${c.velhos.length === 1 ? "" : "s"} <b>antes</b> do «antes» (não entra${c.velhos.length === 1 ? "" : "m"} na conta): ${c.velhos.map(r => `<button type="button" class="secondary" data-krinc="${r.id}" style="min-height:30px;padding:2px 10px;font-size:12px;margin:2px">+ incluir ${kQ(r.t)}</button>`).join("")}</p>` : ""}
   ${!c.atual.length ? '<p class="note" style="color:#e5b92b">Falta o «Tem agora»: conte o que tem na loja em ③ Tem agora.</p>' : ""}
   <div class="csum"><div><span>VENDEU</span><b>${esc(fmtU(vend))}</b></div><div><span>FICA NA LOJA</span><b>${esc(fmtU2(c.rows))}</b></div></div>
-  ${c.rows.map(r => `<div class="kvr${r.vendeu < 0 ? " cf" : ""}"><div class="kvn"><b>${esc(r.n)}</b>${!r.contado ? "<small>não contado hoje</small>" : r.vendeu < 0 ? "<small>conferir: tem mais do que devia</small>" : ""}</div><div class="kvg"><div><small>Tinha ${kDM(base.t)}</small>${fq(r.tinha)}</div><div><small>Chegou</small>${r.chegou ? "+" + fq(r.chegou) : "–"}</div><div><small>Tem agora</small>${fq(r.agora)}</div><div class="kvv"><small>Vendeu</small><b>${fq(r.vendeu)}</b></div><div class="kvt"><small>Fica</small><b>${fq(r.fica)}</b></div></div></div>`).join("")}
+  ${c.rows.map(r => `<div class="kvr${r.vendeu < 0 ? " cf" : ""}"><div class="kvn"><b>${esc(r.n)}</b>${r.b ? `<small class="keanl">EAN ${eanFin(r.b)}</small>` : ""}${!r.contado ? "<small>não contado hoje</small>" : r.vendeu < 0 ? "<small>conferir: tem mais do que devia</small>" : ""}</div><div class="kvg"><div><small>Tinha ${kDM(base.t)}</small>${fq(r.tinha)}</div><div><small>Chegou</small>${r.chegou ? "+" + fq(r.chegou) : "–"}</div><div><small>Tem agora</small>${fq(r.agora)}</div><div class="kvv"><small>Vendeu</small><b>${fq(r.vendeu)}</b></div><div class="kvt"><small>Fica</small><b>${fq(r.fica)}</b></div></div></div>`).join("")}
   ${conf.length || semC.length ? `<p class="note" style="margin-top:8px">${semC.length ? semC.length + " produto(s) sem contagem agora (aparecem como vendidos por inteiro). " : ""}${conf.length ? conf.length + " com sobra para conferir." : ""}</p>` : ""}
   <div class="toolbar" style="margin-top:12px"><button type="button" class="primary big" id="kVZap">Enviar no WhatsApp</button><button type="button" class="primary big" id="kVPdf">Enviar em PDF</button></div>
   <div class="toolbar" style="margin-top:8px"><button type="button" class="secondary big" id="kVNova">📌 Começar novo período</button></div>
@@ -1908,16 +1913,16 @@ function kVendPaint() {
         pdf.text(`${kDM(bs.t)}: contagem de ${kD(bs.t)}   Hoje: ${kD(Date.now())}`, 14, 29);
         const tv = {}, tf = {}; cc.rows.forEach(r => { if (r.vendeu > 0) tv[r.u] = (tv[r.u] || 0) + r.vendeu; tf[r.u] = (tf[r.u] || 0) + r.fica; });
         const sm = t => Object.keys(t).map(u => fq(t[u]) + " " + u).join(" · ") || "0";
-        V.autoTable(pdf, { startY: 34, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [70, 60, 20] }, footStyles: { fillColor: [235, 230, 205], textColor: [40, 35, 10] },
-          columnStyles: { 1: { halign: "right" }, 2: { halign: "right" }, 3: { halign: "right", fontStyle: "bold" }, 4: { halign: "right" }, 5: { halign: "right", fontStyle: "bold" } }, didParseCell: d => { if (d.column.index > 0 && (d.section === "head" || d.section === "foot")) d.cell.styles.halign = "right"; },
-          head: [["PRODUTO", kDM(bs.t), "HOJE", "VENDEU", "ABASTECI", "TOTAL AGORA"]],
-          body: cc.rows.filter(r => r.tinha || r.agora || r.chegou).map(r => [r.n + (!r.contado ? " (não contado hoje)" : r.vendeu < 0 ? " (conferir)" : ""), fq(r.tinha), fq(r.agora), fq(r.vendeu), r.chegou ? "+" + fq(r.chegou) : "-", fq(r.fica)]),
-          foot: [["TOTAL", "", "", sm(tv), "", sm(tf)]] });
+        V.autoTable(pdf, { startY: 34, styles: { fontSize: 9.5, cellPadding: 2.2 }, headStyles: { fillColor: [70, 60, 20] }, footStyles: { fillColor: [235, 230, 205], textColor: [40, 35, 10] },
+          columnStyles: { 1: { cellWidth: 31 }, 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right", fontStyle: "bold" }, 5: { halign: "right" }, 6: { halign: "right", fontStyle: "bold" } }, didParseCell: d => { if (d.column.index > 1 && (d.section === "head" || d.section === "foot")) d.cell.styles.halign = "right"; eanPdfHide(d, 1); }, didDrawCell: d => eanPdfDraw(pdf, d, 1),
+          head: [["PRODUTO", "EAN", kDM(bs.t), "HOJE", "VENDEU", "ABASTECI", "TOTAL AGORA"]],
+          body: cc.rows.filter(r => r.tinha || r.agora || r.chegou).map(r => [r.n + (!r.contado ? " (não contado hoje)" : r.vendeu < 0 ? " (conferir)" : ""), r.b || "-", fq(r.tinha), fq(r.agora), fq(r.vendeu), r.chegou ? "+" + fq(r.chegou) : "-", fq(r.fica)]),
+          foot: [["TOTAL", "", "", "", sm(tv), "", sm(tf)]] });
         const blob = pdf.output("blob"), file = new File([blob], "Contagem frango KÓRIN Sam's Radial.pdf", { type: "application/pdf" });
         if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Relatório KÓRIN", files: [file] }); else download(blob, file.name);
       } catch (er) { if (er.name !== "AbortError") { console.error(er); toast("Não foi possível gerar o PDF."); } } })(); return; }
     if (e.target.id === "kVZap") { const bs = store.get(KBK, []).find(x => x.id === kVSel); if (!bs) return; const cc = kCalc(bs), dep = kDepois();
-      const lin = cc.rows.filter(r => r.tinha || r.agora || r.chegou).map(r => `*${r.n}*\n${kDM(bs.t)}: ${fq(r.tinha)} · Hoje: ${fq(r.agora)}${r.chegou ? " · Abasteci: +" + fq(r.chegou) : ""}\n${r.vendeu < 0 ? "⚠ Conferir (tem mais do que devia: " + fq(-r.vendeu) + ")" : "Vendeu: " + fq(r.vendeu)} ${r.vendeu < 0 ? "" : r.u} · Total agora: ${fq(r.fica)} ${r.u}\n`);
+      const lin = cc.rows.filter(r => r.tinha || r.agora || r.chegou).map(r => `*${r.n}*${r.b ? "\nEAN " + eanZap(r.b) : ""}\n${kDM(bs.t)}: ${fq(r.tinha)} · Hoje: ${fq(r.agora)}${r.chegou ? " · Abasteci: +" + fq(r.chegou) : ""}\n${r.vendeu < 0 ? "⚠ Conferir (tem mais do que devia: " + fq(-r.vendeu) + ")" : "Vendeu: " + fq(r.vendeu)} ${r.vendeu < 0 ? "" : r.u} · Total agora: ${fq(r.fica)} ${r.u}\n`);
       const t = ["*RELATÓRIO KÓRIN*", "Loja: " + LOJA, "Feito por: " + kNome(), "", "Antes: contagem de " + kD(bs.t), "Hoje: contagem de " + kD(Date.now()), "Abastecido: " + (cc.rec.length ? cc.rec.reduce((n, r) => n + r.itens.length, 0) + " itens em " + cc.rec.length + " abastecimento" + (cc.rec.length === 1 ? "" : "s") : "nada"), "", ...lin, `*TOTAL VENDIDO: ${fmtU(cc.rows.filter(r => r.vendeu > 0))}*`].join("\n");
       if (navigator.share) navigator.share({ title: "Relatório KÓRIN", text: t }).catch(() => {}); else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank"); } };
 }
@@ -1934,7 +1939,7 @@ function contagemScan(code) {
 const kQuando = () => new Date().toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 const kNome = () => String(myName()).replace(/\s*[\(\[]?\s*admin\s*[\)\]]?/gi, "").replace(/\s+/g, " ").trim();   // só o nome (sem «admin»)
 function kTexto() { const l = kOrd();   // cada produto em negrito, quantidade em negrito logo abaixo, uma linha em branco entre eles
-  return [kModo === "rec" ? "*ABASTECIMENTO KÓRIN*" : "*CONTAGEM KÓRIN*", "Data: " + kQuando(), "Loja: " + LOJA, (kModo === "rec" ? "Feito por: " : "Contado por: ") + kNome(), "", ...l.map(i => `*${i.n}*\n*${fq(i.q)} ${i.u}*${i.b ? " · EAN " + i.b : ""}\n`), `*TOTAL: ${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}*`].join("\n"); }
+  return [kModo === "rec" ? "*ABASTECIMENTO KÓRIN*" : "*CONTAGEM KÓRIN*", "Data: " + kQuando(), "Loja: " + LOJA, (kModo === "rec" ? "Feito por: " : "Contado por: ") + kNome(), "", ...l.map(i => `*${i.n}*\n*${fq(i.q)} ${i.u}*${i.b ? " · EAN " + eanZap(i.b) : ""}\n`), `*TOTAL: ${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}*`].join("\n"); }
 $("kZap").onclick = async () => { if (!kList.length) return toast("A contagem está vazia.");
   const t = kTexto(); if (navigator.share) { try { await navigator.share({ title: "Contagem KÓRIN", text: t }); } catch (e) { if (e.name !== "AbortError") toast("Não foi possível compartilhar."); } }
   else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank"); };
@@ -1942,7 +1947,7 @@ $("kPdf").onclick = async () => { if (!kList.length) return toast("A contagem es
   try { const l = kOrd(), pdf = new V.jsPDF(); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text(kModo === "rec" ? "ABASTECIMENTO KÓRIN" : "CONTAGEM KÓRIN", 14, 16);
     pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Data: ${kQuando()}   Loja: ${LOJA}   ${kModo === "rec" ? "Feito" : "Contado"} por: ${kNome()}`, 14, 23);
     V.autoTable(pdf, { startY: 28, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [70, 60, 20] }, footStyles: { fillColor: [235, 230, 205], textColor: [40, 35, 10] },
-      head: [["CÓDIGO", "PRODUTO", "QUANTIDADE"]], body: l.map(i => [i.b || "-", i.n, `${fq(i.q)} ${i.u}`]), foot: [["", "TOTAL", `${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}`]] });
+      head: [["CÓDIGO", "PRODUTO", "QUANTIDADE"]], body: l.map(i => [i.b || "-", i.n, `${fq(i.q)} ${i.u}`]), didParseCell: d => eanPdfHide(d, 0), didDrawCell: d => eanPdfDraw(pdf, d, 0), foot: [["", "TOTAL", `${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}`]] });
     const blob = pdf.output("blob"), file = new File([blob], "contagem-korin-" + iso(new Date()) + ".pdf", { type: "application/pdf" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Contagem KÓRIN", files: [file] }); else download(blob, file.name);
   } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Não foi possível gerar o PDF."); } } };
