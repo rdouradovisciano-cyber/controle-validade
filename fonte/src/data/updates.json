@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-06T01:50:00-03:00",
+  "itens": [
+   "Cadastros: ao digitar um nome parecido com um que já existe, o app avisa «Já existe: …» e você toca para usar aquele cadastro (ou cadastra de novo para criar mesmo assim)"
+  ]
+ },
+ {
   "t": "2026-11-06T01:30:00-03:00",
   "itens": [
    "Saúde do app › Códigos repetidos: novo botão «Unir neste» (deixa o mesmo produto com um nome só). Cadastrar/bipar agora também reconhece o EAN de itens escondidos em outra visão (KÓRIN × FLV), para não duplicar"

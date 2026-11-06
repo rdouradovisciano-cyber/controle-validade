@@ -1447,7 +1447,7 @@ function filtBar(el, ativo, nRev, nDup) {
   el.hidden = !ativo && !nRev && !nDup;
   el.innerHTML = el.hidden ? "" : `<button type="button" class="fpill${ativo === "rev" ? " on" : ""}" data-f="rev">🚩 Revisar <b>${nRev}</b></button><button type="button" class="fpill${ativo === "dup" ? " on" : ""}" data-f="dup">⚠ Repetidos <b>${nDup}</b></button>`; }
 // ---------- aba Cadastros: cadastrar e editar produtos digitando (EAN até 13 dígitos) ----------
-let cadEdit = null, cFiltro = "", fSet = "";   // fSet: filtro do Fiscal (""/FLV/Perecíveis)
+let simOk = "", cadEdit = null, cFiltro = "", fSet = "";   // fSet: filtro do Fiscal (""/FLV/Perecíveis)
 try { indexedDB.deleteDatabase("validamais-fotos-kor"); } catch (e) {}   // recurso de foto removido: apaga o que ficou guardado neste aparelho
    // chave do produto em edição
 const cadKey = p => (SETOR === FIS ? (p.category === PER ? "p" : "f") : "") + (p.barcode ? "b" + p.barcode + "|" + norm(p.name || "") : "n" + norm(p.name || ""));   // mesmo EAN com nomes diferentes = produtos diferentes (linhas separadas)
@@ -1510,7 +1510,19 @@ function korEscolher() {
     if (e.target.closest("#kqSalva")) { const on = [], off = []; m.forEach((n, k) => { const era = !!atual[k], ficou = sel.has(k); if (ficou && !era) on.push(n); else if (!ficou && era) off.push(n); }); bg.remove(); if (on.length) korMarca(on, true); if (off.length) korMarca(off, false); toast("✓ " + sel.size + " itens do KÓRIN."); } };
 }
 $("cKorEsc").onclick = korEscolher;
-function cadReset() { cadEdit = null; ["cNome", "cEan", "cPlu", "cDon"].forEach(i => $(i).value = ""); $("cTitulo").textContent = "Novo cadastro"; $("cSalvar").textContent = "Cadastrar"; $("cCancela").hidden = true; $("cEanN").textContent = "0/13"; }
+function cadReset() { cadEdit = null; ["cNome", "cEan", "cPlu", "cDon"].forEach(i => $(i).value = ""); $("cTitulo").textContent = "Novo cadastro"; $("cSalvar").textContent = "Cadastrar"; $("cCancela").hidden = true; $("cEanN").textContent = "0/13"; simOk = ""; if ($("cSim")) { $("cSim").hidden = true; $("cSim").innerHTML = ""; } }
+function cadSimList() {   // cadastros com nome igual ou parecido ao que está sendo digitado
+  const nm = $("cNome").value.trim().replace(/\s+/g, " "); if (nm.length < 3) return [];
+  const own = cadEdit ? (cadGroups().find(y => y.k === cadEdit) || {}).name || "" : "", me = norm(nm), ig = norm(own);
+  const ex = [...new Set(products.filter(p => p.name && !p.lixo && norm(p.name) === me && me !== ig).map(p => p.name.trim()))];
+  return ex.concat(similarNames(nm, own).filter(n => norm(n) !== ig));
+}
+function cadSimPaint() {
+  const l = cadSimList().slice(0, 4), b = $("cSim"); b.hidden = !l.length; if (!l.length) { b.innerHTML = ""; return; }
+  b.innerHTML = `<b>Já existe:</b> ` + l.map(n => `<button type="button" data-sim="${esc(n)}">${esc(n)}</button>`).join("") + `<small>Toque no nome para usar esse cadastro.</small>`;
+}
+$("cNome").addEventListener("input", () => { simOk = ""; cadSimPaint(); });
+$("cSim").onclick = e => { const b = e.target.closest("[data-sim]"); if (!b) return; const x = cadGroups().find(y => norm(y.name) === norm(b.dataset.sim)); if (x) { cadAbrir(x); cadSimPaint(); toast("Cadastro aberto para editar."); } };
 $("cEan").oninput = () => { const v = $("cEan").value.replace(/\D/g, "").slice(0, 13); $("cEan").value = v; $("cEanN").textContent = v.length + "/13"; };
 $("cPlu").oninput = () => { $("cPlu").value = $("cPlu").value.replace(/\D/g, "").slice(0, 6); };
 $("cDon").oninput = () => { $("cDon").value = $("cDon").value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12); };
@@ -1526,6 +1538,7 @@ $("cSalvar").onclick = () => {
   if (plu && (d = outros.find(x => x.codigo_balanca && Number(x.codigo_balanca) === Number(plu)))) return toast(`Esse código de balança já pertence a «${d.name}».`);
   if (don && (d = outros.find(x => String(x.codigo_doacao || "").toUpperCase() === don))) return toast(`Esse código de doação já pertence a «${d.name}».`);
   if (!ean && !mine.length && outros.some(x => norm(x.name || "") === norm(name) && !x.barcode)) return toast("Já existe um produto com esse nome.");
+  if (!cadEdit && simOk !== norm(name)) { const sl = cadSimList(); if (sl.length) { simOk = norm(name); cadSimPaint(); return toast("Já existe «" + sl[0] + "». Toque no nome para usar, ou em Cadastrar de novo para criar mesmo assim."); } }
   if (SETOR === FIS && !cadEdit && !$("cCat").value) { toast("Escolha o setor do produto."); return $("cCat").focus(); }
   const f = { name, barcode: ean, codigo_balanca: plu, codigo_doacao: don }, fail = e => { console.error(e); toast("Erro ao salvar na nuvem (confira as regras do Firebase)."); };
   if (mine.length) {

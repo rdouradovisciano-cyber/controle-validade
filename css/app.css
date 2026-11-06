@@ -1531,3 +1531,7 @@ html[data-tema=dark] .krow .kn em.ult,html[data-tema=dark] .kvn em.ult{color:#ff
 .dupg[hidden],.duph[hidden]{display:none!important}
 .dupr{gap:10px}.dupr>span:first-child{flex:1;min-width:0}.dupr button{white-space:nowrap;min-width:96px;padding:8px 10px!important;font-size:14px!important;min-height:38px}
 .shbts{display:flex;flex-direction:column;gap:6px;flex:none}.shbts .shact{white-space:nowrap}
+
+.csim{margin:6px 0 2px;padding:8px 10px;border-radius:10px;background:rgba(245,166,35,.14);border:1px solid rgba(245,166,35,.5);font-size:14px}
+.csim button{margin:4px 6px 0 0;padding:6px 10px;min-height:36px;border-radius:999px;border:1px solid var(--ln);background:var(--card,#16181b);color:inherit;font-weight:700}
+.csim small{display:block;margin-top:4px;color:var(--mut)}
