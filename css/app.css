@@ -1544,7 +1544,7 @@ html[data-tema=dark] .krow .kn em.ult,html[data-tema=dark] .kvn em.ult{color:#ff
 #cFotoBox[hidden]{display:none}
 
 body:not([data-perfil="Admin"]):not([data-perfil="BENASSI"]) #mnEscala{display:none!important}
-.escv{position:fixed;inset:0;z-index:5000;overflow:auto;background:var(--bg,#0b0d10);color:var(--tx,#eee);padding:14px 12px 40px;-webkit-overflow-scrolling:touch}
+.escv{position:fixed;inset:0;z-index:5000;overflow:auto;background:var(--bg,#0b0d10);color:var(--ink);padding:14px 12px 40px;-webkit-overflow-scrolling:touch}
 .escv .eh0{display:flex;align-items:center;gap:10px;justify-content:space-between}.escv .eh0 h2{margin:0;font-size:20px;order:-1;flex:1}
 .escv .eh0 button{min-height:40px;padding:0 14px}
 .enav{display:flex;align-items:center;justify-content:space-between;margin:12px 0}.enav b{font-size:18px}
@@ -1571,3 +1571,18 @@ body.escOn:not([data-perfil="Admin"]){overflow:hidden}
 .es .ok{color:#7ee69a}.es .ruim{background:rgba(255,120,60,.2);color:#ffb38a}
 .eleg .pl{display:inline-block;padding:2px 8px;min-height:0;margin:0}
 .pl.N{background:rgba(150,150,160,.1);color:#889}.es .ant{color:#889;font-weight:600}
+
+.escv .ec i{font-size:14px;font-weight:800;opacity:1;color:var(--ink);margin-bottom:3px}
+.escv .ec.fora i{opacity:.55}
+.escv .ec{background:rgba(120,120,130,.1)}
+.escv .pl.F{background:rgba(120,120,130,.28);color:var(--ink)}
+.escv .pl.N{background:rgba(120,120,130,.14);color:var(--mut)}
+.escv .pl.FE{background:rgba(80,140,255,.3);color:var(--ink)}
+.escv .pl.T.r{background:#e0a030;color:#1d1400}.escv .pl.T.y{background:#3fb6c4;color:#02222a}
+.escv .pl{font-size:13px}
+.escv .es span{font-size:12px}.escv .es .ok{color:#1b8a41}.escv .es .ruim{color:#c2410c;background:rgba(255,120,60,.18)}.escv .es .ant{color:var(--mut)}
+.escv .eh{color:var(--ink)}.escv .eh.T{background:rgba(52,199,89,.25)}
+.escv .epc b,.escv .epc span{color:var(--ink)}.escv .epc small,.escv .muted{color:var(--mut)}
+.escv .enav b,.escv .eh0 h2{color:var(--ink)}
+.escv .enav button{color:var(--ink)}
+.escv .ec.hoje{outline:3px solid #c9a227}
