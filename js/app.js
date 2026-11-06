@@ -15,6 +15,7 @@ const setorDe = p => p.category === PER ? PER : "FLV";   // Perecíveis tem cada
 const KORK = "validamais-korin-itens"; let korSet = {}, korNuvem = null; try { korSet = JSON.parse(localStorage.getItem(KORK) || "{}") || {}; } catch (e) {}
 const korMapa = () => ({ ...korSet, ...(korNuvem || {}) }), korChave = p => norm(p.name || ""), isKor = p => !!korMapa()[korChave(p)];
 const doSetor = p => { const s = setorDe(p); if (SETOR === FIS) return !isKor(p); if (SETOR === PER) return s === PER; if (s === PER) return false; return SETOR === KOR ? isKor(p) : !isKor(p); };
+let formBip = false;   // o código do produto novo veio do bipe (ou de um produto já cadastrado)
 let CATS_VIS, CATSET;   // CATSET = categoria gravada nos cadastros do setor atual
 const derivaSetor = () => { CATS_VIS = SETOR === PER ? [PER] : SETOR === FIS ? CATS.filter(c => c !== KOR) : CATS.filter(c => c !== PER && c !== KOR); CATSET = SETOR === PER ? PER : "FLV"; document.body.dataset.setor = SETOR; document.body.dataset.perfil = PERFIL || ""; };
 derivaSetor();
@@ -391,7 +392,7 @@ function limparFotosNuvem() {   // coleção "fotos" + campo foto dentro dos cad
       else if (lido) store.set(FOTO_LIMPA, true);   // sem internet: tenta de novo na próxima abertura
       fotosLimpando = false; });
 }
-function resetForm() { { const fe = $("fotoEd"); if (fe) fe.classList.add("hidden"); }
+function resetForm() { formBip = false; { const fe = $("fotoEd"); if (fe) fe.classList.add("hidden"); }
   $("productForm").reset(); $("docId").value = ""; $("quantity").value = 1;
   $("category").value = CATSET; $("saveNext").classList.remove("hidden"); toggleCodes();
   $("productForm").classList.remove("lote"); $("loteInfo").classList.add("hidden"); $("loteEdit").classList.add("hidden");
@@ -505,6 +506,15 @@ async function save(next) {
   const data = { barcode: $("barcode").value.trim().slice(0, 32), name: $("name").value.trim().slice(0, 120),
     category: $("category").value, expiry: $("expiry").value, quantity: q, por: myName(), codigo_balanca: $("cBalanca").value.trim().slice(0, 12), codigo_doacao: $("cDoacao").value.trim().slice(0, 12) };
   if (!data.name || !CATS.includes(data.category) || (!data.expiry && data.category !== "FLV") || !(q > 0)) { toast(data.category === "FLV" ? "Preencha nome e categoria." : "Preencha nome, categoria, validade e quantidade."); return; }
+  if (!id) {   // produto novo: bipar primeiro; digitar só quando não há código
+    const conhecido = (data.barcode && products.some(x => x.barcode === data.barcode)) || products.some(x => norm(x.name || "") === norm(data.name));
+    if (data.barcode.length === 13 && !isScale(data.barcode) && !eanOk(data.barcode) && !formBip) { if (!(await askConfirm({ icon: "⚠️", title: "Código de barras inválido", text: data.barcode, sub: "Algum número está errado (erro de digitação). Bipe o produto ou corrija.", ok: "Salvar mesmo assim", cancel: "Corrigir" }))) return $("barcode").focus(); }
+    else if (!conhecido && !formBip) {
+      const r = await askConfirm({ icon: "📷", title: "Bipe o produto primeiro", text: `«${data.name}»`, sub: data.barcode ? "Você digitou o código. Bipar evita erro de digitação e cadastro repetido." : "Bipar evita erro de digitação e cadastro repetido. Se o produto não tem código de barras, siga como manual.", ok: "Bipar agora", alt: "Cadastrar manual", cancel: "Voltar" });
+      if (r === true) return openScan("form");
+      if (r !== "alt") return;
+    }
+  }
   const antes = id ? ((products.find(x => x.id === id) || {}).name || "") : "";
   if (!id || norm(antes) !== norm(data.name)) {
     const sim = similarNames(data.name, antes);
@@ -611,7 +621,8 @@ async function onCode(code) {
   if (scanMode === "contagem") return contagemScan(code);
   if (scanMode === "fiscal") return fiscalScan(code);
   sinal((isScale(code) ? products.some(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(String(Number(parseScale(code).item)))) : products.some(p => p.barcode === code)) ? "ok" : "novo");
-  stopScanner(); resetForm();
+  if (scanMode === "form") return formCode(code);
+  stopScanner(); resetForm(); formBip = true;
   if (isScale(code)) {                                   // etiqueta de balança: o código de balança identifica o produto
     const plu = String(Number(parseScale(code).item)), k = products.find(p => p.codigo_balanca && Number(p.codigo_balanca) === Number(plu));
     logScan(code, k); show(k ? `Novo lote de «${k.name}»` : "Produto novo: cadastre agora");
@@ -623,17 +634,22 @@ async function onCode(code) {
   $("barcode").value = code; fillKnown(code); loteMode(known); (known ? $("expiry") : $("name")).focus();
 }
 let scanMode = "loja";
+function formCode(code) {   // «Bipar agora» dentro do formulário: o código lido entra no formulário que já estava aberto
+  if (isScale(code) || products.some(p => p.barcode === code)) { scanMode = "loja"; return onCode(code); }   // já cadastrado: segue o caminho normal (novo lote)
+  stopScanner(); show("Produto novo: cadastre agora"); formBip = true; $("barcode").value = code; fillKnown(code); ($("name").value ? $("expiry") : $("name")).focus();
+}
 function manualCodeGo() {            // código digitado: segue o mesmo caminho da leitura pela câmera
   const v = $("manualCode").value.replace(/\D/g, "");
   if (!/^\d{6,14}$/.test(v)) { toast("Digite o código de barras só com números (6 a 14 dígitos)."); return $("manualCode").focus(); }
+  if (v.length === 13 && !isScale(v) && !eanOk(v)) { sinal("erro"); toast("Código inválido: algum número está errado. Confira e digite de novo, ou bipe com a câmera."); return $("manualCode").focus(); }
   $("manualCode").value = ""; $("manualCode").blur(); onCode(v);
 }
 $("manualGo").onclick = manualCodeGo;
 $("manualCode").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); manualCodeGo(); } };
 async function openScan(mode = "loja") {
-  scanMode = ["doacao", "etiqueta", "cadastro", "contagem", "fiscal"].includes(mode) ? mode : "loja";
-  resetForm(); show({ doacao: "Bipar itens da doação", etiqueta: "Bipar para etiqueta", cadastro: "Bipar para o cadastro", contagem: "Bipar para a contagem", fiscal: "Bipar para ver os códigos" }[scanMode] || "Ler código de barras", true);
-  $("scanManual").textContent = scanMode === "loja" ? "Digitar código" : "Cancelar";
+  scanMode = ["doacao", "etiqueta", "cadastro", "contagem", "fiscal", "form"].includes(mode) ? mode : "loja";
+  if (scanMode !== "form") resetForm(); show({ doacao: "Bipar itens da doação", etiqueta: "Bipar para etiqueta", cadastro: "Bipar para o cadastro", contagem: "Bipar para a contagem", fiscal: "Bipar para ver os códigos", form: "Bipar o produto" }[scanMode] || "Ler código de barras", true);
+  $("scanManual").textContent = scanMode === "loja" ? "Digitar código" : scanMode === "form" ? "Voltar ao formulário" : "Cancelar";
   ["retryScan", "torchBtn"].forEach(i => $(i).classList.add("hidden"));
   $("scanMsg").textContent = "Aponte a câmera traseira para o código de barras. Se não ler, digite o código abaixo."; $("manualCode").value = "";
   await stopScanner();
@@ -725,7 +741,7 @@ $("list").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("ch
 $("list").onclick = e => { const ic = e.target.closest(".ico"); if (ic) { iconePicker(ic.dataset.id); return; } if (e.target.closest(".pi-nota")) return;
   if (fotoClique(e)) return; const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); if (openId) fotoCarrega(openId); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
 $("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(SETOR === FIS ? "fiscal" : curTab === "Doacao" ? "doacao" : curTab === "Pesaveis" ? "etiqueta" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : curTab === "Contagem" ? "contagem" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
-$("scanManual").onclick = () => { stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
+$("scanManual").onclick = () => { stopScanner(); if (scanMode === "form") { show("Cadastrar produto"); return; } if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("modal").classList.contains("hidden")) closeModal(); });
 $("productForm").onsubmit = e => { e.preventDefault(); save(false); };

@@ -1,0 +1,28 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve("dist");
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f)&&!/ocr\//.test(f))b=Buffer.from(b.toString().replace(/apiKey:\s*"[^"]*"/g,'apiKey:"COLE_"').replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const pg=await (await br.newContext({viewport:{width:411,height:860}})).newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
+await pg.addInitScript(()=>{if(localStorage.getItem("s"))return;localStorage.setItem("s","1");localStorage.setItem("validamais-operador",JSON.stringify("T"));localStorage.setItem("validamais-perfil","Perecíveis");sessionStorage.setItem("validamais-setor","Perecíveis");
+localStorage.setItem("validamais-produtos-v1",JSON.stringify([{id:"1",name:"Polenghi Frescal",barcode:"7896207613241",quantity:"1",expiry:"2026-12-01",category:"Perecíveis"}]))});
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(5500);
+const n=()=>pg.evaluate(()=>JSON.parse(localStorage.getItem("validamais-produtos-v1")).length);
+const fill=async(bar,nome)=>{await pg.evaluate(()=>document.getElementById("manualOpen").click());await pg.waitForTimeout(300);await pg.fill("#barcode",bar);await pg.fill("#name",nome);await pg.fill("#expiry","2026-12-20");};
+await fill("","Queijo Novo");await pg.click('#productForm button[type=submit]');await pg.waitForTimeout(400);
+console.log("1) sem bipar:",(await pg.innerText(".askbg")).replace(/\n/g," ").slice(0,110));
+await pg.click(".askalt");await pg.waitForTimeout(600);console.log("   manual -> total",await n(),"(esperado 2)");
+await fill("7896207673241","Polengh Frescal");await pg.click('#productForm button[type=submit]');await pg.waitForTimeout(400);
+console.log("2) EAN inválido:",(await pg.innerText(".askbg")).replace(/\n/g," ").slice(0,90));
+await pg.click('.askbg [data-a="0"]');await pg.waitForTimeout(300);console.log("   corrigir -> total",await n(),"(esperado 2)");
+await pg.evaluate(()=>document.getElementById("closeModal").click());
+await fill("","Polenghi Frescal");await pg.click('#productForm button[type=submit]');await pg.waitForTimeout(500);
+console.log("3) nome já cadastrado -> diálogo bipar?",await pg.evaluate(()=>/Bipe o produto/.test(document.querySelector(".askbg")?.innerText||"")));
+console.log("   total",await n());
+await pg.evaluate(()=>document.querySelector(".askbg [data-a='0']")?.click());await pg.evaluate(()=>document.getElementById("closeModal").click());
+await pg.evaluate(()=>document.getElementById("fab").click());await pg.waitForTimeout(500);await pg.evaluate(()=>document.getElementById("scanManual").click());await pg.waitForTimeout(300);
+console.log("4) Digitar código aberto; formBip via digitado inválido:");
+await pg.evaluate(()=>{document.getElementById("modal").classList.add("hidden")});
+console.log(errs);await br.close();srv.close();
