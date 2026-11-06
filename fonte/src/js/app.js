@@ -2177,7 +2177,7 @@ if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "atalhos"), sn => {
   else if (!sn.exists() && PERFIL === "Admin" && dBalCfg()) dBalSave(dBalCfg());   // primeira vez: os atalhos do Admin viram os oficiais
 }, e => console.warn("atalhos", e)); } catch (e) { console.warn(e); } }
 
-// ---------- Escala 5x2 (perfis BENASSI e Admin): duas pessoas, tudo configurável (horários, folgas, ciclo, nomes, fotos) ----------
+// ---------- Escala 5x2 (perfis BENASSI e Admin; os dois podem editar e configurar): duas pessoas, tudo configurável (horários, folgas, ciclo, nomes, fotos) ----------
 const ESC_K = "validamais-escala", ESC_CK = "validamais-escala-cfg";
 const ESC_DEF = { ini: "2026-11-09", dia: 504, int: 60, meta: 2520,
   p: { r: { n: "Renato", full: "", foto: "", ent: 660 }, y: { n: "Yossef", full: "", foto: "", ent: 420 } },
@@ -2212,7 +2212,7 @@ function escProblemas(y, m, c) {   // dias em que os dois folgam e semanas que n
   return { dias, sem, metaDias };
 }
 function escPaint() {
-  const v = $("escV"); if (!v) return; const adm = PERFIL === "Admin", c = escCfg(), P = escP(), { y, m } = escMes, nomeM = new Date(y, m, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }).replace(/^./, s => s.toUpperCase());
+  const v = $("escV"); if (!v) return; const adm = PERFIL === "Admin" || PERFIL === "BENASSI" || escNome(), c = escCfg(), P = escP(), { y, m } = escMes, nomeM = new Date(y, m, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }).replace(/^./, s => s.toUpperCase());
   const hoje = new Date(), hk = escKey(hoje), ds = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"], pr = escProblemas(y, m, c), hrs = `${escH(c.dia)} por dia · ${c.int} min de intervalo · meta de ${escH(c.meta)} por semana`;
   const hj = P.map(p => { const st = escSt(p.k, hoje, c); return `<span class="eh ${st}">${escAv(p, 24)}<b>${esc(p.n)}</b> ${st === "T" ? escHm(p.ent) + "–" + escHm(escSai(p, c)) : st === "FE" ? "férias" : st === "-" ? "escala antiga" : "folga"}</span>`; }).join("");
   const ini = new Date(y, m, 1), fim = new Date(y, m + 1, 0), tot = { r: 0, y: 0 }; let d = new Date(y, m, 1 - ini.getDay()), rows = "";
@@ -2241,7 +2241,7 @@ function escPaint() {
   const card = vista === "lista" ? `<section class="ecard"><div class="epcs">${cab}</div><p class="muted">${hrs}</p>${abas}${lista}</section>` : `<section class="ecard"><div class="epcs">${cab}</div><p class="muted">${hrs}</p>${abas}<p class="muted">Linha de cima = ${esc(P[0].n)} · linha de baixo = ${esc(P[1].n)}</p>
     <table class="etb"><thead><tr>${ds.map(x => `<th>${x}</th>`).join("")}<th>Semana</th></tr></thead><tbody>${rows}</tbody></table></section>`;
   const [iy, im, id] = c.ini.split("-").map(Number);
-  v.innerHTML = `<div class="eh0"><button type="button" id="escX" class="secondary">${adm ? "Fechar" : "Trocar perfil"}</button>${adm ? `<button type="button" id="escCfgB" class="secondary">⚙️ Configurar</button>` : ""}<h2>🗓️ Escala 5x2</h2></div>
+  v.innerHTML = `<div class="eh0"><button type="button" id="escX" class="secondary">${PERFIL === "BENASSI" ? "Trocar perfil" : "Fechar"}</button>${adm ? `<button type="button" id="escCfgB" class="secondary">⚙️ Configurar</button>` : ""}<h2>🗓️ Escala 5x2</h2></div>
     <div class="enav"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div>
     ${alerta}<div class="ehoje"><small>Hoje, ${hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</small><div>${hj}</div></div>
     ${card}<p class="muted eleg">Colorido = trabalha · cinza = FOLGA · azul = férias · contorno vermelho = os dois folgam no mesmo dia · a escala nova começa em ${escDM(new Date(iy, im - 1, id))}/${iy} (${ESC_DSL[new Date(iy, im - 1, id).getDay()].toLowerCase()})${adm ? " · Toque no nome de um dia para mudar." : ""}</p>`;
@@ -2302,7 +2302,7 @@ function escAbrir() {
       if (e.target.closest("#escCfgB")) return escCfgAbrir();
       if (t) return escToca(t.dataset.ep, t.dataset.ek);
       if (mn) { escMes = new Date(escMes.y, escMes.m + Number(mn.dataset.em), 1); escMes = { y: escMes.getFullYear(), m: escMes.getMonth() }; return escPaint(); }
-      if (e.target.closest("#escX")) { if (PERFIL === "Admin") v.remove(); else perfilEscolher(true); } }; }
+      if (e.target.closest("#escX")) { if (PERFIL === "BENASSI") perfilEscolher(true); else v.remove(); } }; }
   document.body.classList.add("escOn"); escPaint();
 }
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "escala"), sn => { escO = (sn.exists() && sn.data().o) || {}; escCr = (sn.exists() && sn.data().cfg) || null; store.set(ESC_K, escO); store.set(ESC_CK, escCr); escPaint(); }, e => console.warn("escala", e)); } catch (e) { console.warn(e); } }
