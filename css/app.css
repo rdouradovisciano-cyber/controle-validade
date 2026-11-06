@@ -1535,3 +1535,10 @@ html[data-tema=dark] .krow .kn em.ult,html[data-tema=dark] .kvn em.ult{color:#ff
 .csim{margin:6px 0 2px;padding:8px 10px;border-radius:10px;background:rgba(245,166,35,.14);border:1px solid rgba(245,166,35,.5);font-size:14px}
 .csim button{margin:4px 6px 0 0;padding:6px 10px;min-height:36px;border-radius:999px;border:1px solid var(--ln);background:var(--card,#16181b);color:inherit;font-weight:700}
 .csim small{display:block;margin-top:4px;color:var(--mut)}
+
+#cFoto{margin:8px 0 2px}#cFotoBtn{width:100%;min-height:46px}
+#cFotoBox{display:flex;gap:10px;align-items:flex-start;margin-top:8px;padding:8px;border:1px solid var(--ln);border-radius:12px}
+#cFotoBox .pf-img{width:84px;height:84px;object-fit:cover;border-radius:10px;flex:none}
+#cFotoBox .cfi{flex:1;min-width:0}#cFotoOp{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+#cFotoOp button{padding:6px 10px;min-height:36px;border-radius:999px;border:1px solid var(--ln);background:var(--card,#16181b);color:inherit;font-weight:700;text-align:left}
+#cFotoBox[hidden]{display:none}

@@ -187,6 +187,11 @@ async function fotoSalva(id, file) {
     fotoPaint(id); toast("Foto salva para todos os lotes deste produto."); }
   catch (e) { console.warn(e); delete fotoCache[k]; fotoPaint(id); toast("Não consegui salvar a foto."); }
 }
+async function fotoGravaNome(name, file) {   // grava a foto pelo nome (usado no cadastro, antes de existir o id)
+  const k = fotoK(name); try { const d = await fotoReduz(file); fotoCache[k] = d;
+    if (db) await V.setDoc(V.doc(db, "sh_cfg", k), { d, n: name.slice(0, 120), por: myName().slice(0, 40), em: Date.now() }); else { const m = store.get(FTK, {}); m[k] = d; store.set(FTK, m); } return true; }
+  catch (e) { console.warn(e); delete fotoCache[k]; return false; }
+}
 async function fotoApaga(id) {
   const p = products.find(x => x.id === id); if (!p || PERFIL !== "Admin") return; const k = fotoK(p.name);
   if (!(await askConfirm({ icon: "🗑", title: "Apagar a foto?", text: p.name, sub: "Vale para todos os aparelhos.", ok: "Apagar", cancel: "Cancelar" }))) return;
@@ -1510,7 +1515,53 @@ function korEscolher() {
     if (e.target.closest("#kqSalva")) { const on = [], off = []; m.forEach((n, k) => { const era = !!atual[k], ficou = sel.has(k); if (ficou && !era) on.push(n); else if (!ficou && era) off.push(n); }); bg.remove(); if (on.length) korMarca(on, true); if (off.length) korMarca(off, false); toast("✓ " + sel.size + " itens do KÓRIN."); } };
 }
 $("cKorEsc").onclick = korEscolher;
-function cadReset() { cadEdit = null; ["cNome", "cEan", "cPlu", "cDon"].forEach(i => $(i).value = ""); $("cTitulo").textContent = "Novo cadastro"; $("cSalvar").textContent = "Cadastrar"; $("cCancela").hidden = true; $("cEanN").textContent = "0/13"; simOk = ""; if ($("cSim")) { $("cSim").hidden = true; $("cSim").innerHTML = ""; } }
+// ---------- foto no cadastro: vira a foto do produto (Perecíveis) e lê o rótulo (OCR no próprio aparelho) para sugerir o nome ----------
+let cFotoFile = null, ocrW = null, ocrP = null;
+const OCR_RUIM = /(validade|val\b|fab|lote|peso|r\$|kg\b|preco|pre[cç]o|cnpj|sif|ingredientes|informa|nutri|conservar|refriger|indústria|industria|brasil|www|\.com)/i;
+function ocrCarrega() {
+  if (ocrP) return ocrP;
+  ocrP = new Promise((ok, no) => { const sc = document.createElement("script"); sc.src = "ocr/tesseract.min.js"; sc.onload = ok; sc.onerror = () => no(new Error("ocr")); document.head.appendChild(sc); })
+    .then(() => window.Tesseract.createWorker("por", 1, { workerPath: "ocr/worker.min.js", corePath: "ocr/", langPath: "ocr/", gzip: true, workerBlobURL: false, logger: () => {} }))
+    .then(w => (ocrW = w)).catch(e => { ocrP = null; throw e; });
+  return ocrP;
+}
+function ocrImg(file, max = 1600) {   // reduz e realça (cinza + contraste) para a leitura
+  return new Promise((ok, no) => { const im = new Image(), u = URL.createObjectURL(file);
+    im.onload = () => { URL.revokeObjectURL(u); const f = Math.min(1, max / Math.max(im.width, im.height)), c = document.createElement("canvas"); c.width = Math.round(im.width * f); c.height = Math.round(im.height * f);
+      const x = c.getContext("2d"); x.filter = "grayscale(1) contrast(1.35)"; x.drawImage(im, 0, 0, c.width, c.height); c.toBlob(b => ok(b), "image/jpeg", 0.9); };
+    im.onerror = () => { URL.revokeObjectURL(u); no(new Error("img")); }; im.src = u; });
+}
+function ocrNomes(data) {   // linhas candidatas a nome: letras suficientes, sem "validade/lote/peso…", maiores primeiro
+  const out = []; ((data && data.lines) || []).forEach(l => {
+    let t = String(l.text || "").replace(/[^\p{L}\p{N}%.,'\- ]/gu, " ").replace(/\s+/g, " ").trim(); const letras = (t.match(/\p{L}/gu) || []).length;
+    if (t.length < 4 || letras < 4 || letras / t.length < 0.7 || (l.confidence || 0) < 45 || OCR_RUIM.test(t)) return;
+    const h = l.bbox ? l.bbox.y1 - l.bbox.y0 : 10; out.push({ t: t.slice(0, 60), s: h * (l.confidence || 50) / 100 }); });
+  const seen = new Set(); return out.sort((a, b) => b.s - a.s).filter(o => { const k = norm(o.t); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 5).map(o => o.t);
+}
+function ocrNome(t) { const v = String(t).toLowerCase().replace(/(^|\s)(\p{L})/gu, (m, a, b) => a + b.toUpperCase()); return v; }
+async function cadFotoLer(file) {
+  const box = $("cFotoBox"); cFotoFile = file; box.hidden = false;
+  let thumb = ""; try { thumb = await fotoReduz(file); } catch (e) {}
+  const per = (SETOR === FIS ? $("cCat").value : CATSET) === PER;
+  const cab = `<img class="pf-img" src="${thumb}" alt="Foto do produto"><div class="cfi"><b id="cFotoSt">Lendo o rótulo…</b><div id="cFotoOp"></div><small class="muted">${per ? "Esta foto fica salva no produto." : "A foto só é guardada em Perecíveis; aqui ela ajuda a ler o nome."}</small></div>`;
+  box.innerHTML = cab;
+  const st = t => { const e = $("cFotoSt"); if (e) e.textContent = t; };
+  try {   // código de barras na mesma foto
+    if (V.Html5Qrcode && !$("cEan").value.trim()) { const r = new V.Html5Qrcode("cReadTmp", { verbose: false }); try { const txt = await r.scanFile(file, false); const d = String(txt || "").replace(/\D/g, ""); if (/^\d{8,13}$/.test(d) && !isScale(d)) { $("cEan").value = d; $("cEan").dispatchEvent(new Event("input")); toast("Código de barras lido: " + d); } } catch (e) {} try { r.clear(); } catch (e) {} }
+  } catch (e) {}
+  try {
+    const w = await ocrCarrega(), img = await ocrImg(file), { data } = await w.recognize(img), nomes = ocrNomes(data);
+    if (!nomes.length) { st("Não consegui ler o nome. Digite acima."); return; }
+    const op = $("cFotoOp"); if (!op) return;
+    if (!$("cNome").value.trim()) { $("cNome").value = ocrNome(nomes[0]); $("cNome").dispatchEvent(new Event("input")); st("Nome lido — confira:"); } else st("Toque para usar como nome:");
+    op.innerHTML = nomes.map(n => `<button type="button" data-ocr="${esc(n)}">${esc(ocrNome(n))}</button>`).join("");
+  } catch (e) { console.warn(e); st("Leitura do rótulo indisponível agora. Digite o nome."); }
+}
+$("cFotoBtn").onclick = () => $("cFotoIn").click();
+$("cFotoIn").onchange = () => { const f = $("cFotoIn").files && $("cFotoIn").files[0]; if (f) cadFotoLer(f); $("cFotoIn").value = ""; };
+$("cFotoBox").onclick = e => { const b = e.target.closest("[data-ocr]"); if (b) { $("cNome").value = ocrNome(b.dataset.ocr); $("cNome").dispatchEvent(new Event("input")); } };
+function cadFotoZera() { cFotoFile = null; const b = $("cFotoBox"); if (b) { b.hidden = true; b.innerHTML = ""; } }
+function cadReset() { cadFotoZera(); cadEdit = null; ["cNome", "cEan", "cPlu", "cDon"].forEach(i => $(i).value = ""); $("cTitulo").textContent = "Novo cadastro"; $("cSalvar").textContent = "Cadastrar"; $("cCancela").hidden = true; $("cEanN").textContent = "0/13"; simOk = ""; if ($("cSim")) { $("cSim").hidden = true; $("cSim").innerHTML = ""; } }
 function cadSimList() {   // cadastros com nome igual ou parecido ao que está sendo digitado
   const nm = $("cNome").value.trim().replace(/\s+/g, " "); if (nm.length < 3) return [];
   const own = cadEdit ? (cadGroups().find(y => y.k === cadEdit) || {}).name || "" : "", me = norm(nm), ig = norm(own);
@@ -1553,6 +1604,7 @@ $("cSalvar").onclick = () => {
     if (SETOR === KOR) korMarca([name], true);
     toast("«" + name + "» cadastrado.");
   }
+  if (cFotoFile && (SETOR === FIS ? ($("cCat").value || (mine[0] && mine[0].category)) : CATSET) === PER) fotoGravaNome(name, cFotoFile).then(ok => ok && toast("Foto salva no produto."));
   cadReset(); if ($("cCat")) $("cCat").value = ""; $("cForm").classList.remove("fisopen", "perSel"); setTimeout(cadPaint, db ? 600 : 0);
 };
 { $("cCat").innerHTML = '<option value="">Escolha o setor…</option><option value="FLV">🥬 FLV</option><option value="Perecíveis">🧀 Perecíveis</option>';

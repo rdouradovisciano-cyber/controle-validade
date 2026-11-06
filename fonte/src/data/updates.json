@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-06T02:20:00-03:00",
+  "itens": [
+   "Cadastros: novo botão «📷 Foto do produto». Uma foto só: ela lê o nome do rótulo (e o código de barras, se aparecer), preenche o campo Nome e, em Perecíveis, fica salva como foto do produto"
+  ]
+ },
+ {
   "t": "2026-11-06T01:50:00-03:00",
   "itens": [
    "Cadastros: ao digitar um nome parecido com um que já existe, o app avisa «Já existe: …» e você toca para usar aquele cadastro (ou cadastra de novo para criar mesmo assim)"

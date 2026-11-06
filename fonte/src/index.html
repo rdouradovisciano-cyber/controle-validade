@@ -123,6 +123,7 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 <div id="cCatBox"><label for="cCat">Setor do produto *</label><select id="cCat"></select></div>
 <label for="cNome">Nome do produto</label><input id="cNome" maxlength="60" autocomplete="off" placeholder="Ex.: Couve-flor">
 <div id="cSim" class="csim" hidden></div>
+<div id="cFoto"><button type="button" class="secondary" id="cFotoBtn">📷 Foto do produto (lê o nome do rótulo)</button><input type="file" accept="image/*" capture="environment" hidden id="cFotoIn"><div id="cFotoBox" hidden></div><div id="cReadTmp" hidden></div></div>
 <label for="cEan">Código de barras (EAN) <span class="cadcnt" id="cEanN">0/13</span></label><div class="stepper"><input id="cEan" inputmode="numeric" maxlength="13" autocomplete="off" placeholder="Até 13 dígitos"><button type="button" class="secondary" id="cBipar" style="padding:0 14px;white-space:nowrap;font-size:14px">▦ Bipar</button></div>
 <label for="cPlu">Código de balança (PLU)</label><input id="cPlu" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Opcional, até 6 números">
 <label for="cDon">Código de doação</label><input id="cDon" maxlength="12" autocomplete="off" placeholder="Opcional, ex.: B1" style="text-transform:uppercase">

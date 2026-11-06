@@ -1,1 +1,1 @@
-{"versao":"2026.11.06-349","nota":"Cadastros: ao digitar um nome parecido com um que já existe, o app avisa «Já existe: …» e você toca para usar aquele cadastro (ou cadastra de novo para criar mesmo assim)"}
+{"versao":"2026.11.06-350","nota":"Cadastros: novo botão «📷 Foto do produto». Uma foto só: ela lê o nome do rótulo (e o código de barras, se aparecer), preenche o campo Nome e, em Perecíveis, fica salva como foto do produto"}
