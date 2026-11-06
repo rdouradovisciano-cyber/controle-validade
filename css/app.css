@@ -513,7 +513,7 @@ header #maoBtn,header #temaBtn{display:none!important}
 .rodape #appVer{background:transparent;padding:2px 4px;margin:0;font-size:10px!important;font-weight:700;letter-spacing:.06em;opacity:1!important;color:inherit}
 /* v134: Cadastro manual vira botão flutuante na aba Validades */
 .fabnew{display:none}
-body[data-tab="Loja"] .fabnew{display:flex}
+body[data-tab="Loja"] .fabnew{display:none}
 #manualOpen{width:62px;height:62px;min-height:0;padding:0;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;line-height:1;background:#171b25!important;color:#ece8dc!important;border:1.5px solid #3a4050!important;box-shadow:0 6px 16px rgba(0,0,0,.45)!important}
 #manualOpen span{font-size:30px;font-weight:300;line-height:1}
 #manualOpen small{font-size:9px;font-weight:800;letter-spacing:.03em;margin-top:1px}
@@ -1488,7 +1488,7 @@ body:not([data-setor="KÓRIN"]) #cKorEsc{display:none!important}
 
 /* setor Fiscal de loja: só consulta de cadastros (FLV + Perecíveis) */
 body[data-setor="Fiscal"] #tbCadastros{display:flex}
-body[data-setor="Fiscal"] #tbLoja,body[data-setor="Fiscal"] #tbDoacao,body[data-setor="Fiscal"] #tbEtiquetas,body[data-setor="Fiscal"] #tbPesaveis,body[data-setor="Fiscal"] #tbContagem,body[data-setor="Fiscal"] .fabnew,body[data-setor="Fiscal"] #cLixo,body[data-setor="Fiscal"] #cKorEsc,body[data-setor="Fiscal"] #mnInv,body[data-setor="Fiscal"] #mnDoaAnt,body[data-setor="Fiscal"] #mnEtqHist,body[data-setor="Fiscal"] .cadrow .dpres,body[data-setor="Fiscal"] .cadrow [data-ced],body[data-setor="Fiscal"] .cadrow [data-cdel],body[data-setor="Fiscal"] .cadrow [data-crev]{display:none!important}
+body[data-setor="Fiscal"] #tbLoja,body[data-setor="Fiscal"] #tbDoacao,body[data-setor="Fiscal"] #tbEtiquetas,body[data-setor="Fiscal"] #tbPesaveis,body[data-setor="Fiscal"] #tbContagem,body[data-setor="Fiscal"] .fabnew,body[data-setor="Fiscal"] #mnManual,body[data-setor="Fiscal"] #cLixo,body[data-setor="Fiscal"] #cKorEsc,body[data-setor="Fiscal"] #mnInv,body[data-setor="Fiscal"] #mnDoaAnt,body[data-setor="Fiscal"] #mnEtqHist,body[data-setor="Fiscal"] .cadrow .dpres,body[data-setor="Fiscal"] .cadrow [data-ced],body[data-setor="Fiscal"] .cadrow [data-cdel],body[data-setor="Fiscal"] .cadrow [data-crev]{display:none!important}
 body[data-setor="Fiscal"] .setorsw button.on{background:linear-gradient(180deg,#b9d6ff,#6aa0e8);color:#0b1f3d}
 body[data-perfil="Admin"] .setorsw button{padding:0 7px;font-size:12px}body[data-perfil="Admin"] .setorsw{margin-right:2px}
 

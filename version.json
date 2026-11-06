@@ -1,1 +1,1 @@
-{"versao":"2026.11.06-352","nota":"Cadastro de produto novo: o app pede para bipar antes. Se o código foi digitado ou o produto não foi bipado, aparece «Bipar agora» ou «Cadastrar manual» (para quem não tem código). Código digitado com número errado é barrado"}
+{"versao":"2026.11.06-353","nota":"No canto da tela fica só a bolinha de bipar. O «Cadastro manual» foi para o menu ⋮ (três pontinhos)"}
