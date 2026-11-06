@@ -2179,18 +2179,20 @@ if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "atalhos"), sn => {
 
 // ---------- Escala 5x2 (perfis BENASSI e Admin): duas pessoas, tudo configurável (horários, folgas, ciclo, nomes, fotos) ----------
 const ESC_K = "validamais-escala", ESC_CK = "validamais-escala-cfg";
-const ESC_DEF = { ini: "2026-11-08", dia: 504, int: 60, meta: 2520,
+const ESC_DEF = { ini: "2026-11-09", dia: 504, int: 60, meta: 2520,
   p: { r: { n: "Renato", full: "", foto: "", ent: 660 }, y: { n: "Yossef", full: "", foto: "", ent: 420 } },
   ciclo: { r: ["FTTFTTT", "TTFFTTT", "FTTFTTT"], y: ["TTFTFTT", "FTTTFTT", "TTFFTTT"] } };   // ciclo = D S T Q Q S S; padrão lido da nota amarela
 let escVista = store.get("validamais-escala-vista", "lista"), escO = store.get(ESC_K, {}) || {}, escCr = store.get(ESC_CK, null), escMes = (() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; })();
-const escCfg = () => { const s = escCr || {}, sp = s.p || {}; return { ini: s.ini || ESC_DEF.ini, dia: s.dia || ESC_DEF.dia, int: s.int ?? ESC_DEF.int, meta: s.meta || ESC_DEF.meta,
+const escCfg = () => { const s = escCr || {}, sp = s.p || {}; return { ini: !s.ini || s.ini === "2026-11-08" ? ESC_DEF.ini : s.ini, dia: s.dia || ESC_DEF.dia, int: s.int ?? ESC_DEF.int, meta: s.meta || ESC_DEF.meta,
   p: { r: { ...ESC_DEF.p.r, ...(sp.r || {}) }, y: { ...ESC_DEF.p.y, ...(sp.y || {}) } }, ciclo: { r: (s.ciclo && s.ciclo.r && s.ciclo.r.length ? s.ciclo.r : ESC_DEF.ciclo.r), y: (s.ciclo && s.ciclo.y && s.ciclo.y.length ? s.ciclo.y : ESC_DEF.ciclo.y) } }; };
 const escP = () => { const c = escCfg(); return ["r", "y"].map(k => ({ k, ...c.p[k] })); };
 const escKey = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
 const escHm = m => String(Math.floor(m / 60) % 24).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
 const escH = m => Math.floor(m / 60) + "h" + (m % 60 ? String(m % 60).padStart(2, "0") : "");
 const escSai = (p, c) => p.ent + c.dia + c.int;
-function escBase(pk, d, c) { const [yy, mm, dd] = c.ini.split("-").map(Number), n = Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(yy, mm - 1, dd)) / 864e5); if (n < 0) return "-";
+const escParcial = (i7, c) => { const [yy, mm, dd] = c.ini.split("-").map(Number), a = new Date(yy, mm - 1, dd, 12), f = new Date(i7.getFullYear(), i7.getMonth(), i7.getDate() + 6, 12); return a.getDay() !== 0 && i7 < a && a <= f; };   // semana em que a escala nova começa no meio
+function escBase(pk, d, c) { const [yy, mm, dd] = c.ini.split("-").map(Number), t0 = Date.UTC(yy, mm - 1, dd), du = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()); if (du < t0) return "-";
+  const n = Math.round((du - (t0 - new Date(yy, mm - 1, dd).getDay() * 864e5)) / 864e5);   // dias desde o domingo da semana 1
   const cl = c.ciclo[pk], w = Math.floor(n / 7), k = ((w % cl.length) + cl.length) % cl.length; return cl[k][((n % 7) + 7) % 7] || "F"; }
 function escSt(pk, d, c) { const o = escO[pk] && escO[pk][escKey(d)]; return o || escBase(pk, d, c || escCfg()); }
 function escSalva() { store.set(ESC_K, escO); store.set(ESC_CK, escCr); if (db) V.setDoc(V.doc(db, "sh_cfg", "escala"), { o: escO, cfg: escCr || null, em: Date.now(), por: myName().slice(0, 40) }).catch(e => { console.error(e); toast("Não consegui salvar na nuvem."); }); }
@@ -2206,7 +2208,7 @@ function escProblemas(y, m, c) {   // dias em que os dois folgam e semanas que n
   while (d <= fim) { const i7 = new Date(d), nt = { r: 0, y: 0 }; let nova = false;
     for (let i = 0; i < 7; i++) { const ss = P.map(p => escSt(p.k, d, c)); if (ss.some(x => x !== "-")) nova = true;
       P.forEach((p, q) => { if (ss[q] === "T") nt[p.k]++; }); if (d.getMonth() === m && ss.every(x => x === "F" || x === "FE")) dias.push(new Date(d)); d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); }
-    if (nova) P.forEach(p => { if (nt[p.k] * c.dia !== c.meta) sem.push({ i: i7, f: new Date(i7.getFullYear(), i7.getMonth(), i7.getDate() + 6), p, n: nt[p.k], mn: nt[p.k] * c.dia }); }); }
+    if (nova && !escParcial(i7, c)) P.forEach(p => { if (nt[p.k] * c.dia !== c.meta) sem.push({ i: i7, f: new Date(i7.getFullYear(), i7.getMonth(), i7.getDate() + 6), p, n: nt[p.k], mn: nt[p.k] * c.dia }); }); }
   return { dias, sem, metaDias };
 }
 function escPaint() {
@@ -2215,14 +2217,14 @@ function escPaint() {
   const hj = P.map(p => { const st = escSt(p.k, hoje, c); return `<span class="eh ${st}">${escAv(p, 24)}<b>${esc(p.n)}</b> ${st === "T" ? escHm(p.ent) + "–" + escHm(escSai(p, c)) : st === "FE" ? "férias" : st === "-" ? "escala antiga" : "folga"}</span>`; }).join("");
   const ini = new Date(y, m, 1), fim = new Date(y, m + 1, 0), tot = { r: 0, y: 0 }; let d = new Date(y, m, 1 - ini.getDay()), rows = "";
   while (d <= fim) {
-    let cels = "", nt = { r: 0, y: 0 }, semAntiga = true;
+    let cels = "", nt = { r: 0, y: 0 }, semAntiga = true; const parc = escParcial(new Date(d), c);
     for (let i = 0; i < 7; i++) {
       const fora = d.getMonth() !== m, key = escKey(d), ss = P.map(p => escSt(p.k, d, c)), nenhum = ss.every(x => x === "F" || x === "FE");
       if (ss.some(x => x !== "-")) semAntiga = false;
       P.forEach((p, q) => { if (ss[q] === "T") { nt[p.k]++; if (!fora) tot[p.k] += c.dia; } });
       cels += `<td class="ec${fora ? " fora" : ""}${key === hk ? " hoje" : ""}${nenhum && !fora ? " vazio" : ""}"><i>${d.getDate()}</i>${P.map((p, q) => `<b class="pl ${ss[q] === "-" ? "N" : ss[q]} ${p.k}"${adm ? ` data-ek="${key}" data-ep="${p.k}"` : ""}>${ss[q] === "T" ? esc((p.n[0] || "?").toUpperCase()) : ss[q] === "FE" ? "férias" : ss[q] === "-" ? "–" : "folga"}</b>`).join("")}</td>`;
       d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); }
-    rows += `<tr>${cels}<td class="es">${P.map(p => { const mn = nt[p.k] * c.dia, ok = mn === c.meta; return `<span class="${ok ? "ok" : semAntiga ? "ant" : "ruim"}">${esc((p.n[0] || "").toUpperCase())} ${semAntiga ? "antiga" : ok ? escH(c.meta) + "✓" : escH(mn)}</span>`; }).join("")}</td></tr>`;
+    rows += `<tr>${cels}<td class="es">${P.map(p => { const mn = nt[p.k] * c.dia, ok = mn === c.meta; return `<span class="${ok && !parc ? "ok" : semAntiga || parc ? "ant" : "ruim"}">${esc((p.n[0] || "").toUpperCase())} ${semAntiga ? "antiga" : parc ? nt[p.k] + " dias" : ok ? escH(c.meta) + "✓" : escH(mn)}</span>`; }).join("")}</td></tr>`;
   }
   const chip = (p, st, key) => `<span class="lc ${st === "T" ? p.k : st === "FE" ? "FE" : "F"}"${adm ? ` data-ek="${key}" data-ep="${p.k}"` : ""}>${escAv(p, 24)}<b>${esc(p.n)}</b>${st === "T" ? "trabalha " + escHm(p.ent) + "–" + escHm(escSai(p, c)) : st === "FE" ? "férias" : st === "-" ? "escala antiga" : "FOLGA"}</span>`;
   let lista = ""; { let dd = new Date(y, m, 1 - ini.getDay());
@@ -2231,8 +2233,8 @@ function escPaint() {
         P.forEach((p, q) => { if (ss[q] === "T") nt[p.k]++; });
         if (!ss.every(x => x === "-")) linhas += `<div class="ld${fora ? " fora" : ""}${key === hk ? " hoje" : ""}${ss.every(x => x === "F" || x === "FE") ? " vazio" : ""}"><div class="ldn"><b>${dd.getDate()}</b><small>${ESC_DSL[i].slice(0, 3)}</small></div><div class="ldc">${P.map((p, q) => chip(p, ss[q], key)).join("")}</div>${ss.every(x => x === "F" || x === "FE") ? `<div class="lerr">⚠ os dois folgam</div>` : ""}</div>`;
         dd = new Date(dd.getFullYear(), dd.getMonth(), dd.getDate() + 1); }
-      if (linhas) { const f7 = new Date(ini7.getFullYear(), ini7.getMonth(), ini7.getDate() + 6), tt = P.map(p => { const mn = nt[p.k] * c.dia; return `<span class="${mn === c.meta ? "ok" : "ruim"}">${esc(p.n)}: ${nt[p.k]} dias · ${mn === c.meta ? escH(c.meta) + " ✓" : escH(mn) + " ⚠"}</span>`; }).join("");
-        lista += `<section class="lw"><h4>Semana de ${escDM(ini7)} a ${escDM(f7)}</h4>${linhas}<div class="lt">${tt}</div></section>`; } } }
+      if (linhas) { const f7 = new Date(ini7.getFullYear(), ini7.getMonth(), ini7.getDate() + 6), par = escParcial(ini7, c), tt = P.map(p => { const mn = nt[p.k] * c.dia; if (par) return `<span class="ant">${esc(p.n)}: ${nt[p.k]} dias nesta semana (começo da escala nova)</span>`; return `<span class="${mn === c.meta ? "ok" : "ruim"}">${esc(p.n)}: ${nt[p.k]} dias · ${mn === c.meta ? escH(c.meta) + " ✓" : escH(mn) + " ⚠"}</span>`; }).join("");
+        lista += `<section class="lw"><h4>Semana de ${par ? escDM(new Date(c.ini + "T12:00:00")) : escDM(ini7)} a ${escDM(f7)}</h4>${linhas}<div class="lt">${tt}</div></section>`; } } }
   const cab = P.map(p => `<div class="epc ${p.k}">${escAv(p, 38)}<div class="epn"><b>${esc(p.n)}</b>${p.full ? `<em>${esc(p.full)}</em>` : ""}<span>${escHm(p.ent)}–${escHm(escSai(p, c))}</span><small>${escH(tot[p.k])} em ${nomeM.split(" ")[0].toLowerCase()}</small></div></div>`).join("");
   const alerta = (pr.dias.length || pr.sem.length) ? `<div class="ealert" role="alert"><b>⚠ Para corrigir neste mês</b>${pr.dias.map(dt => `<div class="eal">Os dois folgam em <b>${ESC_DSL[dt.getDay()]} ${escDM(dt)}</b>${adm ? ` <button type="button" data-efix="${escKey(dt)}">Corrigir</button>` : ""}</div>`).join("")}${pr.sem.map(s => `<div class="eal">Semana ${escDM(s.i)} a ${escDM(s.f)}: ${esc(s.p.n)} com ${s.n} dias (${escH(s.mn)}), meta ${escH(c.meta)}</div>`).join("")}</div>` : "";
   const vista = escVista, abas = `<div class="evs"><button type="button" data-ev="lista" class="${vista === "lista" ? "on" : ""}">📋 Lista</button><button type="button" data-ev="cal" class="${vista === "cal" ? "on" : ""}">🗓️ Calendário</button></div>`;
@@ -2242,7 +2244,7 @@ function escPaint() {
   v.innerHTML = `<div class="eh0"><button type="button" id="escX" class="secondary">${adm ? "Fechar" : "Trocar perfil"}</button>${adm ? `<button type="button" id="escCfgB" class="secondary">⚙️ Configurar</button>` : ""}<h2>🗓️ Escala 5x2</h2></div>
     <div class="enav"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div>
     ${alerta}<div class="ehoje"><small>Hoje, ${hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</small><div>${hj}</div></div>
-    ${card}<p class="muted eleg">Colorido = trabalha · cinza = FOLGA · azul = férias · contorno vermelho = os dois folgam no mesmo dia · a escala nova começa na semana de ${escDM(new Date(iy, im - 1, id))}${adm ? " · Toque no nome de um dia para mudar." : ""}</p>`;
+    ${card}<p class="muted eleg">Colorido = trabalha · cinza = FOLGA · azul = férias · contorno vermelho = os dois folgam no mesmo dia · a escala nova começa em ${escDM(new Date(iy, im - 1, id))}/${iy} (${ESC_DSL[new Date(iy, im - 1, id).getDay()].toLowerCase()})${adm ? " · Toque no nome de um dia para mudar." : ""}</p>`;
 }
 function escFixAbrir(key) {   // corrige um dia em que os dois folgam: escolhe quem trabalha e em qual outro dia da semana essa pessoa folga
   const c = escCfg(), P = escP(), d = new Date(key + "T12:00:00"), ini7 = new Date(d.getFullYear(), d.getMonth(), d.getDate() - d.getDay(), 12);
@@ -2266,7 +2268,7 @@ function escCfgAbrir() {
   const hm = m => escHm(m), pm = t => { const [h, mi] = String(t).split(":").map(Number); return (h || 0) * 60 + (mi || 0); };
   const paint = () => { const P = ["r", "y"].map(k => ({ k, ...dr.p[k] }));
     bg.innerHTML = `<div class="ask perfil ecfg"><h3>⚙️ Configurar escala</h3>
-      <div class="cfl"><label>Semana 1 começa no domingo<input type="date" id="cfIni" value="${dr.ini}"></label></div>
+      <div class="cfl"><label>Primeiro dia da escala nova<input type="date" id="cfIni" value="${dr.ini}"></label></div>
       <div class="cfl"><label>Horas por dia<input type="time" id="cfDia" value="${hm(dr.dia)}"></label><label>Intervalo (min)<input type="number" id="cfInt" min="0" max="180" value="${dr.int}"></label><label>Meta semanal (h)<input type="number" id="cfMeta" min="1" max="60" step="0.5" value="${dr.meta / 60}"></label></div>
       ${P.map(p => `<div class="cfp ${p.k}"><div class="cfh">${escAv(p, 56)}<div><button type="button" data-cf="foto|${p.k}">📷 ${p.foto ? "Trocar foto" : "Adicionar foto"}</button>${p.foto ? `<button type="button" data-cf="sfoto|${p.k}">Remover</button>` : ""}</div></div>
         <div class="cfl"><label>Nome<input type="text" data-cfn="${p.k}|n" value="${esc(p.n)}" maxlength="20"></label><label>Entrada<input type="time" data-cfn="${p.k}|ent" value="${hm(p.ent)}"></label></div>
