@@ -336,7 +336,7 @@ function render() {
     const pr = prioDe(p), g = pr || "ok", lim = limit(cat || CATSET); let hd = "";
     if (cat && !q && !tierF && g !== lastG) { lastG = g; const GN = { v: "⛔ Vencidos", h: "🚨 Vence hoje", a: "🔴 Vence em 1 a " + visCfg().red + " dia" + (visCfg().red > 1 ? "s" : "") + " — agir já", y: "🟡 De " + (visCfg().red + 1) + " a " + lim + " dias", ok: "✅ Dentro do prazo" }; hd = `<div class="pgh g${g}"><span>${GN[g]}</span><i>${gcnt[g]}</i></div>`; }
     const big = dl === null ? "—" : dl < 0 ? "VENCIDO" : dl === 0 ? "HOJE" : dl === 1 ? "AMANHÃ" : String(dl), small = dl === null ? "sem validade" : dl < 0 ? "há " + (-dl) + (dl < -1 ? " dias" : " dia") : dl <= 1 ? "" : "dias";
-    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${iconeDe(p) ? `<span class="ico" data-id="${esc(p.id)}">${iconeDe(p)}</span>` : ""}${esc(p.name)}${notaDe(p.id) ? `<i class="pi-nt" title="${esc(notaDe(p.id).t)}">📝</i>` : ""}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act">${p.category === PER ? `<div class="pi-foto" data-id="${esc(p.id)}"></div><input type="file" accept="image/*" capture="environment" hidden data-fin="${esc(p.id)}"><input type="file" accept="image/*" hidden data-fin="${esc(p.id)}">` : ""}<label class="pi-nota"><span>📝</span><input type="text" maxlength="60" data-nota="${esc(p.id)}" value="${esc((notaDe(p.id) || {}).t || "")}" placeholder="Nota (ex.: gôndola 3, já na promoção)" autocomplete="off" enterkeyhint="done"></label><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="secondary of" data-of="${esc(p.id)}">🏷️ Oferta</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
+    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${iconeDe(p) ? `<span class="ico" data-id="${esc(p.id)}">${iconeDe(p)}</span>` : ""}${esc(p.name)}${notaDe(p.id) ? `<i class="pi-nt" title="${esc(notaDe(p.id).t)}">📝</i>` : ""}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmt(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? " · 👤 " + esc(p.por || "—") : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act">${p.category === PER ? `<div class="pi-foto" data-id="${esc(p.id)}"></div><input type="file" accept="image/*" capture="environment" hidden data-fin="${esc(p.id)}"><input type="file" accept="image/*" hidden data-fin="${esc(p.id)}">` : ""}<label class="pi-nota"><span>📝</span><input type="text" maxlength="60" data-nota="${esc(p.id)}" value="${esc((notaDe(p.id) || {}).t || "")}" placeholder="Nota (ex.: gôndola 3, já na promoção)" autocomplete="off" enterkeyhint="done"></label><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
   $("acaoBar").classList.toggle("hidden", !acaoF);
   { const urg = base.filter(p => { const k = prioDe(p); return k === "v" || k === "h" || k === "a"; }).length; try { if (base.some(p => prioDe(p) === "v") && fxOn() && !window.__sirV) { window.__sirV = 1;   // o Chrome só deixa vibrar depois do primeiro toque na tela: espera esse toque
@@ -346,11 +346,7 @@ function render() {
   if (openId) fotoCarrega(openId);
 }
 
-// ---------- oferta / etiqueta promocional (desconto de última hora) ----------
-const OFK = "validamais-ofpreco";   // último preço normal digitado, por produto (só neste aparelho)
-let ofP = null, ofD = 30;
-function ofSugestao(p) { const dl = daysLeft(p.expiry); return dl !== null && dl <= 1 ? 50 : 30; }
-// código de barras EAN-13 (SVG) para a etiqueta; devolve "" se o código não for um EAN-13 válido
+// ---------- código de barras EAN-13 (SVG) ----------
 function ean13Svg(code) {
   if (!/^\d{13}$/.test(code || "")) return "";
   const dig = code.split("").map(Number); if ((10 - dig.slice(0, 12).reduce((a, n, i) => a + n * (i % 2 ? 3 : 1), 0) % 10) % 10 !== dig[12]) return "";
@@ -361,51 +357,6 @@ function ean13Svg(code) {
   let x = "", k = 0; while (k < b.length) { if (b[k] === "1") { let n = 1; while (b[k + n] === "1") n++; x += `<rect x="${k}" y="0" width="${n}" height="40"/>`; k += n; } else k++; }
   return `<svg viewBox="0 0 95 40" preserveAspectRatio="none" aria-hidden="true" shape-rendering="crispEdges">${x}</svg>`;
 }
-const OFH = "validamais-ofhd", OFT = "validamais-oftam", OFO = "validamais-ofobs";
-function ofHtml(p, d, preco, hd, obs) {
-  const hoje = new Date(), por = preco > 0 ? Math.round(preco * (100 - d)) / 100 : 0, bar = ean13Svg(String(p.barcode || "")), cod = p.codigo_doacao || p.codigo_balanca || "";
-  const [pi, pc] = por ? brl(por).split(",") : ["", ""], [di, dc] = preco > 0 ? brl(preco).split(",") : ["", ""];
-  const dt = String(hoje.getDate()).padStart(2, "0") + "/" + String(hoje.getMonth() + 1).padStart(2, "0") + "/" + hoje.getFullYear();
-  const val = (p.expiry ? `VÁLIDO ATÉ ${fmt(p.expiry)} OU ENQUANTO DURAREM OS ESTOQUES` : "VÁLIDO ENQUANTO DURAREM OS ESTOQUES");
-  return `<div class="o3"><div><div class="o3-top"><b class="o3-hd">${esc(hd || "")}</b><span class="o3-cod">${esc(cod)}</span></div><div class="o3-nome">${esc(p.name)}</div></div>` +
-    `<div class="o3-mid"><div class="o3-de">${preco > 0 ? `<small>DE:</small><div class="o3-dep"><em>R$</em><b>${di}</b><sup>,${dc}</sup></div>` : ""}</div>` +
-    `<div class="o3-por">${por ? `<small>POR:</small><div class="o3-pv" data-n="${pi.length}"><em>R$</em><b>${pi}</b><sup>,${pc}</sup></div>` : `<small>OFERTA</small><div class="o3-pct">${d}<sup>%</sup><span>OFF</span></div>`}</div></div>` +
-    `<div class="o3-bot"><div class="o3-left">${obs ? `<div class="o3-un">${esc(obs)}</div>` : ""}${bar ? `<div class="o3-bar">${bar}<span>${esc(String(p.barcode))}</span></div>` : ""}</div><div class="o3-val">${val}</div><span class="o3-dt">${dt}</span></div></div>`;
-}
-function ofRender() {
-  if (!ofP) return;
-  const preco = parseFloat(String($("ofPreco").value).replace(",", ".")) || 0;
-  document.querySelectorAll("#ofChips button").forEach(b => b.classList.toggle("on", Number(b.dataset.d) === ofD && !$("ofOutro").value));
-  $("ofOutro").classList.toggle("on", !!$("ofOutro").value);
-  $("ofCard").innerHTML = ofHtml(ofP, ofD, preco, $("ofHd").value.trim().toUpperCase(), $("ofObs").value.trim().toUpperCase());
-}
-function ofertaAbrir(id) {
-  const p = products.find(x => x.id === id); if (!p) return;
-  ofP = p; ofD = ofSugestao(p); $("ofOutro").value = ""; $("ofObs").value = store.get(OFO, {})[p.barcode || p.id] || ""; $("ofHd").value = store.get(OFH, "") || (p.category === PER ? "PERECÍVEIS" : "HORTIFRUTI");
-  const dl = daysLeft(p.expiry), sv = store.get(OFK, {})[p.barcode || p.id];
-  $("ofPreco").value = sv ? String(sv).replace(".", ",") : "";
-  $("ofInfo").textContent = `${p.name} · ${dl === null ? "sem validade" : dl <= 0 ? "vence hoje" : dl === 1 ? "vence amanhã" : "vence em " + dl + " dias"} · sugestão: ${ofD}% de desconto`;
-  $("ofModal").classList.remove("hidden"); ofTamMarca(); ofRender();
-}
-function ofFecha() { $("ofModal").classList.add("hidden"); ofP = null; }
-$("ofX").onclick = $("ofFecha").onclick = ofFecha;
-$("ofChips").onclick = e => { const b = e.target.closest("button[data-d]"); if (!b) return; ofD = Number(b.dataset.d); $("ofOutro").value = ""; ofRender(); };
-$("ofOutro").oninput = () => { const v = $("ofOutro").value.replace(/\D/g, ""); $("ofOutro").value = v; const n = Number(v); if (n >= 1 && n <= 90) ofD = n; ofRender(); };
-const ofTamMarca = () => document.querySelectorAll("#ofTam button").forEach(b => b.classList.toggle("on", b.dataset.t === store.get(OFT, "full")));
-$("ofTam").onclick = e => { const b = e.target.closest("button[data-t]"); if (!b) return; store.set(OFT, b.dataset.t); ofTamMarca(); };
-$("ofObs").oninput = () => { const m = store.get(OFO, {}); m[ofP ? (ofP.barcode || ofP.id) : "_"] = $("ofObs").value.slice(0, 80); store.set(OFO, m); ofRender(); };
-$("ofHd").oninput = () => { store.set(OFH, $("ofHd").value.slice(0, 30)); ofRender(); };
-$("ofPreco").oninput = () => { $("ofPreco").value = $("ofPreco").value.replace(/[^\d,.]/g, ""); ofRender(); };
-$("ofPrintBtn").onclick = () => {
-  if (!ofP) return;
-  const preco = parseFloat(String($("ofPreco").value).replace(",", ".")) || 0;
-  logAtv("oferta", `${ofP.name} · ${ofD}% de desconto`);
-  if (preco > 0) { const m = store.get(OFK, {}); m[ofP.barcode || ofP.id] = preco; store.set(OFK, m); }
-  const box = $("ofPrint"); box.innerHTML = `<div class="ofcard print ${store.get(OFT, "full") === "full" ? "full" : "small"}">${ofHtml(ofP, ofD, preco, $("ofHd").value.trim().toUpperCase(), $("ofObs").value.trim().toUpperCase())}</div>`;
-  document.body.classList.add("printOf");
-  const fim = () => { document.body.classList.remove("printOf"); box.innerHTML = ""; window.removeEventListener("afterprint", fim); };
-  window.addEventListener("afterprint", fim); setTimeout(() => { try { window.print(); } catch (e) { fim(); } }, 60);
-};
 
 // ---------- modal e formulário ----------
 function show(title, scan) {
@@ -766,7 +717,7 @@ function fotoClique(e) { const pf = e.target.closest(".pi-foto"); if (!pf) retur
 const fotoMuda = e => { const f = e.target.closest && e.target.closest("[data-fin]"); if (f && f.files && f.files[0]) { fotoSalva(f.dataset.fin, f.files[0]); f.value = ""; } };
 $("list").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("click", fotoClique);
 $("list").onclick = e => { const ic = e.target.closest(".ico"); if (ic) { iconePicker(ic.dataset.id); return; } if (e.target.closest(".pi-nota")) return;
-  if (fotoClique(e)) return; const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); if (openId) fotoCarrega(openId); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.of) ofertaAbrir(b.dataset.of); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
+  if (fotoClique(e)) return; const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); if (openId) fotoCarrega(openId); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
 $("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(SETOR === FIS ? "fiscal" : curTab === "Doacao" ? "doacao" : curTab === "Pesaveis" ? "etiqueta" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : curTab === "Contagem" ? "contagem" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = () => { stopScanner(); if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
@@ -2126,20 +2077,11 @@ if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "icones"), sn => { icoNuvem = (
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "notas"), sn => { notasNuvem = (sn.exists() && sn.data().n) || {}; const f = document.activeElement; if (!(f && f.matches && f.matches("[data-nota]"))) render(); }, e => console.warn("notas", e)); } catch (e) { console.warn(e); } }
 visAplica();
 
-// ---------- atalhos do ícone (segurar o ícone do app): ?acao=bipar | hoje | oferta ----------
-function ofertaEscolher() {
-  const cand = products.filter(p => { const dl = daysLeft(p.expiry); return !p.retirado && dl !== null && dl >= 0 && dl <= visCfg().red; }).sort((a, b) => (a.expiry || "").localeCompare(b.expiry || ""));
-  if (!cand.length) return toast("Nenhum item perto de vencer para fazer oferta.");
-  const bg = document.createElement("div"); bg.className = "modal"; bg.id = "ofEscModal";
-  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Criar oferta"><div class="sheethead"><h2>🏷️ Criar oferta</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div><p class="note">Escolha o item que vai para promoção:</p><div class="atvl">${cand.map(p => { const dl = daysLeft(p.expiry); return `<button type="button" class="ofesc" data-id="${esc(p.id)}"><b>${esc(p.name)}</b><small>${dl <= 0 ? "vence hoje" : dl === 1 ? "vence amanhã" : "vence em " + dl + " dias"}</small></button>`; }).join("")}</div></section>`;
-  document.body.appendChild(bg);
-  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) return bg.remove(); const b = e.target.closest("[data-id]"); if (b) { bg.remove(); ofertaAbrir(b.dataset.id); } };
-}
+// ---------- atalhos do ícone (segurar o ícone do app): ?acao=bipar | hoje ----------
 $("acaoX").onclick = () => { acaoF = ""; render(); };
 function acaoRoda(a) {
   if (a === "bipar") { $("fab").click(); }
   else if (a === "hoje") { if (curTab !== "Loja") tab("Loja"); acaoF = "hoje"; render(); window.scrollTo(0, 0); }
-  else if (a === "oferta") { if (curTab !== "Loja") tab("Loja"); ofertaEscolher(); }
 }
 { const a = new URLSearchParams(location.search).get("acao"); if (a) { try { history.replaceState(null, "", location.pathname); } catch (e) {} let n = 0; const t = setInterval(() => { n++; if (products.length || n > 12) { clearInterval(t); setTimeout(() => acaoRoda(a), 700); } }, 500); } }
 $("mnVis").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } visAbrir(); };

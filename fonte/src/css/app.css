@@ -1256,24 +1256,7 @@ html[data-tema=dark] .pitem.pra{background:color-mix(in srgb,#e5202e 26%,#0c0f0d
 /* oferta / etiqueta promo */
 .pi-act .actions button.of{flex:none;padding-left:12px;padding-right:12px;background:#fff3cd;border-color:#e0a800;color:#5c4200;font-weight:800}
 html[data-tema=dark] .pi-act .actions button.of{background:#3a2d00;color:#ffd75e;border-color:#b58400}
-.ofchips{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 12px}
-.ofchips button{flex:1;min-width:64px;min-height:48px;font-size:18px;font-weight:900}
-.ofchips button.on,.ofchips input.on{background:#e5202e;color:#fff;border-color:#e5202e}
-.ofchips input{flex:1.3;min-width:96px;text-align:center;font-weight:800}
-.ofcard{margin-top:14px;border:4px solid #e5202e;border-radius:18px;background:#fff;color:#111;text-align:center;overflow:hidden;font-family:system-ui,Arial,sans-serif}
-.ofcard .of-top{background:#e5202e;color:#fff;font-weight:900;letter-spacing:.25em;font-size:20px;padding:8px}
-.ofcard .of-nome{font-weight:800;font-size:22px;line-height:1.15;padding:12px 12px 0;overflow-wrap:anywhere}
-.ofcard .of-pct{font-size:96px;font-weight:900;line-height:1;color:#e5202e;padding:6px 0 0}
-.ofcard .of-pct small{font-size:48px}.ofcard .of-pct span{display:block;font-size:24px;letter-spacing:.2em;margin-top:-4px}
-.ofcard .of-de{font-size:18px;text-decoration:line-through;color:#555;margin-top:6px}
-.ofcard .of-por{font-size:44px;font-weight:900;line-height:1.1}.ofcard .of-por small{font-size:16px;margin-right:6px;font-weight:800}
-.ofcard .of-val{background:#111;color:#ffd60a;font-weight:900;font-size:18px;padding:8px;margin-top:12px;letter-spacing:.06em}
-#ofPrint{display:none}
 @media print{
-  body.printOf>*:not(#ofPrint){display:none!important}
-  body.printOf #ofPrint{display:block!important}
-  body.printOf .ofcard.print{margin:0 auto;width:100%;max-width:100mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  body.printOf .ofcard.print .of-pct{font-size:110px}
 }
 
 /* Pesáveis: PLU e INTERNO esticam para ocupar a linha toda (sem seta); sem código = mesmo balão em cinza */
@@ -1381,9 +1364,6 @@ html,body,button,input,select,textarea{font-variant-numeric:tabular-nums;font-fe
 /* impressão da oferta: a regra de impressão do inventário esconde tudo (visibility); aqui reexibimos só a etiqueta */
 @media print{
   @page{margin:8mm}
-  body.printOf #ofPrint,body.printOf #ofPrint *{visibility:visible!important}
-  body.printOf #ofPrint{display:block!important;position:absolute;left:0;top:0;width:100%}
-  body.printOf .ofcard.print{border:2px solid #000!important}
 }
 
 /* toque com resposta: afunda e escurece um pouco enquanto o dedo está sobre o botão */
@@ -1416,38 +1396,8 @@ html .pitem.prok{border-left-color:var(--cg,#4a9a78)}
 
 /* etiqueta de promoção no formato da loja: fundo amarelo, "DE" riscado, caixa preta "POR", código de barras e validade.
    Tudo em cqw (largura da etiqueta), então o mesmo desenho serve na tela, na folha inteira e na pequena */
-.ofcard{container-type:inline-size;aspect-ratio:281/194;width:100%;box-sizing:border-box;padding:0;border:0;border-radius:6px;background:#e8e63a;color:#1b1b10;overflow:hidden;text-align:left;font-family:Outfit,Inter,system-ui,Arial,sans-serif;font-variant-numeric:tabular-nums;margin-top:14px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.ofcard .o3{box-sizing:border-box;height:100%;padding:3.4cqw 4cqw 2.6cqw;display:flex;flex-direction:column;justify-content:space-between;position:relative}
-.ofcard .o3-top{display:flex;justify-content:space-between;align-items:baseline;gap:2cqw}
-.ofcard .o3-hd{font-size:3.4cqw;font-weight:900}.ofcard .o3-cod{font-size:2.5cqw;font-weight:900}
-.ofcard .o3-nome{font-size:6.6cqw;font-weight:900;line-height:.95;text-transform:uppercase;margin-top:1cqw;max-height:13.6cqw;overflow:hidden;overflow-wrap:anywhere}
-.ofcard .o3-mid{display:flex;align-items:center;justify-content:space-between;gap:3cqw}
-.ofcard .o3-de{flex:1;min-width:0}
-.ofcard .o3-de small{display:block;font-size:2.6cqw;font-weight:900}
-.ofcard .o3-de .o3-dep{display:flex;align-items:baseline;gap:1cqw;text-decoration:line-through;text-decoration-thickness:.9cqw}
-.ofcard .o3-de .o3-dep em{font-style:normal;font-size:3.2cqw;font-weight:900}
-.ofcard .o3-de .o3-dep b{font-size:10.5cqw;font-weight:900;line-height:1}
-.ofcard .o3-de .o3-dep sup{font-size:4.6cqw;font-weight:900;align-self:flex-start;margin-top:1cqw}
-.ofcard .o3-por{flex:none;width:58%;background:#1b1b10;color:#e8e63a;border-radius:.6cqw;padding:2cqw 2.6cqw 1.2cqw;position:relative;line-height:1}
-.ofcard .o3-por small{display:block;font-size:3.6cqw;font-weight:900}
-.ofcard .o3-pv{display:flex;align-items:flex-start;gap:1.4cqw}
-.ofcard .o3-pv em{font-style:normal;font-size:3.6cqw;font-weight:900;margin-top:1.4cqw}
-.ofcard .o3-pv b{font-size:23cqw;font-weight:900;letter-spacing:-.02em;line-height:.88}
-.ofcard .o3-pv sup{font-size:10.6cqw;font-weight:900;margin-top:1.6cqw}
-.ofcard .o3-pv[data-n="3"] b{font-size:17cqw}.ofcard .o3-pv[data-n="3"] sup{font-size:8cqw}
-.ofcard .o3-pv[data-n="4"] b{font-size:13cqw}.ofcard .o3-pv[data-n="4"] sup{font-size:6.4cqw}
-.ofcard .o3-pct{font-size:25cqw;font-weight:900;line-height:.9}.ofcard .o3-pct sup{font-size:11cqw}.ofcard .o3-pct span{font-size:6cqw;letter-spacing:.2em;margin-left:1cqw}
-.ofcard .o3-un{font-size:3.1cqw;font-weight:900;line-height:1.1}.ofcard .o3-un b{font-size:3.5cqw}
-.ofcard .o3-bot{display:flex;justify-content:space-between;align-items:flex-end;gap:2cqw}
-.ofcard .o3-bar{width:30cqw}.ofcard .o3-bar svg{display:block;width:100%;height:8cqw;fill:#1b1b10}.ofcard .o3-bar span{display:block;font-size:1.8cqw;letter-spacing:.18em;margin-top:.6cqw}
-.ofcard .o3-val{font-size:1.9cqw;font-weight:900;flex:1;text-align:left;align-self:center;padding-left:4cqw}
-.ofcard .o3-dt{font-size:2.2cqw;font-weight:800;align-self:flex-end}
-.ofcard .o3-left{display:flex;flex-direction:column;gap:1.4cqw}
 /* impressão: folha inteira (A4 em pé, etiqueta girada 90° = deitada) ou pequena */
 @media print{
-  body.printOf #ofPrint .ofcard.print{margin:0;border-radius:0;max-width:none!important}
-  body.printOf #ofPrint .ofcard.print.full{position:absolute;left:0;top:0;width:281mm;height:194mm;transform-origin:top left;transform:translateX(194mm) rotate(90deg)}
-  body.printOf #ofPrint .ofcard.print.small{position:absolute;left:0;top:0;width:150mm;height:auto}
   @page{size:A4 portrait;margin:8mm}
 }
 

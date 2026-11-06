@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-06T01:10:00-03:00",
+  "itens": [
+   "Cartão do item mais limpo: tirei o botão «Oferta» (e a etiqueta de oferta), ficam Editar e Retirar"
+  ]
+ },
+ {
   "t": "2026-11-06T00:55:00-03:00",
   "itens": [
    "Cadastros parecidos: busca no topo (nome ou código), contagem de grupos («12 grupos») e os grupos com validade na loja vêm primeiro, o que vence antes no topo"
