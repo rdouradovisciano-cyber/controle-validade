@@ -2182,7 +2182,7 @@ const ESC_K = "validamais-escala", ESC_ANC = Date.UTC(2026, 10, 8);   // domingo
 const ESC_P = [{ k: "r", n: "Renato", ent: 11 * 60 }, { k: "y", n: "Yossef", ent: 7 * 60 }];
 const ESC_CICLO = { r: ["FTTFTTT", "TTFFTTT", "FTTFTTT"], y: ["TTFTFTT", "FTTTFTT", "TTFFTTT"] };   // proposta lida da nota amarela (D S T Q Q S S); o Admin ajusta tocando nos dias
 const ESC_DIA = 8 * 60 + 24, ESC_INT = 60, ESC_META = 42 * 60;
-let escO = store.get(ESC_K, {}) || {}, escMes = (() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; })();
+let escVista = store.get("validamais-escala-vista", "lista"), escO = store.get(ESC_K, {}) || {}, escMes = (() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; })();
 const escKey = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
 const escHm = m => String(Math.floor(m / 60) % 24).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
 const escH = m => Math.floor(m / 60) + "h" + (m % 60 ? String(m % 60).padStart(2, "0") : "");
@@ -2204,21 +2204,32 @@ function escPaint() {
       const fora = d.getMonth() !== m, key = escKey(d), ss = ESC_P.map(p => escSt(p.k, d)), nenhum = ss.every(x => x === "F" || x === "FE");
       if (ss.some(x => x !== "-")) semAntiga = false;
       ESC_P.forEach((p, q) => { if (ss[q] === "T") { nt[p.k]++; if (!fora) tot[p.k] += ESC_DIA; } });
-      cels += `<td class="ec${fora ? " fora" : ""}${key === hk ? " hoje" : ""}${nenhum && !fora ? " vazio" : ""}"><i>${d.getDate()}</i>${ESC_P.map((p, q) => `<b class="pl ${ss[q] === "-" ? "N" : ss[q]} ${p.k}"${adm ? ` data-ek="${key}" data-ep="${p.k}"` : ""}>${p.n[0]}${ss[q] === "T" ? "" : "·" + (ss[q] === "-" ? "–" : ss[q])}</b>`).join("")}</td>`;
+      cels += `<td class="ec${fora ? " fora" : ""}${key === hk ? " hoje" : ""}${nenhum && !fora ? " vazio" : ""}"><i>${d.getDate()}</i>${ESC_P.map((p, q) => `<b class="pl ${ss[q] === "-" ? "N" : ss[q]} ${p.k}"${adm ? ` data-ek="${key}" data-ep="${p.k}"` : ""}>${ss[q] === "T" ? p.n[0] : ss[q] === "FE" ? "férias" : ss[q] === "-" ? "–" : "folga"}</b>`).join("")}</td>`;
       d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); }
     rows += `<tr>${cels}<td class="es">${ESC_P.map(p => { const mn = nt[p.k] * ESC_DIA, ok = mn === ESC_META; return `<span class="${ok ? "ok" : semAntiga ? "ant" : "ruim"}">${p.n[0]} ${semAntiga ? "antiga" : ok ? "42h✓" : escH(mn)}</span>`; }).join("")}</td></tr>`;
   }
+  const dsl = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"], chip = (p, st, key) => `<span class="lc ${st === "T" ? p.k : st === "FE" ? "FE" : "F"}"${adm ? ` data-ek="${key}" data-ep="${p.k}"` : ""}><b>${p.n}</b>${st === "T" ? "trabalha " + escHm(p.ent) + "–" + escHm(p.ent + ESC_DIA + ESC_INT) : st === "FE" ? "férias" : st === "-" ? "escala antiga" : "FOLGA"}</span>`;
+  let lista = ""; { let dd = new Date(y, m, 1 - ini.getDay());
+    while (dd <= fim) { const ini7 = new Date(dd), nt = { r: 0, y: 0 }; let linhas = "";
+      for (let i = 0; i < 7; i++) { const key = escKey(dd), ss = ESC_P.map(p => escSt(p.k, dd)), fora = dd.getMonth() !== m;
+        ESC_P.forEach((p, q) => { if (ss[q] === "T") nt[p.k]++; });
+        if (!ss.every(x => x === "-")) linhas += `<div class="ld${fora ? " fora" : ""}${key === hk ? " hoje" : ""}${ss.every(x => x === "F" || x === "FE") ? " vazio" : ""}"><div class="ldn"><b>${dd.getDate()}</b><small>${dsl[i].slice(0, 3)}</small></div><div class="ldc">${ESC_P.map((p, q) => chip(p, ss[q], key)).join("")}</div></div>`;
+        dd = new Date(dd.getFullYear(), dd.getMonth(), dd.getDate() + 1); }
+      if (linhas) { const f7 = new Date(ini7.getFullYear(), ini7.getMonth(), ini7.getDate() + 6), tt = ESC_P.map(p => { const mn = nt[p.k] * ESC_DIA; return `<span class="${mn === ESC_META ? "ok" : "ruim"}">${p.n}: ${nt[p.k]} dias · ${mn === ESC_META ? "42h ✓" : escH(mn)}</span>`; }).join("");
+        lista += `<section class="lw"><h4>Semana de ${ini7.getDate()}/${String(ini7.getMonth() + 1).padStart(2, "0")} a ${f7.getDate()}/${String(f7.getMonth() + 1).padStart(2, "0")}</h4>${linhas}<div class="lt">${tt}</div></section>`; } } }
   const cab = ESC_P.map(p => `<div class="epc ${p.k}"><b>${p.n}</b><span>${escHm(p.ent)} às ${escHm(p.ent + ESC_DIA + ESC_INT)}</span><small>${escH(tot[p.k])} em ${nomeM.split(" ")[0].toLowerCase()}</small></div>`).join("");
-  const card = `<section class="ecard"><div class="epcs">${cab}</div><p class="muted">8h24 por dia · 1h de intervalo · meta de 42h por semana</p>
+  const vista = escVista, abas = `<div class="evs"><button type="button" data-ev="lista" class="${vista === "lista" ? "on" : ""}">📋 Lista</button><button type="button" data-ev="cal" class="${vista === "cal" ? "on" : ""}">🗓️ Calendário</button></div>`;
+  const card = vista === "lista" ? `<section class="ecard"><div class="epcs">${cab}</div><p class="muted">8h24 por dia · 1h de intervalo · meta de 42h por semana</p>${abas}${lista}</section>` : `<section class="ecard"><div class="epcs">${cab}</div><p class="muted">8h24 por dia · 1h de intervalo · meta de 42h por semana</p>${abas}<p class="muted">Linha de cima = Renato · linha de baixo = Yossef</p>
     <table class="etb"><thead><tr>${ds.map(x => `<th>${x}</th>`).join("")}<th>Semana</th></tr></thead><tbody>${rows}</tbody></table></section>`;
   v.innerHTML = `<div class="eh0"><button type="button" id="escX" class="secondary">${adm ? "Fechar" : "Trocar perfil"}</button><h2>🗓️ Escala 5x2</h2></div>
     <div class="enav"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div>
     <div class="ehoje"><small>Hoje, ${hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</small><div>${hj}</div></div>
-    ${card}<p class="muted eleg"><b class="pl T r">R</b> Renato · <b class="pl T y">Y</b> Yossef · colorido = trabalha · cinza = folga (F) · azul = férias (FE) · contorno vermelho = os dois folgam no mesmo dia · «–» = escala antiga (a nova começa em 09/11)${adm ? " · Toque no R ou Y de um dia para mudar." : ""}</p>`;
+    ${card}<p class="muted eleg">Colorido = trabalha · cinza = FOLGA · azul = férias · contorno vermelho = os dois folgam no mesmo dia · a escala nova começa em 09/11${adm ? " · Toque no nome de um dia para mudar." : ""}</p>`;
 }
 function escAbrir() {
   let v = $("escV"); if (!v) { v = document.createElement("div"); v.id = "escV"; v.className = "escv"; document.body.appendChild(v);
     v.onclick = e => { const t = e.target.closest("[data-ek]"), mn = e.target.closest("[data-em]");
+      const ev = e.target.closest("[data-ev]"); if (ev) { escVista = ev.dataset.ev; store.set("validamais-escala-vista", escVista); return escPaint(); }
       if (t) return escToca(t.dataset.ep, t.dataset.ek);
       if (mn) { escMes = new Date(escMes.y, escMes.m + Number(mn.dataset.em), 1); escMes = { y: escMes.getFullYear(), m: escMes.getMonth() }; return escPaint(); }
       if (e.target.closest("#escX")) { if (PERFIL === "Admin") v.remove(); else perfilEscolher(true); } }; }
