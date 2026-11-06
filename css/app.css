@@ -1543,7 +1543,7 @@ html[data-tema=dark] .krow .kn em.ult,html[data-tema=dark] .kvn em.ult{color:#ff
 #cFotoOp button{padding:6px 10px;min-height:36px;border-radius:999px;border:1px solid var(--ln);background:var(--card,#16181b);color:inherit;font-weight:700;text-align:left}
 #cFotoBox[hidden]{display:none}
 
-body:not([data-perfil="Admin"]):not([data-perfil="BENASSI"]) #mnEscala{display:none!important}
+body:not([data-perfil="Admin"]):not([data-perfil="BENASSI"]):not([data-esc="1"]) #mnEscala{display:none!important}
 .escv{position:fixed;inset:0;z-index:5000;overflow:auto;background:var(--bg,#0b0d10);color:var(--ink);padding:14px 12px 40px;-webkit-overflow-scrolling:touch}
 .escv .eh0{display:flex;align-items:center;gap:10px;justify-content:space-between}.escv .eh0 h2{margin:0;font-size:20px;order:-1;flex:1}
 .escv .eh0 button{min-height:40px;padding:0 14px}

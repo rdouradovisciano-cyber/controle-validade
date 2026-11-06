@@ -61,7 +61,7 @@ function perfilEscolher(troca) {   // pergunta uma vez qual é o setor deste apa
     const b = e.target.closest("[data-p]"); if (!b || ocupado) return; const v = b.dataset.p; if (v === PERFIL) return bg.remove();
     ocupado = true;
     try {
-      if (v === "Admin" || v === "BENASSI" || (troca && PERFIL !== "Admin")) { if (!(await adminSenha(v === "Admin" ? "Admin" : "troca"))) return; }   // Admin e troca de perfil exigem a senha do Admin
+      if (v === "Admin" || (troca && PERFIL !== "Admin")) { if (!(await adminSenha(v === "Admin" ? "Admin" : "troca"))) return; }   // Admin e troca de perfil exigem a senha do Admin
       aplica(v);
     } finally { ocupado = false; } };
   document.body.appendChild(bg);
@@ -2236,6 +2236,8 @@ function escAbrir() {
   document.body.classList.add("escOn"); escPaint();
 }
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "escala"), sn => { escO = (sn.exists() && sn.data().o) || {}; store.set(ESC_K, escO); escPaint(); }, e => console.warn("escala", e)); } catch (e) { console.warn(e); } }
+const escNome = () => /benassi/i.test(myName());   // quem se identificou como BENASSI também enxerga a escala (só leitura)
+if (escNome()) document.body.dataset.esc = "1";
 $("mnEscala").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } escAbrir(); };
 if (PERFIL === "BENASSI") escAbrir();
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "icones"), sn => { icoNuvem = (sn.exists() && sn.data().m) || {}; render(); }, e => console.warn("icones", e)); } catch (e) { console.warn(e); } }
