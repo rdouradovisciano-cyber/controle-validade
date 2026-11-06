@@ -1561,7 +1561,7 @@ $("cFotoBtn").onclick = () => $("cFotoIn").click();
 $("cFotoIn").onchange = () => { const f = $("cFotoIn").files && $("cFotoIn").files[0]; if (f) cadFotoLer(f); $("cFotoIn").value = ""; };
 $("cFotoBox").onclick = e => { const b = e.target.closest("[data-ocr]"); if (b) { $("cNome").value = ocrNome(b.dataset.ocr); $("cNome").dispatchEvent(new Event("input")); } };
 function cadFotoZera() { cFotoFile = null; const b = $("cFotoBox"); if (b) { b.hidden = true; b.innerHTML = ""; } }
-function cadReset() { cadFotoZera(); cadEdit = null; ["cNome", "cEan", "cPlu", "cDon"].forEach(i => $(i).value = ""); $("cTitulo").textContent = "Novo cadastro"; $("cSalvar").textContent = "Cadastrar"; $("cCancela").hidden = true; $("cEanN").textContent = "0/13"; simOk = ""; if ($("cSim")) { $("cSim").hidden = true; $("cSim").innerHTML = ""; } }
+function cadReset() { cadFotoZera(); cadEdit = null; if ($("cEanAv")) { $("cEanAv").hidden = true; $("cEanAv").innerHTML = ""; } ["cNome", "cEan", "cPlu", "cDon"].forEach(i => $(i).value = ""); $("cTitulo").textContent = "Novo cadastro"; $("cSalvar").textContent = "Cadastrar"; $("cCancela").hidden = true; $("cEanN").textContent = "0/13"; simOk = ""; if ($("cSim")) { $("cSim").hidden = true; $("cSim").innerHTML = ""; } }
 function cadSimList() {   // cadastros com nome igual ou parecido ao que está sendo digitado
   const nm = $("cNome").value.trim().replace(/\s+/g, " "); if (nm.length < 3) return [];
   const own = cadEdit ? (cadGroups().find(y => y.k === cadEdit) || {}).name || "" : "", me = norm(nm), ig = norm(own);
@@ -1574,17 +1574,35 @@ function cadSimPaint() {
 }
 $("cNome").addEventListener("input", () => { simOk = ""; cadSimPaint(); });
 $("cSim").onclick = e => { const b = e.target.closest("[data-sim]"); if (!b) return; const x = cadGroups().find(y => norm(y.name) === norm(b.dataset.sim)); if (x) { cadAbrir(x); cadSimPaint(); toast("Cadastro aberto para editar."); } };
-$("cEan").oninput = () => { const v = $("cEan").value.replace(/\D/g, "").slice(0, 13); $("cEan").value = v; $("cEanN").textContent = v.length + "/13"; };
+function eanPerto(v) {   // EANs já cadastrados que diferem em 1 dígito (ou 2 dígitos trocados de lugar) do digitado
+  const out = new Map(); products.forEach(p => { const b = p.barcode; if (!b || b.length !== v.length || b === v || p.lixo) return; let d = 0, pos = []; for (let i = 0; i < v.length; i++) if (v[i] !== b[i]) { d++; pos.push(i); } if (d === 1 || (d === 2 && pos[1] === pos[0] + 1 && v[pos[0]] === b[pos[1]] && v[pos[1]] === b[pos[0]])) out.set(b, p.name); });
+  return [...out];
+}
+function cadEanAviso() {
+  const v = $("cEan").value.trim(), av = $("cEanAv"); let h = "";
+  if (v.length >= 6) {
+    const dono = products.find(p => p.barcode === v && !p.lixo), meu = cadEdit ? (cadGroups().find(y => y.k === cadEdit) || {}) : {};
+    if (dono && norm(dono.name) !== norm(meu.name || "")) h += `<b>Este código já é de «${esc(dono.name)}».</b> <button type="button" data-ceanuse="${esc(dono.name)}">Abrir esse cadastro</button>`;
+    if (v.length === 13 && !isScale(v) && !eanOk(v)) { h += `<b>Código inválido:</b> algum número está errado (erro de digitação). Confira ou toque em Bipar.`; eanPerto(v).slice(0, 3).forEach(([b, n]) => { h += ` <button type="button" data-ceanfix="${b}">Será ${b} (${esc(n)})?</button>`; }); }
+    else if (!dono && v.length >= 8) eanPerto(v).slice(0, 2).forEach(([b, n]) => { h += `<b>Parecido com o código de «${esc(n)}»</b> (${b}). <button type="button" data-ceanfix="${b}">Usar ${b}</button>`; });
+  }
+  av.hidden = !h; av.innerHTML = h;
+}
+$("cEanAv").onclick = e => { const f = e.target.closest("[data-ceanfix]"), u = e.target.closest("[data-ceanuse]");
+  if (f) { $("cEan").value = f.dataset.ceanfix; $("cEan").dispatchEvent(new Event("input")); const d = products.find(p => p.barcode === f.dataset.ceanfix); if (d) { const x = cadGroups().find(y => norm(y.name) === norm(d.name)); if (x) { cadAbrir(x); cadEanAviso(); } } }
+  else if (u) { const x = cadGroups().find(y => norm(y.name) === norm(u.dataset.ceanuse)); if (x) { cadAbrir(x); cadEanAviso(); toast("Cadastro aberto para editar."); } } };
+$("cEan").oninput = () => { const v = $("cEan").value.replace(/\D/g, "").slice(0, 13); $("cEan").value = v; $("cEanN").textContent = v.length + "/13"; cadEanAviso(); };
 $("cPlu").oninput = () => { $("cPlu").value = $("cPlu").value.replace(/\D/g, "").slice(0, 6); };
 $("cDon").oninput = () => { $("cDon").value = $("cDon").value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12); };
 $("cBusca").oninput = cadPaint; $("cCancela").onclick = cadReset;
-$("cSalvar").onclick = () => {
+$("cSalvar").onclick = async () => {
   const name = $("cNome").value.trim().replace(/\s+/g, " "), ean = $("cEan").value.trim(), plu = $("cPlu").value.trim(), don = $("cDon").value.trim().toUpperCase();
   if (!name) { toast("Digite o nome do produto."); return $("cNome").focus(); }
   if (ean && !/^\d{6,13}$/.test(ean)) { toast("O código de barras deve ter de 6 a 13 números."); return $("cEan").focus(); }
   const mine = cadEdit ? products.filter(x => x.name && cadKey(x) === cadEdit) : [];
   const outros = products.filter(x => !mine.includes(x));
   let d;
+  if (ean.length === 13 && !isScale(ean) && !eanOk(ean)) { cadEanAviso(); if (!(await askConfirm({ icon: "⚠️", title: "Código de barras inválido", text: ean, sub: "Algum número está errado (erro de digitação). Confira ou bipe o produto.", ok: "Salvar mesmo assim", cancel: "Corrigir" }))) return $("cEan").focus(); }
   if (ean && (d = outros.find(x => x.barcode === ean))) return toast(`Esse código de barras já pertence a «${d.name}».`);
   if (plu && (d = outros.find(x => x.codigo_balanca && Number(x.codigo_balanca) === Number(plu)))) return toast(`Esse código de balança já pertence a «${d.name}».`);
   if (don && (d = outros.find(x => String(x.codigo_doacao || "").toUpperCase() === don))) return toast(`Esse código de doação já pertence a «${d.name}».`);
