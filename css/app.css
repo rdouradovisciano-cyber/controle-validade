@@ -1573,3 +1573,10 @@ body[data-setor="Fiscal"] #cForm:not(.perSel) label[for="cDon"],body[data-setor=
 .krow .kn em.ult,.kvn em.ult{font-style:normal;font-weight:900;color:#e53935;font-size:1.12em}
 html[data-tema=dark] .krow .kn em.ult,html[data-tema=dark] .kvn em.ult{color:#ff5a5f}
 .kvn .keanl{display:block;font-size:12px;color:var(--mut);margin-top:1px;font-variant-numeric:tabular-nums}
+
+.dupbar{position:sticky;top:-18px;z-index:2;background:var(--card,#16181b);padding:10px 0 8px;margin:-10px 0 6px;border-bottom:1px solid var(--ln)}
+.dupbar h3{font-size:17px}.dupc{font-size:13px;color:var(--mut);white-space:nowrap}
+.dupbar input{width:100%;margin-top:8px;min-height:44px}
+.duph{margin:12px 2px 6px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.dupg[hidden],.duph[hidden]{display:none!important}
+.dupr{gap:10px}.dupr>span:first-child{flex:1;min-width:0}.dupr button{white-space:nowrap;min-width:96px;padding:8px 10px!important;font-size:14px!important;min-height:38px}

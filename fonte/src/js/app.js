@@ -486,8 +486,10 @@ function dupGroups() {   // grupos de nomes parecidos entre si
   const items = [...cnt.values()], par = items.map((_, i) => i), find = i => par[i] === i ? i : (par[i] = find(par[i]));
   for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) if (similarKeys(nameKey(items[i].nome), nameKey(items[j].nome))) par[find(j)] = find(i);
   const g = new Map(); items.forEach((it, i) => { const r = find(i); (g.get(r) || g.set(r, []).get(r)).push(it); });
-  return [...g.values()].filter(a => a.length > 1);
+  const tem = a => a.some(x => (x.lots || []).some(l => !l.ret)), prox = a => a.flatMap(x => (x.lots || []).filter(l => !l.ret).map(l => String(l.e))).sort()[0] || "";
+  return [...g.values()].filter(a => a.length > 1).sort((A, B) => (tem(B) - tem(A)) || (tem(A) ? prox(A).localeCompare(prox(B)) : String(A[0].nome).localeCompare(String(B[0].nome), "pt")));   // com validade na loja primeiro (o que vence antes no topo)
 }
+const dupTem = a => a.some(x => (x.lots || []).some(l => !l.ret));
 function dupInfo(x) {   // EAN, códigos e o que há na loja (lotes com quantidade e validade), para decidir qual nome é o certo
   const cods = [x.ean && x.ean.size ? "EAN " + [...x.ean].join(" / ") : "sem EAN", x.plu && x.plu.size ? "PLU " + [...x.plu].join(" / ") : "", x.doa && x.doa.size ? "Cód. " + [...x.doa].join(" / ") : ""].filter(Boolean).join(" · ");
   const ls = (x.lots || []).filter(l => !l.ret).sort((a, b) => String(a.e).localeCompare(String(b.e))), ret = (x.lots || []).length - ls.length;
@@ -507,11 +509,23 @@ async function dupUnir(gi, ni, paint) {   // une o grupo num só cadastro: nome 
 }
 function dupReview() {
   const bg = document.createElement("div"); bg.className = "askbg";
+  let q = "";
+  const aplica = () => { const nq = norm(q); let v = 0; const tot = bg.querySelectorAll(".dupg").length;
+    bg.querySelectorAll(".dupg").forEach(g => { const ok = !nq || g.dataset.s.includes(nq); g.hidden = !ok; if (ok) v++; });
+    bg.querySelectorAll(".duph").forEach(h => { let n = h.nextElementSibling, alg = false; while (n && !n.classList.contains("duph") && !n.classList.contains("arow")) { if (n.classList.contains("dupg") && !n.hidden) alg = true; n = n.nextElementSibling; } h.hidden = !alg; });
+    const c = bg.querySelector("#dupCount"); if (c) c.textContent = nq ? `${v} de ${tot} grupos` : `${tot} ${tot === 1 ? "grupo" : "grupos"}`;
+    const e = bg.querySelector("#dupVazio"); if (e) e.hidden = !(nq && !v); };
   const paint = () => { const gs = dupGroups(); bg.dataset.g = JSON.stringify(gs.map(a => a.map(x => x.nome)));
-    bg.innerHTML = `<div class="ask" style="max-height:86dvh;overflow:auto;text-align:left"><div class="ai" style="text-align:center">🔍</div><h3 style="text-align:center">Cadastros parecidos</h3>` +
-      (gs.length ? `<p style="text-align:center">Escolha o nome certo de cada grupo. Os outros serão renomeados.</p>` + gs.map((a, gi) => `<div class="dupg">${a.map((x, ni) => `<div class="dupr"><span><b>${esc(x.nome)}</b> <small>${x.n} cadastro(s)</small>${dupInfo(x)}</span><span style="display:flex;flex-direction:column;gap:6px"><button type="button" data-g="${gi}" data-n="${ni}">Usar este</button><button type="button" class="secondary" data-u="1" data-g="${gi}" data-n="${ni}">Unir neste</button></span></div>`).join("")}</div>`).join("")
+    const nTem = gs.filter(dupTem).length; let h1 = false, h2 = false;
+    const grp = (a, gi) => { const ini = !dupTem(a) ? (h2 ? "" : (h2 = true, `<div class="duph">Sem lote na loja (${gs.length - nTem})</div>`)) : (h1 ? "" : (h1 = true, `<div class="duph">📦 Com validade na loja (${nTem})</div>`));
+      const sk = norm(a.map(x => x.nome + " " + [...x.ean, ...x.plu, ...x.doa].join(" ")).join(" "));
+      return ini + `<div class="dupg" data-s="${esc(sk)}">${a.map((x, ni) => `<div class="dupr"><span><b>${esc(x.nome)}</b> <small>${x.n} cadastro(s)</small>${dupInfo(x)}</span><span style="display:flex;flex-direction:column;gap:6px"><button type="button" data-g="${gi}" data-n="${ni}">Usar este</button><button type="button" class="secondary" data-u="1" data-g="${gi}" data-n="${ni}">Unir neste</button></span></div>`).join("")}</div>`; };
+    bg.innerHTML = `<div class="ask" style="max-height:86dvh;overflow:auto;text-align:left"><div class="dupbar"><div style="display:flex;align-items:center;gap:10px;justify-content:space-between"><h3 style="margin:0">🔍 Cadastros parecidos</h3><b id="dupCount" class="dupc"></b></div>` +
+      (gs.length ? `<input type="search" id="dupQ" placeholder="Buscar nome ou código…" autocomplete="off" value="${esc(q)}"><p class="note" style="margin:6px 0 0">Escolha o nome certo de cada grupo. Os outros serão renomeados.</p>` : "") + `</div>` +
+      (gs.length ? gs.map(grp).join("") + `<p id="dupVazio" class="note" style="text-align:center" hidden>Nenhum grupo com esse nome ou código.</p>`
         : `<p style="text-align:center"><b>Nenhum nome parecido encontrado ✓</b></p>`) +
-      `<div class="arow"><button type="button" class="ok" data-x="1">Fechar</button></div></div>`; };
+      `<div class="arow"><button type="button" class="ok" data-x="1">Fechar</button></div></div>`; aplica(); };
+  bg.oninput = e => { if (e.target.id === "dupQ") { q = e.target.value; aplica(); } };
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) return bg.remove();
     const b = e.target.closest("[data-g]"); if (!b) return;
     if (b.dataset.u) return dupUnir(+b.dataset.g, +b.dataset.n, paint);
