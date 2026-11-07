@@ -1678,3 +1678,21 @@ body.escOn:not([data-perfil="Admin"]){overflow:hidden}
 .escFull .ec{padding:3px 2px 4px}.escFull .ec i{font-size:17px;margin-bottom:1px}
 .escFull .pl{padding:5px 0;margin-top:2px;font-size:17px}.escFull .pl.F,.escFull .pl.FE{font-size:12px}
 .escFull .pl.sm{padding:5px 0}
+
+/* fotos na horizontal: nome no começo de cada semana e os dois lado a lado em cada dia */
+.lwh{display:flex;align-items:center;gap:8px;padding:0 6px;margin:0 0 6px}
+.lwh .lwn{width:42px;flex:none}
+.lwh .lwl{flex:1;display:flex;gap:4px;min-width:0}
+.lwp{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:0;padding:4px 6px;border-radius:8px;font-size:12px;font-weight:800;line-height:1.1}
+.lwp b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lwp.r{background:rgba(224,160,48,.16);border:1px solid rgba(224,160,48,.55)}
+.lwp.y{background:rgba(63,182,196,.16);border:1px solid rgba(63,182,196,.55)}
+.lwp .eav{box-shadow:0 0 0 2px rgba(255,255,255,.45)}
+.ldc{flex-direction:row!important;gap:4px!important}
+.ld{align-items:center}
+.lc{flex:1!important;min-width:0;padding:6px 6px!important;gap:5px!important;font-size:13px}
+.lc b{min-width:0!important;font-size:13px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:800}
+.epc{overflow:hidden}
+.epn{flex:1;min-width:0}
+.epn b,.epn em{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.escFull .efp span{white-space:nowrap}
