@@ -7,7 +7,7 @@ r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".c
 const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
 const pg=await (await br.newContext({viewport:{width:411,height:860}})).newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
 await pg.addInitScript(()=>{localStorage.setItem("validamais-operador",JSON.stringify("Renato"));localStorage.setItem("validamais-perfil","Admin");localStorage.setItem("validamais-escala-vista",JSON.stringify("cal"));
-localStorage.setItem("validamais-escala-cfg",JSON.stringify({ciclo:{r:["FTTFTTT","TTFFTTT"],y:["TTFTFTT","FTTTFTT"]}}))});
+localStorage.setItem("validamais-escala-cfg",JSON.stringify({ini:"2026-11-09",dia:504,ciclo:{y:["TTFTFTT","FTTTFTT","TTTFTTT"],r:["FTTFTTT","TTFFTTT","FTTTTFT"]}}))});
 await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(5000);
 await pg.evaluate(()=>document.getElementById("mnEscala").click());await pg.waitForTimeout(500);
 while(!(await pg.innerText(".enav b")).includes("Novembro de 2026")){await pg.click('[data-em="1"]');}
