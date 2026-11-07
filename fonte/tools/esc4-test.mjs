@@ -12,5 +12,7 @@ localStorage.setItem("validamais-escala-cfg",JSON.stringify({p:{r:{n:"Renato",fu
 await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(5500);
 while(!(await pg.innerText(".enav b")).includes("Novembro de 2026")){await pg.click('[data-em="1"]');}
 console.log("animação no hoje:",await pg.evaluate(()=>{const e=document.querySelector(".ec.hoje");return e?getComputedStyle(e).animationName:"(hoje não está neste mês)"}));
+await pg.click("#escFs");await pg.waitForTimeout(500);console.log("tela cheia ativa:",await pg.isVisible("#escFx"),"| tabela visível:",await pg.isVisible(".escFull .etb"));await pg.screenshot({path:SP+"e4-full.png"});
+await pg.click("#escFx");await pg.waitForTimeout(300);console.log("saiu:",!(await pg.isVisible("#escFx")),"| abas de volta:",await pg.isVisible("#escSh"));
 const [dl]=await Promise.all([pg.waitForEvent("download"),pg.click("#escSh")]);await dl.saveAs(SP+"escala.png");console.log("arquivo:",dl.suggestedFilename());
 console.log(errs);await br.close();srv.close();

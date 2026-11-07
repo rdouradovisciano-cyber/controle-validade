@@ -1643,3 +1643,17 @@ body.escOn:not([data-perfil="Admin"]){overflow:hidden}
 @keyframes escPulse{0%{box-shadow:0 0 0 0 rgba(243,216,122,.75)}70%{box-shadow:0 0 0 12px rgba(243,216,122,0)}100%{box-shadow:0 0 0 0 rgba(243,216,122,0)}}
 .escv .ec.hoje,.escv .ld.hoje{animation:escPulse 2.4s ease-out infinite}
 @media (prefers-reduced-motion:reduce){.escv .ec.hoje,.escv .ld.hoje{animation:none}}
+
+.evs{flex-wrap:wrap}.evs .sh{white-space:nowrap}
+.escFull{padding:6px 6px 8px;display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.escFull .efh{display:flex;align-items:center;gap:6px}
+.escFull #escFx{width:48px;height:48px;border-radius:12px;border:1px solid var(--ln);background:var(--card);color:var(--ink);font-size:22px;font-weight:800;flex:none}
+.escFull .efn{flex:1;display:flex;align-items:center;justify-content:center;gap:4px}.escFull .efn b{font-size:24px;font-weight:800;color:#f3d87a;white-space:nowrap}
+.escFull .efn button{width:46px;height:46px;border-radius:12px;border:1px solid var(--ln);background:var(--card);color:var(--ink);font-size:26px}
+.escFull .efp{display:flex;flex-wrap:wrap;gap:4px 10px;justify-content:center;margin:4px 0;font-size:13px}
+.escFull .efp span{display:inline-flex;align-items:center;gap:5px;font-weight:700}.escFull .efp .efal{color:#ff8a8a}
+.escFull .etb{flex:1;height:auto;margin-top:2px}
+.escFull .ec{padding:4px 2px}.escFull .ec i{font-size:18px}
+.escFull .pl{font-size:17px;min-height:0;padding:7px 0;margin-top:3px}.escFull .pl.F,.escFull .pl.FE{font-size:12px}
+.escFull .es span{font-size:12px}
+@media (orientation:landscape){.escFull .efp{display:none}.escFull .pl{padding:3px 0;font-size:14px}.escFull .ec i{font-size:14px}.escFull .efn b{font-size:20px}}

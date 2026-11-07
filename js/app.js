@@ -2183,7 +2183,7 @@ const ESC_DEF = { ini: "2026-11-09", dia: 504, int: 60, meta: 2520,
   p: { r: { n: "Renato", full: "", foto: "", ent: 660 }, y: { n: "Yossef", full: "", foto: "", ent: 420 } },
   ciclo: { r: ["FTFTTTT", "TTFFTTT"], y: ["TTTFFTT", "FTTTFTT"] } };   // ciclo = D S T Q Q S S. Renato folga sempre na terça, Yossef na quinta; domingos e quartas alternam: semana 1 Renato folga no domingo e Yossef na quarta; semana 2 Renato folga na quarta e Yossef no domingo
 const ESC_CICLOS_ANTIGOS = [{ r: ["FTTFTTT", "TTFFTTT", "FTTFTTT"], y: ["TTFTFTT", "FTTTFTT", "TTFFTTT"] }, { r: ["FTFTTTT", "TFFTTTT"], y: ["TTTTFFT", "FTTTFTT"] }].map(x => JSON.stringify(x));   // padrões antigos: migram sozinhos para o atual
-let escVista = store.get("validamais-escala-vista", "lista"), escO = store.get(ESC_K, {}) || {}, escCr = store.get(ESC_CK, null), escMes = (() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; })();
+let escFull = false, escWake = null, escVista = store.get("validamais-escala-vista", "lista"), escO = store.get(ESC_K, {}) || {}, escCr = store.get(ESC_CK, null), escMes = (() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; })();
 const escCfg = () => { const s = escCr || {}, sp = s.p || {}; return { ini: !s.ini || s.ini === "2026-11-08" ? ESC_DEF.ini : s.ini, dia: s.dia || ESC_DEF.dia, int: s.int ?? ESC_DEF.int, meta: s.meta || ESC_DEF.meta,
   p: { r: { ...ESC_DEF.p.r, ...(sp.r || {}) }, y: { ...ESC_DEF.p.y, ...(sp.y || {}) } }, ciclo: s.ciclo && s.ciclo.r && s.ciclo.r.length && s.ciclo.y && s.ciclo.y.length && !ESC_CICLOS_ANTIGOS.includes(JSON.stringify(s.ciclo)) ? s.ciclo : ESC_DEF.ciclo }; };
 const escP = () => { const c = escCfg(); return ["r", "y"].map(k => ({ k, ...c.p[k] })); };
@@ -2245,7 +2245,13 @@ function escPaint() {
         lista += `<section class="lw"><h4>Semana de ${par ? escDM(new Date(c.ini + "T12:00:00")) : escDM(ini7)} a ${escDM(f7)}</h4>${linhas}<div class="lt">${tt}</div></section>`; } } }
   const cab = P.map(p => `<div class="epc ${p.k}">${escAv(p, 38)}<div class="epn"><b>${esc(p.n)}</b>${p.full ? `<em>${esc(p.full)}</em>` : ""}<span>${escHm(p.ent)}–${escHm(escSai(p, c))}</span></div></div>`).join("");
   const alerta = (pr.dias.length || pr.sem.length) ? `<div class="ealert" role="alert"><b>⚠ Para corrigir neste mês</b>${pr.dias.map(dt => `<div class="eal">Os dois folgam em <b>${ESC_DSL[dt.getDay()]} ${escDM(dt)}</b>${adm ? ` <button type="button" data-efix="${escKey(dt)}">Corrigir</button>` : ""}</div>`).join("")}${pr.sem.map(s => `<div class="eal">Semana ${escDM(s.i)} a ${escDM(s.f)}: ${esc(s.p.n)} com ${s.n} dia${s.n === 1 ? "" : "s"} (${escH(s.mn)}), meta ${escH(c.meta)}</div>`).join("")}</div>` : "";
-  const vista = escVista, abas = `<div class="evs"><button type="button" data-ev="lista" class="${vista === "lista" ? "on" : ""}">📋 Lista</button><button type="button" data-ev="cal" class="${vista === "cal" ? "on" : ""}">🗓️ Calendário</button><button type="button" id="escSh" class="sh">📤 Enviar</button></div>`;
+  if (escFull) {   // modo tela cheia: só o calendário, ocupando a tela toda (para o líder olhar sem rolar)
+    v.className = "escv escFull";
+    v.innerHTML = `<div class="efh"><button type="button" id="escFx" aria-label="Sair da tela cheia">✕</button><div class="efn"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div></div>
+      <div class="efp">${P.map(p => `<span class="${p.k}">${escAv(p, 30)}<b>${esc(p.n)}</b> ${escHm(p.ent)}–${escHm(escSai(p, c))}</span>`).join("")}${pr.dias.length ? `<span class="efal">⚠ os dois folgam: ${pr.dias.map(escDM).join(", ")}</span>` : ""}</div>
+      <table class="etb"><thead><tr>${ds.map(x => `<th>${x}</th>`).join("")}<th>Sem.</th></tr></thead><tbody>${rows}</tbody></table>`; return; }
+  v.className = "escv";
+  const vista = escVista, abas = `<div class="evs"><button type="button" data-ev="lista" class="${vista === "lista" ? "on" : ""}">📋 Lista</button><button type="button" data-ev="cal" class="${vista === "cal" ? "on" : ""}">🗓️ Calendário</button><button type="button" id="escSh" class="sh">📤 Enviar</button><button type="button" id="escFs" class="sh" aria-label="Tela cheia">⛶ Tela cheia</button></div>`;
   const card = vista === "lista" ? `<section class="ecard"><div class="epcs">${cab}</div>${abas}${lista}</section>` : `<section class="ecard"><div class="epcs">${cab}</div>${abas}<p class="muted ecl">Linha de cima = ${esc(P[0].n)} · linha de baixo = ${esc(P[1].n)}</p>
     <table class="etb"><thead><tr>${ds.map(x => `<th>${x}</th>`).join("")}<th>Semana</th></tr></thead><tbody>${rows}</tbody></table></section>`;
   const [iy, im, id] = c.ini.split("-").map(Number);
@@ -2330,6 +2336,12 @@ async function escImagem() {
   tx("Cor = trabalha · cinza «folga» · linha vermelha = os dois folgam", W / 2, yb + 38, 22, "#6b6b73", 600, "center"); tx("Valida+", W / 2, yb + 76, 22, "#b0aca0", 700, "center");
   return cv;
 }
+async function escTelaCheia(on) {
+  escFull = on; escPaint();
+  try { if (on) { if (document.documentElement.requestFullscreen && !document.fullscreenElement) await document.documentElement.requestFullscreen(); if (navigator.wakeLock) escWake = await navigator.wakeLock.request("screen"); }
+    else { if (document.fullscreenElement && document.exitFullscreen) await document.exitFullscreen(); if (escWake) { await escWake.release(); escWake = null; } } } catch (e) { /* sem tela cheia do navegador: o modo continua valendo */ }
+}
+document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement && escFull) { escFull = false; if (escWake) { escWake.release().catch(() => {}); escWake = null; } escPaint(); } });
 async function escCompartilha() {
   toast("Gerando a imagem…"); const cv = await escImagem(), { y, m } = escMes, nome = `escala-${y}-${String(m + 1).padStart(2, "0")}.png`;
   cv.toBlob(async b => { if (!b) return toast("Não consegui gerar a imagem."); const f = new File([b], nome, { type: "image/png" });
@@ -2343,6 +2355,8 @@ function escAbrir() {
       if (fx) return escFixAbrir(fx.dataset.efix);
       if (e.target.closest("#escCfgB")) return escCfgAbrir();
       if (e.target.closest("#escSh")) return escCompartilha();
+      if (e.target.closest("#escFs")) return escTelaCheia(true);
+      if (e.target.closest("#escFx")) return escTelaCheia(false);
       if (t) return escToca(t.dataset.ep, t.dataset.ek);
       if (mn) { escMes = new Date(escMes.y, escMes.m + Number(mn.dataset.em), 1); escMes = { y: escMes.getFullYear(), m: escMes.getMonth() }; return escPaint(); }
       if (e.target.closest("#escX")) { if (PERFIL === "BENASSI") perfilEscolher(true); else v.remove(); } }; }
