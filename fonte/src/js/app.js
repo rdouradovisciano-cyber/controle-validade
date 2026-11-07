@@ -2242,7 +2242,7 @@ function escAnima(v) {   // deslize curto ao trocar de mês (só o conteúdo do 
 }
 function escPaint() {
   const v = $("escV"); if (!v) return; const adm = PERFIL === "Admin" || PERFIL === "BENASSI" || escNome(), c = escCfg(), P = escP(), { y, m } = escMes, nomeM = new Date(y, m, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }).replace(/^./, s => s.toUpperCase());
-  const hoje = new Date(), hk = escKey(hoje), ds = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"], pr = escProblemas(y, m, c), hrs = `${escH(c.dia)} por dia · ${c.int} min de intervalo · meta de ${escH(c.meta)} por semana`;
+  const hoje = new Date(), hk = escKey(hoje), ds = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"], pr = escProblemas(y, m, c), hrs = `${escH(c.dia)} por dia · ${c.int} min de intervalo · ${escH(c.meta)} por semana`;
   const [iy0, im0, id0] = c.ini.split("-").map(Number), iniD = new Date(iy0, im0 - 1, id0), hoje0 = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()), falta = Math.round((iniD - hoje0) / 864e5);
   const aviso = `A escala nova começa em <b>${ESC_DSL[iniD.getDay()].toLowerCase()} ${escDM(iniD)}/${iy0}</b>.`;
   const hj = falta > 0 ? `<div class="enota">${aviso} ${falta === 1 ? "É amanhã." : "Faltam " + falta + " dias."}</div>` : P.map(p => { const st = escSt(p.k, hoje, c); return `<span class="eh ${st}">${escAv(p, 24)}<b>${esc(p.n)}</b> ${st === "T" ? escHm(p.ent) + "–" + escHm(escSai(p, c)) : st === "FE" ? "férias" : st === "-" ? "escala antiga" : "folga"}</span>`; }).join("");
@@ -2280,7 +2280,7 @@ function escPaint() {
   v.innerHTML = `<div class="eh0"><button type="button" id="escX" class="secondary">${PERFIL === "BENASSI" ? "Trocar perfil" : "Fechar"}</button>${adm ? `<button type="button" id="escCfgB" class="secondary">⚙️ Configurar</button>` : ""}<h2>🗓️ Escala 5x2</h2></div>
     <div class="enav"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div>
     ${alerta}${card}<div class="ehoje"><small>Hoje, ${hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</small><div>${hj}</div></div>
-    <p class="muted eleg">${hrs}<br>Colorido = trabalha · cinza = FOLGA · azul = férias · contorno vermelho = os dois folgam no mesmo dia · a escala nova começa em ${escDM(new Date(iy, im - 1, id))}/${iy} (${ESC_DSL[new Date(iy, im - 1, id).getDay()].toLowerCase()})${adm ? " · Toque em um dia e escolha na janelinha (nada muda só com o primeiro toque)." : ""}</p>`;
+    <p class="muted eleg">${hrs}<br>Colorido = trabalha · cinza = folga · azul = férias · contorno vermelho = os dois folgam${adm ? " · Toque em um dia para mudar" : ""}</p>`;
   escAnima(v);
 }
 function escFixAbrir(key) {   // corrige um dia em que os dois folgam: escolhe quem trabalha e em qual outro dia da semana essa pessoa folga
@@ -2334,30 +2334,29 @@ function escCfgAbrir() {
 }
 // ---- imagem do mês para compartilhar (WhatsApp) ----
 const escLoadImg = src => new Promise(ok => { if (!src) return ok(null); const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = src; });
-async function escImagem() {
-  const c = escCfg(), P = escP(), { y, m } = escMes, W = 1080, X = 50, CW = 140, CH = 150, ini = new Date(y, m, 1), fim = new Date(y, m + 1, 0), nSem = (() => { let n = 0, q = new Date(y, m, 1 - ini.getDay()); while (q <= fim) { let any = false; for (let i = 0; i < 7; i++) { if (P.some(p => escSt(p.k, q, c) !== "-")) any = true; q = new Date(q.getFullYear(), q.getMonth(), q.getDate() + 1); } if (any) n++; } return n; })();
+async function escImagem() {   // imagem na horizontal (1600x900): dados dos dois à esquerda, calendário à direita
+  const c = escCfg(), P = escP(), { y, m } = escMes, W = 1600, H = 900, GX = 510, GW = W - GX - 40, CW = GW / 7, ini = new Date(y, m, 1), fim = new Date(y, m + 1, 0), iniD = escIniD(c);
+  const semanas = []; { let q = new Date(y, m, 1 - ini.getDay()); while (q <= fim) { const w0 = new Date(q); let any = false; for (let i = 0; i < 7; i++) { if (P.some(p => escSt(p.k, q, c) !== "-")) any = true; q = new Date(q.getFullYear(), q.getMonth(), q.getDate() + 1); } if (any) semanas.push(w0); } }
   const nomeM = new Date(y, m, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }).replace(/^./, t => t.toUpperCase()), imgs = await Promise.all(P.map(p => escLoadImg(p.foto)));
-  const cv = document.createElement("canvas"), H = 330 + 60 + nSem * (CH + 8) + 130; cv.width = W; cv.height = H; const g = cv.getContext("2d"), F = "system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const g = cv.getContext("2d"), F = "system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
   const rr = (x0, y0, w, h, r, fill, stroke) => { g.beginPath(); g.roundRect(x0, y0, w, h, r); if (fill) { g.fillStyle = fill; g.fill(); } if (stroke) { g.strokeStyle = stroke; g.lineWidth = 3; g.stroke(); } };
   const tx = (t, x0, y0, sz, col, wt = 700, al = "left") => { g.font = `${wt} ${sz}px ${F}`; g.fillStyle = col; g.textAlign = al; g.textBaseline = "middle"; g.fillText(t, x0, y0); };
   g.fillStyle = "#fffdf6"; g.fillRect(0, 0, W, H); rr(0, 0, W, 14, 0, "#e0a030");
-  tx(nomeM, W / 2, 80, 68, "#1b1b1f", 800, "center"); tx("Escala 5x2 · " + P.map(p => p.n).join(" e "), W / 2, 140, 30, "#6b6b73", 600, "center");
-  P.forEach((p, i) => { const x0 = X + i * 500, col = p.k === "r" ? "#e0a030" : "#3fb6c4"; rr(x0, 180, 480, 130, 22, p.k === "r" ? "#fcf3df" : "#e4f5f7", col);
-    g.save(); g.beginPath(); g.arc(x0 + 70, 245, 48, 0, 7); g.clip(); if (imgs[i]) g.drawImage(imgs[i], x0 + 22, 197, 96, 96); else { g.fillStyle = col; g.fillRect(x0 + 22, 197, 96, 96); } g.restore();
-    if (!imgs[i]) tx((p.n[0] || "?").toUpperCase(), x0 + 70, 247, 52, "#1b1b1f", 800, "center");
-    tx(p.n, x0 + 135, 222, 40, "#1b1b1f", 800); if (p.full) tx(p.full.length > 24 ? p.full.slice(0, 23) + "…" : p.full, x0 + 135, 255, 21, "#6b6b73", 600); tx(escHm(p.ent) + " às " + escHm(escSai(p, c)), x0 + 135, p.full ? 287 : 262, 34, "#1b1b1f", 800); });
-  const ds = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"], Y0 = 345; ds.forEach((t, i) => tx(t, X + i * CW + CW / 2, Y0, 28, "#6b6b73", 800, "center"));
-  let d = new Date(y, m, 1 - ini.getDay()), row = 0;
-  while (d <= fim) { const wk0 = new Date(d); if (!Array.from({ length: 7 }, (_, i) => new Date(wk0.getFullYear(), wk0.getMonth(), wk0.getDate() + i)).some(dd => P.some(p => escSt(p.k, dd, c) !== "-"))) { d = new Date(wk0.getFullYear(), wk0.getMonth(), wk0.getDate() + 7); continue; }
-    for (let i = 0; i < 7; i++) { const x0 = X + i * CW + 3, y0 = Y0 + 30 + row * (CH + 8), fora = d.getMonth() !== m, ss = P.map(p => escSt(p.k, d, c)), vazio = d >= escIniD(c) && ss.every(v => v === "F" || v === "FE");
-      g.globalAlpha = fora ? .35 : 1; rr(x0, y0, CW - 6, CH, 14, "#f1eee3", vazio && !fora ? "#e5484d" : null); tx(String(d.getDate()), x0 + 14, y0 + 24, 30, "#1b1b1f", 800);
-      if (!ss.every(v => v === "-")) P.forEach((p, q) => { const yy = y0 + 46 + q * 50, st = ss[q], tw = st === "T", col = p.k === "r" ? "#e0a030" : "#3fb6c4";
-        rr(x0 + 8, yy, CW - 22, 44, 10, st === "-" ? "#e4e1d6" : tw ? col : st === "FE" ? "#cddcff" : "#d3d0c6"); if (!tw && st !== "-") { g.fillStyle = col; g.fillRect(x0 + 8, yy + 4, 6, 36); }
-        tx(tw ? (p.n[0] || "?").toUpperCase() : st === "FE" ? "férias" : st === "-" ? "–" : "folga", x0 + 8 + (CW - 22) / 2 + (tw || st === "-" ? 0 : 3), yy + 23, tw ? 28 : 24, tw ? "#1d1400" : "#4a4a52", 800, "center"); });
-      g.globalAlpha = 1; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); } row++; }
-  const yb = Y0 + 30 + nSem * (CH + 8) + 22;
-  tx(`${escH(c.dia)} por dia · ${c.int} min de intervalo · ${escH(c.meta)} por semana`, W / 2, yb, 26, "#4a4a52", 700, "center");
-  tx("Cor = trabalha · cinza «folga» · linha vermelha = os dois folgam", W / 2, yb + 38, 22, "#6b6b73", 600, "center"); tx("Valida+", W / 2, yb + 76, 22, "#b0aca0", 700, "center");
+  tx(nomeM, 40, 80, 46, "#1b1b1f", 800); tx("Escala 5x2 · " + P.map(p => p.n).join(" e "), 40, 132, 26, "#6b6b73", 600);
+  P.forEach((p, i) => { const x0 = 40, y0 = 175 + i * 210, col = p.k === "r" ? "#e0a030" : "#3fb6c4"; rr(x0, y0, 430, 190, 22, p.k === "r" ? "#fcf3df" : "#e4f5f7", col);
+    g.save(); g.beginPath(); g.arc(x0 + 92, y0 + 95, 66, 0, 7); g.clip(); if (imgs[i]) g.drawImage(imgs[i], x0 + 26, y0 + 29, 132, 132); else { g.fillStyle = col; g.fillRect(x0 + 26, y0 + 29, 132, 132); } g.restore();
+    if (!imgs[i]) tx((p.n[0] || "?").toUpperCase(), x0 + 92, y0 + 97, 70, "#1b1b1f", 800, "center");
+    tx(p.n, x0 + 176, y0 + 52, 44, "#1b1b1f", 800); if (p.full) tx(p.full.length > 20 ? p.full.slice(0, 19) + "…" : p.full, x0 + 176, y0 + 92, 21, "#6b6b73", 600); tx(escHm(p.ent) + "–" + escHm(escSai(p, c)), x0 + 176, y0 + (p.full ? 142 : 115), 40, "#1b1b1f", 800); });
+  tx(`${escH(c.dia)} por dia · ${c.int} min de intervalo`, 40, 620, 24, "#4a4a52", 700); tx(`Meta de ${escH(c.meta)} por semana`, 40, 656, 24, "#4a4a52", 700);
+  tx("Cor = trabalha · cinza «folga»", 40, 710, 21, "#6b6b73", 600); tx("Linha vermelha = os dois folgam", 40, 740, 21, "#6b6b73", 600); tx("Valida+", 40, 850, 22, "#b0aca0", 700);
+  const ds = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"], Y0 = 60, areaH = H - Y0 - 70, n = Math.max(1, semanas.length), RG = 8, CH = Math.min(170, (areaH - 40 - (n - 1) * RG) / n), PH = Math.min(46, (CH - 50) / 2 - 3);
+  ds.forEach((t, i) => tx(t, GX + i * CW + CW / 2, Y0 + 20, 26, "#6b6b73", 800, "center"));
+  semanas.forEach((w0, row) => { for (let i = 0; i < 7; i++) { const d = new Date(w0.getFullYear(), w0.getMonth(), w0.getDate() + i), x0 = GX + i * CW + 3, y0 = Y0 + 44 + row * (CH + RG), fora = d.getMonth() !== m, ss = P.map(p => escSt(p.k, d, c)), vazio = d >= iniD && ss.every(v => v === "F" || v === "FE");
+    g.globalAlpha = fora ? .35 : 1; rr(x0, y0, CW - 6, CH, 14, "#f1eee3", vazio && !fora ? "#e5484d" : null); tx(String(d.getDate()), x0 + 14, y0 + 22, 26, "#1b1b1f", 800);
+    if (!ss.every(v => v === "-")) P.forEach((p, q) => { const yy = y0 + 42 + q * (PH + 5), st = ss[q], tw = st === "T", col = p.k === "r" ? "#e0a030" : "#3fb6c4";
+      rr(x0 + 8, yy, CW - 22, PH, 10, st === "-" ? "#e4e1d6" : tw ? col : st === "FE" ? "#cddcff" : "#d3d0c6"); if (!tw && st !== "-") { g.fillStyle = col; g.fillRect(x0 + 8, yy + 4, 6, PH - 8); }
+      tx(tw ? (p.n[0] || "?").toUpperCase() : st === "FE" ? "férias" : st === "-" ? "–" : "folga", x0 + 8 + (CW - 22) / 2 + (tw || st === "-" ? 0 : 3), yy + PH / 2 + 1, tw ? 28 : 24, tw ? "#1d1400" : "#4a4a52", 800, "center"); });
+    g.globalAlpha = 1; } });
   return cv;
 }
 async function escTelaCheia(on) {   // modo painel do próprio app (sem a tela cheia do navegador, que mostra um aviso no rodapé); só mantém a tela acesa

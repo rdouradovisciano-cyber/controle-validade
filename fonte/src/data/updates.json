@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-07T07:40:00-03:00",
+  "itens": [
+   "Escala 5x2: a imagem para WhatsApp sai na horizontal (fotos e horários à esquerda, calendário à direita)",
+   "Escala 5x2: legenda do rodapé mais curta"
+  ]
+ },
+ {
   "t": "2026-11-07T00:36:00-03:00",
   "itens": [
    "Escala 5x2: ao tocar num dia, aquele dia fica marcado no calendário (contorno dourado na coluna e anel no bloco tocado) e a janelinha mostra o dia por extenso e aponta para ele com uma seta, para não restar dúvida de qual dia está sendo alterado"
