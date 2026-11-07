@@ -1711,3 +1711,14 @@ html[data-tema=dark] .escv .pl.sm.nm.y{color:#7fd8e2}
 /* dia em edição: anel no bloco tocado e contorno na coluna daquele dia, para não restar dúvida de qual dia é */
 .etb td.ec.etip-dia{outline:2px solid var(--g,#c9a227);outline-offset:-2px}
 .etb .pl.etip-alvo{outline:2px solid var(--ink);outline-offset:1px}
+/* Escala 5x2 — tema claro: mês e abas com bom contraste */
+html[data-tema="light"] .escv .enav b{color:#7a5400;text-shadow:none}
+html[data-tema="light"] .escv .enav button{background:#fff;border:1.5px solid #c9a227;color:#7a5400;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+html[data-tema="light"] .escv .evs{padding:5px;background:#ebe6d6;border-radius:16px;gap:5px}
+html[data-tema="light"] .escv .evs button{background:transparent;border:0;color:#3a3220;box-shadow:none}
+html[data-tema="light"] .escv .evs button.on{background:#f3d87a;color:#1a1400;box-shadow:0 1px 4px rgba(122,84,0,.35)}
+html[data-tema="light"] .escv .evs .sh{background:#fff;border:1px solid #d8cfae;color:#3a3220}
+html[data-tema="light"] .escv .epc.r{background:#fbefd2;border-color:#d89a1c}
+html[data-tema="light"] .escv .epc.y{background:#d9f1f4;border-color:#2fa3b2}
+html[data-tema="light"] .escv .epc .epn span{color:#1a1a1f}
+.escv .evs button:not(.sh){white-space:nowrap;font-size:16px;padding:0 6px}
