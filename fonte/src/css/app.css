@@ -1625,3 +1625,12 @@ body.escOn:not([data-perfil="Admin"]){overflow:hidden}
 .epn span{white-space:nowrap;font-size:14px}.epn small{font-size:12px}
 .cfw7 button{min-width:0;padding:0;flex:1 1 0}.cfw7{gap:3px}.cfw7 span{width:36px;flex:none}
 .ecfg{overflow-x:hidden}
+
+.escv{padding:10px 8px 40px}.escv .ecard{padding:8px 6px}
+.epcs{gap:6px}.epc{padding:6px 8px!important}.epc .epn b{font-size:15px}.epc .epn span{font-size:14px}
+.escv .ec i{font-size:16px}.escv .pl{font-size:14px;min-height:26px;padding:4px 0}.escv .pl.F,.escv .pl.FE{font-size:11px}
+.etb{border-spacing:3px}.etb th:last-child{width:54px}.escv .es span{font-size:12px}
+.ecl{margin:2px 0 4px!important;font-size:12px}
+.efc{display:flex;flex-direction:column;gap:8px;margin-top:10px}.efc button{min-height:52px;border-radius:12px;border:2px solid var(--ln);background:var(--card);color:var(--ink);font-size:17px;font-weight:800}.efc button.on{border-color:#c9a227;background:rgba(243,216,122,.35)}
+.ehoje{margin:12px 0 8px}
+.escv .eh0{gap:6px}.escv .eh0 h2{font-size:17px;white-space:nowrap}.escv .eh0 button{padding:0 10px;font-size:14px}

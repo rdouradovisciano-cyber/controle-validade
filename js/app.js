@@ -2181,10 +2181,11 @@ if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "atalhos"), sn => {
 const ESC_K = "validamais-escala", ESC_CK = "validamais-escala-cfg";
 const ESC_DEF = { ini: "2026-11-09", dia: 504, int: 60, meta: 2520,
   p: { r: { n: "Renato", full: "", foto: "", ent: 660 }, y: { n: "Yossef", full: "", foto: "", ent: 420 } },
-  ciclo: { r: ["FTTFTTT", "TTFFTTT", "FTTFTTT"], y: ["TTFTFTT", "FTTTFTT", "TTFFTTT"] } };   // ciclo = D S T Q Q S S; padrão lido da nota amarela
+  ciclo: { r: ["FTFTTTT", "TFFTTTT"], y: ["TTTTFFT", "FTTTFTT"] } };   // ciclo = D S T Q Q S S. Renato folga sempre na terça, Yossef na quinta; os domingos alternam (um folga, o outro trabalha) e quem trabalha no domingo folga mais um dia na semana (Renato na segunda, Yossef na sexta)
+const ESC_CICLO_ANTIGO = JSON.stringify({ r: ["FTTFTTT", "TTFFTTT", "FTTFTTT"], y: ["TTFTFTT", "FTTTFTT", "TTFFTTT"] });
 let escVista = store.get("validamais-escala-vista", "lista"), escO = store.get(ESC_K, {}) || {}, escCr = store.get(ESC_CK, null), escMes = (() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; })();
 const escCfg = () => { const s = escCr || {}, sp = s.p || {}; return { ini: !s.ini || s.ini === "2026-11-08" ? ESC_DEF.ini : s.ini, dia: s.dia || ESC_DEF.dia, int: s.int ?? ESC_DEF.int, meta: s.meta || ESC_DEF.meta,
-  p: { r: { ...ESC_DEF.p.r, ...(sp.r || {}) }, y: { ...ESC_DEF.p.y, ...(sp.y || {}) } }, ciclo: { r: (s.ciclo && s.ciclo.r && s.ciclo.r.length ? s.ciclo.r : ESC_DEF.ciclo.r), y: (s.ciclo && s.ciclo.y && s.ciclo.y.length ? s.ciclo.y : ESC_DEF.ciclo.y) } }; };
+  p: { r: { ...ESC_DEF.p.r, ...(sp.r || {}) }, y: { ...ESC_DEF.p.y, ...(sp.y || {}) } }, ciclo: s.ciclo && s.ciclo.r && s.ciclo.r.length && s.ciclo.y && s.ciclo.y.length && JSON.stringify(s.ciclo) !== ESC_CICLO_ANTIGO ? s.ciclo : ESC_DEF.ciclo }; };
 const escP = () => { const c = escCfg(); return ["r", "y"].map(k => ({ k, ...c.p[k] })); };
 const escKey = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
 const escHm = m => String(Math.floor(m / 60) % 24).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
@@ -2196,9 +2197,15 @@ function escBase(pk, d, c) { const [yy, mm, dd] = c.ini.split("-").map(Number), 
   const cl = c.ciclo[pk], w = Math.floor(n / 7), k = ((w % cl.length) + cl.length) % cl.length; return cl[k][((n % 7) + 7) % 7] || "F"; }
 function escSt(pk, d, c) { const o = escO[pk] && escO[pk][escKey(d)]; return o || escBase(pk, d, c || escCfg()); }
 function escSalva() { store.set(ESC_K, escO); store.set(ESC_CK, escCr); if (db) V.setDoc(V.doc(db, "sh_cfg", "escala"), { o: escO, cfg: escCr || null, em: Date.now(), por: myName().slice(0, 40) }).catch(e => { console.error(e); toast("Não consegui salvar na nuvem."); }); }
-function escToca(pk, key) {
-  const c = escCfg(), d = new Date(key + "T12:00:00"), at = escSt(pk, d, c), nx = at === "T" ? "F" : at === "F" ? "FE" : "T";
-  escO[pk] = escO[pk] || {}; if (nx === escBase(pk, d, c)) delete escO[pk][key]; else escO[pk][key] = nx; escSalva(); escPaint();
+function escToca(pk, key) {   // mais de um toque: abre a escolha do que esse dia deve ser, em vez de trocar direto
+  const c = escCfg(), P = escP(), p = P.find(x => x.k === pk), d = new Date(key + "T12:00:00"), at = escSt(pk, d, c), base = escBase(pk, d, c), nome = { T: "Trabalha", F: "Folga", FE: "Férias", "-": "Escala antiga" };
+  const bg = document.createElement("div"); bg.className = "askbg"; bg.style.cssText = "position:fixed;inset:0;z-index:2147483000";
+  bg.innerHTML = `<div class="ask perfil"><div class="ai">${escAv(p, 56)}</div><h3>${esc(p.n)}</h3><p>${ESC_DSL[d.getDay()]}, ${escDM(d)} · hoje está em <b>${nome[at]}</b></p>
+    <div class="efc">${[["T", "💼 Trabalha"], ["F", "🛌 Folga"], ["FE", "🏖️ Férias"]].map(([k, t]) => `<button type="button" data-ed="${k}" class="${at === k ? "on" : ""}">${t}</button>`).join("")}</div>
+    ${escO[pk] && escO[pk][key] ? `<button type="button" class="secondary" data-ed="base" style="width:100%;margin-top:8px">↩ Voltar ao padrão (${nome[base]})</button>` : ""}<button type="button" class="secondary" data-ed="x" style="width:100%;margin-top:8px">Cancelar</button></div>`;
+  bg.onclick = e => { const b = e.target.closest("[data-ed]"); if (!b && e.target !== bg) return; const k = b && b.dataset.ed; if (!k || k === "x") return bg.remove();
+    escO[pk] = escO[pk] || {}; if (k === "base" || k === base) delete escO[pk][key]; else escO[pk][key] = k; escSalva(); bg.remove(); escPaint(); };
+  document.body.appendChild(bg);
 }
 const escAv = (p, px) => p.foto ? `<img class="eav" style="width:${px}px;height:${px}px" src="${p.foto}" alt="${esc(p.n)}">` : `<span class="eav ini ${p.k}" style="width:${px}px;height:${px}px;font-size:${Math.round(px * .5)}px">${esc((p.n || "?")[0].toUpperCase())}</span>`;
 const escDM = d => String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0");
@@ -2235,16 +2242,16 @@ function escPaint() {
         dd = new Date(dd.getFullYear(), dd.getMonth(), dd.getDate() + 1); }
       if (linhas) { const f7 = new Date(ini7.getFullYear(), ini7.getMonth(), ini7.getDate() + 6), par = escParcial(ini7, c), tt = P.map(p => { const mn = nt[p.k] * c.dia; if (par) return `<span class="ant">${esc(p.n)}: ${nt[p.k]} dias nesta semana (começo da escala nova)</span>`; return `<span class="${mn === c.meta ? "ok" : "ruim"}">${esc(p.n)}: ${nt[p.k]} dias · ${mn === c.meta ? escH(c.meta) + " ✓" : escH(mn) + " ⚠"}</span>`; }).join("");
         lista += `<section class="lw"><h4>Semana de ${par ? escDM(new Date(c.ini + "T12:00:00")) : escDM(ini7)} a ${escDM(f7)}</h4>${linhas}<div class="lt">${tt}</div></section>`; } } }
-  const cab = P.map(p => `<div class="epc ${p.k}">${escAv(p, 38)}<div class="epn"><b>${esc(p.n)}</b>${p.full ? `<em>${esc(p.full)}</em>` : ""}<span>${escHm(p.ent)}–${escHm(escSai(p, c))}</span><small>${escH(tot[p.k])} em ${nomeM.split(" ")[0].toLowerCase()}</small></div></div>`).join("");
+  const cab = P.map(p => `<div class="epc ${p.k}">${escAv(p, 38)}<div class="epn"><b>${esc(p.n)}</b>${p.full ? `<em>${esc(p.full)}</em>` : ""}<span>${escHm(p.ent)}–${escHm(escSai(p, c))}</span></div></div>`).join("");
   const alerta = (pr.dias.length || pr.sem.length) ? `<div class="ealert" role="alert"><b>⚠ Para corrigir neste mês</b>${pr.dias.map(dt => `<div class="eal">Os dois folgam em <b>${ESC_DSL[dt.getDay()]} ${escDM(dt)}</b>${adm ? ` <button type="button" data-efix="${escKey(dt)}">Corrigir</button>` : ""}</div>`).join("")}${pr.sem.map(s => `<div class="eal">Semana ${escDM(s.i)} a ${escDM(s.f)}: ${esc(s.p.n)} com ${s.n} dias (${escH(s.mn)}), meta ${escH(c.meta)}</div>`).join("")}</div>` : "";
   const vista = escVista, abas = `<div class="evs"><button type="button" data-ev="lista" class="${vista === "lista" ? "on" : ""}">📋 Lista</button><button type="button" data-ev="cal" class="${vista === "cal" ? "on" : ""}">🗓️ Calendário</button></div>`;
-  const card = vista === "lista" ? `<section class="ecard"><div class="epcs">${cab}</div><p class="muted">${hrs}</p>${abas}${lista}</section>` : `<section class="ecard"><div class="epcs">${cab}</div><p class="muted">${hrs}</p>${abas}<p class="muted">Linha de cima = ${esc(P[0].n)} · linha de baixo = ${esc(P[1].n)}</p>
+  const card = vista === "lista" ? `<section class="ecard"><div class="epcs">${cab}</div>${abas}${lista}</section>` : `<section class="ecard"><div class="epcs">${cab}</div>${abas}<p class="muted ecl">Linha de cima = ${esc(P[0].n)} · linha de baixo = ${esc(P[1].n)}</p>
     <table class="etb"><thead><tr>${ds.map(x => `<th>${x}</th>`).join("")}<th>Semana</th></tr></thead><tbody>${rows}</tbody></table></section>`;
   const [iy, im, id] = c.ini.split("-").map(Number);
   v.innerHTML = `<div class="eh0"><button type="button" id="escX" class="secondary">${PERFIL === "BENASSI" ? "Trocar perfil" : "Fechar"}</button>${adm ? `<button type="button" id="escCfgB" class="secondary">⚙️ Configurar</button>` : ""}<h2>🗓️ Escala 5x2</h2></div>
     <div class="enav"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div>
-    ${alerta}<div class="ehoje"><small>Hoje, ${hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</small><div>${hj}</div></div>
-    ${card}<p class="muted eleg">Colorido = trabalha · cinza = FOLGA · azul = férias · contorno vermelho = os dois folgam no mesmo dia · a escala nova começa em ${escDM(new Date(iy, im - 1, id))}/${iy} (${ESC_DSL[new Date(iy, im - 1, id).getDay()].toLowerCase()})${adm ? " · Toque no nome de um dia para mudar." : ""}</p>`;
+    ${alerta}${card}<div class="ehoje"><small>Hoje, ${hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</small><div>${hj}</div></div>
+    <p class="muted eleg">${hrs}<br>Colorido = trabalha · cinza = FOLGA · azul = férias · contorno vermelho = os dois folgam no mesmo dia · a escala nova começa em ${escDM(new Date(iy, im - 1, id))}/${iy} (${ESC_DSL[new Date(iy, im - 1, id).getDay()].toLowerCase()})${adm ? " · Toque em um dia para mudar (abre uma janela para escolher)." : ""}</p>`;
 }
 function escFixAbrir(key) {   // corrige um dia em que os dois folgam: escolhe quem trabalha e em qual outro dia da semana essa pessoa folga
   const c = escCfg(), P = escP(), d = new Date(key + "T12:00:00"), ini7 = new Date(d.getFullYear(), d.getMonth(), d.getDate() - d.getDay(), 12);
@@ -2277,7 +2284,7 @@ function escCfgAbrir() {
         <div class="cfc"><b>Ciclo de folgas (D S T Q Q S S)</b>${dr.ciclo[p.k].map((w, wi) => `<div class="cfw7"><span>Sem ${wi + 1}</span>${[...w].map((x, di) => `<button type="button" class="${x === "T" ? "t" : "f"}" data-cf="dia|${p.k}|${wi}|${di}">${["D", "S", "T", "Q", "Q", "S", "S"][di]}<i>${x === "T" ? "T" : "F"}</i></button>`).join("")}</div>`).join("")}
           <div class="cfa"><button type="button" data-cf="mais|${p.k}">+ semana</button><button type="button" data-cf="menos|${p.k}">− semana</button></div></div></div>`).join("")}
       <input type="file" accept="image/*" hidden id="cfFile"><div class="arow" style="margin-top:10px"><button type="button" data-cf="cancela">Cancelar</button><button type="button" class="ok" data-cf="salva">Salvar</button></div>
-      <button type="button" class="secondary" data-cf="padrao" style="width:100%;margin-top:6px">Voltar ao padrão</button></div>`; };
+      <button type="button" class="secondary" data-cf="limpa" style="width:100%;margin-top:6px">Apagar ajustes de dias avulsos (volta ao ciclo)</button><button type="button" class="secondary" data-cf="padrao" style="width:100%;margin-top:6px">Voltar ao padrão</button></div>`; };
   const le = () => { const g = id => bg.querySelector(id); if (!g("#cfIni")) return; dr.ini = g("#cfIni").value || dr.ini; dr.dia = pm(g("#cfDia").value) || dr.dia; dr.int = Number(g("#cfInt").value) || 0; dr.meta = Math.round((Number(g("#cfMeta").value) || 42) * 60);
     bg.querySelectorAll("[data-cfn]").forEach(i => { const [k, f] = i.dataset.cfn.split("|"); dr.p[k][f] = f === "ent" ? pm(i.value) : i.value.trim(); }); };
   let alvo = "";
@@ -2290,6 +2297,7 @@ function escCfgAbrir() {
     if (a === "mais") { dr.ciclo[k].push(dr.ciclo[k][dr.ciclo[k].length - 1]); return paint(); }
     if (a === "menos") { if (dr.ciclo[k].length > 1) dr.ciclo[k].pop(); return paint(); }
     if (a === "padrao") { Object.assign(dr, JSON.parse(JSON.stringify({ ...ESC_DEF, p: { r: { ...ESC_DEF.p.r, foto: dr.p.r.foto, full: dr.p.r.full }, y: { ...ESC_DEF.p.y, foto: dr.p.y.foto, full: dr.p.y.full } } }))); return paint(); }
+    if (a === "limpa") { askConfirm({ icon: "🧹", title: "Apagar ajustes de dias?", text: "O calendário volta ao ciclo de folgas.", ok: "Apagar", cancel: "Voltar" }).then(ok => { if (ok) { escO = {}; escSalva(); escPaint(); toast("Ajustes apagados."); } }); return; }
     if (a === "cancela") return bg.remove();
     if (a === "salva") { if (!dr.p.r.n || !dr.p.y.n) return toast("Coloque o nome das duas pessoas."); escCr = JSON.parse(JSON.stringify(dr)); escSalva(); bg.remove(); escPaint(); toast("Configuração salva."); } };
   paint(); document.body.appendChild(bg);
