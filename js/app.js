@@ -2345,12 +2345,10 @@ async function escImagem() {
   tx("Cor = trabalha · cinza «folga» · linha vermelha = os dois folgam", W / 2, yb + 38, 22, "#6b6b73", 600, "center"); tx("Valida+", W / 2, yb + 76, 22, "#b0aca0", 700, "center");
   return cv;
 }
-async function escTelaCheia(on) {
+async function escTelaCheia(on) {   // modo painel do próprio app (sem a tela cheia do navegador, que mostra um aviso no rodapé); só mantém a tela acesa
   escFull = on; escPaint();
-  try { if (on) { if (document.documentElement.requestFullscreen && !document.fullscreenElement) await document.documentElement.requestFullscreen(); if (navigator.wakeLock) escWake = await navigator.wakeLock.request("screen"); }
-    else { if (document.fullscreenElement && document.exitFullscreen) await document.exitFullscreen(); if (escWake) { await escWake.release(); escWake = null; } } } catch (e) { /* sem tela cheia do navegador: o modo continua valendo */ }
+  try { if (on) { if (navigator.wakeLock) escWake = await navigator.wakeLock.request("screen"); } else if (escWake) { await escWake.release(); escWake = null; } } catch (e) { /* sem wake lock: segue normal */ }
 }
-document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement && escFull) { escFull = false; if (escWake) { escWake.release().catch(() => {}); escWake = null; } escPaint(); } });
 async function escCompartilha() {
   toast("Gerando a imagem…"); const cv = await escImagem(), { y, m } = escMes, nome = `escala-${y}-${String(m + 1).padStart(2, "0")}.png`;
   cv.toBlob(async b => { if (!b) return toast("Não consegui gerar a imagem."); const f = new File([b], nome, { type: "image/png" });

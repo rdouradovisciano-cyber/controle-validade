@@ -1673,3 +1673,8 @@ body.escOn:not([data-perfil="Admin"]){overflow:hidden}
 .eaviso{margin:18px 8px;padding:16px;border-radius:12px;border:1px dashed var(--ln);text-align:center;font-size:16px;line-height:1.5;color:var(--ink)}
 .escv .eh.F b{margin:0 2px}
 .enota{padding:10px 12px;border-radius:12px;background:rgba(243,216,122,.14);border:1px solid rgba(243,216,122,.4);font-size:15px;line-height:1.4;color:var(--ink)}
+
+.escFull .etb{flex:none;height:auto;margin-top:8px;border-spacing:3px}
+.escFull .ec{padding:3px 2px 4px}.escFull .ec i{font-size:17px;margin-bottom:1px}
+.escFull .pl{padding:5px 0;margin-top:2px;font-size:17px}.escFull .pl.F,.escFull .pl.FE{font-size:12px}
+.escFull .pl.sm{padding:5px 0}
