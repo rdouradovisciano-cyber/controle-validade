@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-07T00:36:00-03:00",
+  "itens": [
+   "Escala 5x2: ao tocar num dia, aquele dia fica marcado no calendário (contorno dourado na coluna e anel no bloco tocado) e a janelinha mostra o dia por extenso e aponta para ele com uma seta, para não restar dúvida de qual dia está sendo alterado"
+  ]
+ },
+ {
   "t": "2026-11-07T00:22:00-03:00",
   "itens": [
    "Escala 5x2: trocar folga, trabalho ou férias agora abre uma janelinha pequena junto do dia, sem escurecer o calendário; nada muda no primeiro toque, só ao escolher uma das opções"

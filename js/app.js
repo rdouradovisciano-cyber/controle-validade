@@ -2201,17 +2201,24 @@ function escSalva() { store.set(ESC_K, escO); store.set(ESC_CK, escCr); if (db) 
 function escToca(pk, key, el) {   // abre uma escolha pequena perto do dia; nada muda com um toque só, só ao tocar numa opção
   const c = escCfg(), P = escP(), p = P.find(x => x.k === pk), d = new Date(key + "T12:00:00"), at = escSt(pk, d, c), base = escBase(pk, d, c); if (base === "-") return toast("Esse dia é da escala antiga (a nova começa em " + escDM(new Date(c.ini + "T12:00:00")) + ").");
   document.querySelectorAll(".etip").forEach(x => x.remove());
-  const nome = { T: "Trabalha", F: "Folga", FE: "Férias" }, temAjuste = !!(escO[pk] && escO[pk][key]);
-  const tip = document.createElement("div"); tip.className = "etip"; tip.setAttribute("role", "dialog"); tip.setAttribute("aria-label", esc(p.n) + ", " + ESC_DSL[d.getDay()] + " " + escDM(d));
-  tip.innerHTML = `<div class="eth"><span class="edot ${p.k}"></span><b>${esc(p.n)}</b><small>${ESC_DSL[d.getDay()].slice(0, 3)} ${escDM(d)}</small><button type="button" class="ex" data-ed="x" aria-label="Fechar">✕</button></div>
+  document.querySelectorAll(".etip-alvo").forEach(x => x.classList.remove("etip-alvo"));
+  document.querySelectorAll(".etip-dia").forEach(x => x.classList.remove("etip-dia"));
+  const nome = { T: "Trabalha", F: "Folga", FE: "Férias" }, temAjuste = !!(escO[pk] && escO[pk][key]), td = el.closest("td"), diaTxt = ESC_DSL[d.getDay()] + ", " + escDM(d);
+  const tip = document.createElement("div"); tip.className = "etip"; tip.setAttribute("role", "dialog"); tip.setAttribute("aria-label", esc(p.n) + ", " + diaTxt);
+  tip.innerHTML = `<div class="eth"><span class="edot ${p.k}"></span><div class="ei"><b>${diaTxt}</b><small>${esc(p.n)} · ${nome[at]}</small></div><button type="button" class="ex" data-ed="x" aria-label="Fechar">✕</button></div>
     <div class="eopts">${[["T", "💼", "Trabalha"], ["F", "🛌", "Folga"], ["FE", "🏖️", "Férias"]].map(([k, ic, tx]) => `<button type="button" data-ed="${k}" class="${at === k ? "on" : ""}"><i>${ic}</i><span>${tx}</span></button>`).join("")}</div>
     ${temAjuste ? `<button type="button" class="ebase" data-ed="base">↩ Voltar ao padrão (${nome[base] || "—"})</button>` : ""}`;
   document.body.appendChild(tip);
-  const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight, m = 8;   // perto do bloco tocado, sem cobrir o calendário
-  tip.style.left = Math.min(Math.max(m, r.left + r.width / 2 - w / 2), innerWidth - w - m) + "px";
-  let top = r.bottom + 6; if (top + h > innerHeight - m) top = Math.max(m, r.top - h - 6); tip.style.top = top + "px";
+  el.classList.add("etip-alvo"); if (td) td.classList.add("etip-dia");   // marca na própria grade o dia que está sendo alterado
+  const r = (td || el).getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight, m = 8;   // ancora no dia inteiro, não só no bloco, para não cobrir o outro
+  const cx = r.left + r.width / 2;
+  tip.style.left = Math.min(Math.max(m, cx - w / 2), innerWidth - w - m) + "px";
+  let top = r.bottom + 6, pos = "baixo";
+  if (top + h > innerHeight - m) { top = Math.max(m, r.top - h - 6); pos = "cima"; }
+  tip.style.top = top + "px"; tip.dataset.pos = pos;
+  tip.style.setProperty("--ax", Math.round(Math.min(Math.max(14, cx - parseFloat(tip.style.left)), w - 14)) + "px");   // seta apontando para o bloco
   let preso = true; setTimeout(() => { preso = false; }, 350);   // ignora o "scroll" que o próprio toque pode disparar
-  const close = () => { document.removeEventListener("pointerdown", fora, true); removeEventListener("scroll", aoRolar, true); removeEventListener("resize", aoRolar); tip.remove(); };
+  const close = () => { document.removeEventListener("pointerdown", fora, true); removeEventListener("scroll", aoRolar, true); removeEventListener("resize", aoRolar); el.classList.remove("etip-alvo"); if (td) td.classList.remove("etip-dia"); tip.remove(); };
   const fora = e => { if (!tip.contains(e.target)) close(); };
   const aoRolar = () => { if (!preso) close(); };
   setTimeout(() => { document.addEventListener("pointerdown", fora, true); addEventListener("scroll", aoRolar, true); addEventListener("resize", aoRolar); }, 0);
