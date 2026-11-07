@@ -496,6 +496,9 @@ function dupReview() {
 window.dupReview = dupReview;
 // ---------- histórico de atividade (Admin vê quem entrou e o que fez; gravado na coleção "acessos", que as regras já aceitam) ----------
 const ATK = "validamais-atv";
+const ACS_NOMES = { Loja: "Validades (Loja)", Doacao: "Doação", Pesaveis: "Pesáveis", Etiquetas: "Etiquetas", Inventario: "Inventário", Cadastros: "Cadastros", Contagem: "Contagem" };
+function logAcesso(nome) {   // «acessou X»: no máximo 1× a cada 5 min por tela neste aparelho (para não encher o histórico)
+  try { const m = store.get("validamais-acs", {}) || {}, agora = Date.now(); if (agora - (m[nome] || 0) < 5 * 60 * 1000) return; m[nome] = agora; store.set("validamais-acs", m); logAtv("acessou", nome); } catch (e) { /* sem registro */ } }
 function logAtv(a, txt, extra) {
   try { const rec = { tipo: "atv", t: Date.now(), quem: myName().slice(0, 40), perfil: PERFIL || "", setor: SETOR || "", dev: myId, a, txt: String(txt || "").slice(0, 140), ...(extra || {}) };
     if (db) V.addDoc(V.collection(db, "acessos"), rec).catch(e => console.warn("atividade:", e && (e.code || e.message)));
@@ -987,6 +990,7 @@ const sumU = u => don.itens.filter(i => i.unidade === u).reduce((a, i) => a + i.
 const dataBR = d => new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 const FERR = ["Etiquetas", "Inventario", "Cadastros"], FK = "validamais-ferr";
 function tab(t) {
+  if (t !== curTab && ACS_NOMES[t]) logAcesso(ACS_NOMES[t]);
   curTab = t;
   ["Loja", "Doacao", "Pesaveis", "Etiquetas", "Inventario", "Cadastros", "Contagem"].forEach(n => { const p = $("tab" + n); if (p) p.classList.toggle("hidden", n !== t); const nb = $("nav" + n); if (nb) nb.classList.toggle("active", n === t); });
   [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Pesaveis", t === "Pesaveis"], ["Etiquetas", t === "Etiquetas"], ["Cadastros", t === "Cadastros"], ["Contagem", t === "Contagem"]].forEach(([n, on]) => { const b = $("tb" + n); if (b) b.classList.toggle("active", on); });
@@ -2372,6 +2376,7 @@ async function escCompartilha() {
     const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = nome; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000); toast("Imagem salva. Envie pelo WhatsApp."); }, "image/png");
 }
 function escAbrir() {
+  logAcesso("Escala 5x2");
   let v = $("escV"); if (!v) { v = document.createElement("div"); v.id = "escV"; v.className = "escv"; document.body.appendChild(v);
     v.onclick = e => { const t = e.target.closest("[data-ek]"), mn = e.target.closest("[data-em]"), ev = e.target.closest("[data-ev]"), fx = e.target.closest("[data-efix]");
       if (ev) { escVista = ev.dataset.ev; store.set("validamais-escala-vista", escVista); return escPaint(); }
@@ -2457,6 +2462,7 @@ function flPaint() {
     ${sec("🔴 Atrasadas", atr, "atr")}${sec("💧 Regar hoje", hj, "hj")}${sec("🌱 Próximas", pr, "")}`;
 }
 function flAbrir() {
+  logAcesso("Flores");
   let v = $("flV"); if (!v) { v = document.createElement("div"); v.id = "flV"; v.className = "escv flv"; document.body.appendChild(v);
     v.onclick = e => { if (e.target.closest("#flX")) { v.classList.add("hidden"); document.body.classList.remove("escOn"); return; }
       if (e.target.closest("#flAdd")) return flForm(null);
@@ -2548,8 +2554,8 @@ function perdasHtml(dados, dias, setor) {
     Object.keys(por).sort((a, b) => (MOTIVOS.indexOf(a) + 99) % 99 - (MOTIVOS.indexOf(b) + 99) % 99).map(m => { const o = por[m]; return `<div class="permot ${m === "Vencido" || m === "Quebra/estragou" ? "perda" : ""}"><span>${esc(m)}</span><b>${o.n}</b><small>${o.q} un.</small></div>`; }).join("") + `</div>` +
     (top.length ? `<div class="atvd">Mais perdidos</div>` + top.map(([n, o]) => `<div class="atvr"><time>${o.q}</time><div><b>${esc(n)}</b><small>${o.n} retirada${o.n === 1 ? "" : "s"} · ${o.q} un.</small></div></div>`).join("") : "");
 }
-const ATV_ICO = { entrou: "🚪", cadastrou: "➕", editou: "✏️", retirou: "📦", devolveu: "↩️", removeu: "🗑️", "doação": "🎁", etiqueta: "🏷️", importou: "📥", oferta: "🔥", erro: "🐞" };
-const ATV_VERBO = { entrou: "entrou no app", cadastrou: "cadastrou", editou: "editou", retirou: "retirou da loja", devolveu: "devolveu à loja", removeu: "removeu", "doação": "fez doação", etiqueta: "lançou etiqueta", importou: "importou", oferta: "criou oferta", erro: "reportou um erro" };
+const ATV_ICO = { entrou: "🚪", cadastrou: "➕", editou: "✏️", retirou: "📦", devolveu: "↩️", removeu: "🗑️", "doação": "🎁", etiqueta: "🏷️", acessou: "👁️", importou: "📥", oferta: "🔥", erro: "🐞" };
+const ATV_VERBO = { entrou: "entrou no app", cadastrou: "cadastrou", editou: "editou", retirou: "retirou da loja", devolveu: "devolveu à loja", removeu: "removeu", "doação": "fez doação", etiqueta: "lançou etiqueta", acessou: "acessou", importou: "importou", oferta: "criou oferta", erro: "reportou um erro" };
 let atvUn = null;
 function atvAbrir() {
   const bg = document.createElement("div"); bg.className = "modal"; bg.id = "atvModal"; const q0 = x => bg.querySelector(x);
@@ -2563,10 +2569,10 @@ function atvAbrir() {
   const desenha = () => {
     const nomes = [...new Set(dados.map(r => r.quem))].sort((a, b) => a.localeCompare(b, "pt-BR"));
     const nErr = dados.filter(r => r.a === "erro").length;
-    bg.querySelector("#atvF").innerHTML = `<div class="atvt">${[["", "Tudo"], ["@perdas", "📉 Perdas"], ["@erros", "🐞 Erros" + (nErr ? " (" + nErr + ")" : "")]].map(([k, t]) => `<button type="button" class="${k === filtro ? "on" : ""}" data-n="${k}">${t}</button>`).join("")}</div>` +
+    bg.querySelector("#atvF").innerHTML = `<div class="atvt">${[["", "Tudo"], ["@acessos", "👁️ Acessos"], ["@perdas", "📉 Perdas"], ["@erros", "🐞 Erros" + (nErr ? " (" + nErr + ")" : "")]].map(([k, t]) => `<button type="button" class="${k === filtro ? "on" : ""}" data-n="${k}">${t}</button>`).join("")}</div>` +
       (filtro === "@perdas" ? "" : `<label class="atvp"><span>👤 Pessoa</span><select id="atvPes"><option value="">Todas</option>${nomes.map(n => `<option value="${esc(n)}"${n === pessoa ? " selected" : ""}>${esc(n)}</option>`).join("")}</select></label>`);
     if (filtro === "@perdas") { bg.querySelector("#atvSum").innerHTML = ""; bg.querySelector("#atvL").innerHTML = perdasHtml(dados, perD, perS); return; }
-    const l = dados.filter(r => (filtro !== "@erros" || r.a === "erro") && (!pessoa || r.quem === pessoa)).sort((a, b) => b.t - a.t), hj = new Date(); hj.setHours(0, 0, 0, 0);
+    const l = dados.filter(r => (filtro !== "@erros" || r.a === "erro") && (filtro !== "@acessos" || r.a === "acessou") && (!pessoa || r.quem === pessoa)).sort((a, b) => b.t - a.t), hj = new Date(); hj.setHours(0, 0, 0, 0);
     const res = {}; dados.filter(r => r.t >= hj).forEach(r => { const o = res[r.quem] || (res[r.quem] = { ent: 0, n: 0, ult: 0 }); if (r.a === "entrou") { if (!o.ent || r.t < o.ent) o.ent = r.t; } else o.n++; o.ult = Math.max(o.ult, r.t); });
     bg.querySelector("#atvSum").innerHTML = Object.keys(res).length ? "<b>Hoje</b>" + Object.entries(res).filter(([n]) => !pessoa || n === pessoa).map(([n, o]) => `<div><span>${esc(n)}</span><small>${o.ent ? "Entrou " + hm(o.ent) + " · " : ""}última ${hm(o.ult)}${o.n ? " · " + o.n + (o.n === 1 ? " ação" : " ações") : ""}</small></div>`).join("") : "";
     let ult = "";

@@ -1,0 +1,13 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve("dist"), SP="/tmp/claude-0/-home-claude/8acfd74b-066d-5685-9053-e1d75c13691f/scratchpad/";
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f)&&!/ocr\//.test(f))b=Buffer.from(b.toString().replace(/apiKey:\s*"[^"]*"/g,'apiKey:"COLE_"').replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const pg=await (await br.newContext({viewport:{width:411,height:860}})).newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
+await pg.addInitScript(()=>{localStorage.setItem("validamais-operador",JSON.stringify("Ana"));localStorage.setItem("validamais-perfil","Perecíveis")});
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(5000);
+for(const id of ["navDoacao","navEtiquetas","navDoacao","navLoja"]){await pg.evaluate(i=>{const b=document.getElementById(i);b&&b.click()},id);await pg.waitForTimeout(200);}
+console.log(await pg.evaluate(()=>JSON.parse(localStorage.getItem("validamais-atv")||"[]").map(r=>r.a+":"+r.txt)),errs);
+await br.close();srv.close();
