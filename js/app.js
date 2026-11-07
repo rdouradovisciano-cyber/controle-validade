@@ -2195,10 +2195,11 @@ const escParcial = (i7, c) => { const [yy, mm, dd] = c.ini.split("-").map(Number
 function escBase(pk, d, c) { const [yy, mm, dd] = c.ini.split("-").map(Number), t0 = Date.UTC(yy, mm - 1, dd), du = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()); if (du < t0) return "-";
   const n = Math.round((du - (t0 - new Date(yy, mm - 1, dd).getDay() * 864e5)) / 864e5);   // dias desde o domingo da semana 1
   const cl = c.ciclo[pk], w = Math.floor(n / 7), k = ((w % cl.length) + cl.length) % cl.length; return cl[k][((n % 7) + 7) % 7] || "F"; }
-function escSt(pk, d, c) { const o = escO[pk] && escO[pk][escKey(d)]; return o || escBase(pk, d, c || escCfg()); }
+function escSt(pk, d, c) { c = c || escCfg(); const b = escBase(pk, d, c); if (b === "-") return "-"; const o = escO[pk] && escO[pk][escKey(d)]; return o || b; }   // antes do início da escala nova nada vale (ajustes antigos nesses dias são ignorados)
 function escSalva() { store.set(ESC_K, escO); store.set(ESC_CK, escCr); if (db) V.setDoc(V.doc(db, "sh_cfg", "escala"), { o: escO, cfg: escCr || null, em: Date.now(), por: myName().slice(0, 40) }).catch(e => { console.error(e); toast("Não consegui salvar na nuvem."); }); }
 function escToca(pk, key) {   // mais de um toque: abre a escolha do que esse dia deve ser, em vez de trocar direto
-  const c = escCfg(), P = escP(), p = P.find(x => x.k === pk), d = new Date(key + "T12:00:00"), at = escSt(pk, d, c), base = escBase(pk, d, c), nome = { T: "Trabalha", F: "Folga", FE: "Férias", "-": "Escala antiga" };
+  const c = escCfg(), P = escP(), p = P.find(x => x.k === pk), d = new Date(key + "T12:00:00"), at = escSt(pk, d, c), base = escBase(pk, d, c); if (base === "-") return toast("Esse dia é da escala antiga (a nova começa em " + escDM(new Date(c.ini + "T12:00:00")) + ").");
+  const nome = { T: "Trabalha", F: "Folga", FE: "Férias", "-": "Escala antiga" };
   const bg = document.createElement("div"); bg.className = "askbg"; bg.style.cssText = "position:fixed;inset:0;z-index:2147483000";
   bg.innerHTML = `<div class="ask perfil"><div class="ai">${escAv(p, 56)}</div><h3>${esc(p.n)}</h3><p>${ESC_DSL[d.getDay()]}, ${escDM(d)} · hoje está em <b>${nome[at]}</b></p>
     <div class="efc">${[["T", "💼 Trabalha"], ["F", "🛌 Folga"], ["FE", "🏖️ Férias"]].map(([k, t]) => `<button type="button" data-ed="${k}" class="${at === k ? "on" : ""}">${t}</button>`).join("")}</div>
@@ -2215,7 +2216,7 @@ function escProblemas(y, m, c) {   // dias em que os dois folgam e semanas que n
   while (d <= fim) { const i7 = new Date(d), nt = { r: 0, y: 0 }; let nova = false;
     for (let i = 0; i < 7; i++) { const ss = P.map(p => escSt(p.k, d, c)); if (ss.some(x => x !== "-")) nova = true;
       P.forEach((p, q) => { if (ss[q] === "T") nt[p.k]++; }); if (d.getMonth() === m && ss.every(x => x === "F" || x === "FE")) dias.push(new Date(d)); d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); }
-    if (nova && !escParcial(i7, c)) P.forEach(p => { if (nt[p.k] * c.dia !== c.meta) sem.push({ i: i7, f: new Date(i7.getFullYear(), i7.getMonth(), i7.getDate() + 6), p, n: nt[p.k], mn: nt[p.k] * c.dia }); }); }
+    if (nova && i7 >= new Date(c.ini + "T00:00:00") && !escParcial(i7, c)) P.forEach(p => { if (nt[p.k] * c.dia !== c.meta) sem.push({ i: i7, f: new Date(i7.getFullYear(), i7.getMonth(), i7.getDate() + 6), p, n: nt[p.k], mn: nt[p.k] * c.dia }); }); }
   return { dias, sem, metaDias };
 }
 function escPaint() {
@@ -2243,7 +2244,7 @@ function escPaint() {
       if (linhas) { const f7 = new Date(ini7.getFullYear(), ini7.getMonth(), ini7.getDate() + 6), par = escParcial(ini7, c), tt = P.map(p => { const mn = nt[p.k] * c.dia; if (par) return `<span class="ant">${esc(p.n)}: ${nt[p.k]} dias nesta semana (começo da escala nova)</span>`; return `<span class="${mn === c.meta ? "ok" : "ruim"}">${esc(p.n)}: ${nt[p.k]} dias · ${mn === c.meta ? escH(c.meta) + " ✓" : escH(mn) + " ⚠"}</span>`; }).join("");
         lista += `<section class="lw"><h4>Semana de ${par ? escDM(new Date(c.ini + "T12:00:00")) : escDM(ini7)} a ${escDM(f7)}</h4>${linhas}<div class="lt">${tt}</div></section>`; } } }
   const cab = P.map(p => `<div class="epc ${p.k}">${escAv(p, 38)}<div class="epn"><b>${esc(p.n)}</b>${p.full ? `<em>${esc(p.full)}</em>` : ""}<span>${escHm(p.ent)}–${escHm(escSai(p, c))}</span></div></div>`).join("");
-  const alerta = (pr.dias.length || pr.sem.length) ? `<div class="ealert" role="alert"><b>⚠ Para corrigir neste mês</b>${pr.dias.map(dt => `<div class="eal">Os dois folgam em <b>${ESC_DSL[dt.getDay()]} ${escDM(dt)}</b>${adm ? ` <button type="button" data-efix="${escKey(dt)}">Corrigir</button>` : ""}</div>`).join("")}${pr.sem.map(s => `<div class="eal">Semana ${escDM(s.i)} a ${escDM(s.f)}: ${esc(s.p.n)} com ${s.n} dias (${escH(s.mn)}), meta ${escH(c.meta)}</div>`).join("")}</div>` : "";
+  const alerta = (pr.dias.length || pr.sem.length) ? `<div class="ealert" role="alert"><b>⚠ Para corrigir neste mês</b>${pr.dias.map(dt => `<div class="eal">Os dois folgam em <b>${ESC_DSL[dt.getDay()]} ${escDM(dt)}</b>${adm ? ` <button type="button" data-efix="${escKey(dt)}">Corrigir</button>` : ""}</div>`).join("")}${pr.sem.map(s => `<div class="eal">Semana ${escDM(s.i)} a ${escDM(s.f)}: ${esc(s.p.n)} com ${s.n} dia${s.n === 1 ? "" : "s"} (${escH(s.mn)}), meta ${escH(c.meta)}</div>`).join("")}</div>` : "";
   const vista = escVista, abas = `<div class="evs"><button type="button" data-ev="lista" class="${vista === "lista" ? "on" : ""}">📋 Lista</button><button type="button" data-ev="cal" class="${vista === "cal" ? "on" : ""}">🗓️ Calendário</button></div>`;
   const card = vista === "lista" ? `<section class="ecard"><div class="epcs">${cab}</div>${abas}${lista}</section>` : `<section class="ecard"><div class="epcs">${cab}</div>${abas}<p class="muted ecl">Linha de cima = ${esc(P[0].n)} · linha de baixo = ${esc(P[1].n)}</p>
     <table class="etb"><thead><tr>${ds.map(x => `<th>${x}</th>`).join("")}<th>Semana</th></tr></thead><tbody>${rows}</tbody></table></section>`;

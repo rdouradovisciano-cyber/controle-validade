@@ -8,10 +8,12 @@ const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
 const pg=await (await br.newContext({viewport:{width:411,height:860}})).newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
 await pg.addInitScript(()=>{localStorage.setItem("validamais-operador",JSON.stringify("T"));localStorage.setItem("validamais-perfil","BENASSI");localStorage.setItem("validamais-escala-vista",JSON.stringify("cal"));localStorage.setItem("validamais-produtos-v1","[]");
 // config antiga já salva (com o ciclo antigo): deve migrar para o novo
+localStorage.setItem("validamais-escala",JSON.stringify({r:{"2026-11-07":"T"},y:{"2026-11-07":"T"}}));
 localStorage.setItem("validamais-escala-cfg",JSON.stringify({ini:"2026-11-08",dia:504,int:60,meta:2520,p:{r:{n:"Renato",full:"Renato Dourado Visciano",foto:"",ent:660},y:{n:"Yossef",full:"",foto:"",ent:420}},ciclo:{r:["FTTFTTT","TTFFTTT","FTTFTTT"],y:["TTFTFTT","FTTTFTT","TTFFTTT"]}}))});
 await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(5500);
 const mes=()=>pg.innerText(".enav b");
 while(!(await mes()).includes("Novembro de 2026")){await pg.click((await mes()).includes("2027")||/Dezembro|Janeiro/.test(await mes())?'[data-em="-1"]':'[data-em="1"]');}
+console.log("toque perdido em 07/11 gera alerta?",await pg.isVisible(".ealert"),"| 07/11 ficou:",await pg.locator("td.ec",{hasText:/^7/}).first().innerText().then(t=>t.replace(/\n/g," ")));
 await pg.screenshot({path:SP+"e3-a.png"});
 let bad=[];for(const m of ["Novembro de 2026","Dezembro de 2026","Janeiro de 2027"]){while(!(await mes()).includes(m))await pg.click('[data-em="1"]');bad.push(m+": alerta="+await pg.isVisible(".ealert"));}
 console.log(bad.join(" | "));
