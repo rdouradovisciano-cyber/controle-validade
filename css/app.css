@@ -1638,3 +1638,8 @@ body.escOn:not([data-perfil="Admin"]){overflow:hidden}
 .escv .enav{margin:8px 0 10px}.escv .enav b{font-size:30px;font-weight:800;line-height:1.05;letter-spacing:.01em;color:#f3d87a;text-align:center}
 .escv .enav button{width:56px;height:56px;font-size:30px}
 .escv .enav b{font-size:26px;white-space:nowrap;flex:1}.escv .enav button{width:50px;height:50px}
+
+.evs .sh{flex:0 0 auto!important;padding:0 14px}
+@keyframes escPulse{0%{box-shadow:0 0 0 0 rgba(243,216,122,.75)}70%{box-shadow:0 0 0 12px rgba(243,216,122,0)}100%{box-shadow:0 0 0 0 rgba(243,216,122,0)}}
+.escv .ec.hoje,.escv .ld.hoje{animation:escPulse 2.4s ease-out infinite}
+@media (prefers-reduced-motion:reduce){.escv .ec.hoje,.escv .ld.hoje{animation:none}}

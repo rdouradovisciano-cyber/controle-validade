@@ -2245,7 +2245,7 @@ function escPaint() {
         lista += `<section class="lw"><h4>Semana de ${par ? escDM(new Date(c.ini + "T12:00:00")) : escDM(ini7)} a ${escDM(f7)}</h4>${linhas}<div class="lt">${tt}</div></section>`; } } }
   const cab = P.map(p => `<div class="epc ${p.k}">${escAv(p, 38)}<div class="epn"><b>${esc(p.n)}</b>${p.full ? `<em>${esc(p.full)}</em>` : ""}<span>${escHm(p.ent)}–${escHm(escSai(p, c))}</span></div></div>`).join("");
   const alerta = (pr.dias.length || pr.sem.length) ? `<div class="ealert" role="alert"><b>⚠ Para corrigir neste mês</b>${pr.dias.map(dt => `<div class="eal">Os dois folgam em <b>${ESC_DSL[dt.getDay()]} ${escDM(dt)}</b>${adm ? ` <button type="button" data-efix="${escKey(dt)}">Corrigir</button>` : ""}</div>`).join("")}${pr.sem.map(s => `<div class="eal">Semana ${escDM(s.i)} a ${escDM(s.f)}: ${esc(s.p.n)} com ${s.n} dia${s.n === 1 ? "" : "s"} (${escH(s.mn)}), meta ${escH(c.meta)}</div>`).join("")}</div>` : "";
-  const vista = escVista, abas = `<div class="evs"><button type="button" data-ev="lista" class="${vista === "lista" ? "on" : ""}">📋 Lista</button><button type="button" data-ev="cal" class="${vista === "cal" ? "on" : ""}">🗓️ Calendário</button></div>`;
+  const vista = escVista, abas = `<div class="evs"><button type="button" data-ev="lista" class="${vista === "lista" ? "on" : ""}">📋 Lista</button><button type="button" data-ev="cal" class="${vista === "cal" ? "on" : ""}">🗓️ Calendário</button><button type="button" id="escSh" class="sh">📤 Enviar</button></div>`;
   const card = vista === "lista" ? `<section class="ecard"><div class="epcs">${cab}</div>${abas}${lista}</section>` : `<section class="ecard"><div class="epcs">${cab}</div>${abas}<p class="muted ecl">Linha de cima = ${esc(P[0].n)} · linha de baixo = ${esc(P[1].n)}</p>
     <table class="etb"><thead><tr>${ds.map(x => `<th>${x}</th>`).join("")}<th>Semana</th></tr></thead><tbody>${rows}</tbody></table></section>`;
   const [iy, im, id] = c.ini.split("-").map(Number);
@@ -2303,12 +2303,46 @@ function escCfgAbrir() {
     if (a === "salva") { if (!dr.p.r.n || !dr.p.y.n) return toast("Coloque o nome das duas pessoas."); escCr = JSON.parse(JSON.stringify(dr)); escSalva(); bg.remove(); escPaint(); toast("Configuração salva."); } };
   paint(); document.body.appendChild(bg);
 }
+// ---- imagem do mês para compartilhar (WhatsApp) ----
+const escLoadImg = src => new Promise(ok => { if (!src) return ok(null); const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = src; });
+async function escImagem() {
+  const c = escCfg(), P = escP(), { y, m } = escMes, W = 1080, X = 50, CW = 140, CH = 150, ini = new Date(y, m, 1), fim = new Date(y, m + 1, 0), nSem = Math.ceil((ini.getDay() + fim.getDate()) / 7);
+  const nomeM = new Date(y, m, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }).replace(/^./, t => t.toUpperCase()), imgs = await Promise.all(P.map(p => escLoadImg(p.foto)));
+  const cv = document.createElement("canvas"), H = 330 + 60 + nSem * (CH + 8) + 130; cv.width = W; cv.height = H; const g = cv.getContext("2d"), F = "system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+  const rr = (x0, y0, w, h, r, fill, stroke) => { g.beginPath(); g.roundRect(x0, y0, w, h, r); if (fill) { g.fillStyle = fill; g.fill(); } if (stroke) { g.strokeStyle = stroke; g.lineWidth = 3; g.stroke(); } };
+  const tx = (t, x0, y0, sz, col, wt = 700, al = "left") => { g.font = `${wt} ${sz}px ${F}`; g.fillStyle = col; g.textAlign = al; g.textBaseline = "middle"; g.fillText(t, x0, y0); };
+  g.fillStyle = "#fffdf6"; g.fillRect(0, 0, W, H); rr(0, 0, W, 14, 0, "#e0a030");
+  tx(nomeM, W / 2, 80, 68, "#1b1b1f", 800, "center"); tx("Escala 5x2 · " + P.map(p => p.n).join(" e "), W / 2, 140, 30, "#6b6b73", 600, "center");
+  P.forEach((p, i) => { const x0 = X + i * 500, col = p.k === "r" ? "#e0a030" : "#3fb6c4"; rr(x0, 180, 480, 130, 22, p.k === "r" ? "#fcf3df" : "#e4f5f7", col);
+    g.save(); g.beginPath(); g.arc(x0 + 70, 245, 48, 0, 7); g.clip(); if (imgs[i]) g.drawImage(imgs[i], x0 + 22, 197, 96, 96); else { g.fillStyle = col; g.fillRect(x0 + 22, 197, 96, 96); } g.restore();
+    if (!imgs[i]) tx((p.n[0] || "?").toUpperCase(), x0 + 70, 247, 52, "#1b1b1f", 800, "center");
+    tx(p.n, x0 + 135, 222, 40, "#1b1b1f", 800); if (p.full) tx(p.full.length > 24 ? p.full.slice(0, 23) + "…" : p.full, x0 + 135, 255, 21, "#6b6b73", 600); tx(escHm(p.ent) + " às " + escHm(escSai(p, c)), x0 + 135, p.full ? 287 : 262, 34, "#1b1b1f", 800); });
+  const ds = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"], Y0 = 345; ds.forEach((t, i) => tx(t, X + i * CW + CW / 2, Y0, 28, "#6b6b73", 800, "center"));
+  let d = new Date(y, m, 1 - ini.getDay()), row = 0;
+  while (d <= fim) { for (let i = 0; i < 7; i++) { const x0 = X + i * CW + 3, y0 = Y0 + 30 + row * (CH + 8), fora = d.getMonth() !== m, ss = P.map(p => escSt(p.k, d, c)), vazio = ss.every(v => v === "F" || v === "FE");
+      g.globalAlpha = fora ? .35 : 1; rr(x0, y0, CW - 6, CH, 14, "#f1eee3", vazio && !fora ? "#e5484d" : null); tx(String(d.getDate()), x0 + 14, y0 + 24, 30, "#1b1b1f", 800);
+      P.forEach((p, q) => { const yy = y0 + 46 + q * 50, st = ss[q], tw = st === "T", col = p.k === "r" ? "#e0a030" : "#3fb6c4";
+        rr(x0 + 8, yy, CW - 22, 44, 10, st === "-" ? "#e4e1d6" : tw ? col : st === "FE" ? "#cddcff" : "#d3d0c6"); if (!tw && st !== "-") { g.fillStyle = col; g.fillRect(x0 + 8, yy + 4, 6, 36); }
+        tx(tw ? (p.n[0] || "?").toUpperCase() : st === "FE" ? "férias" : st === "-" ? "–" : "folga", x0 + 8 + (CW - 22) / 2 + (tw || st === "-" ? 0 : 3), yy + 23, tw ? 28 : 24, tw ? "#1d1400" : "#4a4a52", 800, "center"); });
+      g.globalAlpha = 1; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); } row++; }
+  const yb = Y0 + 30 + nSem * (CH + 8) + 22;
+  tx(`${escH(c.dia)} por dia · ${c.int} min de intervalo · ${escH(c.meta)} por semana`, W / 2, yb, 26, "#4a4a52", 700, "center");
+  tx("Cor = trabalha · cinza «folga» · linha vermelha = os dois folgam", W / 2, yb + 38, 22, "#6b6b73", 600, "center"); tx("Valida+", W / 2, yb + 76, 22, "#b0aca0", 700, "center");
+  return cv;
+}
+async function escCompartilha() {
+  toast("Gerando a imagem…"); const cv = await escImagem(), { y, m } = escMes, nome = `escala-${y}-${String(m + 1).padStart(2, "0")}.png`;
+  cv.toBlob(async b => { if (!b) return toast("Não consegui gerar a imagem."); const f = new File([b], nome, { type: "image/png" });
+    try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], title: "Escala 5x2", text: "Escala 5x2 · " + new Date(y, m, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }) }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = nome; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000); toast("Imagem salva. Envie pelo WhatsApp."); }, "image/png");
+}
 function escAbrir() {
   let v = $("escV"); if (!v) { v = document.createElement("div"); v.id = "escV"; v.className = "escv"; document.body.appendChild(v);
     v.onclick = e => { const t = e.target.closest("[data-ek]"), mn = e.target.closest("[data-em]"), ev = e.target.closest("[data-ev]"), fx = e.target.closest("[data-efix]");
       if (ev) { escVista = ev.dataset.ev; store.set("validamais-escala-vista", escVista); return escPaint(); }
       if (fx) return escFixAbrir(fx.dataset.efix);
       if (e.target.closest("#escCfgB")) return escCfgAbrir();
+      if (e.target.closest("#escSh")) return escCompartilha();
       if (t) return escToca(t.dataset.ep, t.dataset.ek);
       if (mn) { escMes = new Date(escMes.y, escMes.m + Number(mn.dataset.em), 1); escMes = { y: escMes.getFullYear(), m: escMes.getMonth() }; return escPaint(); }
       if (e.target.closest("#escX")) { if (PERFIL === "BENASSI") perfilEscolher(true); else v.remove(); } }; }
