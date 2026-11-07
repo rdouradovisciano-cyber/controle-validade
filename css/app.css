@@ -1657,3 +1657,7 @@ body.escOn:not([data-perfil="Admin"]){overflow:hidden}
 .escFull .pl{font-size:17px;min-height:0;padding:7px 0;margin-top:3px}.escFull .pl.F,.escFull .pl.FE{font-size:12px}
 .escFull .es span{font-size:12px}
 @media (orientation:landscape){.escFull .efp{display:none}.escFull .pl{padding:3px 0;font-size:14px}.escFull .ec i{font-size:14px}.escFull .efn b{font-size:20px}}
+
+@keyframes eslN{from{opacity:0;transform:translateX(34px)}to{opacity:1;transform:none}}
+@keyframes eslP{from{opacity:0;transform:translateX(-34px)}to{opacity:1;transform:none}}
+.esl-n{animation:eslN .26s ease-out}.esl-p{animation:eslP .26s ease-out}

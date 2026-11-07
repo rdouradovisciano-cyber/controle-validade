@@ -11,6 +11,7 @@ const cv=document.createElement("canvas");cv.width=cv.height=160;const g=cv.getC
 localStorage.setItem("validamais-escala-cfg",JSON.stringify({p:{r:{n:"Renato",full:"Renato Dourado Visciano",foto:cv.toDataURL("image/jpeg"),ent:660},y:{n:"Yossef",full:"Yossef Henrique da Silva",foto:"",ent:420}}}))});
 await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(5500);
 while(!(await pg.innerText(".enav b")).includes("Novembro de 2026")){await pg.click('[data-em="1"]');}
+await pg.click('[data-em="1"]');console.log("classe de deslize ao avançar mês:",await pg.evaluate(()=>document.querySelector(".ecard").className));await pg.waitForTimeout(500);console.log("depois:",await pg.evaluate(()=>document.querySelector(".ecard").className));await pg.click('[data-em="-1"]');
 console.log("animação no hoje:",await pg.evaluate(()=>{const e=document.querySelector(".ec.hoje");return e?getComputedStyle(e).animationName:"(hoje não está neste mês)"}));
 await pg.click("#escFs");await pg.waitForTimeout(500);console.log("tela cheia ativa:",await pg.isVisible("#escFx"),"| tabela visível:",await pg.isVisible(".escFull .etb"));await pg.screenshot({path:SP+"e4-full.png"});
 await pg.click("#escFx");await pg.waitForTimeout(300);console.log("saiu:",!(await pg.isVisible("#escFx")),"| abas de volta:",await pg.isVisible("#escSh"));

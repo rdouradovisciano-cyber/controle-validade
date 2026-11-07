@@ -2183,7 +2183,7 @@ const ESC_DEF = { ini: "2026-11-09", dia: 504, int: 60, meta: 2520,
   p: { r: { n: "Renato", full: "", foto: "", ent: 660 }, y: { n: "Yossef", full: "", foto: "", ent: 420 } },
   ciclo: { r: ["FTFTTTT", "TTFFTTT"], y: ["TTTFFTT", "FTTTFTT"] } };   // ciclo = D S T Q Q S S. Renato folga sempre na terça, Yossef na quinta; domingos e quartas alternam: semana 1 Renato folga no domingo e Yossef na quarta; semana 2 Renato folga na quarta e Yossef no domingo
 const ESC_CICLOS_ANTIGOS = [{ r: ["FTTFTTT", "TTFFTTT", "FTTFTTT"], y: ["TTFTFTT", "FTTTFTT", "TTFFTTT"] }, { r: ["FTFTTTT", "TFFTTTT"], y: ["TTTTFFT", "FTTTFTT"] }].map(x => JSON.stringify(x));   // padrões antigos: migram sozinhos para o atual
-let escFull = false, escWake = null, escVista = store.get("validamais-escala-vista", "lista"), escO = store.get(ESC_K, {}) || {}, escCr = store.get(ESC_CK, null), escMes = (() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; })();
+let escDir = 0, escFull = false, escWake = null, escVista = store.get("validamais-escala-vista", "lista"), escO = store.get(ESC_K, {}) || {}, escCr = store.get(ESC_CK, null), escMes = (() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; })();
 const escCfg = () => { const s = escCr || {}, sp = s.p || {}; return { ini: !s.ini || s.ini === "2026-11-08" ? ESC_DEF.ini : s.ini, dia: s.dia || ESC_DEF.dia, int: s.int ?? ESC_DEF.int, meta: s.meta || ESC_DEF.meta,
   p: { r: { ...ESC_DEF.p.r, ...(sp.r || {}) }, y: { ...ESC_DEF.p.y, ...(sp.y || {}) } }, ciclo: s.ciclo && s.ciclo.r && s.ciclo.r.length && s.ciclo.y && s.ciclo.y.length && !ESC_CICLOS_ANTIGOS.includes(JSON.stringify(s.ciclo)) ? s.ciclo : ESC_DEF.ciclo }; };
 const escP = () => { const c = escCfg(); return ["r", "y"].map(k => ({ k, ...c.p[k] })); };
@@ -2219,6 +2219,10 @@ function escProblemas(y, m, c) {   // dias em que os dois folgam e semanas que n
     if (nova && i7 >= new Date(c.ini + "T00:00:00") && !escParcial(i7, c)) P.forEach(p => { if (nt[p.k] * c.dia !== c.meta) sem.push({ i: i7, f: new Date(i7.getFullYear(), i7.getMonth(), i7.getDate() + 6), p, n: nt[p.k], mn: nt[p.k] * c.dia }); }); }
   return { dias, sem, metaDias };
 }
+function escAnima(v) {   // deslize curto ao trocar de mês (só o conteúdo do mês; não anima outras trocas)
+  const d = escDir; escDir = 0; if (!d || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+  const el = v.querySelector(".escFull .etb, .ecard"); if (!el) return; el.classList.add(d > 0 ? "esl-n" : "esl-p"); setTimeout(() => el.classList.remove("esl-n", "esl-p"), 320);
+}
 function escPaint() {
   const v = $("escV"); if (!v) return; const adm = PERFIL === "Admin" || PERFIL === "BENASSI" || escNome(), c = escCfg(), P = escP(), { y, m } = escMes, nomeM = new Date(y, m, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }).replace(/^./, s => s.toUpperCase());
   const hoje = new Date(), hk = escKey(hoje), ds = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"], pr = escProblemas(y, m, c), hrs = `${escH(c.dia)} por dia · ${c.int} min de intervalo · meta de ${escH(c.meta)} por semana`;
@@ -2249,7 +2253,7 @@ function escPaint() {
     v.className = "escv escFull";
     v.innerHTML = `<div class="efh"><button type="button" id="escFx" aria-label="Sair da tela cheia">✕</button><div class="efn"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div></div>
       <div class="efp">${P.map(p => `<span class="${p.k}">${escAv(p, 30)}<b>${esc(p.n)}</b> ${escHm(p.ent)}–${escHm(escSai(p, c))}</span>`).join("")}${pr.dias.length ? `<span class="efal">⚠ os dois folgam: ${pr.dias.map(escDM).join(", ")}</span>` : ""}</div>
-      <table class="etb"><thead><tr>${ds.map(x => `<th>${x}</th>`).join("")}<th>Sem.</th></tr></thead><tbody>${rows}</tbody></table>`; return; }
+      <table class="etb"><thead><tr>${ds.map(x => `<th>${x}</th>`).join("")}<th>Sem.</th></tr></thead><tbody>${rows}</tbody></table>`; escAnima(v); return; }
   v.className = "escv";
   const vista = escVista, abas = `<div class="evs"><button type="button" data-ev="lista" class="${vista === "lista" ? "on" : ""}">📋 Lista</button><button type="button" data-ev="cal" class="${vista === "cal" ? "on" : ""}">🗓️ Calendário</button><button type="button" id="escSh" class="sh">📤 Enviar</button><button type="button" id="escFs" class="sh" aria-label="Tela cheia">⛶ Tela cheia</button></div>`;
   const card = vista === "lista" ? `<section class="ecard"><div class="epcs">${cab}</div>${abas}${lista}</section>` : `<section class="ecard"><div class="epcs">${cab}</div>${abas}<p class="muted ecl">Linha de cima = ${esc(P[0].n)} · linha de baixo = ${esc(P[1].n)}</p>
@@ -2259,6 +2263,7 @@ function escPaint() {
     <div class="enav"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div>
     ${alerta}${card}<div class="ehoje"><small>Hoje, ${hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</small><div>${hj}</div></div>
     <p class="muted eleg">${hrs}<br>Colorido = trabalha · cinza = FOLGA · azul = férias · contorno vermelho = os dois folgam no mesmo dia · a escala nova começa em ${escDM(new Date(iy, im - 1, id))}/${iy} (${ESC_DSL[new Date(iy, im - 1, id).getDay()].toLowerCase()})${adm ? " · Toque em um dia para mudar (abre uma janela para escolher)." : ""}</p>`;
+  escAnima(v);
 }
 function escFixAbrir(key) {   // corrige um dia em que os dois folgam: escolhe quem trabalha e em qual outro dia da semana essa pessoa folga
   const c = escCfg(), P = escP(), d = new Date(key + "T12:00:00"), ini7 = new Date(d.getFullYear(), d.getMonth(), d.getDate() - d.getDay(), 12);
@@ -2358,7 +2363,7 @@ function escAbrir() {
       if (e.target.closest("#escFs")) return escTelaCheia(true);
       if (e.target.closest("#escFx")) return escTelaCheia(false);
       if (t) return escToca(t.dataset.ep, t.dataset.ek);
-      if (mn) { escMes = new Date(escMes.y, escMes.m + Number(mn.dataset.em), 1); escMes = { y: escMes.getFullYear(), m: escMes.getMonth() }; return escPaint(); }
+      if (mn) { escDir = Number(mn.dataset.em) > 0 ? 1 : -1; escMes = new Date(escMes.y, escMes.m + Number(mn.dataset.em), 1); escMes = { y: escMes.getFullYear(), m: escMes.getMonth() }; return escPaint(); }
       if (e.target.closest("#escX")) { if (PERFIL === "BENASSI") perfilEscolher(true); else v.remove(); } }; }
   document.body.classList.add("escOn"); escPaint();
 }
