@@ -1722,3 +1722,9 @@ html[data-tema="light"] .escv .epc.r{background:#fbefd2;border-color:#d89a1c}
 html[data-tema="light"] .escv .epc.y{background:#d9f1f4;border-color:#2fa3b2}
 html[data-tema="light"] .escv .epc .epn span{color:#1a1a1f}
 .escv .evs button:not(.sh){white-space:nowrap;font-size:16px;padding:0 6px}
+/* total de horas da semana (sutil) no fim de cada linha */
+.escv .etb th.ht7{width:34px;font-size:10px;opacity:.6}.escv .etb th:first-child{width:50px}
+.escv .ec.eh7{width:34px;padding:3px 0 4px}
+.escv .pl.sm.ht{font-size:11px;font-weight:700;color:var(--mut);opacity:.85}
+.escv .pl.sm.ht.oky{color:#2fb35c}.escv .pl.sm.ht.no{color:#ff9a66}
+html[data-tema="light"] .escv .pl.sm.ht.oky{color:#1b8a41}html[data-tema="light"] .escv .pl.sm.ht.no{color:#c2410c}

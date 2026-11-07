@@ -2248,13 +2248,15 @@ function escPaint() {
   const hj = falta > 0 ? `<div class="enota">${aviso} ${falta === 1 ? "É amanhã." : "Faltam " + falta + " dias."}</div>` : P.map(p => { const st = escSt(p.k, hoje, c); return `<span class="eh ${st}">${escAv(p, 24)}<b>${esc(p.n)}</b> ${st === "T" ? escHm(p.ent) + "–" + escHm(escSai(p, c)) : st === "FE" ? "férias" : st === "-" ? "escala antiga" : "folga"}</span>`; }).join("");
   const ini = new Date(y, m, 1), fim = new Date(y, m + 1, 0); let d = new Date(y, m, 1 - ini.getDay()), rows = "";
   while (d <= fim) {
-    let cels = "", semAntiga = true;
+    let cels = "", semAntiga = true; const sd0 = new Date(d), tw = {}, fe = {}; P.forEach(q => { tw[q.k] = 0; fe[q.k] = false; });
     for (let i = 0; i < 7; i++) {
       const fora = d.getMonth() !== m, key = escKey(d), ss = P.map(p => escSt(p.k, d, c)), nenhum = d >= iniD && ss.every(x => x === "F" || x === "FE");
       if (ss.some(x => x !== "-")) semAntiga = false;
+      P.forEach((q, qi) => { if (d >= iniD && ss[qi] === "T") tw[q.k]++; if (ss[qi] === "FE") fe[q.k] = true; });
       cels += ss.every(x => x === "-") ? `<td class="ec vz${fora ? " fora" : ""}${key === hk ? " hoje" : ""}"><i>${d.getDate()}</i></td>` : `<td class="ec${fora ? " fora" : ""}${key === hk ? " hoje" : ""}${nenhum && !fora ? " vazio" : ""}"><i>${d.getDate()}</i>${P.map((p, q) => `<b class="pl ${ss[q] === "-" ? "N" : ss[q]} ${p.k}"${adm ? ` data-ek="${key}" data-ep="${p.k}"` : ""}>${ss[q] === "T" ? esc((p.n[0] || "?").toUpperCase()) : ss[q] === "FE" ? "férias" : ss[q] === "-" ? "–" : "folga"}</b>`).join("")}</td>`;
       d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); }
-    if (!semAntiga) rows += `<tr><td class="ec es en"><i>&nbsp;</i>${P.map(p => `<b class="pl sm nm ${p.k}">${esc(p.n)}</b>`).join("")}</td>${cels}</tr>`;
+    const parc = escParcial(sd0, c), tot = P.map(q => { if (parc || fe[q.k]) return `<b class="pl sm ht">–</b>`; const mn = tw[q.k] * c.dia, ok = mn === c.meta; return `<b class="pl sm ht ${ok ? "oky" : "no"}" title="${escH(mn)} na semana">${ok ? "✓" : ""}${escH(mn)}</b>`; }).join("");
+    if (!semAntiga) rows += `<tr><td class="ec es en"><i>&nbsp;</i>${P.map(p => `<b class="pl sm nm ${p.k}">${esc(p.n)}</b>`).join("")}</td>${cels}<td class="ec es eh7"><i>&nbsp;</i>${tot}</td></tr>`;
   }
   const chip = (p, st, key) => `<span class="lc ${st === "T" ? p.k : st === "FE" ? "FE" : "F"}"${adm ? ` data-ek="${key}" data-ep="${p.k}"` : ""}>${escAv(p, 24)}<b>${esc(p.n)}</b>${st === "T" ? "trabalha " + escHm(p.ent) + "–" + escHm(escSai(p, c)) : st === "FE" ? "férias" : st === "-" ? "escala antiga" : "FOLGA"}</span>`;
   let lista = ""; { let dd = new Date(y, m, 1 - ini.getDay());
@@ -2271,11 +2273,11 @@ function escPaint() {
     v.className = "escv escFull";
     v.innerHTML = `<div class="efh"><button type="button" id="escFx" aria-label="Sair da tela cheia">✕</button><div class="efn"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div></div>
       <div class="efp">${P.map(p => `<span class="${p.k}">${escAv(p, 30)}<b>${esc(p.n)}</b> ${escHm(p.ent)}–${escHm(escSai(p, c))}</span>`).join("")}${pr.dias.length ? `<span class="efal">⚠ os dois folgam: ${pr.dias.map(escDM).join(", ")}</span>` : ""}</div>
-      ${rows ? `<table class="etb"><thead><tr><th></th>${ds.map(x => `<th>${x}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>` : `<p class="eaviso">${aviso}<br>Antes disso não há escala 5x2.</p>`}`; escAnima(v); return; }
+      ${rows ? `<table class="etb"><thead><tr><th></th>${ds.map(x => `<th>${x}</th>`).join("")}<th class="ht7">Sem.</th></tr></thead><tbody>${rows}</tbody></table>` : `<p class="eaviso">${aviso}<br>Antes disso não há escala 5x2.</p>`}`; escAnima(v); return; }
   v.className = "escv";
   const vista = escVista, abas = `<div class="evs"><button type="button" data-ev="lista" class="${vista === "lista" ? "on" : ""}">📋 Lista</button><button type="button" data-ev="cal" class="${vista === "cal" ? "on" : ""}">🗓️ Calendário</button><button type="button" id="escSh" class="sh" aria-label="Enviar imagem no WhatsApp" title="Enviar">📤</button><button type="button" id="escFs" class="sh" aria-label="Tela cheia" title="Tela cheia">⛶</button></div>`;
   const card = vista === "lista" ? `<section class="ecard"><div class="epcs">${cab}</div>${abas}${lista || `<p class="eaviso">${aviso}<br>Antes disso não há escala 5x2.</p>`}</section>` : `<section class="ecard"><div class="epcs">${cab}</div>${abas}
-    ${rows ? `<table class="etb"><thead><tr><th></th>${ds.map(x => `<th>${x}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>` : `<p class="eaviso">${aviso}<br>Antes disso não há escala 5x2.</p>`}</section>`;
+    ${rows ? `<table class="etb"><thead><tr><th></th>${ds.map(x => `<th>${x}</th>`).join("")}<th class="ht7">Sem.</th></tr></thead><tbody>${rows}</tbody></table>` : `<p class="eaviso">${aviso}<br>Antes disso não há escala 5x2.</p>`}</section>`;
   const [iy, im, id] = c.ini.split("-").map(Number);
   v.innerHTML = `<div class="eh0"><button type="button" id="escX" class="secondary">${PERFIL === "BENASSI" ? "Trocar perfil" : "Fechar"}</button>${adm ? `<button type="button" id="escCfgB" class="secondary">⚙️ Configurar</button>` : ""}<h2>🗓️ Escala 5x2</h2></div>
     <div class="enav"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div>
