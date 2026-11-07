@@ -8,7 +8,7 @@ const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congel
 // setor escolhido na abertura (sessionStorage): "FLV" (tudo que não é Perecíveis, como sempre foi) ou "Perecíveis" (cadastros e validades próprios)
 // perfil do aparelho (escolhido uma vez): "FLV" e "Perecíveis" entram direto e só nesse setor; "Admin" acessa os dois
 const PERFIL_K = "validamais-perfil";
-let PERFIL = (() => { try { const s = localStorage.getItem(PERFIL_K); return s === "FLV" || s === PER || s === FIS || s === "Admin" || s === "BENASSI" ? s : null; } catch (e) { return null; } })();
+let PERFIL = (() => { try { const s = localStorage.getItem(PERFIL_K); return s === "FLV" || s === PER || s === FIS || s === "Admin" ? s : null; } catch (e) { return null; } })();
 let SETOR = (() => { if (PERFIL === "FLV" || PERFIL === PER || PERFIL === FIS) return PERFIL; try { const s = sessionStorage.getItem("validamais-setor"); return s === PER || s === KOR || s === FIS ? s : "FLV"; } catch (e) { return "FLV"; } })();
 const setorDe = p => p.category === PER ? PER : "FLV";   // Perecíveis tem cadastro próprio; FLV e KÓRIN usam o mesmo cadastro (categoria «FLV» e as demais)
 // KÓRIN usa o mesmo banco do FLV; quais produtos são dele fica em sh_cfg/korin (e uma cópia neste aparelho)
@@ -54,7 +54,7 @@ function perfilEscolher(troca) {   // pergunta uma vez qual é o setor deste apa
   const bg = document.createElement("div"); bg.className = "askbg"; bg.id = "perfilBg";
   const op = (v, ic, t, s) => `<button type="button" class="perfop${PERFIL === v ? " on" : ""}" data-p="${v}"><span>${ic}</span><b>${t}</b><small>${s}</small></button>`;
   bg.innerHTML = `<div class="ask perfil"><div class="ai">👤</div><h3>${troca ? "Perfil deste aparelho" : "Qual é o seu setor?"}</h3><p>${troca ? "Escolha o novo perfil." : "Você escolhe uma vez e o app abre direto no seu setor."}</p>
-    ${op("FLV", "🥬", "FLV", "Hortifruti")}${op(PER, "🧀", "Perecíveis", "Validades e etiquetas")}${op(FIS, "🔎", "Fiscal de loja", "Consulta cadastros e códigos")}${op("BENASSI", "🗓️", "BENASSI", "Escala 5x2 (acompanhamento)")}${op("Admin", "🛡️", "Admin", "Acesso a todos os setores")}${troca ? '<button type="button" class="secondary" data-x style="margin-top:8px;width:100%">Cancelar</button>' : ""}</div>`;
+    ${op("FLV", "🥬", "FLV", "Hortifruti")}${op(PER, "🧀", "Perecíveis", "Validades e etiquetas")}${op(FIS, "🔎", "Fiscal de loja", "Consulta cadastros e códigos")}${op("Admin", "🛡️", "Admin", "Acesso a todos os setores")}${troca ? '<button type="button" class="secondary" data-x style="margin-top:8px;width:100%">Cancelar</button>' : ""}</div>`;
   const aplica = v => { try { localStorage.setItem(PERFIL_K, v); sessionStorage.removeItem("validamais-setor"); } catch (err) {} location.reload(); };
   let ocupado = false;
   bg.onclick = async e => { if (troca && (e.target === bg || e.target.closest("[data-x]"))) return bg.remove();
@@ -2499,7 +2499,6 @@ function flForm(id) {   // cadastrar ou abrir uma planta: foto, espécie (cuidad
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "flores"), sn => { if (sn.exists() && Array.isArray(sn.data().l)) { fl = sn.data().l; store.set(FL_K, fl); } flBadge(); if ($("flV") && !$("flV").classList.contains("hidden") && !$("flF")) flPaint(); }, e => console.warn("flores", e)); } catch (e) { console.warn(e); } }
 $("mnFlores").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } flAbrir(); };
 flBadge();
-if (PERFIL === "BENASSI") escAbrir();
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "icones"), sn => { icoNuvem = (sn.exists() && sn.data().m) || {}; render(); }, e => console.warn("icones", e)); } catch (e) { console.warn(e); } }
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "notas"), sn => { notasNuvem = (sn.exists() && sn.data().n) || {}; const f = document.activeElement; if (!(f && f.matches && f.matches("[data-nota]"))) render(); }, e => console.warn("notas", e)); } catch (e) { console.warn(e); } }
 visAplica();
