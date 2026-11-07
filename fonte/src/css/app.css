@@ -1691,3 +1691,16 @@ html[data-tema=dark] .lwn .y{color:#7fd8e2}
 html[data-tema=dark] .escv .pl.sm.nm.r{color:#f0c060}
 html[data-tema=dark] .escv .pl.sm.nm.y{color:#7fd8e2}
 .escFull .pl.sm.nm{min-height:30px;padding:5px 5px;font-size:12px}
+
+/* escolha rápida do dia: janelinha pequena perto do bloco, sem escurecer o calendário */
+.etip{position:fixed;z-index:2147483000;width:232px;max-width:calc(100vw - 16px);padding:8px;border-radius:14px;border:1px solid var(--ln);background:var(--card,#16181b);color:var(--ink);box-shadow:0 14px 34px rgba(0,0,0,.45)}
+.eth{display:flex;align-items:center;gap:7px;padding:1px 2px 7px;font-size:13px}
+.eth b{font-size:13px;white-space:nowrap}
+.eth small{margin-left:auto;color:var(--mut);font-size:12px;white-space:nowrap}
+.eth .ex{flex:none;width:26px;height:26px;border-radius:8px;border:1px solid var(--ln);background:none;color:var(--mut);font-size:12px;line-height:1;cursor:pointer}
+.edot{width:8px;height:8px;border-radius:50%;flex:none}.edot.r{background:#e0a030}.edot.y{background:#3fb6c4}
+.eopts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.eopts button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px;border-radius:10px;border:1px solid var(--ln);background:var(--lt2,rgba(255,255,255,.04));color:var(--ink);font-size:11px;font-weight:800;line-height:1.1;cursor:pointer}
+.eopts button i{font-style:normal;font-size:17px;line-height:1}
+.eopts button.on{border-color:#c9a227;background:rgba(243,216,122,.24)}
+.ebase{display:block;width:100%;margin-top:7px;padding:7px 4px;border-radius:9px;border:1px dashed var(--ln);background:none;color:var(--mut);font-size:12px;font-weight:700;cursor:pointer}

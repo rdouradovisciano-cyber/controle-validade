@@ -2198,16 +2198,25 @@ function escBase(pk, d, c) { const [yy, mm, dd] = c.ini.split("-").map(Number), 
   const cl = c.ciclo[pk], w = Math.floor(n / 7), k = ((w % cl.length) + cl.length) % cl.length; return cl[k][((n % 7) + 7) % 7] || "F"; }
 function escSt(pk, d, c) { c = c || escCfg(); const b = escBase(pk, d, c); if (b === "-") return "-"; const o = escO[pk] && escO[pk][escKey(d)]; return o || b; }   // antes do início da escala nova nada vale (ajustes antigos nesses dias são ignorados)
 function escSalva() { store.set(ESC_K, escO); store.set(ESC_CK, escCr); if (db) V.setDoc(V.doc(db, "sh_cfg", "escala"), { o: escO, cfg: escCr || null, em: Date.now(), por: myName().slice(0, 40) }).catch(e => { console.error(e); toast("Não consegui salvar na nuvem."); }); }
-function escToca(pk, key) {   // mais de um toque: abre a escolha do que esse dia deve ser, em vez de trocar direto
+function escToca(pk, key, el) {   // abre uma escolha pequena perto do dia; nada muda com um toque só, só ao tocar numa opção
   const c = escCfg(), P = escP(), p = P.find(x => x.k === pk), d = new Date(key + "T12:00:00"), at = escSt(pk, d, c), base = escBase(pk, d, c); if (base === "-") return toast("Esse dia é da escala antiga (a nova começa em " + escDM(new Date(c.ini + "T12:00:00")) + ").");
-  const nome = { T: "Trabalha", F: "Folga", FE: "Férias", "-": "Escala antiga" };
-  const bg = document.createElement("div"); bg.className = "askbg"; bg.style.cssText = "position:fixed;inset:0;z-index:2147483000";
-  bg.innerHTML = `<div class="ask perfil"><div class="ai">${escAv(p, 56)}</div><h3>${esc(p.n)}</h3><p>${ESC_DSL[d.getDay()]}, ${escDM(d)} · hoje está em <b>${nome[at]}</b></p>
-    <div class="efc">${[["T", "💼 Trabalha"], ["F", "🛌 Folga"], ["FE", "🏖️ Férias"]].map(([k, t]) => `<button type="button" data-ed="${k}" class="${at === k ? "on" : ""}">${t}</button>`).join("")}</div>
-    ${escO[pk] && escO[pk][key] ? `<button type="button" class="secondary" data-ed="base" style="width:100%;margin-top:8px">↩ Voltar ao padrão (${nome[base]})</button>` : ""}<button type="button" class="secondary" data-ed="x" style="width:100%;margin-top:8px">Cancelar</button></div>`;
-  bg.onclick = e => { const b = e.target.closest("[data-ed]"); if (!b && e.target !== bg) return; const k = b && b.dataset.ed; if (!k || k === "x") return bg.remove();
-    escO[pk] = escO[pk] || {}; if (k === "base" || k === base) delete escO[pk][key]; else escO[pk][key] = k; escSalva(); bg.remove(); escPaint(); };
-  document.body.appendChild(bg);
+  document.querySelectorAll(".etip").forEach(x => x.remove());
+  const nome = { T: "Trabalha", F: "Folga", FE: "Férias" }, temAjuste = !!(escO[pk] && escO[pk][key]);
+  const tip = document.createElement("div"); tip.className = "etip"; tip.setAttribute("role", "dialog"); tip.setAttribute("aria-label", esc(p.n) + ", " + ESC_DSL[d.getDay()] + " " + escDM(d));
+  tip.innerHTML = `<div class="eth"><span class="edot ${p.k}"></span><b>${esc(p.n)}</b><small>${ESC_DSL[d.getDay()].slice(0, 3)} ${escDM(d)}</small><button type="button" class="ex" data-ed="x" aria-label="Fechar">✕</button></div>
+    <div class="eopts">${[["T", "💼", "Trabalha"], ["F", "🛌", "Folga"], ["FE", "🏖️", "Férias"]].map(([k, ic, tx]) => `<button type="button" data-ed="${k}" class="${at === k ? "on" : ""}"><i>${ic}</i><span>${tx}</span></button>`).join("")}</div>
+    ${temAjuste ? `<button type="button" class="ebase" data-ed="base">↩ Voltar ao padrão (${nome[base] || "—"})</button>` : ""}`;
+  document.body.appendChild(tip);
+  const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight, m = 8;   // perto do bloco tocado, sem cobrir o calendário
+  tip.style.left = Math.min(Math.max(m, r.left + r.width / 2 - w / 2), innerWidth - w - m) + "px";
+  let top = r.bottom + 6; if (top + h > innerHeight - m) top = Math.max(m, r.top - h - 6); tip.style.top = top + "px";
+  let preso = true; setTimeout(() => { preso = false; }, 350);   // ignora o "scroll" que o próprio toque pode disparar
+  const close = () => { document.removeEventListener("pointerdown", fora, true); removeEventListener("scroll", aoRolar, true); removeEventListener("resize", aoRolar); tip.remove(); };
+  const fora = e => { if (!tip.contains(e.target)) close(); };
+  const aoRolar = () => { if (!preso) close(); };
+  setTimeout(() => { document.addEventListener("pointerdown", fora, true); addEventListener("scroll", aoRolar, true); addEventListener("resize", aoRolar); }, 0);
+  tip.onclick = e => { const b = e.target.closest("[data-ed]"); if (!b) return; const k = b.dataset.ed; if (k === "x") return close(); if (k === at) return close();
+    escO[pk] = escO[pk] || {}; if (k === "base" || k === base) delete escO[pk][key]; else escO[pk][key] = k; escSalva(); close(); escPaint(); };
 }
 const escAv = (p, px) => p.foto ? `<img class="eav" style="width:${px}px;height:${px}px" src="${p.foto}" alt="${esc(p.n)}">` : `<span class="eav ini ${p.k}" style="width:${px}px;height:${px}px;font-size:${Math.round(px * .5)}px">${esc((p.n || "?")[0].toUpperCase())}</span>`;
 const escDM = d => String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0");
@@ -2264,7 +2273,7 @@ function escPaint() {
   v.innerHTML = `<div class="eh0"><button type="button" id="escX" class="secondary">${PERFIL === "BENASSI" ? "Trocar perfil" : "Fechar"}</button>${adm ? `<button type="button" id="escCfgB" class="secondary">⚙️ Configurar</button>` : ""}<h2>🗓️ Escala 5x2</h2></div>
     <div class="enav"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div>
     ${alerta}${card}<div class="ehoje"><small>Hoje, ${hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</small><div>${hj}</div></div>
-    <p class="muted eleg">${hrs}<br>Colorido = trabalha · cinza = FOLGA · azul = férias · contorno vermelho = os dois folgam no mesmo dia · a escala nova começa em ${escDM(new Date(iy, im - 1, id))}/${iy} (${ESC_DSL[new Date(iy, im - 1, id).getDay()].toLowerCase()})${adm ? " · Toque em um dia para mudar (abre uma janela para escolher)." : ""}</p>`;
+    <p class="muted eleg">${hrs}<br>Colorido = trabalha · cinza = FOLGA · azul = férias · contorno vermelho = os dois folgam no mesmo dia · a escala nova começa em ${escDM(new Date(iy, im - 1, id))}/${iy} (${ESC_DSL[new Date(iy, im - 1, id).getDay()].toLowerCase()})${adm ? " · Toque em um dia e escolha na janelinha (nada muda só com o primeiro toque)." : ""}</p>`;
   escAnima(v);
 }
 function escFixAbrir(key) {   // corrige um dia em que os dois folgam: escolhe quem trabalha e em qual outro dia da semana essa pessoa folga
@@ -2363,7 +2372,7 @@ function escAbrir() {
       if (e.target.closest("#escSh")) return escCompartilha();
       if (e.target.closest("#escFs")) return escTelaCheia(true);
       if (e.target.closest("#escFx")) return escTelaCheia(false);
-      if (t) return escToca(t.dataset.ep, t.dataset.ek);
+      if (t) return escToca(t.dataset.ep, t.dataset.ek, t);
       if (mn) { escDir = Number(mn.dataset.em) > 0 ? 1 : -1; escMes = new Date(escMes.y, escMes.m + Number(mn.dataset.em), 1); escMes = { y: escMes.getFullYear(), m: escMes.getMonth() }; return escPaint(); }
       if (e.target.closest("#escX")) { if (PERFIL === "BENASSI") perfilEscolher(true); else v.remove(); } }; }
   document.body.classList.add("escOn"); escPaint();
