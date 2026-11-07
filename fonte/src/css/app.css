@@ -1728,3 +1728,20 @@ html[data-tema="light"] .escv .epc .epn span{color:#1a1a1f}
 .escv .pl.sm.ht{font-size:11px;font-weight:700;color:var(--mut);opacity:.85}
 .escv .pl.sm.ht.oky{color:#2fb35c}.escv .pl.sm.ht.no{color:#ff9a66}
 html[data-tema="light"] .escv .pl.sm.ht.oky{color:#1b8a41}html[data-tema="light"] .escv .pl.sm.ht.no{color:#c2410c}
+/* FLORES — só no perfil Admin */
+body:not([data-perfil="Admin"]) #mnFlores{display:none!important}
+.flv.hidden{display:none}
+.flv .ebt{display:flex;gap:8px}.flv .ebt button{min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--ln);background:rgba(243,216,122,.16);color:var(--ink);font-weight:700}
+.flres{margin:10px 2px;font-size:15px}
+.flh{margin:16px 2px 8px;font-size:17px;color:var(--ink)}.flh small{opacity:.6;font-weight:600}.flh.atr{color:#d64545}.flh.hj{color:#1b8a41}
+.flc{display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:8px;border-radius:16px;border:1px solid var(--ln);background:var(--card,rgba(255,255,255,.05));cursor:pointer}
+.flc.hj{border-color:#2fb35c;background:rgba(47,179,92,.12)}.flc.atr{border-color:#e05252;background:rgba(224,82,82,.13)}
+.flt{flex:none;width:60px;height:60px;border-radius:14px;overflow:hidden;background:rgba(120,160,120,.2);display:flex;align-items:center;justify-content:center;font-size:30px}.flt img{width:100%;height:100%;object-fit:cover}.flt.big{width:84px;height:84px;font-size:40px}
+.fli{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.fli b{font-size:17px;color:var(--ink)}.fli small{color:var(--mut);font-size:13px}.fls{font-size:14px;font-weight:700;color:var(--ink)}
+.flc.hj .fls{color:#1b8a41}.flc.atr .fls{color:#d64545}
+.flr{flex:none;display:flex;flex-direction:column;align-items:center;gap:0;min-width:64px;min-height:56px;border-radius:14px;border:1px solid #3d9be0;background:rgba(61,155,224,.15);font-size:24px;color:var(--ink)}.flr em{font-style:normal;font-size:11px;font-weight:700}
+.flform{max-height:92vh;overflow:auto;text-align:left}.flform label{display:block;font-size:13px;font-weight:700;margin:10px 0 0}.flform input,.flform select{display:block;width:100%;min-height:44px;margin-top:4px;padding:0 10px;border-radius:10px;border:1px solid var(--ln);background:var(--bg,#fff);color:var(--ink);font-size:16px}
+.flph{display:flex;align-items:center;gap:12px}.flrow{display:flex;gap:8px}.flrow label{flex:1}
+.flcare{margin:12px 0;padding:10px;border-radius:12px;background:rgba(47,179,92,.1);border:1px solid rgba(47,179,92,.35);font-size:14px;line-height:1.4}.flcare p{margin:6px 0}.flcare small{color:var(--mut)}
+.flform input[type=file]{display:none!important}
+.flform>button{display:block;width:100%;min-height:46px;margin-top:8px}
