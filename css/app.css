@@ -1668,3 +1668,8 @@ body.escOn:not([data-perfil="Admin"]){overflow:hidden}
 .escv .pl.sm{background:none!important;font-size:12px;letter-spacing:0;white-space:nowrap;display:flex;align-items:center;justify-content:center;padding:4px 0}
 .escv .pl.sm.ok{color:#2fb35c}.escv .pl.sm.ruim{color:#ff9a66;background:rgba(255,120,60,.18)!important;border-radius:6px}.escv .pl.sm.ant{color:var(--mut)}
 .escFull .pl.sm{font-size:13px}
+
+.escv .ec.vz{background:repeating-linear-gradient(135deg,rgba(120,120,130,.08) 0 6px,transparent 6px 12px);min-height:40px}.escv .ec.vz i{opacity:.4}
+.eaviso{margin:18px 8px;padding:16px;border-radius:12px;border:1px dashed var(--ln);text-align:center;font-size:16px;line-height:1.5;color:var(--ink)}
+.escv .eh.F b{margin:0 2px}
+.enota{padding:10px 12px;border-radius:12px;background:rgba(243,216,122,.14);border:1px solid rgba(243,216,122,.4);font-size:15px;line-height:1.4;color:var(--ink)}

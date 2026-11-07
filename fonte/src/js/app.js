@@ -2226,7 +2226,9 @@ function escAnima(v) {   // deslize curto ao trocar de mês (só o conteúdo do 
 function escPaint() {
   const v = $("escV"); if (!v) return; const adm = PERFIL === "Admin" || PERFIL === "BENASSI" || escNome(), c = escCfg(), P = escP(), { y, m } = escMes, nomeM = new Date(y, m, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }).replace(/^./, s => s.toUpperCase());
   const hoje = new Date(), hk = escKey(hoje), ds = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"], pr = escProblemas(y, m, c), hrs = `${escH(c.dia)} por dia · ${c.int} min de intervalo · meta de ${escH(c.meta)} por semana`;
-  const hj = P.map(p => { const st = escSt(p.k, hoje, c); return `<span class="eh ${st}">${escAv(p, 24)}<b>${esc(p.n)}</b> ${st === "T" ? escHm(p.ent) + "–" + escHm(escSai(p, c)) : st === "FE" ? "férias" : st === "-" ? "escala antiga" : "folga"}</span>`; }).join("");
+  const [iy0, im0, id0] = c.ini.split("-").map(Number), iniD = new Date(iy0, im0 - 1, id0), hoje0 = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()), falta = Math.round((iniD - hoje0) / 864e5);
+  const aviso = `A escala nova começa em <b>${ESC_DSL[iniD.getDay()].toLowerCase()} ${escDM(iniD)}/${iy0}</b>.`;
+  const hj = falta > 0 ? `<div class="enota">${aviso} ${falta === 1 ? "É amanhã." : "Faltam " + falta + " dias."}</div>` : P.map(p => { const st = escSt(p.k, hoje, c); return `<span class="eh ${st}">${escAv(p, 24)}<b>${esc(p.n)}</b> ${st === "T" ? escHm(p.ent) + "–" + escHm(escSai(p, c)) : st === "FE" ? "férias" : st === "-" ? "escala antiga" : "folga"}</span>`; }).join("");
   const ini = new Date(y, m, 1), fim = new Date(y, m + 1, 0), tot = { r: 0, y: 0 }; let d = new Date(y, m, 1 - ini.getDay()), rows = "";
   while (d <= fim) {
     let cels = "", nt = { r: 0, y: 0 }, semAntiga = true; const parc = escParcial(new Date(d), c);
@@ -2234,9 +2236,9 @@ function escPaint() {
       const fora = d.getMonth() !== m, key = escKey(d), ss = P.map(p => escSt(p.k, d, c)), nenhum = ss.every(x => x === "F" || x === "FE");
       if (ss.some(x => x !== "-")) semAntiga = false;
       P.forEach((p, q) => { if (ss[q] === "T") { nt[p.k]++; if (!fora) tot[p.k] += c.dia; } });
-      cels += `<td class="ec${fora ? " fora" : ""}${key === hk ? " hoje" : ""}${nenhum && !fora ? " vazio" : ""}"><i>${d.getDate()}</i>${P.map((p, q) => `<b class="pl ${ss[q] === "-" ? "N" : ss[q]} ${p.k}"${adm ? ` data-ek="${key}" data-ep="${p.k}"` : ""}>${ss[q] === "T" ? esc((p.n[0] || "?").toUpperCase()) : ss[q] === "FE" ? "férias" : ss[q] === "-" ? "–" : "folga"}</b>`).join("")}</td>`;
+      cels += ss.every(x => x === "-") ? `<td class="ec vz${fora ? " fora" : ""}${key === hk ? " hoje" : ""}"><i>${d.getDate()}</i></td>` : `<td class="ec${fora ? " fora" : ""}${key === hk ? " hoje" : ""}${nenhum && !fora ? " vazio" : ""}"><i>${d.getDate()}</i>${P.map((p, q) => `<b class="pl ${ss[q] === "-" ? "N" : ss[q]} ${p.k}"${adm ? ` data-ek="${key}" data-ep="${p.k}"` : ""}>${ss[q] === "T" ? esc((p.n[0] || "?").toUpperCase()) : ss[q] === "FE" ? "férias" : ss[q] === "-" ? "–" : "folga"}</b>`).join("")}</td>`;
       d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); }
-    rows += `<tr>${cels}<td class="ec es"><i>&nbsp;</i>${P.map(p => { const mn = nt[p.k] * c.dia, ok = mn === c.meta; return `<b class="pl sm ${ok && !parc ? "ok" : semAntiga || parc ? "ant" : "ruim"}">${esc((p.n[0] || "").toUpperCase())} ${semAntiga ? "antiga" : parc ? nt[p.k] + " dias" : ok ? escH(c.meta) + "✓" : escH(mn)}</b>`; }).join("")}</td></tr>`;
+    if (!semAntiga) rows += `<tr>${cels}<td class="ec es"><i>&nbsp;</i>${P.map(p => { const mn = nt[p.k] * c.dia, ok = mn === c.meta; return `<b class="pl sm ${ok && !parc ? "ok" : semAntiga || parc ? "ant" : "ruim"}">${esc((p.n[0] || "").toUpperCase())} ${semAntiga ? "antiga" : parc ? nt[p.k] + " dias" : ok ? escH(c.meta) + "✓" : escH(mn)}</b>`; }).join("")}</td></tr>`;
   }
   const chip = (p, st, key) => `<span class="lc ${st === "T" ? p.k : st === "FE" ? "FE" : "F"}"${adm ? ` data-ek="${key}" data-ep="${p.k}"` : ""}>${escAv(p, 24)}<b>${esc(p.n)}</b>${st === "T" ? "trabalha " + escHm(p.ent) + "–" + escHm(escSai(p, c)) : st === "FE" ? "férias" : st === "-" ? "escala antiga" : "FOLGA"}</span>`;
   let lista = ""; { let dd = new Date(y, m, 1 - ini.getDay());
@@ -2253,11 +2255,11 @@ function escPaint() {
     v.className = "escv escFull";
     v.innerHTML = `<div class="efh"><button type="button" id="escFx" aria-label="Sair da tela cheia">✕</button><div class="efn"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div></div>
       <div class="efp">${P.map(p => `<span class="${p.k}">${escAv(p, 30)}<b>${esc(p.n)}</b> ${escHm(p.ent)}–${escHm(escSai(p, c))}</span>`).join("")}${pr.dias.length ? `<span class="efal">⚠ os dois folgam: ${pr.dias.map(escDM).join(", ")}</span>` : ""}</div>
-      <table class="etb"><thead><tr>${ds.map(x => `<th>${x}</th>`).join("")}<th>Sem.</th></tr></thead><tbody>${rows}</tbody></table>`; escAnima(v); return; }
+      ${rows ? `<table class="etb"><thead><tr>${ds.map(x => `<th>${x}</th>`).join("")}<th>Sem.</th></tr></thead><tbody>${rows}</tbody></table>` : `<p class="eaviso">${aviso}<br>Antes disso não há escala 5x2.</p>`}`; escAnima(v); return; }
   v.className = "escv";
   const vista = escVista, abas = `<div class="evs"><button type="button" data-ev="lista" class="${vista === "lista" ? "on" : ""}">📋 Lista</button><button type="button" data-ev="cal" class="${vista === "cal" ? "on" : ""}">🗓️ Calendário</button><button type="button" id="escSh" class="sh" aria-label="Enviar imagem no WhatsApp" title="Enviar">📤</button><button type="button" id="escFs" class="sh" aria-label="Tela cheia" title="Tela cheia">⛶</button></div>`;
-  const card = vista === "lista" ? `<section class="ecard"><div class="epcs">${cab}</div>${abas}${lista}</section>` : `<section class="ecard"><div class="epcs">${cab}</div>${abas}<p class="muted ecl">Linha de cima = ${esc(P[0].n)} · linha de baixo = ${esc(P[1].n)}</p>
-    <table class="etb"><thead><tr>${ds.map(x => `<th>${x}</th>`).join("")}<th>Semana</th></tr></thead><tbody>${rows}</tbody></table></section>`;
+  const card = vista === "lista" ? `<section class="ecard"><div class="epcs">${cab}</div>${abas}${lista || `<p class="eaviso">${aviso}<br>Antes disso não há escala 5x2.</p>`}</section>` : `<section class="ecard"><div class="epcs">${cab}</div>${abas}<p class="muted ecl">Linha de cima = ${esc(P[0].n)} · linha de baixo = ${esc(P[1].n)}</p>
+    ${rows ? `<table class="etb"><thead><tr>${ds.map(x => `<th>${x}</th>`).join("")}<th>Semana</th></tr></thead><tbody>${rows}</tbody></table>` : `<p class="eaviso">${aviso}<br>Antes disso não há escala 5x2.</p>`}</section>`;
   const [iy, im, id] = c.ini.split("-").map(Number);
   v.innerHTML = `<div class="eh0"><button type="button" id="escX" class="secondary">${PERFIL === "BENASSI" ? "Trocar perfil" : "Fechar"}</button>${adm ? `<button type="button" id="escCfgB" class="secondary">⚙️ Configurar</button>` : ""}<h2>🗓️ Escala 5x2</h2></div>
     <div class="enav"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div>
@@ -2317,7 +2319,7 @@ function escCfgAbrir() {
 // ---- imagem do mês para compartilhar (WhatsApp) ----
 const escLoadImg = src => new Promise(ok => { if (!src) return ok(null); const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = src; });
 async function escImagem() {
-  const c = escCfg(), P = escP(), { y, m } = escMes, W = 1080, X = 50, CW = 140, CH = 150, ini = new Date(y, m, 1), fim = new Date(y, m + 1, 0), nSem = Math.ceil((ini.getDay() + fim.getDate()) / 7);
+  const c = escCfg(), P = escP(), { y, m } = escMes, W = 1080, X = 50, CW = 140, CH = 150, ini = new Date(y, m, 1), fim = new Date(y, m + 1, 0), nSem = (() => { let n = 0, q = new Date(y, m, 1 - ini.getDay()); while (q <= fim) { let any = false; for (let i = 0; i < 7; i++) { if (P.some(p => escSt(p.k, q, c) !== "-")) any = true; q = new Date(q.getFullYear(), q.getMonth(), q.getDate() + 1); } if (any) n++; } return n; })();
   const nomeM = new Date(y, m, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }).replace(/^./, t => t.toUpperCase()), imgs = await Promise.all(P.map(p => escLoadImg(p.foto)));
   const cv = document.createElement("canvas"), H = 330 + 60 + nSem * (CH + 8) + 130; cv.width = W; cv.height = H; const g = cv.getContext("2d"), F = "system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
   const rr = (x0, y0, w, h, r, fill, stroke) => { g.beginPath(); g.roundRect(x0, y0, w, h, r); if (fill) { g.fillStyle = fill; g.fill(); } if (stroke) { g.strokeStyle = stroke; g.lineWidth = 3; g.stroke(); } };
@@ -2330,9 +2332,10 @@ async function escImagem() {
     tx(p.n, x0 + 135, 222, 40, "#1b1b1f", 800); if (p.full) tx(p.full.length > 24 ? p.full.slice(0, 23) + "…" : p.full, x0 + 135, 255, 21, "#6b6b73", 600); tx(escHm(p.ent) + " às " + escHm(escSai(p, c)), x0 + 135, p.full ? 287 : 262, 34, "#1b1b1f", 800); });
   const ds = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"], Y0 = 345; ds.forEach((t, i) => tx(t, X + i * CW + CW / 2, Y0, 28, "#6b6b73", 800, "center"));
   let d = new Date(y, m, 1 - ini.getDay()), row = 0;
-  while (d <= fim) { for (let i = 0; i < 7; i++) { const x0 = X + i * CW + 3, y0 = Y0 + 30 + row * (CH + 8), fora = d.getMonth() !== m, ss = P.map(p => escSt(p.k, d, c)), vazio = ss.every(v => v === "F" || v === "FE");
+  while (d <= fim) { const wk0 = new Date(d); if (!Array.from({ length: 7 }, (_, i) => new Date(wk0.getFullYear(), wk0.getMonth(), wk0.getDate() + i)).some(dd => P.some(p => escSt(p.k, dd, c) !== "-"))) { d = new Date(wk0.getFullYear(), wk0.getMonth(), wk0.getDate() + 7); continue; }
+    for (let i = 0; i < 7; i++) { const x0 = X + i * CW + 3, y0 = Y0 + 30 + row * (CH + 8), fora = d.getMonth() !== m, ss = P.map(p => escSt(p.k, d, c)), vazio = ss.every(v => v === "F" || v === "FE");
       g.globalAlpha = fora ? .35 : 1; rr(x0, y0, CW - 6, CH, 14, "#f1eee3", vazio && !fora ? "#e5484d" : null); tx(String(d.getDate()), x0 + 14, y0 + 24, 30, "#1b1b1f", 800);
-      P.forEach((p, q) => { const yy = y0 + 46 + q * 50, st = ss[q], tw = st === "T", col = p.k === "r" ? "#e0a030" : "#3fb6c4";
+      if (!ss.every(v => v === "-")) P.forEach((p, q) => { const yy = y0 + 46 + q * 50, st = ss[q], tw = st === "T", col = p.k === "r" ? "#e0a030" : "#3fb6c4";
         rr(x0 + 8, yy, CW - 22, 44, 10, st === "-" ? "#e4e1d6" : tw ? col : st === "FE" ? "#cddcff" : "#d3d0c6"); if (!tw && st !== "-") { g.fillStyle = col; g.fillRect(x0 + 8, yy + 4, 6, 36); }
         tx(tw ? (p.n[0] || "?").toUpperCase() : st === "FE" ? "férias" : st === "-" ? "–" : "folga", x0 + 8 + (CW - 22) / 2 + (tw || st === "-" ? 0 : 3), yy + 23, tw ? 28 : 24, tw ? "#1d1400" : "#4a4a52", 800, "center"); });
       g.globalAlpha = 1; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); } row++; }
