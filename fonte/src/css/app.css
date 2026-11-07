@@ -1634,3 +1634,7 @@ body.escOn:not([data-perfil="Admin"]){overflow:hidden}
 .efc{display:flex;flex-direction:column;gap:8px;margin-top:10px}.efc button{min-height:52px;border-radius:12px;border:2px solid var(--ln);background:var(--card);color:var(--ink);font-size:17px;font-weight:800}.efc button.on{border-color:#c9a227;background:rgba(243,216,122,.35)}
 .ehoje{margin:12px 0 8px}
 .escv .eh0{gap:6px}.escv .eh0 h2{font-size:17px;white-space:nowrap}.escv .eh0 button{padding:0 10px;font-size:14px}
+
+.escv .enav{margin:8px 0 10px}.escv .enav b{font-size:30px;font-weight:800;line-height:1.05;letter-spacing:.01em;color:#f3d87a;text-align:center}
+.escv .enav button{width:56px;height:56px;font-size:30px}
+.escv .enav b{font-size:26px;white-space:nowrap;flex:1}.escv .enav button{width:50px;height:50px}
