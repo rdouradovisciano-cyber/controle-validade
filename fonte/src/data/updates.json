@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-08T18:55:00-03:00",
+  "itens": [
+   "Saúde do app (Admin): nova seção «Perecíveis sem foto» com a lista de todos os produtos dos Perecíveis que ainda não têm foto e um botão «📷 Foto» em cada um (tirar ou escolher). Ao salvar, o produto sai da lista e a miniatura aparece na lista de Validades"
+  ]
+ },
+ {
   "t": "2026-11-08T18:30:00-03:00",
   "itens": [
    "Área de bip › «ou procure pelo nome»: agora acha TODOS os cadastros do setor — também os sem código de barras (só balança/PLU), os retirados e os que repetem o mesmo EAN com nomes diferentes. A lista mostra quantos achou e rola; tocar abre o lote daquele cadastro exato"

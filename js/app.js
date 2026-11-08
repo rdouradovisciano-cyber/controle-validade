@@ -2106,6 +2106,11 @@ function saudeCalc() {
   sec.push({ t: "Mesmo nome em cadastros separados", d: "Aparecem como linhas repetidas em Cadastros.", n: iguais.length, it: iguais });
   const par = dupGroups();
   sec.push({ t: "Nomes parecidos", d: "Podem ser o mesmo produto escrito de formas diferentes.", n: par.length, it: par.length ? [par.map(a => a.map(x => esc(x.nome)).join(" ≈ ")).slice(0, 6).join("<br>"), `<button type="button" class="shact pri" data-a="uni">Escolher o nome certo</button>`] : [] });
+  // Perecíveis sem foto (Admin): uma linha por produto (a foto vale para todos os lotes do mesmo nome)
+  { const nomes = new Map(); rawAllAtivos().forEach(p => { if (setSet(p) !== PER || p.retirado) return; const k = fotoK(p.name); if (!nomes.has(k)) nomes.set(k, p.name); });
+    const sem = fotosPronto || !db ? [...nomes.entries()].filter(([k]) => !fotoCache[k]).map(([, n]) => n).sort((x, y) => x.localeCompare(y, "pt-BR")) : [];
+    sec.push({ t: "Perecíveis sem foto", d: fotosPronto || !db ? `De ${nomes.size} produtos dos Perecíveis, ${sem.length} ainda não têm foto. Toque em «📷 Foto» para tirar ou escolher; a foto vale para todos os lotes do produto.` : "Carregando as fotos da nuvem… feche e abra de novo em instantes.", n: sem.length, todos: true,
+      it: sem.map(n => `<div class="shrow"><span class="shn2">${esc(nomeBonito(n))}</span><span class="shbts"><button type="button" class="shact pri" data-foto="${esc(n)}">📷 Foto</button></span></div>`) }); }
   const fora = {}; products.forEach(p => { if (p.category && !CATS.includes(p.category)) fora[p.category] = (fora[p.category] || 0) + 1; });
   sec.push({ t: "Categoria fora da lista", d: "Produtos com uma categoria que o app não conhece.", n: Object.keys(fora).length, it: Object.keys(fora).map(c => esc(c) + " (" + fora[c] + ")") });
   return sec;
@@ -2188,7 +2193,7 @@ function saudeAbrir() {
     bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Saúde do app"><div class="sheethead"><h2>🩺 Saúde do app</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
     <p class="note">Setor <b>${esc(SETOR)}</b> · ${cadGroups().length} cadastros · ${db ? "Firebase ligado" : "modo local"}${cloud && db ? " · " + esc(cloud) : ""}</p>
     <div class="shsum ${probs ? "aten" : "ok"}">${probs ? "⚠ " + probs + " ponto(s) de atenção" : "✓ Nada para corrigir"}</div>
-    ${sec.map(s => `<div class="shsec"><div class="shh"><span class="shb ${s.n ? "aten" : "ok"}">${s.n ? s.n : "✓"}</span><b>${esc(s.t)}</b></div>${s.n ? `<small class="note">${esc(s.d)}</small><div class="shit">${s.it.slice(0, 10).map(h => `<div>${h}</div>`).join("")}${s.it.length > 10 ? `<div class="muted">+ ${s.it.length - 10} outros (resolva estes e abra de novo)</div>` : ""}</div>` : ""}</div>`).join("")}
+    ${sec.map(s => `<div class="shsec"><div class="shh"><span class="shb ${s.n ? "aten" : "ok"}">${s.n ? s.n : "✓"}</span><b>${esc(s.t)}</b></div>${s.n ? `<small class="note">${esc(s.d)}</small><div class="shit">${s.it.slice(0, s.todos ? 500 : 10).map(h => `<div>${h}</div>`).join("")}${!s.todos && s.it.length > 10 ? `<div class="muted">+ ${s.it.length - 10} outros (resolva estes e abra de novo)</div>` : ""}</div>` : ""}</div>`).join("")}
     <div class="shsec"><div class="shh"><span class="shb info">ⓘ</span><b>Guardado só neste aparelho</b></div>${loc.length ? `<div class="shit">${loc.map(t => `<div>${esc(t)}</div>`).join("")}</div><small class="note">Outros celulares não veem isso.</small>` : '<small class="note">Nada. Tudo o que importa está na nuvem.</small>'}</div>
     <div class="shsec"><div class="shh"><span class="shb info">ⓘ</span><b>Memória e armazenamento</b></div><div id="shMem">${memHtml || '<small class="note">Calculando…</small>'}</div></div>
     <div class="shsec"><div class="shh"><b>Autoteste da nuvem</b></div><small class="note">Cria um item de teste em cada setor, altera, apaga e diz se o Firebase aceitou. Não deixa nada para trás.</small>
@@ -2196,6 +2201,9 @@ function saudeAbrir() {
     bg.querySelector(".sheet").scrollTop = y; };
   paint(); document.body.appendChild(bg); memCalc().then(h => { memHtml = h; const m = bg.querySelector("#shMem"); if (m) m.innerHTML = h; });
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) { bg.remove(); return; }
+    const ft = e.target.closest("[data-foto]"); if (ft) { bg._fotoNome = ft.dataset.foto; let inp = bg.querySelector("#shFotoIn"); if (!inp) { inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.id = "shFotoIn"; inp.hidden = true; bg.appendChild(inp);
+        inp.onchange = async () => { const f = inp.files && inp.files[0], nome = bg._fotoNome; inp.value = ""; if (!f || !nome) return; toast("Salvando a foto…"); const ok = await fotoGravaNome(nome, f); toast(ok ? "Foto salva: " + nomeBonito(nome) : "Não consegui salvar a foto."); fotoIcones(); paint(); }; }
+      inp.click(); return; }
     const ac = e.target.closest("[data-a]"); if (ac) { saudeAcao({ ...ac.dataset }, paint); return; }
     const n = e.target.closest("[data-sn]"); if (n) { const nome = n.dataset.sn, set = n.dataset.ss; bg.remove(); if (set && set !== (SETOR === PER ? PER : "FLV") && SETOR !== KOR) trocaSetor(set); $("navCadastros").click(); $("cBusca").value = nome; cadPaint(); window.scrollTo(0, 0); return; }
     if (e.target.id === "shRun") { const b = e.target, out = $("shRes"); b.disabled = true; b.textContent = "Testando…"; out.innerHTML = "";
