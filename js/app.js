@@ -688,13 +688,24 @@ function manualCodeGo() {            // código digitado: segue o mesmo caminho 
   $("manualCode").value = ""; $("manualCode").blur(); onCode(v);
 }
 $("manualGo").onclick = manualCodeGo;
+// achar pelo nome (discreto, abaixo do código): toca no produto e segue como se tivesse bipado
+function nmBusca() {
+  const q = norm($("nmBusca").value.trim()), box = $("nmRes"); if (q.length < 2) { box.classList.add("hidden"); box.innerHTML = ""; return; }
+  const tk = q.split(/\s+/), vistos = new Set(), r = [];
+  for (const p of products) { if (!p || p.retirado || !p.barcode || vistos.has(p.barcode)) continue; const n = norm(p.name || ""); if (tk.every(x => n.includes(x))) { vistos.add(p.barcode); r.push(p); } }
+  r.sort((a, b) => norm(a.name).indexOf(tk[0]) - norm(b.name).indexOf(tk[0]) || String(a.name).length - String(b.name).length);
+  box.innerHTML = r.length ? r.slice(0, 6).map(p => `<button type="button" data-bc="${esc(p.barcode)}"><span>${esc(nomeBonito(p.name))}</span><small>${esc(p.category === PER ? "Perecíveis" : p.category || "")}</small></button>`).join("") + (r.length > 6 ? `<em>mais ${r.length - 6}… continue digitando</em>` : "") : "<em>Nenhum produto com esse nome.</em>";
+  box.classList.remove("hidden");
+}
+$("nmBusca").oninput = nmBusca;
+$("nmRes").onclick = e => { const b = e.target.closest("button[data-bc]"); if (!b) return; const c = b.dataset.bc; $("nmBusca").value = ""; nmBusca(); $("nmBusca").blur(); onCode(c); };
 $("manualCode").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); manualCodeGo(); } };
 async function openScan(mode = "loja") {
   scanMode = ["doacao", "etiqueta", "cadastro", "contagem", "fiscal", "form"].includes(mode) ? mode : "loja";
   if (scanMode !== "form") resetForm(); show({ doacao: "Bipar itens da doação", etiqueta: "Bipar para etiqueta", cadastro: "Bipar para o cadastro", contagem: "Bipar para a contagem", fiscal: "Bipar para ver os códigos", form: "Bipar o produto" }[scanMode] || "Ler código de barras", true);
   $("scanManual").textContent = scanMode === "loja" ? "Digitar código" : scanMode === "form" ? "Voltar ao formulário" : "Cancelar";
   ["retryScan", "torchBtn"].forEach(i => $(i).classList.add("hidden"));
-  $("scanMsg").textContent = "Aponte a câmera traseira para o código de barras. Se não ler, digite o código abaixo."; $("manualCode").value = "";
+  $("scanMsg").textContent = "Aponte a câmera traseira para o código de barras. Se não ler, digite o código abaixo."; $("manualCode").value = ""; $("nmBusca").value = ""; nmBusca();
   await stopScanner();
   const F = V.Html5QrcodeSupportedFormats, s = new V.Html5Qrcode("reader", { verbose: false,
     formatsToSupport: [F.EAN_13, F.EAN_8, F.UPC_A, F.UPC_E, F.CODE_128, F.CODE_39, F.ITF] });

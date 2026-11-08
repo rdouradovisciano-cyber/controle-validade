@@ -11,10 +11,10 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=400">
+<link rel="stylesheet" href="css/app.css?v=401">
 <title>Valida+ | Controle de validade</title>
-<script src="js/tema.js?v=400"></script>
-<!-- const APP_VERSION = "2026.11.08-400" -->
+<script src="js/tema.js?v=401"></script>
+<!-- const APP_VERSION = "2026.11.08-401" -->
 </head>
 <body data-tab="Loja">
 <div id="splash" role="status" aria-live="polite"><style>
@@ -228,6 +228,7 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 <div id="modal" class="modal hidden"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 <div class="sheethead"><h2 id="modalTitle">Cadastrar produto</h2><button id="closeModal" class="secondary" aria-label="Fechar">✕</button></div>
 <div id="scannerArea" class="hidden"><div id="reader"></div><p id="scanMsg" class="note"></p><div class="wrow" id="manualRow" style="margin:6px 0 10px"><input id="manualCode" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="20" enterkeyhint="go" autocomplete="off" placeholder="Digite o código de barras"><button type="button" class="primary" id="manualGo" style="min-width:76px">OK</button></div>
+<div id="nmBox"><input id="nmBusca" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="ou procure pelo nome" aria-label="Procurar produto pelo nome"><div id="nmRes" class="hidden"></div></div>
 <div class="toolbar"><button class="secondary hidden" id="torchBtn">🔦 Lanterna</button><button class="primary hidden" id="retryScan">Tentar novamente</button><button class="secondary" id="scanManual">Digitar código</button></div></div>
 <form id="productForm"><input type="hidden" id="docId"><p class="note hidden" id="loteInfo"></p><button type="button" class="secondary hidden" id="loteEdit" style="width:100%;margin-bottom:6px">Editar dados do produto</button><div class="formgrid">
 <div class="wide hide-lote"><label for="barcode">Código de barras</label><input id="barcode" inputmode="numeric" placeholder="Bipe ou digite o código" maxlength="32"></div>
@@ -240,16 +241,16 @@ if(document.readyState==="complete")done();else window.addEventListener("load",d
 </div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
-<script src="js/config.js?v=400"></script>
+<script src="js/config.js?v=401"></script>
 <script src="vendor.js"></script>
-<script src="js/version.js?v=400"></script>
-<script src="js/login.js?v=400"></script>
-<script src="js/app.js?v=400"></script>
-<script src="js/nav.js?v=400"></script>
-<script src="js/operador.js?v=400"></script>
-<script src="js/teclado.js?v=400"></script>
-<script src="js/menu.js?v=400"></script>
-<script src="js/status.js?v=400"></script>
-<script src="js/inventario.js?v=400"></script>
-<script src="js/doacao-busca.js?v=400"></script>
+<script src="js/version.js?v=401"></script>
+<script src="js/login.js?v=401"></script>
+<script src="js/app.js?v=401"></script>
+<script src="js/nav.js?v=401"></script>
+<script src="js/operador.js?v=401"></script>
+<script src="js/teclado.js?v=401"></script>
+<script src="js/menu.js?v=401"></script>
+<script src="js/status.js?v=401"></script>
+<script src="js/inventario.js?v=401"></script>
+<script src="js/doacao-busca.js?v=401"></script>
 </body></html>

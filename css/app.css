@@ -1775,3 +1775,14 @@ html[data-tema="light"] .shg small,html[data-tema="light"] .shrow small{color:#4
 
 .pitem.saindo{animation:none!important}   /* v400: sem pulso enquanto sai */
 .pitem.saindo .ico-lado .ico-img{filter:grayscale(1)}
+
+/* achar pelo nome na área de bip: discreto, sem competir com o código */
+#nmBox{margin:-2px 0 8px}
+#nmBusca{width:100%;font-size:13px;padding:7px 11px;min-height:0;opacity:.72;background:transparent;border-style:dashed}
+#nmBusca:focus{opacity:1;border-style:solid}
+#nmRes{margin-top:4px;border:1px solid var(--ln,rgba(255,255,255,.14));border-radius:10px;overflow:hidden}
+#nmRes button{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;font-size:14px;font-weight:600;padding:9px 11px;min-height:0;background:transparent;border:0;border-bottom:1px solid var(--ln,rgba(255,255,255,.08));border-radius:0;color:inherit}
+#nmRes button:last-child{border-bottom:0}
+#nmRes button:active{background:rgba(255,255,255,.08)}
+#nmRes small{opacity:.55;font-size:11px;font-weight:500;white-space:nowrap}
+#nmRes em{display:block;padding:8px 11px;font-size:12px;opacity:.55;font-style:normal}
