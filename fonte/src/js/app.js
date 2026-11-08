@@ -2111,12 +2111,14 @@ function saudeCalc() {
   const par = dupGroups();
   sec.push({ t: "Nomes parecidos", d: "Podem ser o mesmo produto escrito de formas diferentes.", n: par.length, it: par.length ? [par.map(a => a.map(x => esc(x.nome)).join(" ≈ ")).slice(0, 6).join("<br>"), `<button type="button" class="shact pri" data-a="uni">Escolher o nome certo</button>`] : [] });
   // Perecíveis sem foto (Admin): uma linha por produto (a foto vale para todos os lotes do mesmo nome). Emoji NÃO conta como foto.
-  { const nomes = new Map(); rawAllAtivos().forEach(p => { if (setSet(p) !== PER || p.retirado) return; const k = fotoK(p.name); if (!nomes.has(k)) nomes.set(k, p.name); });
+  { const nomes = new Map(), eanDe = {}, pluDe = {}; rawAllAtivos().forEach(p => { if (setSet(p) !== PER || p.retirado) return; const k = fotoK(p.name); if (!nomes.has(k)) nomes.set(k, p.name); if (p.barcode) (eanDe[k] = eanDe[k] || new Set()).add(String(p.barcode).trim()); if (p.codigo_balanca) pluDe[k] = pluDe[k] || String(p.codigo_balanca).trim(); });
     const sabe = !db || fotosPronto, nFot = [...nomes.keys()].filter(k => fotoCache[k]).length;
     const sem = sabe ? [...nomes.entries()].filter(([k]) => !fotoCache[k]).map(([, n]) => n).sort((x, y) => x.localeCompare(y, "pt-BR")) : [];
     if (!sabe) sec.push({ t: "Perecíveis sem foto", d: fotosErro ? "Não consegui ler as fotos da nuvem agora. Feche e abra de novo; se continuar, avise." : "Conferindo as fotos na nuvem… a lista aparece sozinha em instantes.", n: 1, it: ["<small class=\"note\">Aguarde um instante…</small>"] });
     else sec.push({ t: `Perecíveis sem foto (${sem.length} de ${nomes.size})`, d: `De ${nomes.size} produtos dos Perecíveis, ${nFot} têm foto e ${sem.length} não. Emoji não conta como foto. Toque em «📷 Foto» para tirar ou escolher; a foto vale para todos os lotes do produto.`, n: sem.length, todos: true,
-      it: sem.map(n => `<div class="shrow"><span class="shn2">${esc(nomeBonito(n))}</span><span class="shbts"><button type="button" class="shact pri" data-foto="${esc(n)}">📷 Foto</button></span></div>`) }); }
+      it: sem.map(n => { const k = fotoK(n), eans = eanDe[k] ? [...eanDe[k]] : [], busca = "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent((eans[0] || "") + " " + n);
+        const cod = eans.length ? eans.map(e => `<button type="button" class="shcod" data-copia="${esc(e)}" title="Toque para copiar">EAN ${esc(e)} <i>⧉</i></button>`).join("") : (pluDe[k] ? `<span class="shcod sem">sem EAN · balança ${esc(pluDe[k])}</span>` : `<span class="shcod sem">sem código de barras</span>`);
+        return `<div class="shrow shfoto"><div class="shn2"><b>${esc(nomeBonito(n))}</b>${cod}</div><span class="shbts"><a class="shact" href="${esc(busca)}" target="_blank" rel="noopener" aria-label="Procurar imagem na internet">🔎</a><button type="button" class="shact pri" data-foto="${esc(n)}">📷 Foto</button></span></div>`; }) }); }
   const fora = {}; products.forEach(p => { if (p.category && !CATS.includes(p.category)) fora[p.category] = (fora[p.category] || 0) + 1; });
   sec.push({ t: "Categoria fora da lista", d: "Produtos com uma categoria que o app não conhece.", n: Object.keys(fora).length, it: Object.keys(fora).map(c => esc(c) + " (" + fora[c] + ")") });
   return sec;
@@ -2208,6 +2210,8 @@ function saudeAbrir() {
   saudeRepinta = () => { if (bg.isConnected) paint(); else saudeRepinta = null; };
   paint(); document.body.appendChild(bg); memCalc().then(h => { memHtml = h; const m = bg.querySelector("#shMem"); if (m) m.innerHTML = h; });
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) { bg.remove(); return; }
+    const cp = e.target.closest("[data-copia]"); if (cp) { const v = cp.dataset.copia; const ok = () => toast("Código copiado: " + v), falha = () => { try { const t = document.createElement("textarea"); t.value = v; t.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); ok(); } catch (x) { toast("Código: " + v); } };
+      try { navigator.clipboard.writeText(v).then(ok, falha); } catch (x) { falha(); } return; }
     const ft = e.target.closest("[data-foto]"); if (ft) { bg._fotoNome = ft.dataset.foto; let inp = bg.querySelector("#shFotoIn"); if (!inp) { inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.id = "shFotoIn"; inp.hidden = true; bg.appendChild(inp);
         inp.onchange = async () => { const f = inp.files && inp.files[0], nome = bg._fotoNome; inp.value = ""; if (!f || !nome) return; toast("Salvando a foto…"); const ok = await fotoGravaNome(nome, f); toast(ok ? "Foto salva: " + nomeBonito(nome) : "Não consegui salvar a foto."); fotoIcones(); paint(); }; }
       inp.click(); return; }

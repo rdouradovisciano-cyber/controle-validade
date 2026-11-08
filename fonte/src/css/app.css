@@ -1790,3 +1790,13 @@ html[data-tema="light"] .shg small,html[data-tema="light"] .shrow small{color:#4
 #nmRes em.nmn{position:sticky;top:0;background:var(--bg2,#12161a);font-size:11px;opacity:.7;border-bottom:1px solid var(--ln,rgba(255,255,255,.08))}
 .shn2{font-weight:600;font-size:14px;flex:1;min-width:0}
 #saudeModal .shit .shrow:has(.shn2){display:flex;align-items:center;gap:10px;justify-content:space-between}
+#saudeModal .shrow.shfoto{align-items:center}
+#saudeModal .shn2 b{display:block;font-size:14px}
+.shcod{display:inline-flex;align-items:center;gap:6px;margin:3px 6px 0 0;padding:2px 9px;border-radius:8px;border:1px dashed var(--ln,rgba(255,255,255,.25));background:transparent;color:inherit;font:600 13px/1.5 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.03em;min-height:0}
+.shcod i{font-style:normal;opacity:.6}
+.shcod.sem{opacity:.55;border-style:none;padding-left:0;font-family:inherit;font-weight:500;font-size:12px}
+#saudeModal a.shact{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-width:40px}
+#saudeModal .shbts{display:flex;gap:6px;flex:none}
+#saudeModal .shrow.shfoto .shbts{flex-direction:row!important;flex-wrap:nowrap;align-items:center}
+#saudeModal .shrow.shfoto .shact{white-space:nowrap;min-height:44px;margin:0}
+#saudeModal .shcod{overflow-wrap:anywhere}

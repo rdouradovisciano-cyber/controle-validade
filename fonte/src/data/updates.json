@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-08T19:45:00-03:00",
+  "itens": [
+   "Saúde do app › Perecíveis sem foto: cada produto mostra o código de barras (EAN) completo — toque nele para copiar — e ganhou o botão 🔎 que abre a busca de imagens do Google já com o EAN e o nome. Produto sem EAN mostra o código de balança ou «sem código de barras»"
+  ]
+ },
+ {
   "t": "2026-11-08T19:20:00-03:00",
   "itens": [
    "Saúde do app › Perecíveis sem foto: corrigido o caso em que aparecia «✓ todos têm foto» só porque as fotos ainda não tinham chegado da nuvem. Agora espera a confirmação (e repinta sozinho), mostra «Conferindo…» enquanto isso e informa «X têm foto e Y não» no título. Emoji nunca conta como foto"
