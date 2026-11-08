@@ -1192,10 +1192,11 @@ html[data-tema=dark] .peslista .pesrow .pesn .pesc.plu b,html[data-tema=dark] .p
 .peslista .pesrow .pesb{min-height:34px;padding:0 9px;font-size:12.5px}
 .pitem{margin:6px 0}
 .pi-main{padding:9px 12px;gap:8px}
-.pi-nome{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
+.pi-nome{font-size:17px;white-space:normal;overflow:hidden;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2}   /* nome inteiro, até 2 linhas */
 .pi-nome::after{content:none}
 .pitem.open .pi-nome{white-space:normal;overflow:visible}
-.pi-sub{margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pi-sub{margin-top:2px;white-space:normal;overflow:hidden}
+.pi-op{display:inline-block;margin-left:8px;font-size:11.5px;opacity:.6;white-space:nowrap}
 .pi-sub::after{content:" ▾";opacity:.5}.pitem.open .pi-sub::after{content:" ▴"}
 .pi-badge{min-width:78px;padding:6px 7px}
 .pi-badge b{font-size:19px}
@@ -1356,11 +1357,13 @@ html[data-tema=dark] .ask .arow button.ok{color:#1a1405}
 
 /* números tabulares (mesma largura) em todo o app + nomes e detalhes da lista em MAIÚSCULAS */
 html,body,button,input,select,textarea{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
-.pitem .pi-nome,.pitem .pi-sub,.pitem .pi-cod,.product h3,.peslista .pesrow .pesnome,.pgh,.atvr b{text-transform:uppercase;letter-spacing:.02em}
+.pitem .pi-cod,.product h3,.peslista .pesrow .pesnome,.pgh,.atvr b{text-transform:uppercase;letter-spacing:.02em}
 .pitem .pi-nome{font-size:17px}
 .pitem .pi-sub{font-size:12.5px;font-weight:600;letter-spacing:.03em}
 .pitem .pi-badge b,.pgh i,.listtotal,.pesc b{font-variant-numeric:tabular-nums}
 .pitem .pi-nome::after{text-transform:none}
+.pitem .pi-nome{letter-spacing:0}
+.pitem .pi-sub{letter-spacing:.01em}
 
 
 /* impressão da oferta: a regra de impressão do inventário esconde tudo (visibility); aqui reexibimos só a etiqueta */

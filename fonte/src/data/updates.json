@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-08T14:15:00-03:00",
+  "itens": [
+   "Lista de Validades: o nome do produto aparece inteiro (até 2 linhas) e com letras minúsculas/iniciais maiúsculas, em vez de TUDO EM MAIÚSCULAS cortado com «…»",
+   "A linha de baixo ficou mais curta: «Qtd 28 · vence 17/11» (sem o ano quando é este ano). O nome de quem cadastrou continua só para o Admin, menor e mais apagado"
+  ]
+ },
+ {
   "t": "2026-11-08T11:50:00-03:00",
   "itens": [
    "Saúde do app › Códigos repetidos: «Unir neste» não fazia nada quando o produto era de outro setor (ex.: Perecíveis visto pelo KÓRIN/FLV). Agora o nome escolhido fica, o outro some e as validades dos dois passam para ele"
