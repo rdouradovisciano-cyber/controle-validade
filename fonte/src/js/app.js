@@ -455,10 +455,10 @@ function dupInfo(x) {   // EAN, códigos e o que há na loja (lotes com quantida
   return `<small class="dupi">${esc(cods)}</small><small class="dupi">${loja}${ret ? ` · ${ret} retirado(s)` : ""}</small>`;
 }
 async function dupUnir(gi, ni, paint) { const g = dupGroups()[gi]; if (!g || !g[ni]) return; return dupUnirCore(g, g[ni], paint); }
-async function dupUnirCore(g, alvo, paint) {   // une o grupo num só cadastro: nome do escolhido + EAN/PLU/código completos (os que faltam vêm dos outros)
+async function dupUnirCore(g, alvo, paint, setor) {   // une o grupo num só cadastro: nome do escolhido + EAN/PLU/código completos (os que faltam vêm dos outros)
   const pega = k => { const own = [...alvo[k]]; if (own.length) return own[0]; for (const o of g) if (o[k].size) return [...o[k]][0]; return ""; };
-  const ean = pega("ean"), plu = pega("plu"), doa = pega("doa"), set = new Set(g.map(x => norm(x.nome))), pool = SETOR === PER ? PER : "FLV";
-  const ok = await askConfirm({ icon: "🔗", title: "Unir cadastros?", text: "«" + alvo.nome + "»", sub: `Todos ficam com este nome e com ${ean ? "EAN " + ean : "sem EAN"}${plu ? " · PLU " + plu : ""}${doa ? " · Cód. " + doa : ""}. As validades e quantidades na loja continuam.`, ok: "Unir", cancel: "Cancelar" });
+  const ean = pega("ean"), plu = pega("plu"), doa = pega("doa"), set = new Set(g.map(x => norm(x.nome))), pool = setor || (SETOR === PER ? PER : "FLV");   // setor: quando a chamada vem de outro setor (Saúde do app)
+  const ok = await askConfirm({ icon: "🔗", title: "Unir cadastros?", text: "«" + alvo.nome + "»", sub: `Este nome fica e o outro some: todos passam a ser «${alvo.nome}» com ${ean ? "EAN " + ean : "sem EAN"}${plu ? " · PLU " + plu : ""}${doa ? " · Cód. " + doa : ""}. As validades e quantidades que estão na loja (dos dois) continuam, agora neste nome.`, ok: "Unir", cancel: "Cancelar" });
   if (!ok) return; let n = 0;
   rawAllAtivos().forEach(p => { if (!set.has(norm(p.name || "")) || setSet(p) !== pool) return; const d = { name: alvo.nome }; if (ean) d.barcode = ean; if (plu) d.codigo_balanca = plu; if (doa) d.codigo_doacao = doa;
     if (Object.keys(d).every(k => (p[k] || "") === d[k])) return; n++;
@@ -2055,7 +2055,7 @@ async function saudeAcao(d, repaint) {
   const lotes = () => rawAllAtivos().filter(p => norm(p.name) === norm(d.n) && setSet(p) === d.s);
   if (d.a === "uni2") { const ch = codChave(d.t, d.c), campo = CAMPO[d.t], lotes2 = rawAllAtivos().filter(p => setSet(p) === d.s && codChave(d.t, p[campo]) === ch), mp = new Map();
     lotes2.forEach(p => { const k = norm(p.name), o = mp.get(k) || { nome: p.name, ean: new Set(), plu: new Set(), doa: new Set() }; if (p.barcode) o.ean.add(p.barcode); if (p.codigo_balanca) o.plu.add(p.codigo_balanca); if (p.codigo_doacao) o.doa.add(p.codigo_doacao); mp.set(k, o); });
-    const g = [...mp.values()], alvo = g.find(x => norm(x.nome) === norm(d.n)); if (alvo) await dupUnirCore(g, alvo); }
+    const g = [...mp.values()], alvo = g.find(x => norm(x.nome) === norm(d.n)); if (alvo) await dupUnirCore(g, alvo, null, d.s); }
   else if (d.a === "lim") { const campo = CAMPO[d.t], alvo = lotes().filter(p => codChave(d.t, p[campo]) === codChave(d.t, d.c));
     const r = await askConfirm({ icon: "🧹", title: "Tirar o código deste produto?", text: `${tNome(d.t, d.s === PER)} ${d.c}`, sub: `de «${d.n}» (${d.s}). O produto continua cadastrado, só sem esse código.`, ok: "Tirar código", cancel: "Cancelar" });
     if (r !== true) return; saudeSet(alvo, { [campo]: "" }); toast(`Código tirado de «${d.n}».`); }

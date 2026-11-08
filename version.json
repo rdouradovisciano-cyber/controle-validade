@@ -1,1 +1,1 @@
-{"versao":"2026.11.08-395","nota":"Saúde do app › Códigos repetidos: novo botão «Excluir cadastro» (manda só aquele cadastro para a lixeira, com 3 dias para restaurar). «Unir neste» e «Tirar daqui» continuam sem apagar o cadastro"}
+{"versao":"2026.11.08-396","nota":"Saúde do app › Códigos repetidos: «Unir neste» não fazia nada quando o produto era de outro setor (ex.: Perecíveis visto pelo KÓRIN/FLV). Agora o nome escolhido fica, o outro some e as validades dos dois passam para ele"}

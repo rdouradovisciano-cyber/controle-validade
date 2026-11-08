@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 08/11/2026 · versão 395.
+> Última atualização: 08/11/2026 · versão 396.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -54,4 +54,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - Usuário precisa: publicar o `firestore.rules` atualizado; criar a senha do Admin; testar com Firebase real, câmera real, compartilhar imagem e tela sempre acesa no celular.
 - Ideias abertas: tela «Usuários» (último acesso e perfil), Flores (plantas à venda com data de chegada, registro de perdas, agrupar por bancada), reconhecimento de planta com Pl@ntNet (chave gratuita), Escala (card «Hoje» com fotos, próxima folga de cada um, cor de cobertura, barras de horas, lembretes, histórico de trocas), «Produtos novos» agrupados por dia, perfil Gestor, restaurar produtos apagados, «Ver na loja» em Cadastros parecidos, KÓRIN na nuvem, aviso diário de validade.
 - Revisar contraste do modo claro nas telas Atividade e Cadastros parecidos.
-- Saúde do app › Códigos repetidos tem 3 botões: «Unir neste» (uniformiza nome, não apaga), «Tirar daqui» (tira só o código) e «Excluir cadastro» (lixeira, 3 dias; v395).
+- Saúde do app › Códigos repetidos tem 3 botões: «Unir neste» (uniformiza nome, não apaga), «Tirar daqui» (tira só o código) e «Excluir cadastro» (lixeira, 3 dias; v395). Desde a v396 «Unir neste» funciona também em produto de outro setor (passa o setor para `dupUnirCore`): o nome escolhido fica e os lotes dos dois passam para ele.
