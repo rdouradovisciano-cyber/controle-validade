@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-08T21:30:00-03:00",
+  "itens": [
+   "Aba Pesáveis (Perecíveis): novo seletor «Consultar por» — PLU, Interno ou Nome. A lista fica em ordem numérica crescente, agrupada por faixa (100–199, 200–299…), com atalhos para pular direto para a faixa; o código escolhido aparece em primeiro e destacado, e a escolha fica guardada no aparelho",
+   "Aba Pesáveis: agora entram também os Perecíveis que só têm código interno (antes ficavam de fora), e produtos sem código de etiqueta mostram apenas «Editar»"
+  ]
+ },
+ {
   "t": "2026-11-08T21:00:00-03:00",
   "itens": [
    "Saúde do app: removida a seção «Mesma foto em vários produtos». «Perecíveis sem foto» continua"

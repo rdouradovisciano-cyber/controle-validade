@@ -1,15 +1,15 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 08/11/2026 · versão 408.
+> Última atualização: 08/11/2026 · versão 409.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
 (`rdouradovisciano-cyber/controle-validade`). Setores: FLV, Perecíveis, KÓRIN, Fiscal de loja. Perfis do aparelho: FLV, Perecíveis, Fiscal, Admin.
 
 ## Onde fica o quê
-- Código-fonte: `src/` (principal: `src/js/app.js`, uma IIFE grande; `src/index.html`; `src/css/app.css`; `src/js/menu.js`).
-- Avisos de versão: `src/data/updates.json` — **toda versão ganha um item novo no começo** (`{"t": ISO, "itens": [...]}`).
+- Código-fonte: `fonte/src/` (principal: `fonte/src/js/app.js`, uma IIFE grande; `fonte/src/index.html`; `fonte/src/css/app.css`; `fonte/src/js/menu.js`).
+- Avisos de versão: `fonte/src/data/updates.json` — **toda versão ganha um item novo no começo** (`{"t": ISO, "itens": [...]}`).
 - Site publicado = raiz do repositório (`index.html`, `js/`, `css/`, `version.json`, `ocr/`); cópia do fonte em `fonte/src` e testes em `fonte/tools`.
 - Leitor de texto das fotos (OCR): Tesseract.js 5.1.1 hospedado junto em `ocr/`.
 
@@ -66,3 +66,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v405: «Perecíveis sem foto» mostra o EAN (toque copia, `data-copia`) e o botão 🔎 (Google Imagens com EAN + nome). Sem EAN mostra o PLU de balança ou «sem código de barras».
 
 - v408: removida a ferramenta «Mesma foto em vários produtos» do Saúde do app (o usuário não usa mais). «Perecíveis sem foto» (com EAN, copiar e 🔎) continua.
+- v409: aba Pesáveis virou consulta de códigos: seletor «Consultar por» (PLU · Interno · Nome), lista numérica crescente agrupada por faixa (100–199…), atalhos para pular de faixa, código escolhido em primeiro e destacado, escolha guardada em `validamais-pes-ord`. Entram também os Perecíveis que só têm código interno; produto sem código de etiqueta mostra só «Editar».

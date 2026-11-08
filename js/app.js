@@ -2873,9 +2873,39 @@ async function labelScan(code) {
 }
 $("eScan").onclick = () => openScan("etiqueta");
 
-// ---------- aba Pesáveis (Perecíveis): produtos vendidos por peso / com código de balança ----------
-function pesaveis() {
-  return products.filter(p => !p.retirado && p.category === PER && (p.codigo_balanca || (/^\d+$/.test(String(p.barcode || "")) && String(p.barcode).length < 8)));
+// ---------- aba Pesáveis (Perecíveis): consulta dos códigos usados na balança (PLU ou interno) ----------
+function pesaveis() {   // inclui quem só tem código interno, porque alguns produtos são consultados por ele
+  return products.filter(p => !p.retirado && p.category === PER && (p.codigo_balanca || p.codigo_doacao || (/^\d+$/.test(String(p.barcode || "")) && String(p.barcode).length < 8)));
+}
+const PES_ORD_K = "validamais-pes-ord";
+const PES_ORDS = ["plu", "itn", "nome"];
+let pesOrd = store.get(PES_ORD_K, "plu"); if (!PES_ORDS.includes(pesOrd)) pesOrd = "plu";
+function pesCod(p) {   // código que vale na consulta de agora (PLU, interno ou, sem PLU, o código curto)
+  if (pesOrd === "itn") return String(p.codigo_doacao || "");
+  const plu = String(p.codigo_balanca || ""), bc = String(p.barcode || "");
+  return plu || (/^\d+$/.test(bc) && bc.length < 8 ? bc : "");
+}
+function pesOrdNome(v) { return v === "itn" ? "Interno" : v === "nome" ? "Nome" : "PLU"; }
+function pesOrdena(all) {   // numérico crescente, sem código no fim; o nome desempata
+  const nome = (a, b) => String(a.name || "").localeCompare(String(b.name || ""), "pt-BR", { sensitivity: "base" });
+  if (pesOrd === "nome") return all.sort(nome);
+  const cod = p => String(pesCod(p) || ""), num = p => /^\d+$/.test(cod(p)) ? Number(cod(p)) : null;
+  return all.sort((a, b) => {
+    const na = num(a), nb = num(b);
+    if (na !== null && nb !== null) return na - nb || nome(a, b);
+    if (na !== null) return -1;
+    if (nb !== null) return 1;
+    const ca = cod(a), cb = cod(b);
+    if (!!ca !== !!cb) return ca ? -1 : 1;   // "Sem PLU"/"Sem interno" fica no fim, depois de "Outros"
+    return ca.localeCompare(cb, "pt-BR", { sensitivity: "base" }) || nome(a, b);
+  });
+}
+function pesGrupo(p) {   // faixa de código (100–199…) ou letra do nome, para a lista ficar fácil de varrer
+  if (pesOrd === "nome") { const c = norm(p.name || "").replace(/[^a-z0-9]/g, "").charAt(0); return c ? c.toUpperCase() : "#"; }
+  const v = String(pesCod(p) || "");
+  if (!v) return pesOrd === "itn" ? "Sem interno" : "Sem PLU";
+  if (/^\d+$/.test(v)) { const b = Math.floor(Number(v) / 100) * 100; return `${b}–${b + 99}`; }
+  return "Outros";
 }
 // busca inteligente: ignora acento e maiúscula, aceita várias palavras em qualquer ordem, início de palavra, trecho do PLU/código interno/EAN (começo, fim ou meio) e pequenos erros de digitação
 function pesBusca(all, qraw) {
@@ -2903,18 +2933,33 @@ function pesHl(name, toks) {   // destaca no nome o que foi digitado
 }
 function renderPesaveis() {
   const box = $("pesLista"); if (!box) return;
-  const q = norm(($("pesBusca") || {}).value || "");
-  const all = pesaveis().sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "pt-BR", { sensitivity: "base" }));
-  const { rows, toks } = pesBusca(all, ($("pesBusca") || {}).value || "");
-  if ($("pesInfo")) $("pesInfo").textContent = q ? `${rows.length} de ${all.length} pesáveis` : `${all.length} pesáveis`;
+  const inp = $("pesBusca"), q = norm((inp || {}).value || "");
+  const all = pesaveis();
+  if (!q) pesOrdena(all);
+  const { rows, toks } = pesBusca(all, (inp || {}).value || "");
+  document.querySelectorAll("[data-pesord]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.pesord === pesOrd)));
+  if ($("pesInfo")) $("pesInfo").textContent = q ? `${rows.length} de ${all.length} pesáveis` : `${all.length} pesáveis · por ${pesOrdNome(pesOrd)}`;
+  const cont = new Map();
+  if (!q) rows.forEach(p => { const g = pesGrupo(p); cont.set(g, (cont.get(g) || 0) + 1); });
+  let ultimo = "", gi = -1;
+  const linha = p => {
+    const plu = p.codigo_balanca || "", itn = p.codigo_doacao || "", bc = String(p.barcode || ""), bcCurto = /^\d+$/.test(bc) && bc.length < 8 ? bc : "";
+    const onPlu = pesOrd === "plu" ? " on" : "", onItn = pesOrd === "itn" ? " on" : "";
+    const cPlu = plu ? `<span class="pesc plu${onPlu}"><i>PLU</i><b>${esc(plu)}</b></span>` : bcCurto ? `<span class="pesc cod${onPlu}"><i>CÓD</i><b>${esc(bcCurto)}</b></span>` : `<span class="pesc plu vz${onPlu}"><i>PLU</i><b>—</b></span>`;
+    const cItn = `<span class="pesc itn${itn ? "" : " vz"}${onItn}"><i>INTERNO</i><b>${itn ? esc(itn) : "—"}</b></span>`;
+    const cods = pesOrd === "itn" ? cItn + cPlu : cPlu + cItn, etq = !!labelCode(p).code;
+    return `<div class="pesrow${pesOpen === p.id ? " open" : ""}" data-pes="${esc(p.id)}"><div class="pesn"><span class="pescods">${cods}</span><div class="pesl"><b class="pesnome">${icoHtml(p)}${pesHl(p.name, toks)}</b></div></div><div class="pesact">${etq ? `<button type="button" class="pesb primary" data-etq="${esc(p.id)}">🏷️ Lançar etiqueta</button>` : ""}<button type="button" class="pesb secondary" data-pedit="${esc(p.id)}">✏️ Editar</button></div></div>`;
+  };
   box.innerHTML = rows.length ? rows.map(p => {
-    const dl = daysLeft(p.expiry), plu = p.codigo_balanca || "", itn = p.codigo_doacao || "";
-    const bc = String(p.barcode || ""), esq = plu ? `<span class="pesc plu"><i>PLU</i><b>${esc(plu)}</b></span>` : bc ? `<span class="pesc cod"><i>CÓD</i><b>${esc(bc)}</b></span>` : `<span class="pesc plu vz"><i>PLU</i><b>—</b></span>`;
-    const cods = esq + `<span class="pesc itn${itn ? "" : " vz"}"><i>INTERNO</i><b>${itn ? esc(itn) : "—"}</b></span>`;
-    return `<div class="pesrow${pesOpen === p.id ? " open" : ""}" data-pes="${esc(p.id)}"><div class="pesn"><span class="pescods">${cods}</span><div class="pesl"><b class="pesnome">${icoHtml(p)}${pesHl(p.name, toks)}</b></div></div><div class="pesact"><button type="button" class="pesb primary" data-etq="${esc(p.id)}">🏷️ Lançar etiqueta</button><button type="button" class="pesb secondary" data-pedit="${esc(p.id)}">✏️ Editar</button></div></div>`;
+    let cab = "";
+    if (!q) { const g = pesGrupo(p); if (g !== ultimo) { ultimo = g; gi++; cab = `<div class="pesgh" id="pesg${gi}"><b>${esc(g)}</b><small>${cont.get(g)}</small></div>`; } }
+    return cab + linha(p);
   }).join("") : `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
+  if ($("pesIndice")) $("pesIndice").innerHTML = q ? "" : [...cont.keys()].map((g, i) => `<button type="button" data-pesgi="${i}">${esc(g)}</button>`).join("");
 }
 $("pesBusca").oninput = renderPesaveis;
+document.querySelectorAll("[data-pesord]").forEach(b => b.onclick = () => { pesOrd = b.dataset.pesord; store.set(PES_ORD_K, pesOrd); renderPesaveis(); });
+$("pesIndice").onclick = e => { const b = e.target.closest("[data-pesgi]"); if (!b) return; const alvo = document.getElementById("pesg" + b.dataset.pesgi); if (alvo) alvo.scrollIntoView({ behavior: "smooth", block: "start" }); };
 $("pesLista").onclick = e => {
   const ic = e.target.closest(".ico"); if (ic) { const im = ic.querySelector("img"); if (im) fotoZoom(im.getAttribute("src")); else iconePicker(ic.dataset.id); return; }
   const b = e.target.closest("[data-etq]"); if (b) { const p = products.find(x => x.id === b.dataset.etq); if (p) labelPick(p); return; }
