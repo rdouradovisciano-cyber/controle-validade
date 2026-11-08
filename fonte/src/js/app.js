@@ -2937,10 +2937,16 @@ function renderPesaveis() {
   const { rows, toks } = pesBusca(base, termo);
   const ativo = PES_TIPOS.find(t => t.id === pesTipo);
   const boxT = $("pesTipos");
-  if (boxT) boxT.innerHTML = `<button type="button" data-pestipo="" aria-pressed="${pesTipo ? "false" : "true"}">Todos <b>${todos.length}</b></button>` + PES_TIPOS.map(t => {
-    const n = todos.filter(p => pesTipoOK(p, t.id)).length;
-    return n ? `<button type="button" data-pestipo="${t.id}" aria-pressed="${pesTipo === t.id ? "true" : "false"}">${esc(t.rot)} <b>${n}</b></button>` : "";
-  }).join("");
+  if (boxT) {
+    // os botões só são redesenhados quando os números mudam; o toque no atalho só troca o “pressionado” (não perde a rolagem)
+    const conta = PES_TIPOS.map(t => [t, todos.filter(p => pesTipoOK(p, t.id)).length]);
+    const sig = todos.length + "|" + conta.map(([t, n]) => t.id + n).join(",");
+    if (boxT.dataset.sig !== sig) {
+      boxT.dataset.sig = sig;
+      boxT.innerHTML = `<button type="button" data-pestipo="">Todos <b>${todos.length}</b></button>` + conta.map(([t, n]) => n ? `<button type="button" data-pestipo="${t.id}">${esc(t.rot)} <b>${n}</b></button>` : "").join("");
+    }
+    boxT.querySelectorAll("[data-pestipo]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.pestipo === pesTipo)));
+  }
   if ($("pesInfo")) $("pesInfo").textContent = q ? `${rows.length} de ${base.length} pesáveis${ativo ? " · " + ativo.rot : ""}` : base.length === todos.length ? `${todos.length} pesáveis` : `${base.length} de ${todos.length} pesáveis · ${ativo ? ativo.rot : ""}`;
   box.innerHTML = rows.length ? rows.map(p => {
     const plu = p.codigo_balanca || "", itn = p.codigo_doacao || "";
