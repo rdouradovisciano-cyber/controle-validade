@@ -2201,16 +2201,18 @@ async function memCalc() {
   if (navigator.deviceMemory) h += `<small class="note">Memória (RAM) deste celular: cerca de ${navigator.deviceMemory} GB.</small>`;
   return h || '<small class="note">Este aparelho não informa o uso de memória.</small>';
 }
-function multiNomes(pal) {   // produtos dos Perecíveis (um por nome) que têm todas as palavras digitadas
+function multiNomes(pal, comFoto) {   // produtos dos Perecíveis (um por nome) com todas as palavras digitadas; por padrão só os SEM foto
   const tk = norm(pal || "").split(/\s+/).filter(Boolean); if (!tk.length || norm(pal).length < 3) return [];
   const m = new Map(); rawAllAtivos().forEach(p => { if (setSet(p) !== PER || p.retirado) return; const n = norm(p.name || ""); if (tk.every(x => n.includes(x))) { const k = fotoK(p.name); if (!m.has(k)) m.set(k, p.name); } });
-  return [...m.values()].sort((a, b) => a.localeCompare(b, "pt-BR"));
+  return [...m.values()].filter(n => comFoto ? !!fotoCache[fotoK(n)] : !fotoCache[fotoK(n)]).sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 function multiHtml(pal) {
   if (norm(pal || "").length < 3) return "";
-  const l = multiNomes(pal); if (!l.length) return `<small class="note">Nenhum produto dos Perecíveis com «${esc(pal)}» no nome.</small>`;
-  const tem = l.filter(n => fotoCache[fotoK(n)]).length;
-  return `<div class="shit">${l.map(n => `<div class="multi-n">${fotoCache[fotoK(n)] ? "🖼" : "▫️"} ${esc(nomeBonito(n))}</div>`).join("")}</div><small class="note">${l.length} ${l.length === 1 ? "produto" : "produtos"}${tem ? ` · ${tem} já ${tem === 1 ? "tem" : "têm"} foto (🖼) e ${tem === 1 ? "será substituída" : "serão substituídas"}` : ""}.</small>
+  if (db && !fotosPronto) return `<small class="note">Conferindo as fotos na nuvem… a lista aparece em instantes.</small>`;
+  const l = multiNomes(pal), tem = multiNomes(pal, true).length;
+  const nota = tem ? ` ${tem} ${tem === 1 ? "produto com essa palavra já tem foto e não aparece" : "produtos com essa palavra já têm foto e não aparecem"}.` : "";
+  if (!l.length) return `<small class="note">${tem ? `Todos os produtos com «${esc(pal)}» já têm foto.` : `Nenhum produto dos Perecíveis com «${esc(pal)}» no nome.`}${tem ? ` (${tem})` : ""}</small>`;
+  return `<div class="shit">${l.map(n => `<div class="multi-n">▫️ ${esc(nomeBonito(n))}</div>`).join("")}</div><small class="note">${l.length} ${l.length === 1 ? "produto sem foto" : "produtos sem foto"}.${nota}</small>
     <button type="button" class="primary big" data-multifoto style="margin-top:8px;width:100%">📷 Escolher a foto e aplicar em ${l.length}</button>`;
 }
 function saudeAbrir() {
@@ -2221,7 +2223,7 @@ function saudeAbrir() {
     <p class="note">Setor <b>${esc(SETOR)}</b> · ${cadGroups().length} cadastros · ${db ? "Firebase ligado" : "modo local"}${cloud && db ? " · " + esc(cloud) : ""}</p>
     <div class="shsum ${probs ? "aten" : "ok"}">${probs ? "⚠ " + probs + " ponto(s) de atenção" : "✓ Nada para corrigir"}</div>
     ${sec.map(s => `<div class="shsec"><div class="shh"><span class="shb ${s.n ? "aten" : "ok"}">${s.n ? s.n : "✓"}</span><b>${esc(s.t)}</b></div>${s.n ? `<small class="note">${esc(s.d)}</small><div class="shit">${s.it.slice(0, s.todos ? 500 : 10).map(h => `<div>${h}</div>`).join("")}${!s.todos && s.it.length > 10 ? `<div class="muted">+ ${s.it.length - 10} outros (resolva estes e abra de novo)</div>` : ""}</div>` : ""}</div>`).join("")}
-    <div class="shsec"><div class="shh"><span class="shb info">📷</span><b>Mesma foto em vários produtos</b></div><small class="note">Digite uma palavra (ex.: bacon), confira os produtos dos Perecíveis e escolha a foto. Ela <b>substitui</b> a foto de todos os que aparecem.</small>
+    <div class="shsec"><div class="shh"><span class="shb info">📷</span><b>Mesma foto em vários produtos</b></div><small class="note">Digite uma palavra (ex.: bacon), confira os produtos dos Perecíveis que ainda <b>não têm foto</b> e escolha a foto. Quem já tem foto não aparece e não muda.</small>
       <input id="shPal" type="search" placeholder="Palavra no nome do produto" autocomplete="off" autocapitalize="none" value="${esc(bg._pal || "")}" style="width:100%;margin-top:8px"><div id="shMultiRes">${multiHtml(bg._pal || "")}</div></div>
     <div class="shsec"><div class="shh"><span class="shb info">ⓘ</span><b>Guardado só neste aparelho</b></div>${loc.length ? `<div class="shit">${loc.map(t => `<div>${esc(t)}</div>`).join("")}</div><small class="note">Outros celulares não veem isso.</small>` : '<small class="note">Nada. Tudo o que importa está na nuvem.</small>'}</div>
     <div class="shsec"><div class="shh"><span class="shb info">ⓘ</span><b>Memória e armazenamento</b></div><div id="shMem">${memHtml || '<small class="note">Calculando…</small>'}</div></div>
@@ -2234,8 +2236,7 @@ function saudeAbrir() {
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) { bg.remove(); return; }
     if (e.target.closest("[data-multifoto]")) { let inp = bg.querySelector("#shMultiIn"); if (!inp) { inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.id = "shMultiIn"; inp.hidden = true; bg.appendChild(inp);
         inp.onchange = async () => { const f = inp.files && inp.files[0]; inp.value = ""; if (!f) return; const l = multiNomes(bg._pal || ""); if (!l.length) return;
-          const tem = l.filter(n => fotoCache[fotoK(n)]).length;
-          const ok = await askConfirm({ icon: "📷", title: `Aplicar esta foto em ${l.length} ${l.length === 1 ? "produto" : "produtos"}?`, text: l.slice(0, 4).map(nomeBonito).join(" · ") + (l.length > 4 ? " · …" : ""), sub: tem ? `${tem} já ${tem === 1 ? "tem" : "têm"} foto e ${tem === 1 ? "será substituída" : "serão substituídas"}. Vale para todos os aparelhos.` : "Vale para todos os aparelhos.", ok: "Aplicar", cancel: "Cancelar" });
+          const ok = await askConfirm({ icon: "📷", title: `Aplicar esta foto em ${l.length} ${l.length === 1 ? "produto" : "produtos"}?`, text: l.slice(0, 4).map(nomeBonito).join(" · ") + (l.length > 4 ? " · …" : ""), sub: "Só os que ainda não têm foto. Vale para todos os aparelhos.", ok: "Aplicar", cancel: "Cancelar" });
           if (ok !== true) return; toast("Salvando a foto…"); const n = await fotoGravaVarios(l, f);
           toast(n < 0 ? "Não consegui ler essa imagem." : n === l.length ? `Foto aplicada em ${n} ${n === 1 ? "produto" : "produtos"}.` : `Foto aplicada em ${n} de ${l.length}; os outros a nuvem recusou.`); fotoIcones(); paint(); }; }
       inp.click(); return; }

@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 08/11/2026 · versão 406.
+> Última atualização: 08/11/2026 · versão 407.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -65,3 +65,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v404: corrigido «Perecíveis sem foto» mostrando ✓ antes de as fotos chegarem. `fotosTodas` agora escuta com `includeMetadataChanges` (antes `fotosPronto` podia nunca virar true se o cache já estivesse igual ao servidor), tem prazo de 7 s e a Saúde repinta sozinha (`saudeRepinta`). Não verificado com o Firebase real.
 - v405: «Perecíveis sem foto» mostra o EAN (toque copia, `data-copia`) e o botão 🔎 (Google Imagens com EAN + nome). Sem EAN mostra o PLU de balança ou «sem código de barras».
 - v406: Saúde do app › «Mesma foto em vários produtos» (`multiNomes`/`multiHtml`/`fotoGravaVarios`): palavra no nome → todos os produtos dos Perecíveis (um por nome, sem retirados) ganham a mesma miniatura, substituindo a existente, com confirmação. Atenção: `bg.oninput` do Saúde fica dentro de `saudeAbrir` (há vários `bg.onclick` parecidos no arquivo).
+- v407: «Mesma foto em vários produtos» só lista/aplica nos produtos SEM foto (`multiNomes(pal, comFoto)`); espera `fotosPronto` antes de listar. Quem quiser trocar uma foto existente usa o Editar do produto.
