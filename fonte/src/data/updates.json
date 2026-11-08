@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-08T22:30:00-03:00",
+  "itens": [
+   "Aba Pesáveis: a busca agora entende as abreviações do cadastro — «queijo» acha QJ e QJO, «mussarela» acha MUSS, «peça» acha PC/PECA, e o mesmo para fatiado, fracionado e defumado",
+   "Aba Pesáveis: atalhos por tipo abaixo da busca (Todos, Queijos, Mussarela, Minas, Fracionados, Salame, Bacon), com a contagem ao lado; toque de novo no atalho para voltar a Todos"
+  ]
+ },
+ {
   "t": "2026-11-08T22:00:00-03:00",
   "itens": [
    "Aba Pesáveis: voltou a ser a lista simples por nome. A busca procura pelo nome (e também aceita PLU, interno ou EAN), e cada produto mostra o PLU e o código interno à vista. Saíram o seletor «Consultar por», as faixas e os atalhos"

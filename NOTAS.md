@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 08/11/2026 · versão 411.
+> Última atualização: 08/11/2026 · versão 412.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -69,3 +69,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v409: aba Pesáveis virou consulta de códigos: seletor «Consultar por» (PLU · Interno · Nome), lista numérica crescente agrupada por faixa (100–199…), atalhos para pular de faixa, código escolhido em primeiro e destacado, escolha guardada em `validamais-pes-ord`. Entram também os Perecíveis que só têm código interno; produto sem código de etiqueta mostra só «Editar».
 - v410: corrigido erro de inicialização da v409 (`Cannot access 'pesOrd' before initialization`): `PES_ORD_K`, `PES_ORDS`, `pesOrd` e `labelCode` subiram para junto de `store` (~linha 88), antes de qualquer `render()`; a aba Pesáveis voltava vazia/travada. Verificado no teste local: PLU, Interno e Nome ordenam e agrupam certo.
 - v411: a pedido do usuário, a aba Pesáveis voltou à lista simples **por nome** (v408): sai o seletor «Consultar por», as faixas e os atalhos; a busca continua por nome/PLU/interno/EAN. Mantidos: quem só tem código interno aparece na lista e, sem código de etiqueta, mostra só «Editar». `labelCode` fica declarado no topo (~linha 88) para a lista poder ser desenhada já na abertura.
+- v412: busca dos Pesáveis entende as abreviações do cadastro (`PES_ABREV`/`pesCanon`, no topo do arquivo, antes de qualquer render): QJ/QJO → queijo, MUSS → mussarela, PC/PECA → peça, FRAC/FRACAO → fracionado, FAT → fatiado, DEF → defumado. Funciona nas duas direções (digitar «queijo» acha «QJ MUSS…» e digitar «qj» acha «QUEIJO…») e o destaque acende a abreviação no nome. Novos atalhos `#pesTipos` filtram por tipo (Todos, Queijos, Mussarela, Minas, Fracionados, Salame, Bacon) com contagem calculada na hora; tocar de novo no atalho volta a Todos. As contagens reais (307 Perecíveis): Queijos 186, Mussarela 41, Minas 29, Fracionados 35, Salame 18, Bacon 12. Sem mudança nas regras do Firestore.

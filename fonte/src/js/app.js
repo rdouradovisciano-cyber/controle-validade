@@ -69,7 +69,7 @@ function perfilEscolher(troca) {   // pergunta uma vez qual é o setor deste apa
 if (!PERFIL) perfilEscolher(false);
 const $ = id => document.getElementById(id);
 const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria", TK = "validamais-tam";
-let curTab = "Loja", tierF = "", openId = "", pesOpen = "", acaoF = "";   // pesOpen: pesável aberta (só ela mostra «Lançar etiqueta» e «Editar»)
+let curTab = "Loja", tierF = "", openId = "", pesOpen = "", pesTipo = "", acaoF = "";   // pesOpen: pesável aberta (só ela mostra «Lançar etiqueta» e «Editar»); pesTipo: atalho de tipo escolhido na aba Pesáveis
 //    // tierF: filtro por faixa de urgência (v/h/a/y); openId: linha de validade aberta
 const LOJA = C.loja || "Sam's Club Radial Leste";
 const EMPTY_FLV = '<div class="empty"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="#9db8a4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 28h44l-5 22a4 4 0 0 1-4 3H19a4 4 0 0 1-4-3z"/><path d="M22 28c0-9 4-16 10-16s10 7 10 16"/><path d="M32 12c0-4 3-7 8-7 0 5-3 8-8 7z"/></svg><p>Nenhum produto do FLV com validade para vencer no momento.</p></div>';
@@ -86,6 +86,18 @@ const store = {
 };
 // código de etiqueta usado também pela aba Pesáveis: declarado aqui em cima porque a lista pode ser desenhada já na abertura
 const labelCode = p => p.barcode ? { code: String(p.barcode), kg: false } : p.codigo_balanca ? { code: String(p.codigo_balanca), kg: true } : { code: "", kg: false };   // etiqueta: EAN se o produto tem; senão o código de balança; nunca o de doação
+// aba Pesáveis: o cadastro abrevia o nome (QJ/QJO = queijo, MUSS = mussarela, PC = peça, FRAC = fracionado…), então a busca entende as duas formas
+const PES_ABREV = { qj: "queijo", qjo: "queijo", queijos: "queijo", muss: "mussarela", mussarelas: "mussarela", pc: "peca", peca: "peca", pecas: "peca", frac: "fracionado", fracao: "fracionado", fracionado: "fracionado", fracionada: "fracionado", fracionados: "fracionado", fracionadas: "fracionado", def: "defumado", defumado: "defumado", defumada: "defumado", defumados: "defumado", defumadas: "defumado", fat: "fatiado", fatiado: "fatiado", fatiada: "fatiado", fatiados: "fatiado", fatiadas: "fatiado", cond: "condimentado", condimentado: "condimentado", condimentada: "condimentado", condimentados: "condimentado", condimentadas: "condimentado" };
+const pesCanon = t => PES_ABREV[t] || t;   // palavra do nome na forma “cheia”
+// atalhos por tipo: cada um filtra pelo que aparece no nome (as contagens são calculadas na hora)
+const PES_TIPOS = [
+  { id: "queijo", rot: "Queijos", kw: ["queijo", "mussarela", "minas", "ricota", "parmesao", "provolone", "prato", "coalho", "azul"] },
+  { id: "mussarela", rot: "Mussarela", kw: ["mussarela"] },
+  { id: "minas", rot: "Minas", kw: ["minas"] },
+  { id: "fracionado", rot: "Fracionados", kw: ["fracionado"] },
+  { id: "salame", rot: "Salame", kw: ["salame", "salaminho"] },
+  { id: "bacon", rot: "Bacon", kw: ["bacon"] }
+];
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
@@ -2878,18 +2890,21 @@ $("eScan").onclick = () => openScan("etiqueta");
 function pesaveis() {   // inclui quem só tem código interno, porque alguns produtos são consultados por ele
   return products.filter(p => !p.retirado && p.category === PER && (p.codigo_balanca || p.codigo_doacao || (/^\d+$/.test(String(p.barcode || "")) && String(p.barcode).length < 8)));
 }
-// busca inteligente: ignora acento e maiúscula, aceita várias palavras em qualquer ordem, início de palavra, trecho do PLU/código interno/EAN (começo, fim ou meio) e pequenos erros de digitação
+// busca inteligente: ignora acento e maiúscula, aceita várias palavras em qualquer ordem, início de palavra, trecho do PLU/código interno/EAN (começo, fim ou meio), pequenos erros de digitação e as abreviações do cadastro (QJ → queijo, MUSS → mussarela, PC → peça…)
 function pesBusca(all, qraw) {
   const q = norm(qraw).trim(); if (!q) return { rows: all, toks: [] };
   const toks = q.split(/\s+/).filter(Boolean), sc = [];
   all.forEach(p => {
-    const nm = norm(p.name || ""), pal = nm.split(/[^a-z0-9]+/).filter(Boolean), cods = [p.codigo_balanca, p.codigo_doacao, p.barcode].map(c => norm(String(c || "")));
+    const nm = norm(p.name || ""), pal = nm.split(/[^a-z0-9]+/).filter(Boolean);
+    const cpal = [...new Set(pal.map(pesCanon))], cods = [p.codigo_balanca, p.codigo_doacao, p.barcode].map(c => norm(String(c || "")));
     let total = 0, ok = true;
     for (const t of toks) {
       let s = 0;
       for (const c of cods) { if (!c) continue; if (c === t) s = Math.max(s, 100); else if (/^\d+$/.test(t)) { if (c.startsWith(t)) s = Math.max(s, 70); else if (c.endsWith(t)) s = Math.max(s, 60); else if (c.includes(t)) s = Math.max(s, 40); } }
-      if (!s) { if (pal.includes(t)) s = 80; else if (pal.some(w => w.startsWith(t))) s = 70; else if (nm.includes(t)) s = 45;
-        else if (t.length >= 4 && !/^\d+$/.test(t)) { if (pal.some(w => lev(w, t) <= (t.length >= 7 ? 2 : 1))) s = 25; else if (pal.some(w => lev(w.slice(0, t.length), t) <= 1)) s = 18; } }
+      if (!s) { const ct = pesCanon(t);   // “queijo” também acha “QJ”, “mussarela” acha “MUSS”, “peça” acha “PC”
+        if (cpal.includes(ct)) s = 80; else if (cpal.some(w => w.startsWith(ct))) s = 70; else if (ct.length >= 3 && cpal.some(w => w.includes(ct))) s = 50;
+        else if (nm.includes(t)) s = 45;
+        else if (t.length >= 4 && !/^\d+$/.test(t)) { if (cpal.some(w => lev(w, ct) <= (ct.length >= 7 ? 2 : 1))) s = 25; else if (cpal.some(w => lev(w.slice(0, ct.length), ct) <= 1)) s = 18; } }
       if (!s) { ok = false; break; } total += s;
     }
     if (ok) sc.push({ p, s: total / toks.length + (nm.startsWith(q) ? 20 : 0) });
@@ -2897,26 +2912,49 @@ function pesBusca(all, qraw) {
   sc.sort((a, b) => b.s - a.s || String(a.p.name || "").localeCompare(String(b.p.name || ""), "pt-BR", { sensitivity: "base" }));
   return { rows: sc.map(x => x.p), toks };
 }
-function pesHl(name, toks) {   // destaca no nome o que foi digitado
+function pesHl(name, toks) {   // destaca no nome o que foi digitado — inclusive a abreviação (“queijo” acende “QJ”)
   name = String(name || ""); const nm = norm(name); if (!toks.length || nm.length !== name.length) return esc(name);
-  const mk = new Array(name.length).fill(false); toks.forEach(t => { if (/^\d+$/.test(t)) return; const i = nm.indexOf(t); if (i >= 0) for (let k = i; k < i + t.length; k++) mk[k] = true; });
+  const mk = new Array(name.length).fill(false), marca = (i, n) => { for (let k = i; k < i + n; k++) mk[k] = true; };
+  toks.forEach(t => {
+    if (/^\d+$/.test(t)) return;
+    const ct = pesCanon(t), i = nm.indexOf(t);
+    if (i >= 0) marca(i, t.length);
+    else { const re = /[a-z0-9]+/g; let m; while ((m = re.exec(nm))) { const w = pesCanon(m[0]); if (w === ct || (ct.length >= 3 && w.startsWith(ct))) marca(m.index, m[0].length); } }
+  });
   let out = "", open = false; for (let i = 0; i < name.length; i++) { if (mk[i] && !open) { out += "<mark>"; open = true; } if (!mk[i] && open) { out += "</mark>"; open = false; } out += esc(name[i]); } return out + (open ? "</mark>" : "");
+}
+function pesTipoOK(p, tipo) {   // o produto entra no atalho quando alguma palavra do nome é (ou começa com) uma palavra-chave do tipo
+  if (!tipo) return true;
+  const def = PES_TIPOS.find(t => t.id === tipo); if (!def) return true;
+  const pal = norm(p.name || "").split(/[^a-z0-9]+/).filter(Boolean).map(pesCanon);
+  return pal.some(w => def.kw.some(k => w === k || w.startsWith(k)));
 }
 function renderPesaveis() {
   const box = $("pesLista"); if (!box) return;
-  const q = norm(($("pesBusca") || {}).value || "");
-  const all = pesaveis().sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "pt-BR", { sensitivity: "base" }));
-  const { rows, toks } = pesBusca(all, ($("pesBusca") || {}).value || "");
-  if ($("pesInfo")) $("pesInfo").textContent = q ? `${rows.length} de ${all.length} pesáveis` : `${all.length} pesáveis`;
+  const inp = $("pesBusca"), termo = (inp || {}).value || "", q = norm(termo).trim();
+  const todos = pesaveis().sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "pt-BR", { sensitivity: "base" }));
+  const base = pesTipo ? todos.filter(p => pesTipoOK(p, pesTipo)) : todos;
+  const { rows, toks } = pesBusca(base, termo);
+  const ativo = PES_TIPOS.find(t => t.id === pesTipo);
+  const boxT = $("pesTipos");
+  if (boxT) boxT.innerHTML = `<button type="button" data-pestipo="" aria-pressed="${pesTipo ? "false" : "true"}">Todos <b>${todos.length}</b></button>` + PES_TIPOS.map(t => {
+    const n = todos.filter(p => pesTipoOK(p, t.id)).length;
+    return n ? `<button type="button" data-pestipo="${t.id}" aria-pressed="${pesTipo === t.id ? "true" : "false"}">${esc(t.rot)} <b>${n}</b></button>` : "";
+  }).join("");
+  if ($("pesInfo")) $("pesInfo").textContent = q ? `${rows.length} de ${base.length} pesáveis${ativo ? " · " + ativo.rot : ""}` : base.length === todos.length ? `${todos.length} pesáveis` : `${base.length} de ${todos.length} pesáveis · ${ativo ? ativo.rot : ""}`;
   box.innerHTML = rows.length ? rows.map(p => {
     const plu = p.codigo_balanca || "", itn = p.codigo_doacao || "";
     const bc = String(p.barcode || ""), esq = plu ? `<span class="pesc plu"><i>PLU</i><b>${esc(plu)}</b></span>` : bc ? `<span class="pesc cod"><i>CÓD</i><b>${esc(bc)}</b></span>` : `<span class="pesc plu vz"><i>PLU</i><b>—</b></span>`;
     const cods = esq + `<span class="pesc itn${itn ? "" : " vz"}"><i>INTERNO</i><b>${itn ? esc(itn) : "—"}</b></span>`;
     const etq = !!labelCode(p).code;
     return `<div class="pesrow${pesOpen === p.id ? " open" : ""}" data-pes="${esc(p.id)}"><div class="pesn"><span class="pescods">${cods}</span><div class="pesl"><b class="pesnome">${icoHtml(p)}${pesHl(p.name, toks)}</b></div></div><div class="pesact">${etq ? `<button type="button" class="pesb primary" data-etq="${esc(p.id)}">🏷️ Lançar etiqueta</button>` : ""}<button type="button" class="pesb secondary" data-pedit="${esc(p.id)}">✏️ Editar</button></div></div>`;
-  }).join("") : `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
+  }).join("") : `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : pesTipo ? "Nenhum produto desse tipo." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
 }
 $("pesBusca").oninput = renderPesaveis;
+$("pesTipos").onclick = e => {
+  const b = e.target.closest("[data-pestipo]"); if (!b) return;
+  pesTipo = pesTipo === b.dataset.pestipo ? "" : b.dataset.pestipo; renderPesaveis();
+};
 $("pesLista").onclick = e => {
   const ic = e.target.closest(".ico"); if (ic) { const im = ic.querySelector("img"); if (im) fotoZoom(im.getAttribute("src")); else iconePicker(ic.dataset.id); return; }
   const b = e.target.closest("[data-etq]"); if (b) { const p = products.find(x => x.id === b.dataset.etq); if (p) labelPick(p); return; }
