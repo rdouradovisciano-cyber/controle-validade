@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-08T22:00:00-03:00",
+  "itens": [
+   "Aba Pesáveis: voltou a ser a lista simples por nome. A busca procura pelo nome (e também aceita PLU, interno ou EAN), e cada produto mostra o PLU e o código interno à vista. Saíram o seletor «Consultar por», as faixas e os atalhos"
+  ]
+ },
+ {
   "t": "2026-11-08T21:45:00-03:00",
   "itens": [
    "Corrigido: a aba Pesáveis voltou a abrir. Um erro na inicialização travava a lista; o seletor «Consultar por» (PLU · Interno · Nome), as faixas e os atalhos continuam como na v409"

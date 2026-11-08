@@ -1,1 +1,1 @@
-{"versao":"2026.11.08-410","nota":"Corrigido: a aba Pesáveis voltou a abrir. Um erro na inicialização travava a lista; o seletor «Consultar por» (PLU · Interno · Nome), as faixas e os atalhos continuam como na v409"}
+{"versao":"2026.11.08-411","nota":"Aba Pesáveis: voltou a ser a lista simples por nome. A busca procura pelo nome (e também aceita PLU, interno ou EAN), e cada produto mostra o PLU e o código interno à vista. Saíram o seletor «Consultar por», as faixas e os atalhos"}
