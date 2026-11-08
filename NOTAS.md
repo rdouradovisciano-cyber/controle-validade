@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 08/11/2026 · versão 397.
+> Última atualização: 08/11/2026 · versão 398.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -56,3 +56,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - Revisar contraste do modo claro nas telas Atividade e Cadastros parecidos.
 - Saúde do app › Códigos repetidos tem 3 botões: «Unir neste» (uniformiza nome, não apaga), «Tirar daqui» (tira só o código) e «Excluir cadastro» (lixeira, 3 dias; v395). Desde a v396 «Unir neste» funciona também em produto de outro setor (passa o setor para `dupUnirCore`): o nome escolhido fica e os lotes dos dois passam para ele.
 - v397: lista de Validades mostra o nome inteiro (até 2 linhas, `nomeBonito()` só na exibição; o dado salvo não muda) e a linha de baixo ficou «Qtd 28 · vence 17/11». Operador (👤) só para Admin. Ideias ainda não feitas: agrupar por data, busca/filtros por tipo, cores por urgência, modo compacto.
+- v398: Perecíveis com foto mostram a miniatura no lugar do emoji (Validades: coluna à esquerda; Pesáveis: inline). Uma consulta só em `sh_cfg` (campo `d` ≥ "data:") traz todas as fotos e fica ouvindo mudanças (`fotosTodas`). Se a consulta falhar, o emoji continua e a foto só carrega ao abrir o item, como antes. Não testado com o Firebase real.

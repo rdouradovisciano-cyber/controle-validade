@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-08T14:40:00-03:00",
+  "itens": [
+   "Perecíveis: o produto que tem foto mostra a miniatura da foto no lugar do emoji (na lista de Validades e em Pesáveis). Tocar na miniatura amplia a foto. Quem não tem foto continua com o emoji"
+  ]
+ },
+ {
   "t": "2026-11-08T14:15:00-03:00",
   "itens": [
    "Lista de Validades: o nome do produto aparece inteiro (até 2 linhas) e com letras minúsculas/iniciais maiúsculas, em vez de TUDO EM MAIÚSCULAS cortado com «…»",

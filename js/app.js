@@ -170,10 +170,28 @@ function fotoHtml(k, ed) { const d = fotoCache[k]; if (d === undefined) return '
 function fotoPaint(id) { const p = products.find(x => x.id === id); if (!p) return; document.querySelectorAll(`.pi-foto[data-id="${CSS.escape(id)}"]`).forEach(el => { el.innerHTML = fotoHtml(fotoK(p.name), el.dataset.ed === "1"); }); }
 function fotoCarrega(id) {
   const p = products.find(x => x.id === id); if (!p || p.category !== PER) return; const k = fotoK(p.name);
+  if (fotoCache[k] === undefined && fotosPronto) fotoCache[k] = "";   // a consulta geral já trouxe todas: sem ela, não tem foto
   if (fotoCache[k] !== undefined) return fotoPaint(id);
   if (!db) { const m = store.get(FTK, {}); fotoCache[k] = m[k] || ""; return fotoPaint(id); }
   let un = null, fim = false; const t = setTimeout(() => { if (!fim) { fim = true; fotoCache[k] = ""; fotoPaint(id); try { un && un(); } catch (e) {} } }, 6000);
   try { un = V.onSnapshot(V.doc(db, "sh_cfg", k), sn => { if (fim) return; fim = true; clearTimeout(t); fotoCache[k] = sn.exists() && sn.data().d ? sn.data().d : ""; fotoPaint(id); try { un && un(); } catch (e) {} }, () => { if (fim) return; fim = true; fotoCache[k] = ""; fotoPaint(id); }); } catch (e) { fotoCache[k] = ""; fotoPaint(id); }
+}
+// miniatura no lugar do emoji (só Perecíveis): uma única consulta traz as fotos de todos os produtos e continua ouvindo mudanças
+let fotosPronto = false, fotosOuvindo = false;
+const fotoDe = p => p && p.category === PER && iconesOn() ? (fotoCache[fotoK(p.name)] || "") : "";
+const icoHtml = p => { const d = fotoDe(p), e = iconeDe(p); if (!d && !e) return "";   // inline (Pesáveis): miniatura ou emoji
+  return `<span class="ico${d ? " ico-foto" : ""}" data-id="${esc(p.id)}">${d ? `<img class="ico-img" src="${d}" alt="" decoding="async">` : e}</span>`; };
+const icoEmoji = p => fotoDe(p) ? "" : (iconeDe(p) ? `<span class="ico" data-id="${esc(p.id)}">${iconeDe(p)}</span>` : "");   // lista de Validades: emoji só quando não há foto
+const fotoLado = p => { const d = fotoDe(p); return d ? `<span class="ico ico-foto ico-lado" data-id="${esc(p.id)}"><img class="ico-img" src="${d}" alt="" decoding="async"></span>` : ""; };   // lista de Validades: foto na lateral
+let fotoIcTimer = 0;
+function fotoIcones() { clearTimeout(fotoIcTimer); fotoIcTimer = setTimeout(() => { try { render(); } catch (e) {} try { if ($("pesLista") && $("pesLista").children.length) renderPesaveis(); } catch (e) {} }, 60); }
+function fotosTodas() {
+  if (fotosOuvindo) return; fotosOuvindo = true;
+  if (!db) { const m = store.get(FTK, {}); Object.keys(m).forEach(k => { fotoCache[k] = m[k]; }); fotosPronto = true; return; }
+  try { V.onSnapshot(V.query(V.collection(db, "sh_cfg"), V.where("d", ">=", "data:")), sn => {
+    sn.docChanges().forEach(c => { fotoCache[c.doc.id] = c.type === "removed" ? "" : (c.doc.data().d || ""); });
+    if (!sn.metadata.fromCache) fotosPronto = true; fotoIcones();
+  }, e => console.warn("fotos", e)); } catch (e) { console.warn("fotos", e); }
 }
 function fotoReduz(file) {   // miniatura: lado maior 360 px, JPEG (~10–25 KB)
   return new Promise((ok, no) => { const im = new Image(), u = URL.createObjectURL(file);
@@ -351,7 +369,7 @@ function render() {
     const pr = prioDe(p), g = pr || "ok", lim = limit(cat || CATSET); let hd = "";
     if (cat && !q && !tierF && g !== lastG) { lastG = g; const GN = { v: "⛔ Vencidos", h: "🚨 Vence hoje", a: "🔴 Vence em 1 a " + visCfg().red + " dia" + (visCfg().red > 1 ? "s" : "") + " — agir já", y: "🟡 De " + (visCfg().red + 1) + " a " + lim + " dias", ok: "✅ Dentro do prazo" }; hd = `<div class="pgh g${g}"><span>${GN[g]}</span><i>${gcnt[g]}</i></div>`; }
     const big = dl === null ? "—" : dl < 0 ? "VENCIDO" : dl === 0 ? "HOJE" : dl === 1 ? "AMANHÃ" : String(dl), small = dl === null ? "sem validade" : dl < 0 ? "há " + (-dl) + (dl < -1 ? " dias" : " dia") : dl <= 1 ? "" : "dias";
-    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main"><div class="pi-txt"><b class="pi-nome">${iconeDe(p) ? `<span class="ico" data-id="${esc(p.id)}">${iconeDe(p)}</span>` : ""}${esc(nomeBonito(p.name))}${notaDe(p.id) ? `<i class="pi-nt" title="${esc(notaDe(p.id).t)}">📝</i>` : ""}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmtCurto(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? `<span class="pi-op">👤 ${esc(p.por || "—")}</span>` : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act">${p.category === PER ? `<div class="pi-foto" data-id="${esc(p.id)}"></div><input type="file" accept="image/*" capture="environment" hidden data-fin="${esc(p.id)}"><input type="file" accept="image/*" hidden data-fin="${esc(p.id)}">` : ""}<label class="pi-nota"><span>📝</span><input type="text" maxlength="60" data-nota="${esc(p.id)}" value="${esc((notaDe(p.id) || {}).t || "")}" placeholder="Nota (ex.: gôndola 3, já na promoção)" autocomplete="off" enterkeyhint="done"></label><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
+    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}"><div class="pi-main">${fotoLado(p)}<div class="pi-txt"><b class="pi-nome">${icoEmoji(p)}${esc(nomeBonito(p.name))}${notaDe(p.id) ? `<i class="pi-nt" title="${esc(notaDe(p.id).t)}">📝</i>` : ""}</b><small class="pi-sub">Qtd ${esc(p.quantity)} · vence ${fmtCurto(p.expiry)}${cnt[p.barcode] > 1 ? " · " + cnt[p.barcode] + " lotes" : ""}${PERFIL === "Admin" ? `<span class="pi-op">👤 ${esc(p.por || "—")}</span>` : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act">${p.category === PER ? `<div class="pi-foto" data-id="${esc(p.id)}"></div><input type="file" accept="image/*" capture="environment" hidden data-fin="${esc(p.id)}"><input type="file" accept="image/*" hidden data-fin="${esc(p.id)}">` : ""}<label class="pi-nota"><span>📝</span><input type="text" maxlength="60" data-nota="${esc(p.id)}" value="${esc((notaDe(p.id) || {}).t || "")}" placeholder="Nota (ex.: gôndola 3, já na promoção)" autocomplete="off" enterkeyhint="done"></label><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
   $("acaoBar").classList.toggle("hidden", !acaoF);
   { const urg = base.filter(p => { const k = prioDe(p); return k === "v" || k === "h" || k === "a"; }).length; try { if (base.some(p => prioDe(p) === "v") && fxOn() && !window.__sirV) { window.__sirV = 1;   // o Chrome só deixa vibrar depois do primeiro toque na tela: espera esse toque
@@ -359,6 +377,7 @@ function render() {
   { const n = rows.length, lt = $("listTotal"); lt.classList.toggle("hidden", !n); lt.textContent = retView ? `${n} ${n === 1 ? "item retirado" : "itens retirados"}` : `${n} ${n === 1 ? "item" : "itens"} na lista`; }
   if (typeof renderPesaveis === "function") renderPesaveis();
   if (openId) fotoCarrega(openId);
+  fotosTodas();
 }
 
 // ---------- código de barras EAN-13 (SVG) ----------
@@ -750,7 +769,7 @@ function fotoClique(e) { const pf = e.target.closest(".pi-foto"); if (!pf) retur
   if (e.target.closest("[data-fz]")) fotoZoom(e.target.closest("[data-fz]").src); else if (e.target.closest("[data-fadd]")) { const f = q("[data-fin][capture]"); if (f) f.click(); } else if (e.target.closest("[data-fgal]")) { const f = q("[data-fin]:not([capture])"); if (f) f.click(); } else if (e.target.closest("[data-fdel]")) fotoApaga(id); return true; }
 const fotoMuda = e => { const f = e.target.closest && e.target.closest("[data-fin]"); if (f && f.files && f.files[0]) { fotoSalva(f.dataset.fin, f.files[0]); f.value = ""; } };
 $("list").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("click", fotoClique);
-$("list").onclick = e => { const ic = e.target.closest(".ico"); if (ic) { iconePicker(ic.dataset.id); return; } if (e.target.closest(".pi-nota")) return;
+$("list").onclick = e => { const ic = e.target.closest(".ico"); if (ic) { const im = ic.querySelector("img"); if (im) fotoZoom(im.getAttribute("src")); else iconePicker(ic.dataset.id); return; } if (e.target.closest(".pi-nota")) return;
   if (fotoClique(e)) return; const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); if (openId) fotoCarrega(openId); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
 $("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(SETOR === FIS ? "fiscal" : curTab === "Doacao" ? "doacao" : curTab === "Pesaveis" ? "etiqueta" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : curTab === "Contagem" ? "contagem" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = () => { stopScanner(); if (scanMode === "form") { show("Cadastrar produto"); return; } if (scanMode !== "loja") closeModal(); else openForm(); };
@@ -2838,12 +2857,12 @@ function renderPesaveis() {
     const dl = daysLeft(p.expiry), plu = p.codigo_balanca || "", itn = p.codigo_doacao || "";
     const bc = String(p.barcode || ""), esq = plu ? `<span class="pesc plu"><i>PLU</i><b>${esc(plu)}</b></span>` : bc ? `<span class="pesc cod"><i>CÓD</i><b>${esc(bc)}</b></span>` : `<span class="pesc plu vz"><i>PLU</i><b>—</b></span>`;
     const cods = esq + `<span class="pesc itn${itn ? "" : " vz"}"><i>INTERNO</i><b>${itn ? esc(itn) : "—"}</b></span>`;
-    return `<div class="pesrow${pesOpen === p.id ? " open" : ""}" data-pes="${esc(p.id)}"><div class="pesn"><span class="pescods">${cods}</span><div class="pesl"><b class="pesnome">${iconeDe(p) ? `<span class="ico" data-id="${esc(p.id)}">${iconeDe(p)}</span>` : ""}${pesHl(p.name, toks)}</b></div></div><div class="pesact"><button type="button" class="pesb primary" data-etq="${esc(p.id)}">🏷️ Lançar etiqueta</button><button type="button" class="pesb secondary" data-pedit="${esc(p.id)}">✏️ Editar</button></div></div>`;
+    return `<div class="pesrow${pesOpen === p.id ? " open" : ""}" data-pes="${esc(p.id)}"><div class="pesn"><span class="pescods">${cods}</span><div class="pesl"><b class="pesnome">${icoHtml(p)}${pesHl(p.name, toks)}</b></div></div><div class="pesact"><button type="button" class="pesb primary" data-etq="${esc(p.id)}">🏷️ Lançar etiqueta</button><button type="button" class="pesb secondary" data-pedit="${esc(p.id)}">✏️ Editar</button></div></div>`;
   }).join("") : `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
 }
 $("pesBusca").oninput = renderPesaveis;
 $("pesLista").onclick = e => {
-  const ic = e.target.closest(".ico"); if (ic) { iconePicker(ic.dataset.id); return; }
+  const ic = e.target.closest(".ico"); if (ic) { const im = ic.querySelector("img"); if (im) fotoZoom(im.getAttribute("src")); else iconePicker(ic.dataset.id); return; }
   const b = e.target.closest("[data-etq]"); if (b) { const p = products.find(x => x.id === b.dataset.etq); if (p) labelPick(p); return; }
   const ed = e.target.closest("[data-pedit]"); if (ed) { edit(ed.dataset.pedit); return; }
   const r = e.target.closest("[data-pes]"); if (r) { pesOpen = pesOpen === r.dataset.pes ? "" : r.dataset.pes; document.querySelectorAll("#pesLista .pesrow").forEach(x => x.classList.toggle("open", x.dataset.pes === pesOpen)); }

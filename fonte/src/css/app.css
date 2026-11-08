@@ -1425,6 +1425,11 @@ html .pitem.prok{border-left-color:var(--cg,#4a9a78)}
 /* ícone tocável (escolher outro) */
 .ico{padding:4px 5px;margin:-4px 3px -4px -5px;border-radius:9px;cursor:pointer}
 .ico:active{background:rgba(255,255,255,.15)}
+.ico.ico-foto{padding:0;line-height:0;margin:0}
+.ico-img{width:28px;height:28px;object-fit:cover;border-radius:7px;border:1px solid var(--ln,#555);background:#000;display:inline-block;vertical-align:middle}
+.ico-lado{flex:none;align-self:center}
+.ico-lado .ico-img{width:52px;height:52px;border-radius:12px;display:block}
+.pi-main:has(.ico-lado){gap:10px}
 .icogrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
 .icogrid button{font-size:26px;min-height:52px;padding:0}
 
