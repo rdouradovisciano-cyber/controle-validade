@@ -1446,6 +1446,7 @@ $("romBody").addEventListener("click", async e => { if (!romEdit) return; const 
 
 // ---------- revisão de códigos: marca "revisar" (guardada neste aparelho) e aviso de código repetido ----------
 const RVK = "validamais-revisar", TNOME = { ean: "EAN", plu: "Balança", doa: "Doação" };
+const tNome = (t, per) => t === "doa" ? (per === true ? "Código interno" : per === false ? "Doação" : "Código interno/doação") : TNOME[t];   // em Perecíveis não existe código de doação: é o «código interno»
 const revOn = n => !!store.get(RVK, {})[norm(n || "")];
 function revSet(n, on) { const m = store.get(RVK, {}), k = norm(n || ""); if (!k) return; if (on) m[k] = Date.now(); else delete m[k]; store.set(RVK, m); }
 function codMapa() {   // "tipo:código" -> nomes (sem repetir) que usam esse código
@@ -1458,7 +1459,7 @@ function repetidosDe(nomes, cods, mapa) {   // nomes: nomes (normalizados) do pr
   const r = [], vistos = new Set(); cods.forEach(([t, c]) => { const k = codChave(t, c); if (!k || vistos.has(k)) return; vistos.add(k);
     const o = [...(mapa.get(k) || new Map())].filter(([nk]) => !nomes.has(nk)).map(([, nm]) => nm); if (o.length) r.push({ t, c: String(c).trim(), outros: o }); });
   return r; }
-const dupTxt = l => l.map(d => `${TNOME[d.t]} ${d.c} também em ${d.outros.slice(0, 3).join(", ")}${d.outros.length > 3 ? " +" + (d.outros.length - 3) : ""}`).join(" · ");
+const dupTxt = l => l.map(d => `${tNome(d.t, SETOR === PER)} ${d.c} também em ${d.outros.slice(0, 3).join(", ")}${d.outros.length > 3 ? " +" + (d.outros.length - 3) : ""}`).join(" · ");
 function dupLabel(l, mapa) {   // etiqueta: o código mostrado também é de outro produto (no cadastro ou em outra etiqueta da lista)?
   const t = l.kg ? "plu" : "ean", c = l.orig || l.code; if (!c) return [];
   const r = repetidosDe(new Set([norm(l.nome)]), [[t, c]], mapa || codMapa()), outros = new Set(r.flatMap(x => x.outros));
@@ -1725,7 +1726,7 @@ function dupResolver(x) {
   const linha = g => `<div class="dprow" data-g="${esc(g.k)}"><b>${esc(g.name)}</b><small>EAN ${g.barcode ? (d.t === "ean" ? `<mark>${esc(g.barcode)}</mark>` : esc(g.barcode)) : "—"} · PLU ${g.plu ? (d.t === "plu" ? `<mark>${esc(g.plu)}</mark>` : esc(g.plu)) : "—"} · Doação ${g.don ? (d.t === "doa" ? `<mark>${esc(g.don)}</mark>` : esc(g.don)) : "—"}</small>
     <div class="dpbtns"><button type="button" class="primary" data-keep="${esc(g.k)}">Manter este e excluir os outros</button><button type="button" class="secondary" data-edit="${esc(g.k)}">Editar</button><button type="button" class="secondary" data-del="${esc(g.k)}">Excluir</button></div></div>`;
   const bg = document.createElement("div"); bg.className = "modal"; bg.id = "dupModal";
-  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Código repetido"><div class="sheethead"><h2>${TNOME[d.t]} ${esc(d.c)} repetido</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
+  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Código repetido"><div class="sheethead"><h2>${tNome(d.t, SETOR === PER)} ${esc(d.c)} repetido</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
     <p class="note">Este código está em ${itens.length} produtos. Escolha qual cadastro fica: <b>os outros são excluídos</b> (com os lotes deles).${dups.length > 1 ? ` Este produto tem mais ${dups.length - 1} código(s) repetido(s).` : ""}</p>${itens.map(linha).join("")}</section>`;
   document.body.appendChild(bg);
   const fecha = () => { bg.remove(); setTimeout(cadPaint, db ? 600 : 0); };
@@ -2032,7 +2033,7 @@ function saudeCalc() {
   const m = new Map(), lots = rawAllAtivos();
   lots.forEach(p => { const set = setSet(p); [["ean", p.barcode], ["plu", p.codigo_balanca], ["doa", p.codigo_doacao]].forEach(([t, c]) => { const k = codChave(t, c); if (!k) return; const o = m.get(k) || { t, c: String(c).trim(), e: new Map() }; o.e.set(set + "|" + norm(p.name), { n: p.name, set }); m.set(k, o); }); });
   const rep = []; m.forEach(o => { if (o.e.size < 2) return; const ents = [...o.e.values()], cruza = new Set(ents.map(e => e.set)).size > 1;
-    rep.push(`<div class="shg"><b>${TNOME[o.t]} ${esc(o.c)}</b>${cruza ? " <small>(entre setores)</small>" : ""}${ents.map(e => `<div class="shrow">${lk(e.n, e.set)}${cruza ? `<small> · ${esc(e.set)}</small>` : ""}<span class="shbts"><button type="button" class="shact pri" data-a="uni2" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Unir neste</button><button type="button" class="shact" data-a="lim" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Tirar daqui</button></span></div>`).join("")}</div>`); });
+    rep.push(`<div class="shg"><b>${tNome(o.t, ents.every(e => e.set === PER) ? true : ents.some(e => e.set === PER) ? null : false)} ${esc(o.c)}</b>${cruza ? " <small>(entre setores)</small>" : ""}${ents.map(e => `<div class="shrow">${lk(e.n, e.set)}${cruza ? `<small> · ${esc(e.set)}</small>` : ""}<span class="shbts"><button type="button" class="shact pri" data-a="uni2" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Unir neste</button><button type="button" class="shact" data-a="lim" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Tirar daqui</button></span></div>`).join("")}</div>`); });
   sec.push({ t: "Códigos repetidos", d: "O mesmo código em produtos diferentes (quase sempre é o mesmo produto com dois nomes). «Unir neste» deixa todos com este nome; «Tirar daqui» apaga o código só daquele produto.", n: rep.length, it: rep });
   // mesmo nome, cadastros separados
   const porNome = new Map(); grupos.forEach(x => { const k = norm(x.name); (porNome.get(k) || porNome.set(k, []).get(k)).push(x); });
@@ -2056,7 +2057,7 @@ async function saudeAcao(d, repaint) {
     lotes2.forEach(p => { const k = norm(p.name), o = mp.get(k) || { nome: p.name, ean: new Set(), plu: new Set(), doa: new Set() }; if (p.barcode) o.ean.add(p.barcode); if (p.codigo_balanca) o.plu.add(p.codigo_balanca); if (p.codigo_doacao) o.doa.add(p.codigo_doacao); mp.set(k, o); });
     const g = [...mp.values()], alvo = g.find(x => norm(x.nome) === norm(d.n)); if (alvo) await dupUnirCore(g, alvo); }
   else if (d.a === "lim") { const campo = CAMPO[d.t], alvo = lotes().filter(p => codChave(d.t, p[campo]) === codChave(d.t, d.c));
-    const r = await askConfirm({ icon: "🧹", title: "Tirar o código deste produto?", text: `${TNOME[d.t]} ${d.c}`, sub: `de «${d.n}» (${d.s}). O produto continua cadastrado, só sem esse código.`, ok: "Tirar código", cancel: "Cancelar" });
+    const r = await askConfirm({ icon: "🧹", title: "Tirar o código deste produto?", text: `${tNome(d.t, d.s === PER)} ${d.c}`, sub: `de «${d.n}» (${d.s}). O produto continua cadastrado, só sem esse código.`, ok: "Tirar código", cancel: "Cancelar" });
     if (r !== true) return; saudeSet(alvo, { [campo]: "" }); toast(`Código tirado de «${d.n}».`); }
   else if (d.a === "ren") { const alvo = lotes().filter(p => (p.barcode || "") === (d.b || "")); const novo = (prompt("Novo nome para este cadastro:", d.n) || "").trim().slice(0, 120);
     if (!novo || novo === d.n) return; saudeSet(alvo, { name: novo }); toast(`Renomeado para «${novo}».`); }

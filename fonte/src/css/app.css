@@ -1745,3 +1745,9 @@ body:not([data-perfil="Admin"]) #mnFlores{display:none!important}
 .flcare{margin:12px 0;padding:10px;border-radius:12px;background:rgba(47,179,92,.1);border:1px solid rgba(47,179,92,.35);font-size:14px;line-height:1.4}.flcare p{margin:6px 0}.flcare small{color:var(--mut)}
 .flform input[type=file]{display:none!important}
 .flform>button{display:block;width:100%;min-height:46px;margin-top:8px}
+/* Saúde do app — tema claro: letras com contraste */
+html[data-tema="light"] .shn{color:#7a4a00}
+html[data-tema="light"] .shsum.aten{color:#7a4a00;background:#fdf0c9;border-color:#d9a21b}
+html[data-tema="light"] .shsum.ok{color:#14673a;background:#e0f4e8;border-color:#52b57a}
+html[data-tema="light"] .shg>b{color:#1a1a1f}
+html[data-tema="light"] .shg small,html[data-tema="light"] .shrow small{color:#4a4538}
