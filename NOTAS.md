@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 08/11/2026 · versão 409.
+> Última atualização: 08/11/2026 · versão 410.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -67,3 +67,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 
 - v408: removida a ferramenta «Mesma foto em vários produtos» do Saúde do app (o usuário não usa mais). «Perecíveis sem foto» (com EAN, copiar e 🔎) continua.
 - v409: aba Pesáveis virou consulta de códigos: seletor «Consultar por» (PLU · Interno · Nome), lista numérica crescente agrupada por faixa (100–199…), atalhos para pular de faixa, código escolhido em primeiro e destacado, escolha guardada em `validamais-pes-ord`. Entram também os Perecíveis que só têm código interno; produto sem código de etiqueta mostra só «Editar».
+- v410: corrigido erro de inicialização da v409 (`Cannot access 'pesOrd' before initialization`): `PES_ORD_K`, `PES_ORDS`, `pesOrd` e `labelCode` subiram para junto de `store` (~linha 88), antes de qualquer `render()`; a aba Pesáveis voltava vazia/travada. Verificado no teste local: PLU, Interno e Nome ordenam e agrupam certo.

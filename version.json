@@ -1,1 +1,1 @@
-{"versao":"2026.11.08-409","nota":"Aba Pesáveis (Perecíveis): novo seletor «Consultar por» — PLU, Interno ou Nome. A lista fica em ordem numérica crescente, agrupada por faixa (100–199, 200–299…), com atalhos para pular direto para a faixa; o código escolhido aparece em primeiro e destacado, e a escolha fica guardada no aparelho"}
+{"versao":"2026.11.08-410","nota":"Corrigido: a aba Pesáveis voltou a abrir. Um erro na inicialização travava a lista; o seletor «Consultar por» (PLU · Interno · Nome), as faixas e os atalhos continuam como na v409"}

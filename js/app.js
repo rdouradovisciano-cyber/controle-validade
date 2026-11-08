@@ -84,6 +84,11 @@ const store = {
   get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
+// aba Pesáveis: declarações aqui em cima porque a lista pode ser desenhada já na abertura do app
+const PES_ORD_K = "validamais-pes-ord";
+const PES_ORDS = ["plu", "itn", "nome"];
+let pesOrd = store.get(PES_ORD_K, "plu"); if (!PES_ORDS.includes(pesOrd)) pesOrd = "plu";
+const labelCode = p => p.barcode ? { code: String(p.barcode), kg: false } : p.codigo_balanca ? { code: String(p.codigo_balanca), kg: true } : { code: "", kg: false };   // etiqueta: EAN se o produto tem; senão o código de balança; nunca o de doação
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
@@ -2790,7 +2795,6 @@ const SZ = { P: { w: 63, h: 30, cols: 3, rows: 9, nome: 8, preco: 15, cod: 6, ba
 let labels = store.get(EK, []), pend = null, eHits = [], eFiltro = "";
 // itens pesados (FLV/Padaria) usam o código de balança; os demais usam o EAN
 const codeText = c => c.code ? `${c.kg ? "Código de balança" : "EAN"}: ${c.code}` : "⚠ Sem EAN nem código de balança cadastrado para este produto.";
-const labelCode = p => p.barcode ? { code: String(p.barcode), kg: false } : p.codigo_balanca ? { code: String(p.codigo_balanca), kg: true } : { code: "", kg: false };   // etiqueta: EAN se o produto tem; senão o código de balança; nunca o de doação
 function labelDropMany(its) {
   const idx = its.map(l => ({ l, x: labels.indexOf(l) })).filter(o => o.x >= 0).sort((a, b) => a.x - b.x); if (!idx.length) return;
   idx.slice().reverse().forEach(o => labels.splice(o.x, 1)); store.set(EK, labels); renderLabels();
@@ -2877,9 +2881,6 @@ $("eScan").onclick = () => openScan("etiqueta");
 function pesaveis() {   // inclui quem só tem código interno, porque alguns produtos são consultados por ele
   return products.filter(p => !p.retirado && p.category === PER && (p.codigo_balanca || p.codigo_doacao || (/^\d+$/.test(String(p.barcode || "")) && String(p.barcode).length < 8)));
 }
-const PES_ORD_K = "validamais-pes-ord";
-const PES_ORDS = ["plu", "itn", "nome"];
-let pesOrd = store.get(PES_ORD_K, "plu"); if (!PES_ORDS.includes(pesOrd)) pesOrd = "plu";
 function pesCod(p) {   // código que vale na consulta de agora (PLU, interno ou, sem PLU, o código curto)
   if (pesOrd === "itn") return String(p.codigo_doacao || "");
   const plu = String(p.codigo_balanca || ""), bc = String(p.barcode || "");
