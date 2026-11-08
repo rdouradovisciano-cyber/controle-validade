@@ -7,16 +7,16 @@ r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".c
 const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium",args:["--use-fake-device-for-media-stream","--use-fake-ui-for-media-stream"]});
 const ctx=await br.newContext({viewport:{width:411,height:860},deviceScaleFactor:2,permissions:["camera"]});const pg=await ctx.newPage();const errs=[];pg.on("pageerror",e=>errs.push(e.message));
 const dias=n=>{const d=new Date(Date.now()+n*864e5);return d.toISOString().slice(0,10)};
-const prods=[["PEPERONI FATUADO SADIA",9,40],["NESTLE VITAMINA DE FRUTAS MORANGO 200G",9,28],["RICOTA FRESCA FAZENDA BELA VISTA 250G",9,15],["QJ MUSS FAT INTERF ROHDEN KG",10,20],["Queijo minas frescal Tirolez light 500g",10,20],["LINGUIÇA CALABRESA CERATTI",10,15],["NINHO NESTLE",10,20],["LEITE UHT 1L",11,10]].map((a,i)=>({id:"p"+i,name:a[0],category:"Perecíveis",barcode:"78"+i,expiry:dias(a[1]),quantity:a[2],por:"Ronaldo"}));
+const prods=[["PEPERONI FATUADO SADIA",9,40],["NESTLE VITAMINA DE FRUTAS MORANGO 200G",9,28],["RICOTA FRESCA FAZENDA BELA VISTA 250G",9,15],["QJ MUSS FAT INTERF ROHDEN KG",10,20],["Queijo minas frescal Tirolez light 500g",10,20],["LINGUIÇA CALABRESA CERATTI",10,15],["NINHO NESTLE",10,20],["LEITE UHT 1L",11,10],["NINHO INTEGRAL SEM EAN",12,5],["NINHO NESTLE ANTIGO",13,5]].map((a,i)=>({id:"p"+i,name:a[0],category:"Perecíveis",barcode:(i===8?"":"78"+i),codigo_balanca:(i===8?"4321":""),retirado:(i===9),expiry:dias(a[1]),quantity:a[2],por:"Ronaldo"}));
 await pg.addInitScript(([pf,pr])=>{if(localStorage.getItem("__ini"))return;localStorage.setItem("__ini","1");const mk=c=>{const k=document.createElement("canvas");k.width=k.height=120;const x=k.getContext("2d");x.fillStyle=c;x.fillRect(0,0,120,120);x.fillStyle="#fff";x.fillRect(30,30,60,60);return k.toDataURL("image/jpeg",.6)};localStorage.setItem("validamais-fotos-per",JSON.stringify({"foto-ninho nestle":mk("#c33"),"foto-peperoni fatuado sadia":mk("#38c")}));localStorage.setItem("validamais-perfil",pf);localStorage.setItem("validamais-operador",JSON.stringify("T"));localStorage.setItem("validamais-produtos-v1",JSON.stringify(pr))},[perfil,prods]);
 await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(2500);
 if(perfil==="Admin"){await pg.getByText("Perecíveis",{exact:false}).first().click();await pg.waitForTimeout(800)}
 await pg.waitForTimeout(3500);
 await pg.click("#fab");await pg.waitForTimeout(500);
-await pg.fill("#nmBusca","ni");console.log("resultados 'ni':",await pg.evaluate(()=>[...document.querySelectorAll("#nmRes button")].map(b=>b.innerText.replace(/\n/g," / "))));
+await pg.fill("#nmBusca","ninho");console.log("ninho:",await pg.evaluate(()=>document.querySelector("#nmRes").innerText.replace(/\n/g," | ")));
 await pg.fill("#nmBusca","quei min");console.log("'quei min':",await pg.evaluate(()=>document.querySelector("#nmRes").innerText.replace(/\n/g," | ")));
 await pg.fill("#nmBusca","xyz");console.log("'xyz':",await pg.evaluate(()=>document.querySelector("#nmRes").innerText));
 await pg.fill("#nmBusca","ninho");await pg.screenshot({path:SHOT});
-await pg.click("#nmRes button");await pg.waitForTimeout(700);
+await pg.click("#nmRes button[data-i=\"2\"]");await pg.waitForTimeout(700);
 console.log("após tocar:",await pg.evaluate(()=>({barcode:document.querySelector("#barcode").value,nome:document.querySelector("#name").value,titulo:document.querySelector("#modalTitle").innerText})),errs);
 await br.close();srv.close();

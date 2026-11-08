@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 08/11/2026 · versão 401.
+> Última atualização: 08/11/2026 · versão 402.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -60,3 +60,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v399: efeitos na lista de Validades: pulso de borda em `.pitem.pra/.prh` (fechados), anel da foto na cor `--tc`, entrada escalonada (`entradaLista`, classe `.ent`, só quando muda setor/visão e depois do #splash). Tudo desligado com prefers-reduced-motion. Ideias que sobraram: deslizar ao retirar, contador rolando, esqueleto da foto, brilho quando zera o grupo urgente.
 - v400: o efeito de saída ao retirar (`efeitoSai`, classe `.saindo`) já existia; adicionei vibração curta (se «efeitos» ligado), sem pulso na saída e foto em cinza. Sobram: contador rolando, esqueleto da foto, brilho quando zera o grupo urgente.
 - v401: área de bip (modal do scanner) ganhou busca por nome discreta (`#nmBusca`/`nmBusca()`): só produtos com EAN, sem retirados, até 6 resultados; tocar chama `onCode(ean)` (mesmo caminho do bip, vale para todos os modos). Produtos só com código de balança (sem EAN) não aparecem ali.
+- v402: a busca por nome da área de bip usa `cadGroups()` (todos os cadastros do SETOR atual: sem EAN, retirados, EAN repetido com nomes diferentes) e sem limite de 6 (lista rola). No modo «loja» abre o lote do cadastro exato (`nmEscolhe`); nos outros modos usa o EAN e, sem EAN, avisa. Não busca em outro setor.

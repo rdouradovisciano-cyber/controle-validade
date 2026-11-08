@@ -688,17 +688,29 @@ function manualCodeGo() {            // código digitado: segue o mesmo caminho 
   $("manualCode").value = ""; $("manualCode").blur(); onCode(v);
 }
 $("manualGo").onclick = manualCodeGo;
-// achar pelo nome (discreto, abaixo do código): toca no produto e segue como se tivesse bipado
+// achar pelo nome (discreto, abaixo do código): TODOS os cadastros do setor (com ou sem EAN, mesmo os retirados); toca e segue como se tivesse bipado
+let nmLista = [];
 function nmBusca() {
-  const q = norm($("nmBusca").value.trim()), box = $("nmRes"); if (q.length < 2) { box.classList.add("hidden"); box.innerHTML = ""; return; }
-  const tk = q.split(/\s+/), vistos = new Set(), r = [];
-  for (const p of products) { if (!p || p.retirado || !p.barcode || vistos.has(p.barcode)) continue; const n = norm(p.name || ""); if (tk.every(x => n.includes(x))) { vistos.add(p.barcode); r.push(p); } }
-  r.sort((a, b) => norm(a.name).indexOf(tk[0]) - norm(b.name).indexOf(tk[0]) || String(a.name).length - String(b.name).length);
-  box.innerHTML = r.length ? r.slice(0, 6).map(p => `<button type="button" data-bc="${esc(p.barcode)}"><span>${esc(nomeBonito(p.name))}</span><small>${esc(p.category === PER ? "Perecíveis" : p.category || "")}</small></button>`).join("") + (r.length > 6 ? `<em>mais ${r.length - 6}… continue digitando</em>` : "") : "<em>Nenhum produto com esse nome.</em>";
+  const q = norm($("nmBusca").value.trim()), box = $("nmRes"); if (q.length < 2) { box.classList.add("hidden"); box.innerHTML = ""; nmLista = []; return; }
+  const tk = q.split(/\s+/);
+  nmLista = cadGroups().filter(g => { const n = norm(g.name || ""); return tk.every(x => n.includes(x)); })
+    .sort((a, b) => norm(a.name).indexOf(tk[0]) - norm(b.name).indexOf(tk[0]) || String(a.name).length - String(b.name).length);
+  box.innerHTML = nmLista.length ? `<em class="nmn">${nmLista.length} ${nmLista.length === 1 ? "cadastro" : "cadastros"}</em>` + nmLista.map((g, i) => { const ret = g.l.every(x => x.retirado), cod = g.barcode ? "…" + String(g.barcode).slice(-4) : (g.plu ? "PLU " + g.plu : "sem código");
+    return `<button type="button" data-i="${i}"><span>${esc(nomeBonito(g.name))}</span><small>${ret ? "retirado · " : ""}${esc(cod)}</small></button>`; }).join("") : "<em>Nenhum cadastro com esse nome.</em>";
   box.classList.remove("hidden");
 }
+function nmEscolhe(g) {
+  const k = g.l.find(x => !x.retirado) || g.l[0];
+  if (scanMode === "loja") {   // abre o lote deste cadastro exato (vale também para os sem EAN e para EAN repetido com nomes diferentes)
+    sinal("ok"); stopScanner(); resetForm(); formBip = true; logScan(k.barcode || "", k); show(`Novo lote de «${k.name}»`);
+    $("barcode").value = k.barcode || ""; $("name").value = k.name || ""; $("category").value = k.category || CATSET;
+    $("cBalanca").value = k.codigo_balanca || ""; $("cDoacao").value = k.codigo_doacao || ""; toggleCodes(); loteMode(k); $("expiry").focus(); return;
+  }
+  if (k.barcode) return onCode(k.barcode);
+  toast("Este cadastro não tem código de barras. Abra-o pelo cadastro ou pelo lote.");
+}
 $("nmBusca").oninput = nmBusca;
-$("nmRes").onclick = e => { const b = e.target.closest("button[data-bc]"); if (!b) return; const c = b.dataset.bc; $("nmBusca").value = ""; nmBusca(); $("nmBusca").blur(); onCode(c); };
+$("nmRes").onclick = e => { const b = e.target.closest("button[data-i]"); if (!b) return; const g = nmLista[Number(b.dataset.i)]; if (!g) return; $("nmBusca").value = ""; nmBusca(); $("nmBusca").blur(); nmEscolhe(g); };
 $("manualCode").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); manualCodeGo(); } };
 async function openScan(mode = "loja") {
   scanMode = ["doacao", "etiqueta", "cadastro", "contagem", "fiscal", "form"].includes(mode) ? mode : "loja";
