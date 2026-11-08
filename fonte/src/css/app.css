@@ -1761,3 +1761,14 @@ html[data-tema="light"] .shsum.aten{color:#7a4a00;background:#fdf0c9;border-colo
 html[data-tema="light"] .shsum.ok{color:#14673a;background:#e0f4e8;border-color:#52b57a}
 html[data-tema="light"] .shg>b{color:#1a1a1f}
 html[data-tema="light"] .shg small,html[data-tema="light"] .shrow small{color:#4a4538}
+
+/* ===== efeitos da lista de Validades (v399): entrada escalonada, pulso nos urgentes, anel na foto ===== */
+@keyframes vmEnt{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.pitem.ent{animation:vmEnt .38s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 40ms)}
+@keyframes vmCardPulso{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--tc) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--tc) 28%,transparent),0 0 14px color-mix(in srgb,var(--tc) 35%,transparent)}}
+.pitem.pra:not(.open),.pitem.prh:not(.open){animation:vmCardPulso 2.4s ease-in-out infinite}
+.pitem.pra.ent,.pitem.prh.ent{animation:vmEnt .38s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 40ms)}
+.pitem .ico-lado .ico-img{border:2.5px solid var(--tc,#3f9f6f)}
+.pitem.prok .ico-lado .ico-img{border-color:#3f9f6f}
+.pitem.pry .ico-lado .ico-img{border-color:var(--tc,#f2c200)}
+@media (prefers-reduced-motion:reduce){.pitem.ent,.pitem.pra,.pitem.prh{animation:none!important}}

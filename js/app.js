@@ -378,6 +378,17 @@ function render() {
   if (typeof renderPesaveis === "function") renderPesaveis();
   if (openId) fotoCarrega(openId);
   fotosTodas();
+  entradaLista(rows.length ? SETOR + "|" + (retView ? "r" : "v") + "|" + (typeof cat !== "undefined" ? cat : "") : "");
+}
+// os cartões sobem um a um — só quando a lista aparece pela 1ª vez ou o setor/visão muda (não a cada atualização da nuvem)
+let entradaChave = "", entradaT = 0;
+function entradaLista(chave) {
+  if (!chave || chave === entradaChave) return; if (entradaChave === "" && !document.querySelector("#list .pitem")) return;
+  const sp = document.getElementById("splash"); if (sp && sp.isConnected && getComputedStyle(sp).display !== "none" && Number(getComputedStyle(sp).opacity) > 0.05) { clearTimeout(entradaT); entradaT = setTimeout(() => entradaLista(chave), 150); return; }   // espera a tela de abertura sumir
+  entradaChave = chave;
+  const cs = document.querySelectorAll("#list .pitem"); const n = Math.min(cs.length, 14);
+  for (let i = 0; i < n; i++) { cs[i].style.setProperty("--i", i); cs[i].classList.add("ent"); }
+  setTimeout(() => cs.forEach(c => { c.classList.remove("ent"); c.style.removeProperty("--i"); }), 900);
 }
 
 // ---------- código de barras EAN-13 (SVG) ----------
