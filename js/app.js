@@ -177,7 +177,7 @@ function fotoCarrega(id) {
   try { un = V.onSnapshot(V.doc(db, "sh_cfg", k), sn => { if (fim) return; fim = true; clearTimeout(t); fotoCache[k] = sn.exists() && sn.data().d ? sn.data().d : ""; fotoPaint(id); try { un && un(); } catch (e) {} }, () => { if (fim) return; fim = true; fotoCache[k] = ""; fotoPaint(id); }); } catch (e) { fotoCache[k] = ""; fotoPaint(id); }
 }
 // miniatura no lugar do emoji (só Perecíveis): uma única consulta traz as fotos de todos os produtos e continua ouvindo mudanças
-let fotosPronto = false, fotosOuvindo = false;
+let fotosPronto = false, fotosOuvindo = false, fotosErro = false, saudeRepinta = null;
 const fotoDe = p => p && p.category === PER && iconesOn() ? (fotoCache[fotoK(p.name)] || "") : "";
 const icoHtml = p => { const d = fotoDe(p), e = iconeDe(p); if (!d && !e) return "";   // inline (Pesáveis): miniatura ou emoji
   return `<span class="ico${d ? " ico-foto" : ""}" data-id="${esc(p.id)}">${d ? `<img class="ico-img" src="${d}" alt="" decoding="async">` : e}</span>`; };
@@ -188,10 +188,14 @@ function fotoIcones() { clearTimeout(fotoIcTimer); fotoIcTimer = setTimeout(() =
 function fotosTodas() {
   if (fotosOuvindo) return; fotosOuvindo = true;
   if (!db) { const m = store.get(FTK, {}); Object.keys(m).forEach(k => { fotoCache[k] = m[k]; }); fotosPronto = true; return; }
-  try { V.onSnapshot(V.query(V.collection(db, "sh_cfg"), V.where("d", ">=", "data:")), sn => {
+  const t0 = Date.now();
+  try { V.onSnapshot(V.query(V.collection(db, "sh_cfg"), V.where("d", ">=", "data:")), { includeMetadataChanges: true }, sn => {   // com metadata: avisa também quando só a origem muda (cache → servidor)
     sn.docChanges().forEach(c => { fotoCache[c.doc.id] = c.type === "removed" ? "" : (c.doc.data().d || ""); });
-    if (!sn.metadata.fromCache) fotosPronto = true; fotoIcones();
-  }, e => console.warn("fotos", e)); } catch (e) { console.warn("fotos", e); }
+    if (!sn.metadata.fromCache || Date.now() - t0 > 6000) fotosPronto = true;
+    fotoIcones(); try { saudeRepinta && saudeRepinta(); } catch (e) {}
+  }, e => { console.warn("fotos", e); fotosErro = true; try { saudeRepinta && saudeRepinta(); } catch (x) {} });
+    setTimeout(() => { if (!fotosPronto && !fotosErro) { fotosPronto = true; try { saudeRepinta && saudeRepinta(); } catch (e) {} } }, 7000);   // se a nuvem não confirmar, vale o que veio do cache
+  } catch (e) { console.warn("fotos", e); fotosErro = true; }
 }
 function fotoReduz(file) {   // miniatura: lado maior 360 px, JPEG (~10–25 KB)
   return new Promise((ok, no) => { const im = new Image(), u = URL.createObjectURL(file);
@@ -2106,10 +2110,12 @@ function saudeCalc() {
   sec.push({ t: "Mesmo nome em cadastros separados", d: "Aparecem como linhas repetidas em Cadastros.", n: iguais.length, it: iguais });
   const par = dupGroups();
   sec.push({ t: "Nomes parecidos", d: "Podem ser o mesmo produto escrito de formas diferentes.", n: par.length, it: par.length ? [par.map(a => a.map(x => esc(x.nome)).join(" ≈ ")).slice(0, 6).join("<br>"), `<button type="button" class="shact pri" data-a="uni">Escolher o nome certo</button>`] : [] });
-  // Perecíveis sem foto (Admin): uma linha por produto (a foto vale para todos os lotes do mesmo nome)
+  // Perecíveis sem foto (Admin): uma linha por produto (a foto vale para todos os lotes do mesmo nome). Emoji NÃO conta como foto.
   { const nomes = new Map(); rawAllAtivos().forEach(p => { if (setSet(p) !== PER || p.retirado) return; const k = fotoK(p.name); if (!nomes.has(k)) nomes.set(k, p.name); });
-    const sem = fotosPronto || !db ? [...nomes.entries()].filter(([k]) => !fotoCache[k]).map(([, n]) => n).sort((x, y) => x.localeCompare(y, "pt-BR")) : [];
-    sec.push({ t: "Perecíveis sem foto", d: fotosPronto || !db ? `De ${nomes.size} produtos dos Perecíveis, ${sem.length} ainda não têm foto. Toque em «📷 Foto» para tirar ou escolher; a foto vale para todos os lotes do produto.` : "Carregando as fotos da nuvem… feche e abra de novo em instantes.", n: sem.length, todos: true,
+    const sabe = !db || fotosPronto, nFot = [...nomes.keys()].filter(k => fotoCache[k]).length;
+    const sem = sabe ? [...nomes.entries()].filter(([k]) => !fotoCache[k]).map(([, n]) => n).sort((x, y) => x.localeCompare(y, "pt-BR")) : [];
+    if (!sabe) sec.push({ t: "Perecíveis sem foto", d: fotosErro ? "Não consegui ler as fotos da nuvem agora. Feche e abra de novo; se continuar, avise." : "Conferindo as fotos na nuvem… a lista aparece sozinha em instantes.", n: 1, it: ["<small class=\"note\">Aguarde um instante…</small>"] });
+    else sec.push({ t: `Perecíveis sem foto (${sem.length} de ${nomes.size})`, d: `De ${nomes.size} produtos dos Perecíveis, ${nFot} têm foto e ${sem.length} não. Emoji não conta como foto. Toque em «📷 Foto» para tirar ou escolher; a foto vale para todos os lotes do produto.`, n: sem.length, todos: true,
       it: sem.map(n => `<div class="shrow"><span class="shn2">${esc(nomeBonito(n))}</span><span class="shbts"><button type="button" class="shact pri" data-foto="${esc(n)}">📷 Foto</button></span></div>`) }); }
   const fora = {}; products.forEach(p => { if (p.category && !CATS.includes(p.category)) fora[p.category] = (fora[p.category] || 0) + 1; });
   sec.push({ t: "Categoria fora da lista", d: "Produtos com uma categoria que o app não conhece.", n: Object.keys(fora).length, it: Object.keys(fora).map(c => esc(c) + " (" + fora[c] + ")") });
@@ -2199,6 +2205,7 @@ function saudeAbrir() {
     <div class="shsec"><div class="shh"><b>Autoteste da nuvem</b></div><small class="note">Cria um item de teste em cada setor, altera, apaga e diz se o Firebase aceitou. Não deixa nada para trás.</small>
       <button type="button" class="primary big" id="shRun" style="margin-top:10px">Rodar autoteste</button><div id="shRes" class="shit">${run}</div></div></section>`;
     bg.querySelector(".sheet").scrollTop = y; };
+  saudeRepinta = () => { if (bg.isConnected) paint(); else saudeRepinta = null; };
   paint(); document.body.appendChild(bg); memCalc().then(h => { memHtml = h; const m = bg.querySelector("#shMem"); if (m) m.innerHTML = h; });
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) { bg.remove(); return; }
     const ft = e.target.closest("[data-foto]"); if (ft) { bg._fotoNome = ft.dataset.foto; let inp = bg.querySelector("#shFotoIn"); if (!inp) { inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.id = "shFotoIn"; inp.hidden = true; bg.appendChild(inp);
