@@ -1079,6 +1079,8 @@ body[data-setor="Perecíveis"] #micBtn{display:none!important}
 .shrow{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .shact{min-height:38px;padding:6px 12px;border-radius:10px;border:1px solid var(--ln);background:transparent;color:inherit;font-weight:700;font-size:13px;white-space:nowrap}
 .shact.pri{background:#f3d87a;color:#1a1405;border-color:transparent;align-self:flex-start}
+.shact.del{color:#ff8a80;border-color:#ff8a8066}
+html[data-tema="light"] .shact.del{color:#b3261e;border-color:#b3261e66}
 
 /* perfil do aparelho: só o Admin troca de setor */
 body[data-perfil="FLV"] #setorChip,body[data-perfil="Perecíveis"] #setorChip,body[data-perfil="Fiscal"] #setorChip,body[data-perfil="Fiscal"] #mnSetor,body[data-perfil="Fiscal"] #mnSetor2,body[data-perfil="FLV"] #mnSetor,body[data-perfil="Perecíveis"] #mnSetor,body[data-perfil="FLV"] #mnSetor2,body[data-perfil="Perecíveis"] #mnSetor2{display:none!important}

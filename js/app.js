@@ -2033,8 +2033,8 @@ function saudeCalc() {
   const m = new Map(), lots = rawAllAtivos();
   lots.forEach(p => { const set = setSet(p); [["ean", p.barcode], ["plu", p.codigo_balanca], ["doa", p.codigo_doacao]].forEach(([t, c]) => { const k = codChave(t, c); if (!k) return; const o = m.get(k) || { t, c: String(c).trim(), e: new Map() }; o.e.set(set + "|" + norm(p.name), { n: p.name, set }); m.set(k, o); }); });
   const rep = []; m.forEach(o => { if (o.e.size < 2) return; const ents = [...o.e.values()], cruza = new Set(ents.map(e => e.set)).size > 1;
-    rep.push(`<div class="shg"><b>${tNome(o.t, ents.every(e => e.set === PER) ? true : ents.some(e => e.set === PER) ? null : false)} ${esc(o.c)}</b>${cruza ? " <small>(entre setores)</small>" : ""}${ents.map(e => `<div class="shrow">${lk(e.n, e.set)}${cruza ? `<small> · ${esc(e.set)}</small>` : ""}<span class="shbts"><button type="button" class="shact pri" data-a="uni2" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Unir neste</button><button type="button" class="shact" data-a="lim" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Tirar daqui</button></span></div>`).join("")}</div>`); });
-  sec.push({ t: "Códigos repetidos", d: "O mesmo código em produtos diferentes (quase sempre é o mesmo produto com dois nomes). «Unir neste» deixa todos com este nome; «Tirar daqui» apaga o código só daquele produto.", n: rep.length, it: rep });
+    rep.push(`<div class="shg"><b>${tNome(o.t, ents.every(e => e.set === PER) ? true : ents.some(e => e.set === PER) ? null : false)} ${esc(o.c)}</b>${cruza ? " <small>(entre setores)</small>" : ""}${ents.map(e => `<div class="shrow">${lk(e.n, e.set)}${cruza ? `<small> · ${esc(e.set)}</small>` : ""}<span class="shbts"><button type="button" class="shact pri" data-a="uni2" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Unir neste</button><button type="button" class="shact" data-a="lim" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Tirar daqui</button><button type="button" class="shact del" data-a="exc" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Excluir cadastro</button></span></div>`).join("")}</div>`); });
+  sec.push({ t: "Códigos repetidos", d: "O mesmo código em produtos diferentes (quase sempre é o mesmo produto com dois nomes). «Unir neste» deixa todos com este nome; «Tirar daqui» apaga o código só daquele produto (o cadastro continua); «Excluir cadastro» manda aquele cadastro para a lixeira.", n: rep.length, it: rep });
   // mesmo nome, cadastros separados
   const porNome = new Map(); grupos.forEach(x => { const k = norm(x.name); (porNome.get(k) || porNome.set(k, []).get(k)).push(x); });
   const iguais = [];
@@ -2059,6 +2059,13 @@ async function saudeAcao(d, repaint) {
   else if (d.a === "lim") { const campo = CAMPO[d.t], alvo = lotes().filter(p => codChave(d.t, p[campo]) === codChave(d.t, d.c));
     const r = await askConfirm({ icon: "🧹", title: "Tirar o código deste produto?", text: `${tNome(d.t, d.s === PER)} ${d.c}`, sub: `de «${d.n}» (${d.s}). O produto continua cadastrado, só sem esse código.`, ok: "Tirar código", cancel: "Cancelar" });
     if (r !== true) return; saudeSet(alvo, { [campo]: "" }); toast(`Código tirado de «${d.n}».`); }
+  else if (d.a === "exc") { const campo = CAMPO[d.t], alvo = lotes().filter(p => codChave(d.t, p[campo]) === codChave(d.t, d.c));
+    if (!alvo.length) return;
+    const r = await askConfirm({ icon: "🗑", title: "Excluir este cadastro?", text: `«${d.n}» (${d.s})`, sub: `${tNome(d.t, d.s === PER)} ${d.c}. O cadastro e as validades dele vão para a lixeira (dá para restaurar por 3 dias). Os outros cadastros com esse código não mudam.`, ok: "Excluir", cancel: "Cancelar" });
+    if (r !== true) return;
+    if (db) cadApagar({ k: "__saude__", name: d.n, l: alvo });   // nuvem: marca cada lote com «lixo» (vale para qualquer setor)
+    else { const agora = Date.now(); alvo.forEach(p => { p.lixo = agora; }); const todos = [...new Set(products.concat(lixeira, outros))]; separaLixo(todos); persist(); render(); lixoBtn(); }   // local: o cadastro pode ser de outro setor (fica em «outros»), então refaz as listas
+    toast(`«${d.n}» foi para a lixeira.`); }
   else if (d.a === "ren") { const alvo = lotes().filter(p => (p.barcode || "") === (d.b || "")); const novo = (prompt("Novo nome para este cadastro:", d.n) || "").trim().slice(0, 120);
     if (!novo || novo === d.n) return; saudeSet(alvo, { name: novo }); toast(`Renomeado para «${novo}».`); }
   else if (d.a === "jun") { const alvo = lotes(), pick = f => alvo.map(p => p[f]).find(Boolean) || "";
