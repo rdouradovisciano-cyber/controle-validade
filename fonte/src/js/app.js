@@ -587,6 +587,7 @@ function efeitoSai(id) {
   const el = [...document.querySelectorAll("#list .pitem")].find(x => x.dataset.id === id);
   if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return Promise.resolve();
   el.style.maxHeight = el.offsetHeight + "px"; void el.offsetHeight; el.classList.add("saindo");
+  try { if (fxOn() && navigator.vibrate) navigator.vibrate([14, 30, 14]); } catch (e) {}   // toque curto: «saiu»
   return new Promise(r => setTimeout(r, 420));
 }
 const MOTIVOS = ["Vencido", "Quebra/estragou", "Vendido em oferta", "Vendido"], ENGANO = ["Lançado por engano"];   // "engano" só apaga o lote da lista, sem registro

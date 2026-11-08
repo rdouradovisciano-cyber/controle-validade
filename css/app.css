@@ -1772,3 +1772,6 @@ html[data-tema="light"] .shg small,html[data-tema="light"] .shrow small{color:#4
 .pitem.prok .ico-lado .ico-img{border-color:#3f9f6f}
 .pitem.pry .ico-lado .ico-img{border-color:var(--tc,#f2c200)}
 @media (prefers-reduced-motion:reduce){.pitem.ent,.pitem.pra,.pitem.prh{animation:none!important}}
+
+.pitem.saindo{animation:none!important}   /* v400: sem pulso enquanto sai */
+.pitem.saindo .ico-lado .ico-img{filter:grayscale(1)}
