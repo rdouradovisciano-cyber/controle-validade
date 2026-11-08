@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 08/11/2026 · versão 413.
+> Última atualização: 08/11/2026 · versão 414.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -71,3 +71,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v411: a pedido do usuário, a aba Pesáveis voltou à lista simples **por nome** (v408): sai o seletor «Consultar por», as faixas e os atalhos; a busca continua por nome/PLU/interno/EAN. Mantidos: quem só tem código interno aparece na lista e, sem código de etiqueta, mostra só «Editar». `labelCode` fica declarado no topo (~linha 88) para a lista poder ser desenhada já na abertura.
 - v412: busca dos Pesáveis entende as abreviações do cadastro (`PES_ABREV`/`pesCanon`, no topo do arquivo, antes de qualquer render): QJ/QJO → queijo, MUSS → mussarela, PC/PECA → peça, FRAC/FRACAO → fracionado, FAT → fatiado, DEF → defumado. Funciona nas duas direções (digitar «queijo» acha «QJ MUSS…» e digitar «qj» acha «QUEIJO…») e o destaque acende a abreviação no nome. Novos atalhos `#pesTipos` filtram por tipo (Todos, Queijos, Mussarela, Minas, Fracionados, Salame, Bacon) com contagem calculada na hora; tocar de novo no atalho volta a Todos. As contagens reais (307 Perecíveis): Queijos 186, Mussarela 41, Minas 29, Fracionados 35, Salame 18, Bacon 12. Sem mudança nas regras do Firestore.
 - v413: ajuste interno dos atalhos: os botões de tipo só são redesenhados quando as contagens mudam, então digitar na busca ou tocar num atalho não perde a rolagem horizontal da fileira. Nada muda na tela.
+- v414: corrigido o deslize na fileira de atalhos dos Pesáveis: `nav.js` (função `blocked`) passou a ignorar toques que começam em `.pestipos`, então o deslize rola os atalhos em vez de trocar de aba. A troca de aba por deslize continua no resto da tela.
