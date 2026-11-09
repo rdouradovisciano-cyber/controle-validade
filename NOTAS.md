@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 09/11/2026 · versão 425.
+> Última atualização: 09/11/2026 · versão 426.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -83,3 +83,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v423: formato da data no topo mudou (escolha do usuário): `hojeTop()` monta «DOM · 08 NOV» com `weekday:'short'` e `month:'short'` em maiúsculas; `.hojeTop` virou texto branco em negrito, sem a pílula dourada. O `aria-label` e o `title` continuam com a data completa.
 - v424: etiquetas do **FLV** entram sempre como **P (serrilhado)**: `tamOf(p)` devolve "P" quando `SETOR === "FLV"` (não lê nem grava o tamanho lembrado em `validamais-tam`). Na lista aparece o selo «serrilhado» (P), «M» ou «G»; na folha que abre ao segurar o item, o botão P vira «P serrilhado» e é ali que se escolhe M ou G. Outros setores seguem como antes (padrão M, lembrando o último tamanho). Itens já na lista não mudam. Teste: `tools/etq-tam-test.mjs`.
 - v425: **saiu a tela de abertura** (`#splash`: «Bom dia, nome» + data + VALIDA+, que ficava no mínimo 3,2 s). O app abre direto. Removidos o bloco no `index.html` e o script dele; `entradaLista` já tratava a ausência do `#splash`. Teste: abre em ~0,3 s no navegador de teste.
+- v426: o selo do P no FLV mostra «P serrilhado» (não só «serrilhado»).
