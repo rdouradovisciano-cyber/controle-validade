@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 09/11/2026 · versão 429.
+> Última atualização: 09/11/2026 · versão 430.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -44,6 +44,7 @@ O app guarda tudo também no aparelho (`store.get/set`, chaves `validamais-*`) e
 - Ciclo (D S T Q Q S S), duas semanas que se repetem: pessoa 1 folga sempre na quarta, pessoa 2 sempre na quinta; domingo alterna; quem folga no domingo já fecha as duas folgas; quem trabalha no domingo folga também na terça. Nunca os dois folgam no mesmo dia. **Máximo de 5 dias seguidos trabalhando**, mesmo entre semanas (o app avisa).
 - Ciclos antigos salvos no aparelho migram sozinhos (lista `ESC_CICLOS_ANTIGOS` em `app.js`); ao mudar o padrão, acrescentar o anterior a essa lista.
 - v429: corrige o ciclo de 2027 que estava salvo trocado na nuvem (`r` e `y` invertidos, os dois folgavam quase toda semana) e destaca os **feriados de 2027** no calendário e na lista (`ESC_FER` em `app.js`): nacionais, o estadual de SP (09/07) e os facultativos (Carnaval 08–09/02, Cinzas 10/02 e Corpus Christi 27/05). Célula/linha com `fer`/`fac`, ponto `.efhol`, texto `.ferl`, bloco «Feriados do mês» (`.efer`) e ★/☆ na imagem do WhatsApp. O `cfg.ciclo` da nuvem já foi corrigido; ajustes de 2027 existentes coincidem com o padrão e podem ficar.
+- v430: acrescenta os feriados de **novembro e dezembro de 2026** (`ESC_FER`) e reforça o destaque: célula com tarja vermelha/amarela no topo, número do dia em selo colorido e ★/☆; na lista, dia com fundo tingido, barra lateral e selo no número; bloco «Feriados do mês» com cartão e estrelas. Conserta a imagem do WhatsApp, que usava `fer`/`fac` sem definir no laço do calendário.
 - Calendário com total de horas da semana (✓42h) no fim de cada linha; modo lista, tela cheia (painel do app), imagem horizontal para WhatsApp (1600×900), troca de dia com mais de um toque.
 - Fotos e nomes completos ficam só no Firestore (`sh_cfg/escala`) e no aparelho, nunca no repositório.
 

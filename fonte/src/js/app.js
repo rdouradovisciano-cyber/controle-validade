@@ -2339,7 +2339,11 @@ const ESC_DEF = { ini: "2026-11-09", dia: 504, int: 60, meta: 2520,
   p: { r: { n: "Renato", full: "", foto: "", ent: 660 }, y: { n: "Yossef", full: "", foto: "", ent: 420 } },
   ciclo: { r: ["FTTFTTT", "TTFFTTT"], y: ["TTFTFTT", "FTTTFTT"] } };   // ciclo = D S T Q Q S S. Renato folga sempre na quarta, Yossef na quinta; domingo alterna: quem folga no domingo já tem sua 2ª folga; quem trabalha no domingo folga também na terça (semana 1: Renato domingo+quarta, Yossef terça+quinta; semana 2: Renato terça+quarta, Yossef domingo+quinta). Ninguém passa de 5 dias seguidos.
 const ESC_CICLOS_ANTIGOS = [{ r: ["FTTFTTT", "TTFTFTT"], y: ["TTFFTTT", "FTTTFTT"] }, { r: ["FTFTTTT", "TTFFTTT"], y: ["TTTFFTT", "FTTTFTT"] }, { r: ["FTTFTTT", "TTFFTTT", "FTTFTTT"], y: ["TTFTFTT", "FTTTFTT", "TTFFTTT"] }, { r: ["FTFTTTT", "TFFTTTT"], y: ["TTTTFFT", "FTTTFTT"] }].map(x => JSON.stringify(x));   // padrões antigos: migram sozinhos para o atual (o primeiro é o ciclo trocado que deixava os dois de folga toda semana)
-const ESC_FER = {   // feriados de 2027: n = nacional, e = estadual (SP), f = ponto facultativo
+const ESC_FER = {   // feriados: n = nacional, e = estadual (SP), f = ponto facultativo (2026: nov/dez; 2027: ano inteiro)
+  "2026-11-02": { n: "Finados", t: "n" },
+  "2026-11-15": { n: "Proclamação da República", t: "n" },
+  "2026-11-20": { n: "Consciência Negra", t: "n" },
+  "2026-12-25": { n: "Natal", t: "n" },
   "2027-01-01": { n: "Confraternização Universal", t: "n" },
   "2027-02-08": { n: "Carnaval (segunda)", t: "f" },
   "2027-02-09": { n: "Carnaval (terça)", t: "f" },
@@ -2531,7 +2535,7 @@ async function escImagem() {   // imagem na horizontal (1600x900): dados dos doi
   tx("Cor = trabalha · cinza «folga»", 40, 710, 21, "#6b6b73", 600); tx("Linha vermelha = os dois folgam", 40, 740, 21, "#6b6b73", 600); tx("★ feriado · ☆ facultativo", 40, 770, 21, "#6b6b73", 600); tx("Valida+", 40, 850, 22, "#b0aca0", 700);
   const ds = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"], Y0 = 60, areaH = H - Y0 - 70, n = Math.max(1, semanas.length), RG = 8, CH = Math.min(170, (areaH - 40 - (n - 1) * RG) / n), PH = Math.min(46, (CH - 50) / 2 - 3);
   ds.forEach((t, i) => tx(t, GX + i * CW + CW / 2, Y0 + 20, 26, "#6b6b73", 800, "center"));
-  semanas.forEach((w0, row) => { for (let i = 0; i < 7; i++) { const d = new Date(w0.getFullYear(), w0.getMonth(), w0.getDate() + i), x0 = GX + i * CW + 3, y0 = Y0 + 44 + row * (CH + RG), fora = d.getMonth() !== m, ss = P.map(p => escSt(p.k, d, c)), vazio = d >= iniD && ss.every(v => v === "F" || v === "FE");
+  semanas.forEach((w0, row) => { for (let i = 0; i < 7; i++) { const d = new Date(w0.getFullYear(), w0.getMonth(), w0.getDate() + i), x0 = GX + i * CW + 3, y0 = Y0 + 44 + row * (CH + RG), fora = d.getMonth() !== m, ss = P.map(p => escSt(p.k, d, c)), vazio = d >= iniD && ss.every(v => v === "F" || v === "FE"), fer = ESC_FER[escKey(d)], fac = fer && fer.t === "f";
     g.globalAlpha = fora ? .35 : 1; rr(x0, y0, CW - 6, CH, 14, fer ? (fac ? "#fbf3d8" : "#fbe7e5") : "#f1eee3", vazio && !fora ? "#e5484d" : fer ? (fac ? "#c9a227" : "#d64545") : null); tx(String(d.getDate()), x0 + 14, y0 + 22, 26, "#1b1b1f", 800);
     if (fer) tx(fac ? "☆" : "★", x0 + CW - 22, y0 + 22, 24, fac ? "#b98600" : "#d64545", 800, "center");
     if (!ss.every(v => v === "-")) P.forEach((p, q) => { const yy = y0 + 42 + q * (PH + 5), st = ss[q], tw = st === "T", col = p.k === "r" ? "#e0a030" : "#3fb6c4";
