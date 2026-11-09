@@ -2646,19 +2646,6 @@ function erroAbrir() {
     bg.remove(); };
 }
 $("mnErro").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } erroAbrir(); };
-function perdasHtml(dados, dias, setor) {
-  const desde = Date.now() - dias * 864e5, setDe = r => (r.cat === PER ? PER : "FLV");
-  const l = dados.filter(r => r.a === "retirou" && r.t >= desde && r.motivo && (!setor || setDe(r) === setor));
-  const por = {}; MOTIVOS.forEach(m => por[m] = { n: 0, q: 0 }); l.forEach(r => { const o = por[r.motivo] || (por[r.motivo] = { n: 0, q: 0 }); o.n++; o.q += Number(r.qtd) || 0; });
-  const perda = l.filter(r => r.motivo === "Vencido" || r.motivo === "Quebra/estragou"), pq = perda.reduce((a, r) => a + (Number(r.qtd) || 0), 0);
-  const prod = {}; perda.forEach(r => { const k = r.prod || "—"; const o = prod[k] || (prod[k] = { n: 0, q: 0 }); o.n++; o.q += Number(r.qtd) || 0; });
-  const top = Object.entries(prod).sort((a, b) => b[1].q - a[1].q || b[1].n - a[1].n).slice(0, 8);
-  const ctl = `<div class="atvf"><button type="button" data-pd="7" class="${dias === 7 ? "on" : ""}">7 dias</button><button type="button" data-pd="30" class="${dias === 30 ? "on" : ""}">30 dias</button><button type="button" data-ps="" class="${!setor ? "on" : ""}">Todos</button><button type="button" data-ps="FLV" class="${setor === "FLV" ? "on" : ""}">FLV</button><button type="button" data-ps="Perecíveis" class="${setor === PER ? "on" : ""}">Perecíveis</button></div>`;
-  if (!l.length) return ctl + '<p class="note">Sem retiradas com motivo neste período. O motivo passa a ser registrado a partir desta versão.</p>';
-  return ctl + `<div class="perres"><div class="perbig"><b>${pq}</b><span>un. perdidas (vencido + quebra) em ${perda.length} retirada${perda.length === 1 ? "" : "s"}</span></div>` +
-    Object.keys(por).sort((a, b) => (MOTIVOS.indexOf(a) + 99) % 99 - (MOTIVOS.indexOf(b) + 99) % 99).map(m => { const o = por[m]; return `<div class="permot ${m === "Vencido" || m === "Quebra/estragou" ? "perda" : ""}"><span>${esc(m)}</span><b>${o.n}</b><small>${o.q} un.</small></div>`; }).join("") + `</div>` +
-    (top.length ? `<div class="atvd">Mais perdidos</div>` + top.map(([n, o]) => `<div class="atvr"><time>${o.q}</time><div><b>${esc(n)}</b><small>${o.n} retirada${o.n === 1 ? "" : "s"} · ${o.q} un.</small></div></div>`).join("") : "");
-}
 const ATV_ICO = { entrou: "🚪", cadastrou: "➕", editou: "✏️", retirou: "📦", devolveu: "↩️", removeu: "🗑️", "doação": "🎁", etiqueta: "🏷️", acessou: "👁️", importou: "📥", oferta: "🔥", erro: "🐞" };
 const ATV_VERBO = { entrou: "entrou no app", cadastrou: "cadastrou", editou: "editou", retirou: "retirou da loja", devolveu: "devolveu à loja", removeu: "removeu", "doação": "fez doação", etiqueta: "lançou etiqueta", acessou: "acessou", importou: "importou", oferta: "criou oferta", erro: "reportou um erro" };
 let atvUn = null;
@@ -2667,16 +2654,15 @@ function atvAbrir() {
   bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Atividade dos usuários"><div class="sheethead"><h2>🕘 Atividade dos usuários</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
     <div class="atvf" id="atvF"></div><div id="atvSum" class="atvsum"></div><div id="atvL" class="atvl"><p class="note">Carregando…</p></div><button type="button" class="secondary atvlimpa" id="atvLimpa">🗑️ Limpar histórico</button></section>`;
   document.body.appendChild(bg);
-  let dados = [], refs = [], filtro = "", pessoa = "", perD = 7, perS = "", corte = store.get("validamais-atv-corte", null) || { t: 0, manter: false };
+  let dados = [], refs = [], filtro = "", pessoa = "", corte = store.get("validamais-atv-corte", null) || { t: 0, manter: false };
   const hm = t => new Date(t).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), dia = t => { const d = new Date(t), h = new Date(); h.setHours(0, 0, 0, 0); const ontem = new Date(h - 864e5); return d >= h ? "Hoje" : d >= ontem ? "Ontem" : d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" }); };
-  const mantem = r => r.a === "erro" || (r.a === "retirou" && r.motivo);   // erros e retiradas com motivo (base do resumo de perdas)
+  const mantem = r => r.a === "erro" || (r.a === "retirou" && r.motivo);   // erros e retiradas com motivo
   const escondido = r => r.t <= corte.t && !(corte.manter && mantem(r));
   const desenha = () => {
     const nomes = [...new Set(dados.map(r => r.quem))].sort((a, b) => a.localeCompare(b, "pt-BR"));
     const nErr = dados.filter(r => r.a === "erro").length;
-    bg.querySelector("#atvF").innerHTML = `<div class="atvt">${[["", "Tudo"], ["@acessos", "👁️ Acessos"], ["@perdas", "📉 Perdas"], ["@erros", "🐞 Erros" + (nErr ? " (" + nErr + ")" : "")]].map(([k, t]) => `<button type="button" class="${k === filtro ? "on" : ""}" data-n="${k}">${t}</button>`).join("")}</div>` +
-      (filtro === "@perdas" ? "" : `<label class="atvp"><span>👤 Pessoa</span><select id="atvPes"><option value="">Todas</option>${nomes.map(n => `<option value="${esc(n)}"${n === pessoa ? " selected" : ""}>${esc(n)}</option>`).join("")}</select></label>`);
-    if (filtro === "@perdas") { bg.querySelector("#atvSum").innerHTML = ""; bg.querySelector("#atvL").innerHTML = perdasHtml(dados, perD, perS); return; }
+    bg.querySelector("#atvF").innerHTML = `<div class="atvt">${[["", "Tudo"], ["@acessos", "👁️ Acessos"], ["@erros", "🐞 Erros" + (nErr ? " (" + nErr + ")" : "")]].map(([k, t]) => `<button type="button" class="${k === filtro ? "on" : ""}" data-n="${k}">${t}</button>`).join("")}</div>` +
+      (`<label class="atvp"><span>👤 Pessoa</span><select id="atvPes"><option value="">Todas</option>${nomes.map(n => `<option value="${esc(n)}"${n === pessoa ? " selected" : ""}>${esc(n)}</option>`).join("")}</select></label>`);
     const l = dados.filter(r => (filtro !== "@erros" || r.a === "erro") && (filtro !== "@acessos" || r.a === "acessou") && (!pessoa || r.quem === pessoa)).sort((a, b) => b.t - a.t), hj = new Date(); hj.setHours(0, 0, 0, 0);
     const res = {}; dados.filter(r => r.t >= hj).forEach(r => { const o = res[r.quem] || (res[r.quem] = { ent: 0, n: 0, ult: 0 }); if (r.a === "entrou") { if (!o.ent || r.t < o.ent) o.ent = r.t; } else o.n++; o.ult = Math.max(o.ult, r.t); });
     bg.querySelector("#atvSum").innerHTML = Object.keys(res).length ? "<b>Hoje</b>" + Object.entries(res).filter(([n]) => !pessoa || n === pessoa).map(([n, o]) => `<div><span>${esc(n)}</span><small>${o.ent ? "Entrou " + hm(o.ent) + " · " : ""}última ${hm(o.ult)}${o.n ? " · " + o.n + (o.n === 1 ? " ação" : " ações") : ""}</small></div>`).join("") : "";
@@ -2687,12 +2673,12 @@ function atvAbrir() {
       return h + `<div class="atvr${r.a === "entrou" ? " ent" : ""}"><time>${hm(r.t)}</time><div><b>${esc(r.quem)}</b> ${ATV_ICO[r.a] || "•"} ${esc(ATV_VERBO[r.a] || r.a)}${r.n > 1 ? ` <small>${r.n}× no dia · 1ª às ${hm(r.prim)}</small>` : ""}${r.a === "erro" ? `<span class="atverr"><b>${esc(r.cat || "")}</b> ${esc(r.txt || "")}<small>${esc(r.ctx || "")}</small></span>` : r.txt && r.a !== "entrou" ? `<small>${esc(r.txt)}</small>` : ""}${r.a !== "entrou" && (r.perfil || r.setor) ? `<em>${esc(r.perfil || "")}${r.setor && r.setor !== r.perfil ? " · " + esc(r.setor) : ""}</em>` : ""}</div></div>`; }).join("") : '<p class="note">Nenhuma atividade registrada ainda. Ela começa a ser gravada a partir desta versão.</p>';
   };
   const fecha = () => { try { atvUn && atvUn(); } catch (e) {} atvUn = null; bg.remove(); };
-  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) fecha(); const b = e.target.closest("[data-n]"); if (b) { filtro = b.dataset.n; desenha(); } const pd = e.target.closest("[data-pd]"); if (pd) { perD = Number(pd.dataset.pd); desenha(); } const ps = e.target.closest("[data-ps]"); if (ps) { perS = ps.dataset.ps; desenha(); } };
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) fecha(); const b = e.target.closest("[data-n]"); if (b) { filtro = b.dataset.n; desenha(); } };
   bg.onchange = e => { if (e.target.id === "atvPes") { pessoa = e.target.value; desenha(); } };
   if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "atividade"), sn => { if (sn.exists() && sn.data().t) { const c = { t: Number(sn.data().t) || 0, manter: !!sn.data().manter }; if (c.t > corte.t) { corte = c; store.set("validamais-atv-corte", c); dados = dados.filter(r => !escondido(r)); desenha(); } } }, () => {}); } catch (e) { console.warn(e); } }
   q0("#atvLimpa").onclick = async () => {
-    const ok = await askConfirm({ icon: "🗑️", title: "Limpar histórico", subtitle: "O que apagar?", motivos: ["Só entradas e ações", "Tudo, até erros e perdas"], motivo: "Só entradas e ações", ok: "Limpar", cancel: "Cancelar" }); if (ok !== true) return;
-    const tudo = window.vmMotivo === "Tudo, até erros e perdas", agora = Date.now(); let falhou = 0, n = 0;
+    const ok = await askConfirm({ icon: "🗑️", title: "Limpar histórico", subtitle: "O que apagar?", motivos: ["Só entradas e ações", "Tudo, até erros"], motivo: "Só entradas e ações", ok: "Limpar", cancel: "Cancelar" }); if (ok !== true) return;
+    const tudo = window.vmMotivo === "Tudo, até erros", agora = Date.now(); let falhou = 0, n = 0;
     if (!db) { const l = store.get(ATK, []); const rest = tudo ? [] : l.filter(mantem); store.set(ATK, rest); dados = rest; desenha(); return toast("Histórico limpo."); }
     const alvo = dados.filter(r => r._ref && (tudo || !mantem(r)));
     await Promise.all(alvo.map(r => V.deleteDoc(r._ref).then(() => { n++; }).catch(e => { falhou++; console.warn("limpar", e && e.code); })));
