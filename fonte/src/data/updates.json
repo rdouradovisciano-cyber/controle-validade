@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-09T02:05:00-03:00",
+  "itens": [
+   "Topo do app: a data de hoje fica em destaque ao lado do logo, no formato 08/11/26",
+   "Os atalhos de setor saíram do topo e agora ficam nos três pontinhos (⋮ › Setor), só para quem é Admin; tocar troca o setor na hora e fecha o menu"
+  ]
+ },
+ {
   "t": "2026-11-09T01:45:00-03:00",
   "itens": [
    "Validades: quando outra pessoa altera um lote (quantidade, data…), a lista mostra «👤 Ronaldo (Renato ajustou)»: continua o nome de quem lançou e, entre parênteses, quem ajustou. Se quem altera é o próprio autor, nada muda",

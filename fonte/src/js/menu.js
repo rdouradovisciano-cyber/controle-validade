@@ -1,7 +1,7 @@
 /* menu ⋮: exportar, importar, backup, duplicados, instalar */(function(){
 var g=function(i){return document.getElementById(i)},m=g("moreMenu"),bg=g("moreBg");
 function fecha(){m.classList.add("hidden");bg.classList.add("hidden")}
-function abre(){m.classList.remove("hidden");bg.classList.remove("hidden")}
+function abre(){m.scrollTop=0;m.classList.remove("hidden");bg.classList.remove("hidden")}
 function msg(t){var e=g("toast");e.textContent=t;e.classList.remove("hidden");clearTimeout(msg.t);msg.t=setTimeout(function(){e.classList.add("hidden")},7000)}
 var h=document.querySelector("header");
 if(h&&!g("moreBtn")){var b=document.createElement("button");b.id="moreBtn";b.type="button";b.textContent="⋮";b.setAttribute("aria-label","Mais opções");b.setAttribute("aria-haspopup","menu");h.appendChild(b);

@@ -294,6 +294,10 @@ body.mao1 .fabscan{height:64px;font-size:18px;padding:0 28px}
 .dupr button{flex:none;min-height:44px;padding:0 14px;border-radius:12px;border:0;background:var(--g);color:#fff;font-weight:800}
 .onchip{font-size:11px;font-weight:700;min-height:0;border-radius:99px;background:rgba(255,255,255,.16);color:#fff;border:0;white-space:nowrap}
 .onchip.on{color:#b9f6ca}
+/* data de hoje em destaque no topo (ex.: 08/11/26) */
+.hojeTop{flex:none;display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;background:linear-gradient(180deg,#ffe9a3,#dfb944);color:#1f1602;font-size:14.5px;font-weight:900;letter-spacing:.03em;font-variant-numeric:tabular-nums;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.28),0 1px 0 rgba(255,255,255,.45) inset}
+body.hs .hojeTop{font-size:13px;padding:3px 8px}
+html[data-tema=dark] .hojeTop{background:linear-gradient(180deg,#ffe9a3,#d8ae35);color:#1a1400}
 .topdo{touch-action:pan-x;overscroll-behavior-x:contain;display:flex;align-items:center;gap:6px;overflow-x:auto;white-space:nowrap;margin:8px 0;padding:6px 10px;border:1px solid var(--ln);border-radius:12px;background:var(--lt2);font-size:12.5px;scrollbar-width:none}
 .topdo::-webkit-scrollbar{display:none}
 
@@ -1023,6 +1027,13 @@ body.hs h1::before{width:26px!important;height:26px!important}
 .setorsw{flex:none;display:flex;gap:2px;padding:2px;margin:0 4px 0 0;border-radius:999px;border:1px solid #3a3420;background:rgba(255,255,255,.06)}
 .setorsw button{min-height:0;height:28px;padding:0 10px;border-radius:999px;border:0;background:transparent;color:#a9a38f;font-size:13px;font-weight:800;white-space:nowrap}
 .setorsw button.on{background:linear-gradient(180deg,#f3d87a,#c9a431);color:#1a1405}
+/* setor dentro dos três pontinhos (só o Admin tem mais de um setor) */
+#mnSetorBox{display:contents}
+body:not([data-perfil="Admin"]) #mnSetorBox{display:none!important}
+.moremenu .mnsets{padding:2px 10px 8px}
+.moremenu .setorsw{flex-wrap:wrap;gap:6px;padding:0;margin:0;border:0;border-radius:0;background:none}
+.moremenu .setorsw button{display:inline-flex;align-items:center;justify-content:center;width:auto;flex:0 0 auto;min-height:34px!important;height:auto;padding:0 12px;border:1px solid var(--ln);border-radius:999px;background:var(--lt2,rgba(0,0,0,.05));color:var(--ink);font-size:13px;font-weight:800;white-space:nowrap}
+body[data-perfil="Admin"] .moremenu .setorsw button{padding:0 12px;font-size:13px}
 body[data-setor="Perecíveis"] .setorsw button.on{background:linear-gradient(180deg,#8fe0ec,#4fb3c2);color:#06242a}
 body[data-setor="Perecíveis"] #tbDoacao,body[data-setor="Perecíveis"] #mnInv,body[data-setor="Perecíveis"] #mnDoaAnt{display:none!important}
 body[data-setor="Perecíveis"] #tbLoja{order:1}
