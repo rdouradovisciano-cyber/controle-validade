@@ -2934,6 +2934,17 @@ function renderPesaveis() {
 // ----- buscas dos Pesáveis: histórico de cada usuário («na conta», vale em qualquer aparelho) + os mais pesquisados -----
 const PES_SUG0 = ["mussarela", "minas", "bacon", "salame", "fracionado", "parmesão"];   // só enquanto o histórico ainda é pequeno
 let pesHist = [], pesHKey = "", pesHTimer = 0, pesHSnap = false;   // [[termo, vezes, última]]
+let pesGlob = [], pesGlobOuvindo = false;   // [[termo, vezes]] — buscas de TODOS os usuários (sh_cfg/pbh-global)
+const pesGK = t => norm(t).replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 40);
+function pesGlobOuve() {
+  if (pesGlobOuvindo || !db) return; pesGlobOuvindo = true;
+  try { V.onSnapshot(V.doc(db, "sh_cfg", "pbh-global"), sn => { const t = (sn.exists() && sn.data().t) || {};
+      pesGlob = Object.entries(t).filter(([, o]) => o && o.w && o.n > 0).map(([k, o]) => [o.w, o.n, k]).sort((a, b) => b[1] - a[1]); pesSugRender(); }, e => { console.warn("buscas", e); pesGlobOuvindo = false; }); } catch (e) { console.warn(e); pesGlobOuvindo = false; }
+}
+function pesGlobSoma(t) {   // soma 1 na busca geral (todos os usuários); termos novos param de entrar se o documento já tem muitos
+  if (!db) return; const k = pesGK(t); if (!k || k.length < 3) return; if (pesGlob.length > 300 && !pesGlob.some(x => x[2] === k)) return;
+  try { V.setDoc(V.doc(db, "sh_cfg", "pbh-global"), { t: { [k]: { n: V.increment(1), w: t.slice(0, 40), u: Date.now() } } }, { merge: true }).catch(e => console.warn("buscas", e)); } catch (e) { console.warn(e); }
+}
 const pesHId = () => "pbh-" + icKey(myName());
 function pesHCarrega() {
   const id = pesHId(); if (id === pesHKey) return; pesHKey = id; pesHSnap = false;
@@ -2947,7 +2958,7 @@ function pesHRegistra(termo) {
   const t = String(termo || "").trim().toLowerCase(); if (norm(t).length < 3) return; pesHCarrega();
   const k = norm(t), o = pesHist.find(x => norm(x[0]) === k);
   // a mesma busca em sequência (abrir o resultado + sair do campo) conta uma vez só
-  if (o) { if (Date.now() - o[2] > 30000) o[1]++; o[2] = Date.now(); o[0] = t; } else { pesHist.unshift([t, 1, Date.now()]); if (pesHist.length > 60) { pesHist.sort((a, b) => b[1] - a[1] || b[2] - a[2]); pesHist.length = 60; } }
+  if (o) { if (Date.now() - o[2] > 30000) { o[1]++; pesGlobSoma(t); } o[2] = Date.now(); o[0] = t; } else { pesGlobSoma(t); pesHist.unshift([t, 1, Date.now()]); if (pesHist.length > 60) { pesHist.sort((a, b) => b[1] - a[1] || b[2] - a[2]); pesHist.length = 60; } }
   pesHist.sort((a, b) => b[2] - a[2]); pesHSalva();
 }
 function pesSugRender() {
@@ -2955,10 +2966,12 @@ function pesSugRender() {
   if (inp.value.trim() || document.activeElement !== inp) { box.classList.add("hidden"); return; }
   pesHCarrega();
   const rec = [...pesHist].sort((a, b) => b[2] - a[2]).slice(0, 8);
-  const top = [...pesHist].filter(x => x[1] >= 2).sort((a, b) => b[1] - a[1] || b[2] - a[2]).slice(0, 6).map(x => [x[0], x[1]]);
+  pesGlobOuve();
+  const top = (db ? pesGlob.filter(x => x[1] >= 2).slice(0, 6).map(x => [x[0], x[1], x[2]]) : [...pesHist].filter(x => x[1] >= 2).sort((a, b) => b[1] - a[1] || b[2] - a[2]).slice(0, 6).map(x => [x[0], x[1]]));
   const tem = new Set(top.map(x => norm(x[0]))); PES_SUG0.forEach(w => { if (top.length < 6 && !tem.has(norm(w))) { top.push([w, 0]); tem.add(norm(w)); } });
   const chip = (t, extra) => `<button type="button" class="pschip" data-pst="${esc(t)}">${esc(t)}${extra || ""}</button>`;
-  box.innerHTML = `<div class="pssec"><b>🔥 Mais pesquisados</b><div class="pschips">${top.map(([t, n]) => chip(t, n ? ` <i>${n}×</i>` : "")).join("")}</div></div>` +
+  const adm = PERFIL === "Admin" && db;   // o Admin pode tirar uma busca sem sentido (ex.: teclou errado) da lista geral
+  box.innerHTML = `<div class="pssec"><b>🔥 Mais pesquisados <small>(todos os usuários)</small></b><div class="pschips">${top.map(([t, n, k]) => adm && k ? `<span class="pschip2">${chip(t, ` <i>${n}×</i>`)}<button type="button" class="psx" data-psg="${esc(k)}" aria-label="Tirar ${esc(t)} da lista geral">×</button></span>` : chip(t, n ? ` <i>${n}×</i>` : "")).join("")}</div></div>` +
     (rec.length ? `<div class="pssec"><b>🕘 Suas últimas buscas</b><button type="button" class="pslimpa" data-psclr>limpar</button><div class="pschips">${rec.map(x => `<span class="pschip2">${chip(x[0])}<button type="button" class="psx" data-psx="${esc(x[0])}" aria-label="Apagar ${esc(x[0])}">×</button></span>`).join("")}</div></div>` : "");
   box.classList.remove("hidden");
 }
@@ -2969,6 +2982,7 @@ $("pesBusca").onkeydown = e => { if (e.key === "Enter") { pesHRegistra($("pesBus
 $("pesSug").onpointerdown = e => e.preventDefault();   // não deixa a caixa de busca perder o foco antes do toque
 $("pesSug").onclick = e => {
   const x = e.target.closest("[data-psx]"); if (x) { const k = norm(x.dataset.psx); pesHist = pesHist.filter(h => norm(h[0]) !== k); pesHSalva(); pesSugRender(); return; }
+  const g = e.target.closest("[data-psg]"); if (g) { const k = g.dataset.psg; pesGlob = pesGlob.filter(x => x[2] !== k); pesSugRender(); try { V.updateDoc(V.doc(db, "sh_cfg", "pbh-global"), { ["t." + k]: V.deleteField() }).catch(e => console.warn(e)); } catch (e) {} return; }
   if (e.target.closest("[data-psclr]")) { pesHist = []; pesHSalva(); pesSugRender(); return; }
   const c = e.target.closest("[data-pst]"); if (c) { const inp = $("pesBusca"); inp.value = c.dataset.pst; pesHRegistra(c.dataset.pst); renderPesaveis(); pesSugRender(); inp.blur(); }
 };

@@ -1807,3 +1807,4 @@ html[data-tema="light"] .shg small,html[data-tema="light"] .shrow small{color:#4
 .pschip2{display:inline-flex;align-items:center}.pschip2 .pschip{border-radius:999px 0 0 999px;border-right:0}
 .psx{border:1px solid var(--ln,rgba(255,255,255,.2));background:transparent;color:inherit;opacity:.6;border-radius:0 999px 999px 0;padding:0 9px;min-height:36px;font-size:15px}
 .pslimpa{position:absolute;right:0;top:-2px;background:transparent;border:0;color:inherit;opacity:.6;font-size:12px;padding:4px 6px;min-height:0;text-decoration:underline}
+.pssec>b small{font-weight:600;opacity:.7}
