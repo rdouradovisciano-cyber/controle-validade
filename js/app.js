@@ -2457,14 +2457,14 @@ function escPaint() {
       ${rows ? `<table class="etb"><thead><tr><th></th>${ds.map(x => `<th>${x}</th>`).join("")}<th class="ht7">Sem.</th></tr></thead><tbody>${rows}</tbody></table>` : `<p class="eaviso">${aviso}<br>Antes disso não há escala 5x2.</p>`}`; escAnima(v); return; }
   v.className = "escv";
   const vista = escVista, abas = `<div class="evs"><button type="button" data-ev="lista" class="${vista === "lista" ? "on" : ""}">📋 Lista</button><button type="button" data-ev="cal" class="${vista === "cal" ? "on" : ""}">🗓️ Calendário</button><button type="button" id="escSh" class="sh" aria-label="Enviar imagem no WhatsApp" title="Enviar">📤</button><button type="button" id="escFs" class="sh" aria-label="Tela cheia" title="Tela cheia">⛶</button></div>`;
-  const ferLista = ferMes.length ? `<div class="efer"><b>Feriados de ${nomeM}</b>${ferMes.map(k2 => { const f = ESC_FER[k2], dt = new Date(k2 + "T12:00:00"); return `<span class="${f.t === "f" ? "fac" : ""}">${f.t === "f" ? "☆" : "★"} ${escDM(dt)} · ${esc(f.n)}${f.t === "f" ? " (facultativo)" : ""}</span>`; }).join("")}</div>` : "";
+  const ferLista = ferMes.length ? `<div class="efer">${ferMes.map(k2 => { const f = ESC_FER[k2], dt = new Date(k2 + "T12:00:00"); return `<span class="${f.t === "f" ? "fac" : ""}"><b>${dt.getDate()}</b> ${esc(f.n)}${f.t === "f" ? " (facultativo)" : ""}</span>`; }).join("")}</div>` : "";   // legenda enxuta: só dia e nome, uma linha
   const card = vista === "lista" ? `<section class="ecard"><div class="epcs">${cab}</div>${abas}${lista || `<p class="eaviso">${aviso}<br>Antes disso não há escala 5x2.</p>`}</section>` : `<section class="ecard"><div class="epcs">${cab}</div>${abas}
     ${rows ? `<table class="etb"><thead><tr><th></th>${ds.map(x => `<th>${x}</th>`).join("")}<th class="ht7">Sem.</th></tr></thead><tbody>${rows}</tbody></table>` : `<p class="eaviso">${aviso}<br>Antes disso não há escala 5x2.</p>`}</section>`;
   const [iy, im, id] = c.ini.split("-").map(Number);
   v.innerHTML = `<div class="eh0"><button type="button" id="escX" class="secondary">${PERFIL === "BENASSI" ? "Trocar perfil" : "Fechar"}</button>${adm ? `<button type="button" id="escCfgB" class="secondary">⚙️ Configurar</button>` : ""}<h2>🗓️ Escala 5x2</h2></div>
     <div class="enav"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div>
     ${alerta}${ferLista}${card}<div class="ehoje"><small>Hoje, ${hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</small><div>${hj}</div></div>
-    <p class="muted eleg">${hrs}<br>Colorido = trabalha · cinza = folga · azul = férias · contorno vermelho = os dois folgam · ★ feriado · ☆ facultativo${adm ? " · Toque em um dia para mudar" : ""}</p>`;
+    <p class="muted eleg">${hrs}<br>Colorido = trabalha · cinza = folga · azul = férias · contorno vermelho = os dois folgam${adm ? " · Toque em um dia para mudar" : ""}</p>`;
   escAnima(v);
 }
 function escFixAbrir(key) {   // corrige um dia em que os dois folgam: escolhe quem trabalha e em qual outro dia da semana essa pessoa folga
