@@ -2360,7 +2360,7 @@ const ESC_FER = {   // feriados: n = nacional, e = estadual (SP), f = ponto facu
   "2027-11-20": { n: "Consciência Negra", t: "n" },
   "2027-12-25": { n: "Natal", t: "n" }
 };
-let escDir = 0, escFull = false, escWake = null, escVista = store.get("validamais-escala-vista", "lista"), escO = store.get(ESC_K, {}) || {}, escCr = store.get(ESC_CK, null), escMes = (() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; })();
+let escDir = 0, escFull = false, escWake = null, escVista = store.get("validamais-escala-vista", "lista"), escO = store.get(ESC_K, {}) || {}, escCr = store.get(ESC_CK, null), escOk = store.get("validamais-escala-ok", {}) || {}, escMes = (() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; })();
 const escCfg = () => { const s = escCr || {}, sp = s.p || {}; return { ini: !s.ini || s.ini === "2026-11-08" ? ESC_DEF.ini : s.ini, dia: s.dia || ESC_DEF.dia, int: s.int ?? ESC_DEF.int, meta: s.meta || ESC_DEF.meta,
   p: { r: { ...ESC_DEF.p.r, ...(sp.r || {}) }, y: { ...ESC_DEF.p.y, ...(sp.y || {}) } }, ciclo: s.ciclo && s.ciclo.r && s.ciclo.r.length && s.ciclo.y && s.ciclo.y.length && !ESC_CICLOS_ANTIGOS.includes(JSON.stringify({ r: s.ciclo.r, y: s.ciclo.y })) ? s.ciclo : ESC_DEF.ciclo }; };
 const escP = () => { const c = escCfg(); return ["r", "y"].map(k => ({ k, ...c.p[k] })); };
@@ -2376,7 +2376,7 @@ function escBase(pk, d, c) { const [yy, mm, dd] = c.ini.split("-").map(Number), 
 function escSt(pk, d, c) { c = c || escCfg(); const b = escBase(pk, d, c); if (b === "-") return "-"; const o = escO[pk] && escO[pk][escKey(d)]; return o || b; }   // antes do início da escala nova nada vale (ajustes antigos nesses dias são ignorados)
 function escSalva() {   // grava sempre o ciclo já normalizado: se a nuvem tinha um ciclo antigo/trocado, ele é corrigido aqui também
   if (escCr) { const c = escCfg(), at = JSON.stringify({ r: escCr.ciclo && escCr.ciclo.r, y: escCr.ciclo && escCr.ciclo.y }); if (at !== JSON.stringify(c.ciclo)) escCr = { ...escCr, ciclo: c.ciclo }; }
-  store.set(ESC_K, escO); store.set(ESC_CK, escCr); if (db) V.setDoc(V.doc(db, "sh_cfg", "escala"), { o: escO, cfg: escCr || null, em: Date.now(), por: myName().slice(0, 40) }).catch(e => { console.error(e); toast("Não consegui salvar na nuvem."); }); }
+  store.set(ESC_K, escO); store.set(ESC_CK, escCr); store.set("validamais-escala-ok", escOk); if (db) V.setDoc(V.doc(db, "sh_cfg", "escala"), { o: escO, cfg: escCr || null, ok: escOk, em: Date.now(), por: myName().slice(0, 40) }).catch(e => { console.error(e); toast("Não consegui salvar na nuvem."); }); }
 function escToca(pk, key, el) {   // abre uma escolha pequena perto do dia; nada muda com um toque só, só ao tocar numa opção
   const c = escCfg(), P = escP(), p = P.find(x => x.k === pk), d = new Date(key + "T12:00:00"), at = escSt(pk, d, c), base = escBase(pk, d, c); if (base === "-") return toast("Esse dia é da escala antiga (a nova começa em " + escDM(new Date(c.ini + "T12:00:00")) + ").");
   document.querySelectorAll(".etip").forEach(x => x.remove());
@@ -2449,7 +2449,8 @@ function escPaint() {
       if (linhas) { const f7 = new Date(ini7.getFullYear(), ini7.getMonth(), ini7.getDate() + 6), par = escParcial(ini7, c), tt = P.map(p => { const mn = nt[p.k] * c.dia; if (par) return `<span class="ant">${esc(p.n)}: ${nt[p.k]} dias nesta semana (começo da escala nova)</span>`; return `<span class="${mn === c.meta ? "ok" : "ruim"}">${esc(p.n)}: ${nt[p.k]} dias · ${mn === c.meta ? escH(c.meta) + " ✓" : escH(mn) + " ⚠"}</span>`; }).join("");
         lista += `<section class="lw"><h4>Semana de ${par ? escDM(new Date(c.ini + "T12:00:00")) : escDM(ini7)} a ${escDM(f7)}</h4><div class="lwn">${P.map(p => `<span class="${p.k}">${esc(p.n)}</span>`).join("")}</div>${linhas}<div class="lt">${tt}</div></section>`; } } }
   const cab = P.map(p => `<div class="epc ${p.k}">${escAv(p, 38)}<div class="epn"><b>${esc(p.n)}</b>${p.full ? `<em>${esc(p.full)}</em>` : ""}<span>${escHm(p.ent)}–${escHm(escSai(p, c))}</span></div></div>`).join("");
-  const alerta = (pr.dias.length || pr.sem.length || pr.seq.length) ? `<div class="ealert" role="alert"><b>⚠ Para corrigir neste mês</b>${pr.dias.map(dt => `<div class="eal">Os dois folgam em <b>${ESC_DSL[dt.getDay()]} ${escDM(dt)}</b>${adm ? ` <button type="button" data-efix="${escKey(dt)}">Corrigir</button>` : ""}</div>`).join("")}${pr.sem.map(s => `<div class="eal">Semana ${escDM(s.i)} a ${escDM(s.f)}: ${esc(s.p.n)} com ${s.n} dia${s.n === 1 ? "" : "s"} (${escH(s.mn)}), meta ${escH(c.meta)}</div>`).join("")}${pr.seq.map(x => `<div class="eal">${esc(x.p.n)} passa de 5 dias seguidos trabalhando em <b>${ESC_DSL[x.d.getDay()]} ${escDM(x.d)}</b></div>`).join("")}</div>` : "";
+  const okK = y + "-" + String(m + 1).padStart(2, "0"), okSig = [...pr.dias.map(escKey), ...pr.sem.map(x => escKey(x.i) + x.p.k + x.n), ...pr.seq.map(x => x.p.k + escKey(x.d))].join("|"), okFeito = !!okSig && escOk[okK] === okSig;   // «está certo assim»: vale enquanto os avisos do mês forem os mesmos; se a escala mudar e surgir aviso novo, volta a avisar
+  const alerta = okFeito ? `<div class="eok">✔ Mês conferido: está certo do jeito que está.${adm ? ` <button type="button" data-eok="desfaz">Voltar a avisar</button>` : ""}</div>` : (pr.dias.length || pr.sem.length || pr.seq.length) ? `<div class="ealert" role="alert"><b>⚠ Para corrigir neste mês</b>${pr.dias.map(dt => `<div class="eal">Os dois folgam em <b>${ESC_DSL[dt.getDay()]} ${escDM(dt)}</b>${adm ? ` <button type="button" data-efix="${escKey(dt)}">Corrigir</button>` : ""}</div>`).join("")}${pr.sem.map(s => `<div class="eal">Semana ${escDM(s.i)} a ${escDM(s.f)}: ${esc(s.p.n)} com ${s.n} dia${s.n === 1 ? "" : "s"} (${escH(s.mn)}), meta ${escH(c.meta)}</div>`).join("")}${pr.seq.map(x => `<div class="eal">${esc(x.p.n)} passa de 5 dias seguidos trabalhando em <b>${ESC_DSL[x.d.getDay()]} ${escDM(x.d)}</b></div>`).join("")}${adm ? `<div class="eal eaok"><button type="button" data-eok="${okK}" data-sig="${esc(okSig)}">✔ Está certo do jeito que está</button></div>` : ""}</div>` : "";
   if (escFull) {   // modo tela cheia: só o calendário, ocupando a tela toda (para o líder olhar sem rolar)
     v.className = "escv escFull";
     v.innerHTML = `<div class="efh"><button type="button" id="escFx" aria-label="Sair da tela cheia">✕</button><div class="efn"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div></div>
@@ -2557,7 +2558,8 @@ async function escCompartilha() {
 function escAbrir() {
   logAcesso("Escala 5x2");
   let v = $("escV"); if (!v) { v = document.createElement("div"); v.id = "escV"; v.className = "escv"; document.body.appendChild(v);
-    v.onclick = e => { const t = e.target.closest("[data-ek]"), mn = e.target.closest("[data-em]"), ev = e.target.closest("[data-ev]"), fx = e.target.closest("[data-efix]");
+    v.onclick = e => { const t = e.target.closest("[data-ek]"), mn = e.target.closest("[data-em]"), ev = e.target.closest("[data-ev]"), fx = e.target.closest("[data-efix]"), ok = e.target.closest("[data-eok]");
+      if (ok) { const k = ok.dataset.eok === "desfaz" ? (escMes.y + "-" + String(escMes.m + 1).padStart(2, "0")) : ok.dataset.eok; if (ok.dataset.eok === "desfaz") delete escOk[k]; else escOk[k] = ok.dataset.sig; escSalva(); escPaint(); return toast(ok.dataset.eok === "desfaz" ? "Voltou a avisar." : "Combinado: não aviso mais neste mês."); }
       if (ev) { escVista = ev.dataset.ev; store.set("validamais-escala-vista", escVista); return escPaint(); }
       if (fx) return escFixAbrir(fx.dataset.efix);
       if (e.target.closest("#escCfgB")) return escCfgAbrir();
@@ -2569,7 +2571,7 @@ function escAbrir() {
       if (e.target.closest("#escX")) { if (PERFIL === "BENASSI") perfilEscolher(true); else v.remove(); } }; }
   document.body.classList.add("escOn"); escPaint();
 }
-if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "escala"), sn => { escO = (sn.exists() && sn.data().o) || {}; escCr = (sn.exists() && sn.data().cfg) || null; store.set(ESC_K, escO); store.set(ESC_CK, escCr); escPaint(); }, e => console.warn("escala", e)); } catch (e) { console.warn(e); } }
+if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "escala"), sn => { escO = (sn.exists() && sn.data().o) || {}; escCr = (sn.exists() && sn.data().cfg) || null; escOk = (sn.exists() && sn.data().ok) || {}; store.set("validamais-escala-ok", escOk); store.set(ESC_K, escO); store.set(ESC_CK, escCr); escPaint(); }, e => console.warn("escala", e)); } catch (e) { console.warn(e); } }
 const escNome = () => /benassi/i.test(myName());   // quem se identificou como BENASSI também enxerga a escala (só leitura)
 if (escNome()) document.body.dataset.esc = "1";
 $("mnEscala").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } escAbrir(); };

@@ -1906,3 +1906,9 @@ html[data-tema=dark] .escv .efer,html[data-tema=dark] .escv .efer span{backgroun
 html[data-tema=dark] .escv .efer span b{color:#ff8a8a}
 html[data-tema=dark] .escv .efer span.fac,html[data-tema=dark] .escv .efer span.fac b{color:#f0c060}
 @media (prefers-reduced-motion:reduce){.escv .ec.fer>i,.escv .ec.fer,.escv .ld.fer .ldn b{animation:none!important}}
+
+/* «está certo do jeito que está» no aviso de correção da escala */
+.eal.eaok{border-top:1px solid rgba(229,72,77,.3);padding-top:10px}
+.eal.eaok button{flex:1;min-height:44px;border-radius:12px;border:1.5px solid #3f9f6f;background:rgba(63,159,111,.14);color:var(--ink);font-weight:800;font-size:14px}
+.escv .eok{margin:0 0 12px;padding:8px 12px;border-radius:12px;background:rgba(63,159,111,.12);border:1px solid rgba(63,159,111,.45);font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--ink)}
+.escv .eok button{margin-left:auto;min-height:32px;padding:0 10px;border-radius:9px;border:1px solid var(--ln,#555);background:transparent;color:var(--mut);font-size:12px;font-weight:700}
