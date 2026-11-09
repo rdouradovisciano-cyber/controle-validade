@@ -965,9 +965,11 @@ function pintaSetor() {   // botões do setor (agora dentro do menu ⋮) conform
   const ch = $("setorChip"); if (ch) ch.querySelectorAll("[data-s]").forEach(b => { b.hidden = false; b.classList.toggle("on", b.dataset.s === SETOR); b.setAttribute("aria-pressed", b.dataset.s === SETOR); b.onclick = () => { trocaSetor(b.dataset.s); if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } }; });
   const outros = ["FLV", PER, KOR].filter(x => x !== SETOR), nome = x => x === KOR ? "KÓRIN" : x;
   [["mnSetor", "mnSetorT", outros[0]], ["mnSetor2", "mnSetor2T", outros[1]]].forEach(([b, t, alvo]) => { if ($(b)) { $(t).textContent = "Ir para " + nome(alvo); $(b).onclick = () => { trocaSetor(alvo); if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } }; } }); }
-function hojeTop() {   // data de hoje em destaque no topo (ex.: 08/11/26)
+function hojeTop() {   // data de hoje no topo (ex.: DOM · 08 NOV)
   const el = $("hojeTop"); if (!el) return; const d = new Date(), dd = String(d.getDate()).padStart(2, "0"), mm = String(d.getMonth() + 1).padStart(2, "0");
-  el.textContent = dd + "/" + mm + "/" + String(d.getFullYear()).slice(2);
+  const sem = d.toLocaleDateString("pt-BR", { weekday: "short" }).replace(/\.$/, "").toUpperCase();
+  const mes = d.toLocaleDateString("pt-BR", { month: "short" }).replace(/\.$/, "").toUpperCase();
+  el.textContent = sem + " · " + dd + " " + mes;
   el.setAttribute("datetime", d.getFullYear() + "-" + mm + "-" + dd);
   const longo = "Hoje, " + d.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   el.setAttribute("aria-label", longo); el.title = longo;

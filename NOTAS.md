@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 09/11/2026 · versão 422.
+> Última atualização: 09/11/2026 · versão 423.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -80,3 +80,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v420: o 👤 de quem lançou a validade (`p.por`, `.pi-op`) na lista de Validades agora aparece para TODOS os perfis (antes só Admin).
 - v421: autoria na lista: `por` guarda quem lançou; ao EDITAR um lote (função `save` com id) vira «Ronaldo (Renato ajustou)» (`porAjustado`; reedição troca só o ajustador; o próprio autor não muda nada). `porHtml` desenha e `semAdmin` tira «(Admin)» do nome. Foi feito dentro do campo `por` (já permitido nas regras, ≤40 caracteres) de propósito: um campo novo seria recusado pelo `hasOnly` do firestore.rules até as regras serem publicadas. Só edição pelo formulário conta como «ajustou».
 - v422: data de hoje em destaque no topo (`#hojeTop`, `hojeTop()` em `app.js`, formato 08/11/26, atualiza a cada minuto) e os atalhos de setor saíram do `<header>` para o menu ⋮ (`#mnSetorBox` › `#setorChip`, só Admin; `pintaSetor` fecha o menu ao trocar). `menu.js` volta a rolagem do menu ao topo ao abrir.
+- v423: formato da data no topo mudou (escolha do usu�rio): hojeTop() monta �DOM � 08 NOV� com weekday:'short' e month:'short' em mai�sculas; .hojeTop virou texto branco em negrito, sem a p�lula dourada. O ria-label/	itle continua com a data completa.

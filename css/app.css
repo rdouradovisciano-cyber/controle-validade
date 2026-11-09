@@ -294,10 +294,9 @@ body.mao1 .fabscan{height:64px;font-size:18px;padding:0 28px}
 .dupr button{flex:none;min-height:44px;padding:0 14px;border-radius:12px;border:0;background:var(--g);color:#fff;font-weight:800}
 .onchip{font-size:11px;font-weight:700;min-height:0;border-radius:99px;background:rgba(255,255,255,.16);color:#fff;border:0;white-space:nowrap}
 .onchip.on{color:#b9f6ca}
-/* data de hoje em destaque no topo (ex.: 08/11/26) */
-.hojeTop{flex:none;display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;background:linear-gradient(180deg,#ffe9a3,#dfb944);color:#1f1602;font-size:14.5px;font-weight:900;letter-spacing:.03em;font-variant-numeric:tabular-nums;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.28),0 1px 0 rgba(255,255,255,.45) inset}
-body.hs .hojeTop{font-size:13px;padding:3px 8px}
-html[data-tema=dark] .hojeTop{background:linear-gradient(180deg,#ffe9a3,#d8ae35);color:#1a1400}
+/* data de hoje no topo (ex.: DOM · 08 NOV) */
+.hojeTop{flex:none;display:inline-flex;align-items:center;color:#fff;font-size:14.5px;font-weight:900;letter-spacing:.06em;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+body.hs .hojeTop{font-size:13px}
 .topdo{touch-action:pan-x;overscroll-behavior-x:contain;display:flex;align-items:center;gap:6px;overflow-x:auto;white-space:nowrap;margin:8px 0;padding:6px 10px;border:1px solid var(--ln);border-radius:12px;background:var(--lt2);font-size:12.5px;scrollbar-width:none}
 .topdo::-webkit-scrollbar{display:none}
 
