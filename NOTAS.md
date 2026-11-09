@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 08/11/2026 · versão 418.
+> Última atualização: 08/11/2026 · versão 419.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -76,3 +76,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v416: Pesáveis sem os botões de tipo (`PES_TIPOS`/`pesTipoOK` removidos). Busca vazia em foco mostra `#pesSug`: «Mais pesquisados» (termos com ≥2 buscas; completa com `PES_SUG0` enquanto o histórico é pequeno) e «Suas últimas buscas». Histórico por usuário: localStorage `validamais-pbh-<operador>` + nuvem `sh_cfg/pbh-<operador>` (`pesHCarrega/pesHRegistra`). Registra ao abrir um resultado, Enter ou sair do campo com resultado; a mesma busca em 30 s conta uma vez. Não testado com o Firebase real.
 - v417: formulário de produto novo ganhou «Foto do produto (opcional)» (`#fotoNovo`, `fnFile`, `fnVis`): só Perecíveis, só produto novo (não lote nem edição) e só se o nome ainda não tem foto. Ao salvar chama `fotoGravaNome(nome, arquivo)`. Edição continua usando `#fotoEd`.
 - v418: «Mais pesquisados» dos Pesáveis agora é GERAL (todos os usuários): doc `sh_cfg/pbh-global` com `t: { chave: { n (increment), w (termo), u } }`; `pesGlobSoma` soma 1 quando a busca conta como nova (mesma regra de 30 s), `pesGlobOuve` escuta. Máx. ~300 termos (novos param de entrar). Admin tem × (`data-psg`, updateDoc + deleteField). Sem nuvem usa o histórico local. «Suas últimas buscas» segue por usuário. Teste com Firestore simulado: `tools/pes-global-test.mjs` (injeta `window.__t` no app.js só no servidor de teste).
+- v419: (1) `#search` da lista de Validades voltou a aparecer, discreto (antes era `display:none`); (2) `loteMode(k)` agora avisa ao bipar produto que já tem validade: caixa `.lotebox` com «Lote 1, Lote 2…» (ordem de validade, `lotesDe`), toast, sinal e vibração, e diz qual será o próximo lote. Vale para bip, busca por nome e balança. Não renumera os lotes na lista principal.

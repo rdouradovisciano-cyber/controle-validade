@@ -1315,7 +1315,8 @@ html[data-fonte=grande] .pgh{font-size:16px}
 .vsc input[type=color]{width:56px;height:36px;padding:0;border:0;background:none;cursor:pointer}
 .vsprev{display:flex;gap:8px}.vsprev span{flex:1;text-align:center;padding:12px 4px;border-radius:12px;font-weight:900;font-size:14px}
 
-#search{display:none!important}
+#search{width:100%;box-sizing:border-box;font-size:13px;padding:7px 12px;min-height:0;margin:0 0 8px;opacity:.6;background:transparent;border:1px dashed var(--ln,rgba(255,255,255,.25));border-radius:12px}
+#search:focus{opacity:1;border-style:solid}
 
 /* menu ⋮ enxuto: atalhos que já existem em outro lugar saem; Perfil e Saúde só para o Admin */
 
@@ -1808,3 +1809,13 @@ html[data-tema="light"] .shg small,html[data-tema="light"] .shrow small{color:#4
 .psx{border:1px solid var(--ln,rgba(255,255,255,.2));background:transparent;color:inherit;opacity:.6;border-radius:0 999px 999px 0;padding:0 9px;min-height:36px;font-size:15px}
 .pslimpa{position:absolute;right:0;top:-2px;background:transparent;border:0;color:inherit;opacity:.6;font-size:12px;padding:4px 6px;min-height:0;text-decoration:underline}
 .pssec>b small{font-weight:600;opacity:.7}
+
+/* aviso de lotes já existentes ao bipar */
+#loteInfo.lotebox{padding:10px 12px;border:1.5px solid #e0a100;background:rgba(243,216,122,.14);border-radius:14px;font-size:14px}
+.ltt{display:block;font-weight:900;font-size:14.5px}
+.ltn{display:block;opacity:.8;margin:2px 0 8px;font-size:13px}
+.ltl{display:grid;gap:5px}
+.lt{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:7px 10px;border-radius:10px;border:1px solid var(--ln,rgba(255,255,255,.18));background:rgba(255,255,255,.04)}
+.lt b{font-weight:900;white-space:nowrap}.lt span{opacity:.85;font-size:13px}.lt em{font-style:normal;font-weight:800;white-space:nowrap}
+.lt.a{border-color:#d9534f}.lt.v{border-color:#d9534f;background:rgba(217,83,79,.15)}.lt.y{border-color:#d9a400}
+.lt.novo{border-style:dashed;border-color:#3f9f6f;background:rgba(63,159,111,.12);grid-template-columns:auto 1fr}

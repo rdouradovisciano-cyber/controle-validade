@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-09T01:00:00-03:00",
+  "itens": [
+   "Validades: busca discreta no alto da lista («🔎 buscar na lista»), por nome ou código",
+   "Ao bipar um produto que já tem validade na loja, o app avisa na hora (aviso na tela, toque e vibração) e mostra Lote 1, Lote 2… com data, dias que faltam e quantidade (o que vence primeiro é o Lote 1), e qual será o novo lote"
+  ]
+ },
+ {
   "t": "2026-11-09T00:35:00-03:00",
   "itens": [
    "Pesáveis: «Mais pesquisados» agora vem das buscas de TODOS os usuários (contador geral na nuvem). Cada busca de qualquer pessoa soma 1; os termos com 2 ou mais aparecem com o número de vezes. «Suas últimas buscas» continua só da sua conta. O Admin vê um × para tirar da lista geral uma busca sem sentido"
