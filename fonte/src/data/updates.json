@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-09T16:55:00-03:00",
+  "itens": [
+   "Fiscal de loja: as fotos dos produtos aparecem na lista de Cadastros (FLV e Perecíveis) e atualizam sozinhas quando alguém troca a foto. O campo de foto no item aberto da lista de Validades também vale para o FLV"
+  ]
+ },
+ {
   "t": "2026-11-09T16:40:00-03:00",
   "itens": [
    "Admin: ⋮ › Atividade dos usuários › «🔎 Buscas» mostra o histórico de busca dos Pesáveis de cada pessoa (termo, quantas vezes e quando). Só o Admin vê"

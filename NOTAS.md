@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 09/11/2026 · versão 434.
+> Última atualização: 09/11/2026 · versão 435.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -92,3 +92,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v432: **Escala 5x2: «✔ Está certo do jeito que está»** no aviso «Para corrigir neste mês» (só quem pode editar). Guarda por mês (`escOk["AAAA-MM"]` = assinatura dos avisos do mês: dias em que os dois folgam, semanas fora da meta e 6º dia seguido) em `validamais-escala-ok` e na nuvem (`sh_cfg/escala`, campo `ok`). Enquanto a assinatura for a mesma o aviso fica oculto e aparece «✔ Mês conferido» + «Voltar a avisar»; se a escala mudar e surgir aviso novo, a assinatura muda e o aviso volta sozinho. Não altera a escala nem a imagem do WhatsApp.
 - v433: etiquetas do FLV: o selo de tamanho («P serrilhado»/M/G) saiu da coluna da direita (`.crr`, que não encolhe e espremia/cortava o código) e foi para baixo do nome (`.ctam` dentro de `.crl`). Os outros setores seguem com o selo ao lado da quantidade.
 - v434: **Atividade dos usuários › «🔎 Buscas» (só Admin).** Lê os docs `sh_cfg/pbh-<nome>` (campo `n` = nome, `l` = [[termo, vezes, última]], até 60 por pessoa) com `onSnapshot(query(sh_cfg, where("n", ">=", "")))` — sem índice novo e sem tocar nas fotos. Lista por pessoa (mais recente primeiro), com filtro «Pessoa»; esconde «Limpar histórico» nessa aba. Só mostra buscas dos Pesáveis, e só de quem pesquisou depois do histórico «na conta» (v416). As regras do Firestore precisam permitir ler `sh_cfg` (hoje abertas).
+- v435: **Fiscal com fotos.** Cadastros do Fiscal (`row` em `cadPaint`) mostra a miniatura (`.cfoto`, `fotoDe(x.p)`) antes dos códigos; `fotoIcones()` repinta Cadastros (`cadPaint`) quando as fotos chegam/mudam. No item aberto da lista de Validades o bloco `.pi-foto` (adicionar/trocar foto) deixou de ser só dos Perecíveis (vale para tudo que não é KÓRIN, `!isKor(p)`). Fiscal continua sem editar produto; a foto se adiciona pelo Admin/setor/Saúde do app.

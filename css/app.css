@@ -1918,3 +1918,7 @@ html[data-tema=dark] .escv .efer span.fac,html[data-tema=dark] .escv .efer span.
 .crl .ctam .tbadge{margin-left:0;font-size:11.5px;padding:2px 9px}
 
 #atvSum:empty{display:none}
+
+/* Fiscal: foto do produto na lista de Cadastros */
+.cadrow .cfoto{flex:none;width:46px;height:46px;border-radius:10px;overflow:hidden;background:var(--lt2,#222);border:1px solid var(--ln)}
+.cadrow .cfoto img{width:100%;height:100%;object-fit:cover;display:block}
