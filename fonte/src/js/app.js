@@ -69,7 +69,7 @@ function perfilEscolher(troca) {   // pergunta uma vez qual é o setor deste apa
 if (!PERFIL) perfilEscolher(false);
 const $ = id => document.getElementById(id);
 const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria", TK = "validamais-tam";
-let curTab = "Loja", tierF = "", openId = "", pesOpen = "", pesTipo = "", acaoF = "";   // pesOpen: pesável aberta (só ela mostra «Lançar etiqueta» e «Editar»); pesTipo: atalho de tipo escolhido na aba Pesáveis
+let curTab = "Loja", tierF = "", openId = "", pesOpen = "", acaoF = "";   // pesOpen: pesável aberta (só ela mostra «Lançar etiqueta» e «Editar»); pesTipo: atalho de tipo escolhido na aba Pesáveis
 //    // tierF: filtro por faixa de urgência (v/h/a/y); openId: linha de validade aberta
 const LOJA = C.loja || "Sam's Club Radial Leste";
 const EMPTY_FLV = '<div class="empty"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="#9db8a4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 28h44l-5 22a4 4 0 0 1-4 3H19a4 4 0 0 1-4-3z"/><path d="M22 28c0-9 4-16 10-16s10 7 10 16"/><path d="M32 12c0-4 3-7 8-7 0 5-3 8-8 7z"/></svg><p>Nenhum produto do FLV com validade para vencer no momento.</p></div>';
@@ -89,15 +89,6 @@ const labelCode = p => p.barcode ? { code: String(p.barcode), kg: false } : p.co
 // aba Pesáveis: o cadastro abrevia o nome (QJ/QJO = queijo, MUSS = mussarela, PC = peça, FRAC = fracionado…), então a busca entende as duas formas
 const PES_ABREV = { qj: "queijo", qjo: "queijo", queijos: "queijo", muss: "mussarela", mussarelas: "mussarela", pc: "peca", peca: "peca", pecas: "peca", frac: "fracionado", fracao: "fracionado", fracionado: "fracionado", fracionada: "fracionado", fracionados: "fracionado", fracionadas: "fracionado", def: "defumado", defumado: "defumado", defumada: "defumado", defumados: "defumado", defumadas: "defumado", fat: "fatiado", fatiado: "fatiado", fatiada: "fatiado", fatiados: "fatiado", fatiadas: "fatiado", cond: "condimentado", condimentado: "condimentado", condimentada: "condimentado", condimentados: "condimentado", condimentadas: "condimentado" };
 const pesCanon = t => PES_ABREV[t] || t;   // palavra do nome na forma “cheia”
-// atalhos por tipo: cada um filtra pelo que aparece no nome (as contagens são calculadas na hora)
-const PES_TIPOS = [
-  { id: "queijo", rot: "Queijos", kw: ["queijo", "mussarela", "minas", "ricota", "parmesao", "provolone", "prato", "coalho", "azul"] },
-  { id: "mussarela", rot: "Mussarela", kw: ["mussarela"] },
-  { id: "minas", rot: "Minas", kw: ["minas"] },
-  { id: "fracionado", rot: "Fracionados", kw: ["fracionado"] },
-  { id: "salame", rot: "Salame", kw: ["salame", "salaminho"] },
-  { id: "bacon", rot: "Bacon", kw: ["bacon"] }
-];
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
@@ -2909,49 +2900,66 @@ function pesHl(name, toks) {   // destaca no nome o que foi digitado — inclusi
   });
   let out = "", open = false; for (let i = 0; i < name.length; i++) { if (mk[i] && !open) { out += "<mark>"; open = true; } if (!mk[i] && open) { out += "</mark>"; open = false; } out += esc(name[i]); } return out + (open ? "</mark>" : "");
 }
-function pesTipoOK(p, tipo) {   // o produto entra no atalho quando alguma palavra do nome é (ou começa com) uma palavra-chave do tipo
-  if (!tipo) return true;
-  const def = PES_TIPOS.find(t => t.id === tipo); if (!def) return true;
-  const pal = norm(p.name || "").split(/[^a-z0-9]+/).filter(Boolean).map(pesCanon);
-  return pal.some(w => def.kw.some(k => w === k || w.startsWith(k)));
-}
 function renderPesaveis() {
   const box = $("pesLista"); if (!box) return;
   const inp = $("pesBusca"), termo = (inp || {}).value || "", q = norm(termo).trim();
   const todos = pesaveis().sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "pt-BR", { sensitivity: "base" }));
-  const base = pesTipo ? todos.filter(p => pesTipoOK(p, pesTipo)) : todos;
-  const { rows, toks } = pesBusca(base, termo);
-  const ativo = PES_TIPOS.find(t => t.id === pesTipo);
-  const boxT = $("pesTipos");
-  if (boxT) {
-    // os botões só são redesenhados quando os números mudam; o toque no atalho só troca o “pressionado” (não perde a rolagem)
-    const conta = PES_TIPOS.map(t => [t, todos.filter(p => pesTipoOK(p, t.id)).length]);
-    const sig = todos.length + "|" + conta.map(([t, n]) => t.id + n).join(",");
-    if (boxT.dataset.sig !== sig) {
-      boxT.dataset.sig = sig;
-      boxT.innerHTML = `<button type="button" data-pestipo="">Todos <b>${todos.length}</b></button>` + conta.map(([t, n]) => n ? `<button type="button" data-pestipo="${t.id}">${esc(t.rot)} <b>${n}</b></button>` : "").join("");
-    }
-    boxT.querySelectorAll("[data-pestipo]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.pestipo === pesTipo)));
-  }
-  if ($("pesInfo")) $("pesInfo").textContent = q ? `${rows.length} de ${base.length} pesáveis${ativo ? " · " + ativo.rot : ""}` : base.length === todos.length ? `${todos.length} pesáveis` : `${base.length} de ${todos.length} pesáveis · ${ativo ? ativo.rot : ""}`;
+  const base = todos, { rows, toks } = pesBusca(base, termo);
+  if ($("pesInfo")) $("pesInfo").textContent = q ? `${rows.length} de ${todos.length} pesáveis` : `${todos.length} pesáveis`;
   box.innerHTML = rows.length ? rows.map(p => {
     const plu = p.codigo_balanca || "", itn = p.codigo_doacao || "";
     const bc = String(p.barcode || ""), esq = plu ? `<span class="pesc plu"><i>PLU</i><b>${esc(plu)}</b></span>` : bc ? `<span class="pesc cod"><i>CÓD</i><b>${esc(bc)}</b></span>` : `<span class="pesc plu vz"><i>PLU</i><b>—</b></span>`;
     const cods = esq + `<span class="pesc itn${itn ? "" : " vz"}"><i>INTERNO</i><b>${itn ? esc(itn) : "—"}</b></span>`;
     const etq = !!labelCode(p).code;
     return `<div class="pesrow${pesOpen === p.id ? " open" : ""}" data-pes="${esc(p.id)}"><div class="pesn"><span class="pescods">${cods}</span><div class="pesl"><b class="pesnome">${icoHtml(p)}${pesHl(p.name, toks)}</b></div></div><div class="pesact">${etq ? `<button type="button" class="pesb primary" data-etq="${esc(p.id)}">🏷️ Lançar etiqueta</button>` : ""}<button type="button" class="pesb secondary" data-pedit="${esc(p.id)}">✏️ Editar</button></div></div>`;
-  }).join("") : `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : pesTipo ? "Nenhum produto desse tipo." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
+  }).join("") : `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
 }
-$("pesBusca").oninput = renderPesaveis;
-$("pesTipos").onclick = e => {
-  const b = e.target.closest("[data-pestipo]"); if (!b) return;
-  pesTipo = pesTipo === b.dataset.pestipo ? "" : b.dataset.pestipo; renderPesaveis();
+// ----- buscas dos Pesáveis: histórico de cada usuário («na conta», vale em qualquer aparelho) + os mais pesquisados -----
+const PES_SUG0 = ["mussarela", "minas", "bacon", "salame", "fracionado", "parmesão"];   // só enquanto o histórico ainda é pequeno
+let pesHist = [], pesHKey = "", pesHTimer = 0, pesHSnap = false;   // [[termo, vezes, última]]
+const pesHId = () => "pbh-" + icKey(myName());
+function pesHCarrega() {
+  const id = pesHId(); if (id === pesHKey) return; pesHKey = id; pesHSnap = false;
+  pesHist = (store.get("validamais-" + id, []) || []).filter(x => Array.isArray(x) && x[0]);
+  if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", id), sn => { if (id !== pesHKey || !sn.exists()) return; const l = sn.data().l; if (!Array.isArray(l)) return;
+      const m = new Map(); [...pesHist, ...l].forEach(x => { const k = norm(x[0]); const o = m.get(k); if (!o) m.set(k, [x[0], x[1] || 1, x[2] || 0]); else { o[1] = Math.max(o[1], x[1] || 1); o[2] = Math.max(o[2], x[2] || 0); } });   // junta o que está no aparelho com o da nuvem
+      pesHist = [...m.values()].sort((a, b) => b[2] - a[2]).slice(0, 60); store.set("validamais-" + id, pesHist); pesSugRender(); }, () => {}); } catch (e) { console.warn(e); } }
+}
+function pesHSalva() { store.set("validamais-" + pesHId(), pesHist); clearTimeout(pesHTimer); if (db) pesHTimer = setTimeout(() => { try { V.setDoc(V.doc(db, "sh_cfg", pesHId()), { l: pesHist, em: Date.now(), n: myName().slice(0, 40) }).catch(() => {}); } catch (e) {} }, 1500); }
+function pesHRegistra(termo) {
+  const t = String(termo || "").trim().toLowerCase(); if (norm(t).length < 3) return; pesHCarrega();
+  const k = norm(t), o = pesHist.find(x => norm(x[0]) === k);
+  // a mesma busca em sequência (abrir o resultado + sair do campo) conta uma vez só
+  if (o) { if (Date.now() - o[2] > 30000) o[1]++; o[2] = Date.now(); o[0] = t; } else { pesHist.unshift([t, 1, Date.now()]); if (pesHist.length > 60) { pesHist.sort((a, b) => b[1] - a[1] || b[2] - a[2]); pesHist.length = 60; } }
+  pesHist.sort((a, b) => b[2] - a[2]); pesHSalva();
+}
+function pesSugRender() {
+  const box = $("pesSug"), inp = $("pesBusca"); if (!box || !inp) return;
+  if (inp.value.trim() || document.activeElement !== inp) { box.classList.add("hidden"); return; }
+  pesHCarrega();
+  const rec = [...pesHist].sort((a, b) => b[2] - a[2]).slice(0, 8);
+  const top = [...pesHist].filter(x => x[1] >= 2).sort((a, b) => b[1] - a[1] || b[2] - a[2]).slice(0, 6).map(x => [x[0], x[1]]);
+  const tem = new Set(top.map(x => norm(x[0]))); PES_SUG0.forEach(w => { if (top.length < 6 && !tem.has(norm(w))) { top.push([w, 0]); tem.add(norm(w)); } });
+  const chip = (t, extra) => `<button type="button" class="pschip" data-pst="${esc(t)}">${esc(t)}${extra || ""}</button>`;
+  box.innerHTML = `<div class="pssec"><b>🔥 Mais pesquisados</b><div class="pschips">${top.map(([t, n]) => chip(t, n ? ` <i>${n}×</i>` : "")).join("")}</div></div>` +
+    (rec.length ? `<div class="pssec"><b>🕘 Suas últimas buscas</b><button type="button" class="pslimpa" data-psclr>limpar</button><div class="pschips">${rec.map(x => `<span class="pschip2">${chip(x[0])}<button type="button" class="psx" data-psx="${esc(x[0])}" aria-label="Apagar ${esc(x[0])}">×</button></span>`).join("")}</div></div>` : "");
+  box.classList.remove("hidden");
+}
+$("pesBusca").oninput = () => { renderPesaveis(); pesSugRender(); };
+$("pesBusca").onfocus = pesSugRender;
+$("pesBusca").onblur = () => { const v = $("pesBusca").value; setTimeout(() => { $("pesSug").classList.add("hidden"); if (v.trim().length >= 3 && $("pesLista").querySelector("[data-pes]")) pesHRegistra(v); }, 200); };
+$("pesBusca").onkeydown = e => { if (e.key === "Enter") { pesHRegistra($("pesBusca").value); $("pesBusca").blur(); } };
+$("pesSug").onpointerdown = e => e.preventDefault();   // não deixa a caixa de busca perder o foco antes do toque
+$("pesSug").onclick = e => {
+  const x = e.target.closest("[data-psx]"); if (x) { const k = norm(x.dataset.psx); pesHist = pesHist.filter(h => norm(h[0]) !== k); pesHSalva(); pesSugRender(); return; }
+  if (e.target.closest("[data-psclr]")) { pesHist = []; pesHSalva(); pesSugRender(); return; }
+  const c = e.target.closest("[data-pst]"); if (c) { const inp = $("pesBusca"); inp.value = c.dataset.pst; pesHRegistra(c.dataset.pst); renderPesaveis(); pesSugRender(); inp.blur(); }
 };
 $("pesLista").onclick = e => {
   const ic = e.target.closest(".ico"); if (ic) { const im = ic.querySelector("img"); if (im) fotoZoom(im.getAttribute("src")); else iconePicker(ic.dataset.id); return; }
   const b = e.target.closest("[data-etq]"); if (b) { const p = products.find(x => x.id === b.dataset.etq); if (p) labelPick(p); return; }
   const ed = e.target.closest("[data-pedit]"); if (ed) { edit(ed.dataset.pedit); return; }
-  const r = e.target.closest("[data-pes]"); if (r) { pesOpen = pesOpen === r.dataset.pes ? "" : r.dataset.pes; document.querySelectorAll("#pesLista .pesrow").forEach(x => x.classList.toggle("open", x.dataset.pes === pesOpen)); }
+  const r = e.target.closest("[data-pes]"); if (r) { if (pesOpen !== r.dataset.pes) pesHRegistra($("pesBusca").value); pesOpen = pesOpen === r.dataset.pes ? "" : r.dataset.pes; document.querySelectorAll("#pesLista .pesrow").forEach(x => x.classList.toggle("open", x.dataset.pes === pesOpen)); }
 };
 $("pesBipar").onclick = () => openScan("etiqueta");
 $("pesNovo").onclick = () => openForm();

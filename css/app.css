@@ -1125,15 +1125,6 @@ html[data-tema=dark] .product.prv .vbox,html[data-tema=dark] .product.prh .vbox,
 .product.prv .pill::before,.product.prh .pill::before,.product.pra .pill::before,.product.pry .pill::before{background:var(--tx)}
 .product.prv .vr .pill,.product.prh .vr .pill,.product.pra .vr .pill,.product.pry .vr .pill{display:none}
 .pesinfo{display:block;margin:6px 2px 2px;color:var(--mut,#a9a38f);font-size:12.5px}
-/* Pesáveis: atalhos por tipo — fila horizontal de botões; o ativo fica dourado */
-.pestipos{display:flex;gap:6px;overflow-x:auto;padding:4px 0 2px;margin:4px 0 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.pestipos:empty{display:none}
-.pestipos::-webkit-scrollbar{display:none}
-.pestipos button{flex:none;display:inline-flex;align-items:center;gap:5px;min-height:34px;padding:0 11px;border-radius:999px;border:1px solid var(--ln);background:var(--lt2,rgba(255,255,255,.05));color:var(--ink);font-size:12.5px;font-weight:800;white-space:nowrap}
-.pestipos button b{font-size:11px;font-weight:900;opacity:.6}
-.pestipos button:active{background:rgba(243,216,122,.2)}
-.pestipos button[aria-pressed=true]{background:#f3d87a;border-color:#c9a227;color:#1a1400;box-shadow:0 2px 8px rgba(201,162,39,.25)}
-.pestipos button[aria-pressed=true] b{opacity:.75}
 .peslista mark{background:rgba(243,216,122,.5);color:inherit;border-radius:3px;padding:0 1px}
 #pesBusca{font-size:17px;min-height:50px}
 
@@ -1804,3 +1795,15 @@ html[data-tema="light"] .shg small,html[data-tema="light"] .shrow small{color:#4
 #saudeModal .shrow.shfoto .shbts{flex-direction:row!important;flex-wrap:nowrap;align-items:center}
 #saudeModal .shrow.shfoto .shact{white-space:nowrap;min-height:44px;margin:0}
 #saudeModal .shcod{overflow-wrap:anywhere}
+
+/* Pesáveis: mais pesquisados + histórico de buscas (aparece ao tocar na busca vazia) */
+.pessug{margin:6px 0 2px;padding:8px 10px;border:1px solid var(--ln,rgba(255,255,255,.14));border-radius:14px;background:rgba(255,255,255,.03)}
+.pssec{position:relative;margin:2px 0 8px}.pssec:last-child{margin-bottom:0}
+.pssec>b{display:block;font-size:12px;opacity:.7;margin-bottom:5px;font-weight:800}
+.pschips{display:flex;flex-wrap:wrap;gap:6px}
+.pschip{border:1px solid var(--ln,rgba(255,255,255,.2));background:transparent;color:inherit;border-radius:999px;padding:6px 12px;font-size:14px;font-weight:700;min-height:36px}
+.pschip i{font-style:normal;font-size:11px;opacity:.55;font-weight:800}
+.pschip:active{background:rgba(243,216,122,.22)}
+.pschip2{display:inline-flex;align-items:center}.pschip2 .pschip{border-radius:999px 0 0 999px;border-right:0}
+.psx{border:1px solid var(--ln,rgba(255,255,255,.2));background:transparent;color:inherit;opacity:.6;border-radius:0 999px 999px 0;padding:0 9px;min-height:36px;font-size:15px}
+.pslimpa{position:absolute;right:0;top:-2px;background:transparent;border:0;color:inherit;opacity:.6;font-size:12px;padding:4px 6px;min-height:0;text-decoration:underline}

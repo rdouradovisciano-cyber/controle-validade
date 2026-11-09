@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 08/11/2026 · versão 415.
+> Última atualização: 08/11/2026 · versão 416.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -73,3 +73,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v413: ajuste interno dos atalhos: os botões de tipo só são redesenhados quando as contagens mudam, então digitar na busca ou tocar num atalho não perde a rolagem horizontal da fileira. Nada muda na tela.
 - v414: corrigido o deslize na fileira de atalhos dos Pesáveis: `nav.js` (função `blocked`) passou a ignorar toques que começam em `.pestipos`, então o deslize rola os atalhos em vez de trocar de aba. A troca de aba por deslize continua no resto da tela.
 - v415: removida a aba «Perdas» da Atividade dos usuários (`perdasHtml` e controles). O motivo ao retirar (Vencido/Quebra…) continua sendo registrado; só não há mais tela de resumo.
+- v416: Pesáveis sem os botões de tipo (`PES_TIPOS`/`pesTipoOK` removidos). Busca vazia em foco mostra `#pesSug`: «Mais pesquisados» (termos com ≥2 buscas; completa com `PES_SUG0` enquanto o histórico é pequeno) e «Suas últimas buscas». Histórico por usuário: localStorage `validamais-pbh-<operador>` + nuvem `sh_cfg/pbh-<operador>` (`pesHCarrega/pesHRegistra`). Registra ao abrir um resultado, Enter ou sair do campo com resultado; a mesma busca em 30 s conta uma vez. Não testado com o Firebase real.
