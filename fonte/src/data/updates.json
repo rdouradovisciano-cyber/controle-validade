@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-09T06:10:00-03:00",
+  "itens": [
+   "FLV com fotos, como nos Perecíveis: a foto do produto aparece na lista de Validades e no lugar do emoji nos balões, sugestões e linhas lançadas da Doação (o balão usa a foto de qualquer produto da mesma família, ex.: Banana). Para adicionar: Editar/Cadastrar produto › foto, ou ⋮ › Saúde do app › «FLV sem foto» (🔎 busca no Google Imagens, 📷 escolhe a imagem)"
+  ]
+ },
+ {
   "t": "2026-11-09T05:50:00-03:00",
   "itens": [
    "Perecíveis: ao abrir o app, o navegador pede permissão para notificar e o aviso diário das 08h dos produtos que vencem em até 3 dias fica sempre ligado — deixou de ser opção (a tela ⋮ › Notificações agora só mostra o estado e o teste)"

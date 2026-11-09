@@ -1,0 +1,37 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const dir = process.argv[2], port = 8174;
+const srv = http.createServer((q, r) => { let f = path.join(dir, q.url.split("?")[0]); if (f.endsWith("/")) f += "index.html";
+  try { let b = fs.readFileSync(f); const ext = path.extname(f); if ([".html",".js"].includes(ext)) b = Buffer.from(b.toString("utf8").replace(/login:\s*\{\s*email:\s*"[^"]*"\s*\}/g, "login: null"));
+    r.setHeader("content-type", { ".css":"text/css", ".js":"text/javascript", ".html":"text/html", ".json":"application/json" }[ext] || "application/octet-stream"); r.end(b); } catch { r.statusCode = 404; r.end(); } }).listen(port);
+const br = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+const PNG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAFklEQVR4nGP8z8Dwn4EIwESMolGFxCoEACWgAQ0uPmDtAAAAAElFTkSuQmCC";
+const hoje = new Date(); const d = n => { const x = new Date(hoje.getTime() + n * 864e5); return x.toISOString().slice(0, 10); };
+const prods = [{ id: "p1", name: "Banana Prata kg", barcode: "", codigo_balanca: "124", codigo_doacao: "9001", category: "FLV", quantity: 5, expiry: d(2), createdAt: 1 }, { id: "p2", name: "Tomate Italiano kg", barcode: "", codigo_balanca: "456", codigo_doacao: "9002", category: "FLV", quantity: 3, expiry: d(5), createdAt: 2 }];
+const ctx = await br.newContext({ viewport: { width: 390, height: 800 } });
+await ctx.addInitScript(([p, img]) => { try { localStorage.setItem("validamais-perfil", "FLV"); localStorage.setItem("validamais-operador", JSON.stringify("Teste")); localStorage.setItem("validamais-produtos-v1", JSON.stringify(p));
+  localStorage.setItem("validamais-fotos-per", JSON.stringify({ "foto-banana prata kg": img })); } catch {} }, [prods, PNG]);
+const pg = await ctx.newPage(); const errs = []; pg.on("pageerror", e => errs.push(String(e).slice(0, 200)));
+await pg.goto(`http://localhost:${port}/index.html`); await pg.waitForTimeout(3000);
+const o = { errs };
+o.listaFoto = await pg.evaluate(() => [...document.querySelectorAll("#list .pitem")].map(a => (a.querySelector(".pi-nome") || a.querySelector("b") || {}).textContent + ":" + (a.querySelector(".ico-lado img") ? "foto" : "sem")));
+await pg.evaluate(() => document.getElementById("navDoacao").click()); await pg.waitForTimeout(800);
+o.bal = await pg.evaluate(() => [...document.querySelectorAll("#dT6 button")].map(b => b.textContent.trim().slice(0, 14) + ":" + (b.querySelector("img.bi-img") ? "foto" : "emoji")));
+await pg.fill("#dBusca", "banana").catch(() => {}); 
+o.sugestoes = await pg.evaluate(() => [...document.querySelectorAll("#dSug button")].map(b => b.textContent.trim().slice(0, 14) + ":" + (b.querySelector("img.bi-img") ? "foto" : "emoji")));
+// Editar: foto visível para FLV
+await pg.evaluate(() => document.querySelector("#list .pitem .pi-main").click()); await pg.waitForTimeout(400);
+await pg.evaluate(() => { const b = [...document.querySelectorAll("#list .pitem.open button")].find(x => /editar/i.test(x.textContent)); if (b) b.click(); });
+await pg.waitForTimeout(400);
+o.editarBtns = await pg.evaluate(() => [...document.querySelectorAll("#list .pitem.open button")].map(b => b.textContent.trim()).slice(0, 8));
+o.fotoEdNoDom = await pg.evaluate(() => { const e = document.getElementById("fotoEd"); return e ? e.className : null; });
+await ctx.close();
+// Admin: Saúde do app com FLV sem foto
+const c2 = await br.newContext({ viewport: { width: 390, height: 800 } });
+await c2.addInitScript(([p, img]) => { try { localStorage.setItem("validamais-perfil", "Admin"); localStorage.setItem("validamais-operador", JSON.stringify("Teste")); localStorage.setItem("validamais-produtos-v1", JSON.stringify(p)); localStorage.setItem("validamais-fotos-per", JSON.stringify({ "foto-banana prata kg": img })); } catch {} }, [prods, PNG]);
+const p2 = await c2.newPage(); p2.on("pageerror", e => errs.push(String(e).slice(0, 200)));
+await p2.goto(`http://localhost:${port}/index.html`); await p2.waitForTimeout(3000);
+await p2.evaluate(() => document.getElementById("mnSaude").click()); await p2.waitForTimeout(800);
+o.saude = await p2.evaluate(() => [...document.querySelectorAll(".shsec .shh b, .shsec b")].map(b => b.textContent).filter(t => /sem foto/.test(t)));
+o.saudeLinhas = await p2.evaluate(() => [...document.querySelectorAll(".shfoto .shn2 b")].map(b => b.textContent));
+console.log(JSON.stringify(o, null, 1)); await br.close(); srv.close();

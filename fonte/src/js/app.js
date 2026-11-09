@@ -164,7 +164,7 @@ function iconePicker(id) {
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) return bg.remove(); const b = e.target.closest("[data-e]"); if (b) { iconeSalva(p, b.dataset.e); return bg.remove(); } if (e.target.closest("[data-auto]")) { iconeSalva(p, null); return bg.remove(); } if (e.target.closest("[data-nenhum]")) { iconeSalva(p, ""); bg.remove(); } };
 }
 const iconeDe = p => { if (!iconesOn() || !p || p.category !== PER) return ""; const esc1 = icoEscolhido(p); if (esc1 !== null && esc1 !== undefined) return esc1; const n = String(p.name || "").toLowerCase(); const m = ICONES.find(([r]) => r.test(n + " ")); return m ? m[1] : "📦"; };
-// ---------- foto do produto (só Perecíveis): uma miniatura por nome, em sh_cfg/foto-<nome>; só é baixada quando o item é aberto ----------
+// ---------- foto do produto (Perecíveis e FLV): uma miniatura por nome, em sh_cfg/foto-<nome>; só é baixada quando o item é aberto ----------
 const FTK = "validamais-fotos-per", fotoK = n => "foto-" + icKey(n), fotoCache = {};
 function fotoHtml(k, ed) { const d = fotoCache[k]; if (d === undefined) return '<small class="muted">…</small>';
   const adm = PERFIL === "Admin", img = d ? `<img class="pf-img" src="${d}" alt="Foto do produto" data-fz="1">` : "";
@@ -172,24 +172,29 @@ function fotoHtml(k, ed) { const d = fotoCache[k]; if (d === undefined) return '
   if (!d) return bt("data-fadd", "📷 Tirar foto") + bt("data-fgal", "🖼 Escolher imagem");   // sem foto: botões no cartão
   if (!ed) return img;                                                                            // com foto: só a imagem (trocar fica no Editar)
   return img + (adm ? bt("data-fadd", "📷 Trocar") + bt("data-fgal", "🖼 Outra imagem") + bt("data-fdel", "🗑 Apagar") : ""); }
-function fotoPaint(id) { const p = products.find(x => x.id === id); if (!p) return; document.querySelectorAll(`.pi-foto[data-id="${CSS.escape(id)}"]`).forEach(el => { el.innerHTML = fotoHtml(fotoK(p.name), el.dataset.ed === "1"); }); }
+function fotoPaint(id) { fotoVer++; const p = products.find(x => x.id === id); if (!p) return; document.querySelectorAll(`.pi-foto[data-id="${CSS.escape(id)}"]`).forEach(el => { el.innerHTML = fotoHtml(fotoK(p.name), el.dataset.ed === "1"); }); }
 function fotoCarrega(id) {
-  const p = products.find(x => x.id === id); if (!p || p.category !== PER) return; const k = fotoK(p.name);
+  const p = products.find(x => x.id === id); if (!p) return; const k = fotoK(p.name);
   if (fotoCache[k] === undefined && fotosPronto) fotoCache[k] = "";   // a consulta geral já trouxe todas: sem ela, não tem foto
   if (fotoCache[k] !== undefined) return fotoPaint(id);
   if (!db) { const m = store.get(FTK, {}); fotoCache[k] = m[k] || ""; return fotoPaint(id); }
   let un = null, fim = false; const t = setTimeout(() => { if (!fim) { fim = true; fotoCache[k] = ""; fotoPaint(id); try { un && un(); } catch (e) {} } }, 6000);
   try { un = V.onSnapshot(V.doc(db, "sh_cfg", k), sn => { if (fim) return; fim = true; clearTimeout(t); fotoCache[k] = sn.exists() && sn.data().d ? sn.data().d : ""; fotoPaint(id); try { un && un(); } catch (e) {} }, () => { if (fim) return; fim = true; fotoCache[k] = ""; fotoPaint(id); }); } catch (e) { fotoCache[k] = ""; fotoPaint(id); }
 }
-// miniatura no lugar do emoji (só Perecíveis): uma única consulta traz as fotos de todos os produtos e continua ouvindo mudanças
+// miniatura no lugar do emoji (Perecíveis e FLV): uma única consulta traz as fotos de todos os produtos e continua ouvindo mudanças
 let fotosPronto = false, fotosOuvindo = false, fotosErro = false, saudeRepinta = null;
-const fotoDe = p => p && p.category === PER && iconesOn() ? (fotoCache[fotoK(p.name)] || "") : "";
+const fotoDe = p => p && iconesOn() ? (fotoCache[fotoK(p.name)] || "") : "";
 const icoHtml = p => { const d = fotoDe(p), e = iconeDe(p); if (!d && !e) return "";   // inline (Pesáveis): miniatura ou emoji
   return `<span class="ico${d ? " ico-foto" : ""}" data-id="${esc(p.id)}">${d ? `<img class="ico-img" src="${d}" alt="" decoding="async">` : e}</span>`; };
 const icoEmoji = p => fotoDe(p) ? "" : (iconeDe(p) ? `<span class="ico" data-id="${esc(p.id)}">${iconeDe(p)}</span>` : "");   // lista de Validades: emoji só quando não há foto
 const fotoLado = p => { const d = fotoDe(p); return d ? `<span class="ico ico-foto ico-lado" data-id="${esc(p.id)}"><img class="ico-img" src="${d}" alt="" decoding="async"></span>` : ""; };   // lista de Validades: foto na lateral
-let fotoIcTimer = 0;
-function fotoIcones() { clearTimeout(fotoIcTimer); fotoIcTimer = setTimeout(() => { try { render(); } catch (e) {} try { if ($("pesLista") && $("pesLista").children.length) renderPesaveis(); } catch (e) {} }, 60); }
+let fotoIcTimer = 0, fotoVer = 0, famMemo = { p: null, n: -1, v: -1, m: new Map() };
+// foto para os balões e linhas da Doação (FLV): a do nome exato; senão a de qualquer produto da mesma família (1ª palavra: Banana, Tomate…)
+function famFotos() { if (famMemo.p === products && famMemo.n === products.length && famMemo.v === fotoVer) return famMemo.m;
+  const m = new Map(); products.forEach(p => { if (!p || !p.name) return; const d = fotoCache[fotoK(p.name)]; if (!d) return; const k = dFamKey(p.name); if (k && !m.has(k)) m.set(k, d); });
+  famMemo = { p: products, n: products.length, v: fotoVer, m }; return m; }
+function balFoto(w) { if (!iconesOn() || !w) return ""; const ex = fotoCache[fotoK(w)]; if (ex) return ex; const k = dFamKey(w); return k ? (famFotos().get(k) || "") : ""; }
+function fotoIcones() { clearTimeout(fotoIcTimer); fotoIcTimer = setTimeout(() => { fotoVer++; try { render(); } catch (e) {} try { if ($("dTop6")) renderDon(); } catch (e) {} try { if ($("pesLista") && $("pesLista").children.length) renderPesaveis(); } catch (e) {} }, 60); }
 function fotosTodas() {
   if (fotosOuvindo) return; fotosOuvindo = true;
   if (!db) { const m = store.get(FTK, {}); Object.keys(m).forEach(k => { fotoCache[k] = m[k]; }); fotosPronto = true; return; }
@@ -447,9 +452,9 @@ function fnPaint() {
   if (fnFile) { fnUrl = URL.createObjectURL(fnFile); box.innerHTML = `<img class="pf-img" src="${fnUrl}" alt="Foto escolhida"><button type="button" class="secondary pf-btn" data-fnc="1">📷 Trocar</button><button type="button" class="secondary pf-btn" data-fng="1">🖼 Outra imagem</button><button type="button" class="secondary pf-btn" data-fnx="1">✕ Tirar</button>`; }
   else box.innerHTML = `<button type="button" class="secondary pf-btn" data-fnc="1">📷 Tirar foto</button><button type="button" class="secondary pf-btn" data-fng="1">🖼 Escolher imagem</button>`;
 }
-function fnVis() {   // só para produto novo dos Perecíveis que ainda não tem foto cadastrada com esse nome
+function fnVis() {   // só para produto novo que ainda não tem foto cadastrada com esse nome
   const el = $("fotoNovo"); if (!el) return; const nome = $("name").value.trim(), ja = nome && fotoCache[fotoK(nome)];
-  el.classList.toggle("hidden", !(!$("docId").value && $("category").value === PER && !ja)); }
+  el.classList.toggle("hidden", !(!$("docId").value && !ja)); }
 function fnLimpa() { fnFile = null; fnPaint(); fnVis(); }
 function resetForm() { formBip = false; { const fe = $("fotoEd"); if (fe) fe.classList.add("hidden"); } fnFile = null; fnPaint();
   $("productForm").reset(); $("docId").value = ""; $("quantity").value = 1;
@@ -487,7 +492,7 @@ function edit(id) {
   $("docId").value = id; $("barcode").value = p.barcode || ""; $("name").value = p.name || "";
   $("category").value = p.category || ""; $("quantity").value = p.quantity; $("expiry").value = p.expiry || "";
   $("cBalanca").value = p.codigo_balanca || ""; $("cDoacao").value = p.codigo_doacao || ""; toggleCodes();
-  { const fe = $("fotoEd"), per = p.category === PER; fe.classList.toggle("hidden", !per); $("fotoEdBox").dataset.id = per ? id : ""; $("fotoEdBox").innerHTML = ""; $("fotoEdCam").dataset.fin = id; $("fotoEdGal").dataset.fin = id; if (per) fotoCarrega(id); }
+  { const fe = $("fotoEd"), per = true; fe.classList.toggle("hidden", !per); $("fotoEdBox").dataset.id = per ? id : ""; $("fotoEdBox").innerHTML = ""; $("fotoEdCam").dataset.fin = id; $("fotoEdGal").dataset.fin = id; if (per) fotoCarrega(id); }
 }
 // ----- nomes parecidos / duplicados -----
 const nameKey = n => norm(n || "").replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(w => w && !/^(kg|un|und|unid|unidade|unidades|g|gr|grs|kilo|quilo)$/.test(w)).map(w => w.length > 3 && w.endsWith("s") ? w.slice(0, -1) : w).sort().join(" ");
@@ -608,7 +613,7 @@ async function save(next) {
     if (id) products = products.map(x => x.id === id ? { ...x, ...data, updatedAt: Date.now() } : x); else products.push({ ...data, id: uid(), updatedAt: Date.now() });
     persist(); render();
   }
-  const ffoto = !id && data.category === PER ? fnFile : null; fnFile = null;
+  const ffoto = !id ? fnFile : null; fnFile = null;
   if (ffoto) fotoGravaNome(data.name, ffoto).then(ok => { if (ok) { fotoIcones(); toast("Produto e foto salvos."); } else toast("Produto salvo, mas a foto não foi salva."); });
   closeModal(); toast("Produto salvo."); { const nm = norm(data.name || ""); vmOk(() => [...document.querySelectorAll("#list article.product, #list article.pitem")].find(a => norm((a.querySelector("h3, .pi-nome") || {}).textContent || "") === nm)); } if (next) openScan();
 }
@@ -1180,8 +1185,9 @@ const BICO = [[/maracuja/,MARACUJA_SVG],[/taiti|tahiti|\blima\b/,"🍋‍🟩"],
 function pkTag(n) { const s = String(n || ""), m = s.match(/(\d+(?:[.,]\d+)?)\s*(kg|g)\b/i);
   if (m) return `<span class="pk">📦 ${m[1].replace(".", ",")}${m[2].toLowerCase()}</span>`;
   return /\b(pacote|pct|bandeja|saco|caixa|embalad[oa]s?|unid(ade)?s?)\b/i.test(s) ? '<span class="pk">📦</span>' : ""; }
-function balIcoTop(w) { return norm(String(w || "")) === "tomate" ? `<span class="bi">🍅</span>` : balIco(w); }   // balão Tomate: ícone de tomate
-function balIco(w, fb, soft) { const n = norm(String(w || "")); for (const [re, e] of BICO) if (re.test(n)) return `<span class="bi">${e}</span>`;
+function balIcoTop(w) { if (balFoto(w)) return balIco(w); return norm(String(w || "")) === "tomate" ? `<span class="bi">🍅</span>` : balIco(w); }   // balão Tomate: ícone de tomate
+function balIco(w, fb, soft) { const ph = balFoto(w) || (fb ? balFoto(fb) : ""); if (ph) return `<span class="bi bf"><img class="bi-img" src="${ph}" alt="" decoding="async"></span>`;
+  const n = norm(String(w || "")); for (const [re, e] of BICO) if (re.test(n)) return `<span class="bi">${e}</span>`;
   if (fb) return balIco(fb);
   if (soft) return "";
   return `<span class="bi bl">${esc((String(w || "?").trim().charAt(0) || "?").toUpperCase())}</span>`; }
@@ -1766,7 +1772,7 @@ $("cSalvar").onclick = async () => {
     if (SETOR === KOR) korMarca([name], true);
     toast("«" + name + "» cadastrado.");
   }
-  if (cFotoFile && (SETOR === FIS ? ($("cCat").value || (mine[0] && mine[0].category)) : CATSET) === PER) fotoGravaNome(name, cFotoFile).then(ok => ok && toast("Foto salva no produto."));
+  if (cFotoFile) fotoGravaNome(name, cFotoFile).then(ok => ok && toast("Foto salva no produto."));
   cadReset(); if ($("cCat")) $("cCat").value = ""; $("cForm").classList.remove("fisopen", "perSel"); setTimeout(cadPaint, db ? 600 : 0);
 };
 { $("cCat").innerHTML = '<option value="">Escolha o setor…</option><option value="FLV">🥬 FLV</option><option value="Perecíveis">🧀 Perecíveis</option>';
@@ -2167,14 +2173,14 @@ function saudeCalc() {
   const par = dupGroups();
   sec.push({ t: "Nomes parecidos", d: "Podem ser o mesmo produto escrito de formas diferentes.", n: par.length, it: par.length ? [par.map(a => a.map(x => esc(x.nome)).join(" ≈ ")).slice(0, 6).join("<br>"), `<button type="button" class="shact pri" data-a="uni">Escolher o nome certo</button>`] : [] });
   // Perecíveis sem foto (Admin): uma linha por produto (a foto vale para todos os lotes do mesmo nome). Emoji NÃO conta como foto.
-  { const nomes = new Map(), eanDe = {}, pluDe = {}; rawAllAtivos().forEach(p => { if (setSet(p) !== PER || p.retirado) return; const k = fotoK(p.name); if (!nomes.has(k)) nomes.set(k, p.name); if (p.barcode) (eanDe[k] = eanDe[k] || new Set()).add(String(p.barcode).trim()); if (p.codigo_balanca) pluDe[k] = pluDe[k] || String(p.codigo_balanca).trim(); });
+  [PER, "FLV"].forEach(SS => { const nomeSS = SS === PER ? "Perecíveis" : "FLV"; const nomes = new Map(), eanDe = {}, pluDe = {}; rawAllAtivos().forEach(p => { if (setSet(p) !== SS || p.retirado) return; const k = fotoK(p.name); if (!nomes.has(k)) nomes.set(k, p.name); if (p.barcode) (eanDe[k] = eanDe[k] || new Set()).add(String(p.barcode).trim()); if (p.codigo_balanca) pluDe[k] = pluDe[k] || String(p.codigo_balanca).trim(); });
     const sabe = !db || fotosPronto, nFot = [...nomes.keys()].filter(k => fotoCache[k]).length;
     const sem = sabe ? [...nomes.entries()].filter(([k]) => !fotoCache[k]).map(([, n]) => n).sort((x, y) => x.localeCompare(y, "pt-BR")) : [];
-    if (!sabe) sec.push({ t: "Perecíveis sem foto", d: fotosErro ? "Não consegui ler as fotos da nuvem agora. Feche e abra de novo; se continuar, avise." : "Conferindo as fotos na nuvem… a lista aparece sozinha em instantes.", n: 1, it: ["<small class=\"note\">Aguarde um instante…</small>"] });
-    else sec.push({ t: `Perecíveis sem foto (${sem.length} de ${nomes.size})`, d: `De ${nomes.size} produtos dos Perecíveis, ${nFot} têm foto e ${sem.length} não. Emoji não conta como foto. Toque em «📷 Foto» para tirar ou escolher; a foto vale para todos os lotes do produto.`, n: sem.length, todos: true,
+    if (!sabe) sec.push({ t: nomeSS + " sem foto", d: fotosErro ? "Não consegui ler as fotos da nuvem agora. Feche e abra de novo; se continuar, avise." : "Conferindo as fotos na nuvem… a lista aparece sozinha em instantes.", n: 1, it: ["<small class=\"note\">Aguarde um instante…</small>"] });
+    else sec.push({ t: `${nomeSS} sem foto (${sem.length} de ${nomes.size})`, d: `De ${nomes.size} produtos ${SS === PER ? "dos Perecíveis" : "do FLV"}, ${nFot} têm foto e ${sem.length} não. Emoji não conta como foto. Toque em «📷 Foto» para tirar ou escolher; a foto vale para todos os lotes do produto.`, n: sem.length, todos: true,
       it: sem.map(n => { const k = fotoK(n), eans = eanDe[k] ? [...eanDe[k]] : [], busca = "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent((eans[0] || "") + " " + n);
         const cod = eans.length ? eans.map(e => `<button type="button" class="shcod" data-copia="${esc(e)}" title="Toque para copiar">EAN ${esc(e)} <i>⧉</i></button>`).join("") : (pluDe[k] ? `<span class="shcod sem">sem EAN · balança ${esc(pluDe[k])}</span>` : `<span class="shcod sem">sem código de barras</span>`);
-        return `<div class="shrow shfoto"><div class="shn2"><b>${esc(nomeBonito(n))}</b>${cod}</div><span class="shbts"><a class="shact" href="${esc(busca)}" target="_blank" rel="noopener" aria-label="Procurar imagem na internet">🔎</a><button type="button" class="shact pri" data-foto="${esc(n)}">📷 Foto</button></span></div>`; }) }); }
+        return `<div class="shrow shfoto"><div class="shn2"><b>${esc(nomeBonito(n))}</b>${cod}</div><span class="shbts"><a class="shact" href="${esc(busca)}" target="_blank" rel="noopener" aria-label="Procurar imagem na internet">🔎</a><button type="button" class="shact pri" data-foto="${esc(n)}">📷 Foto</button></span></div>`; }) }); });
   const fora = {}; products.forEach(p => { if (p.category && !CATS.includes(p.category)) fora[p.category] = (fora[p.category] || 0) + 1; });
   sec.push({ t: "Categoria fora da lista", d: "Produtos com uma categoria que o app não conhece.", n: Object.keys(fora).length, it: Object.keys(fora).map(c => esc(c) + " (" + fora[c] + ")") });
   return sec;
@@ -2297,7 +2303,7 @@ function visAbrir() {
     <label>Conjuntos de cores</label><div class="vspre"><button type="button" data-p="pad">Padrão</button><button type="button" data-p="dal">Daltonismo</button><button type="button" data-p="sua">Vivas</button></div>
     <div class="vscores">${Object.keys(nomes).map(k => `<label class="vsc"><span>${nomes[k]}</span><input type="color" data-c="${k}" value="${v.cores[k]}"></label>`).join("")}</div>
     <label class="nfrow"><span><b>🚨 Sirene e efeitos de urgência</b><small>O item vencido pisca, brilha e vibra ao abrir o app</small></span><input type="checkbox" id="vsFx" ${fxOn() ? "checked" : ""}></label>
-    <label class="nfrow"><span><b>🧀 Ícones nos produtos</b><small>Um desenho por tipo (queijo, frios, laticínios…) nos Perecíveis</small></span><input type="checkbox" id="vsIco" ${iconesOn() ? "checked" : ""}></label>
+    <label class="nfrow"><span><b>🧀 Ícones nos produtos</b><small>Fotos dos produtos (Perecíveis e FLV) e, sem foto, um desenho por tipo</small></span><input type="checkbox" id="vsIco" ${iconesOn() ? "checked" : ""}></label>
     <label>Tamanho da letra da lista</label><div class="vspre" id="vsF"><button type="button" data-f="normal">Normal</button><button type="button" data-f="grande">Grande</button></div>
     <div class="vsprev" id="vsPrev"></div>
     <div class="toolbar" style="margin-top:12px"><button class="primary big" type="button" id="vsSalva">Salvar</button><button class="secondary" type="button" id="vsPad">${admin ? "Restaurar padrão" : (loc ? "Usar o padrão da loja" : "Restaurar padrão")}</button></div></section>`;

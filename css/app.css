@@ -1830,3 +1830,10 @@ html[data-tema="light"] .shg small,html[data-tema="light"] .shrow small{color:#4
 .lt.a{border-color:#d9534f}.lt.v{border-color:#d9534f;background:rgba(217,83,79,.15)}.lt.y{border-color:#d9a400}
 .lt.novo{border-style:dashed;border-color:#3f9f6f;background:rgba(63,159,111,.12);grid-template-columns:auto 1fr}
 .pi-op i{font-style:normal;opacity:.75;font-weight:600}
+
+/* foto no lugar do emoji nos balões, sugestões e linhas da Doação (FLV) */
+.bi.bf{padding:0!important;overflow:hidden;font-size:0!important;line-height:0!important}
+.bi-img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.dt6 button .bi.bf{width:42px;height:42px;border-radius:50%;border:1px solid #343b52;margin:0 auto 4px;display:block}
+#dSug button .bi.bf{display:inline-block;width:26px;height:26px;border-radius:50%;margin-right:8px;vertical-align:-8px}
+.ditem .di .bi.bf{width:38px;height:38px}
