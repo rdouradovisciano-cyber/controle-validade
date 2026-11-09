@@ -1,0 +1,37 @@
+import { chromium } from "playwright-core";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const dir = process.argv[2], port = 8171;
+const srv = http.createServer((q, r) => { let f = path.join(dir, q.url.split("?")[0]); if (f.endsWith("/")) f += "index.html";
+  try { let b = fs.readFileSync(f); const ext = path.extname(f); if ([".html",".js"].includes(ext)) b = Buffer.from(b.toString("utf8").replace(/login:\s*\{\s*email:\s*"[^"]*"\s*\}/g, "login: null"));
+    r.setHeader("content-type", { ".css":"text/css", ".js":"text/javascript", ".html":"text/html", ".json":"application/json" }[ext] || "application/octet-stream"); r.end(b); } catch { r.statusCode = 404; r.end(); } }).listen(port);
+const br = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+const prods = [{ id: "p1", name: "Banana Prata kg", barcode: "", codigo_balanca: "124", category: "FLV" }, { id: "p2", name: "Tomate Italiano kg", barcode: "", codigo_balanca: "456", category: "FLV" }];
+const ctx = await br.newContext({ viewport: { width: 390, height: 800 } });
+await ctx.addInitScript(p => { try { localStorage.setItem("validamais-perfil", JSON.stringify("FLV")); localStorage.setItem("validamais-operador", JSON.stringify("Teste")); localStorage.setItem("validamais-produtos-v1", JSON.stringify(p)); localStorage.setItem("validamais-tam", JSON.stringify({})); } catch {} }, prods);
+const pg = await ctx.newPage(); const errs = []; pg.on("pageerror", e => errs.push(String(e).slice(0, 150)));
+await pg.goto(`http://localhost:${port}/index.html`); await pg.waitForTimeout(3000);
+await pg.evaluate(() => document.getElementById("navEtiquetas").click()); await pg.waitForTimeout(400);
+const add = async (t) => { await pg.fill("#eBusca", t); await pg.dispatchEvent("#eBusca", "input"); await pg.waitForTimeout(300); await pg.evaluate(() => document.querySelector("#eRes [data-pick]").click()); await pg.waitForTimeout(300); };
+const out = { errs };
+await add("banana");
+out.badge1 = await pg.evaluate(() => [...document.querySelectorAll("#eLista .tbadge")].map(e => e.textContent));
+out.tam1 = await pg.evaluate(() => JSON.parse(localStorage.getItem("validamais-etiquetas") || "[]").map(l => l.nome + ":" + l.tam));
+await pg.evaluate(() => { const r = document.querySelector("#eLista .crw"); r.dispatchEvent(new Event("contextmenu", { bubbles: true })); });
+await pg.evaluate(() => lmOpen && 0).catch(() => {});
+out.sheetP = await pg.evaluate(() => { const b = document.querySelector('#lmTam [data-t="P"]'); return b && b.textContent; });
+// abre a folha segurando (simula long-press via pointer events)
+await pg.evaluate(() => { const n = document.querySelector("#eLista .cname"); n.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, clientX: 50, clientY: 300 })); }); await pg.waitForTimeout(1000);
+out.folhaAbre = await pg.evaluate(() => !document.getElementById("lModal").classList.contains("hidden"));
+out.sheetP2 = await pg.evaluate(() => document.querySelector('#lmTam [data-t="P"]').textContent);
+await pg.evaluate(() => document.querySelector('#lmTam [data-t="G"]').click()); await pg.waitForTimeout(200);
+await pg.evaluate(() => document.getElementById("lmOk").click()); await pg.waitForTimeout(200);
+out.badge2 = await pg.evaluate(() => [...document.querySelectorAll("#eLista .tbadge")].map(e => e.textContent));
+out.tabAntes = await pg.evaluate(() => [...document.querySelectorAll("[id^=tab]")].filter(e => !e.classList.contains("hidden")).map(e => e.id).join(",")); console.log(JSON.stringify(out)); await pg.evaluate(() => document.getElementById("navEtiquetas").click()); await pg.waitForTimeout(300); await add("tomate");
+out.badge3 = await pg.evaluate(() => [...document.querySelectorAll("#eLista .cname")].map(e => e.textContent).join("|") + " :: " + [...document.querySelectorAll("#eLista .tbadge")].map(e => e.textContent).join("|"));
+out.memoria = await pg.evaluate(() => localStorage.getItem("validamais-tam"));
+// banana de novo (mesmo produto, outro dia): reset
+await pg.evaluate(() => { localStorage.setItem("validamais-etiquetas", "[]"); }); await pg.reload(); await pg.waitForTimeout(2500);
+await pg.evaluate(() => document.getElementById("navEtiquetas").click()); await pg.waitForTimeout(300); await add("banana");
+out.tamReset = await pg.evaluate(() => JSON.parse(localStorage.getItem("validamais-etiquetas") || "[]").map(l => l.nome + ":" + l.tam));
+await pg.screenshot({ path: "/tmp/etq_tam.png" });
+console.log(JSON.stringify(out, null, 1)); await br.close(); srv.close();

@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 09/11/2026 · versão 423.
+> Última atualização: 09/11/2026 · versão 424.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -81,3 +81,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v421: autoria na lista: `por` guarda quem lançou; ao EDITAR um lote (função `save` com id) vira «Ronaldo (Renato ajustou)» (`porAjustado`; reedição troca só o ajustador; o próprio autor não muda nada). `porHtml` desenha e `semAdmin` tira «(Admin)» do nome. Foi feito dentro do campo `por` (já permitido nas regras, ≤40 caracteres) de propósito: um campo novo seria recusado pelo `hasOnly` do firestore.rules até as regras serem publicadas. Só edição pelo formulário conta como «ajustou».
 - v422: data de hoje em destaque no topo (`#hojeTop`, `hojeTop()` em `app.js`, formato 08/11/26, atualiza a cada minuto) e os atalhos de setor saíram do `<header>` para o menu ⋮ (`#mnSetorBox` › `#setorChip`, só Admin; `pintaSetor` fecha o menu ao trocar). `menu.js` volta a rolagem do menu ao topo ao abrir.
 - v423: formato da data no topo mudou (escolha do usuário): `hojeTop()` monta «DOM · 08 NOV» com `weekday:'short'` e `month:'short'` em maiúsculas; `.hojeTop` virou texto branco em negrito, sem a pílula dourada. O `aria-label` e o `title` continuam com a data completa.
+- v424: etiquetas do **FLV** entram sempre como **P (serrilhado)**: `tamOf(p)` devolve "P" quando `SETOR === "FLV"` (não lê nem grava o tamanho lembrado em `validamais-tam`). Na lista aparece o selo «serrilhado» (P), «M» ou «G»; na folha que abre ao segurar o item, o botão P vira «P serrilhado» e é ali que se escolhe M ou G. Outros setores seguem como antes (padrão M, lembrando o último tamanho). Itens já na lista não mudam. Teste: `tools/etq-tam-test.mjs`.
