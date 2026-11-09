@@ -1819,3 +1819,4 @@ html[data-tema="light"] .shg small,html[data-tema="light"] .shrow small{color:#4
 .lt b{font-weight:900;white-space:nowrap}.lt span{opacity:.85;font-size:13px}.lt em{font-style:normal;font-weight:800;white-space:nowrap}
 .lt.a{border-color:#d9534f}.lt.v{border-color:#d9534f;background:rgba(217,83,79,.15)}.lt.y{border-color:#d9a400}
 .lt.novo{border-style:dashed;border-color:#3f9f6f;background:rgba(63,159,111,.12);grid-template-columns:auto 1fr}
+.pi-op i{font-style:normal;opacity:.75;font-weight:600}

@@ -1,1 +1,1 @@
-{"versao":"2026.11.08-420","nota":"Validades: o nome de quem lançou a validade (👤) agora aparece na lista para todos os usuários, e não só para o Admin"}
+{"versao":"2026.11.08-421","nota":"Validades: quando outra pessoa altera um lote (quantidade, data…), a lista mostra «👤 Ronaldo (Renato ajustou)»: continua o nome de quem lançou e, entre parênteses, quem ajustou. Se quem altera é o próprio autor, nada muda"}
