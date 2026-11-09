@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-09T00:10:00-03:00",
+  "itens": [
+   "Cadastro de produto novo (Perecíveis): novo campo «Foto do produto (opcional)» com 📷 Tirar foto e 🖼 Escolher imagem. A foto aparece na prévia e é salva junto com o produto; o campo some se o nome já tem foto"
+  ]
+ },
+ {
   "t": "2026-11-08T23:40:00-03:00",
   "itens": [
    "Pesáveis: saíram os botões de tipo (Queijos, Mussarela, Minas…). Ao tocar na busca vazia aparecem os «Mais pesquisados» e «Suas últimas buscas». O histórico é de cada usuário, fica na conta (vale em qualquer aparelho) e dá para apagar uma busca (×) ou limpar tudo"

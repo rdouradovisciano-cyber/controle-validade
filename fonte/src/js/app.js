@@ -440,12 +440,24 @@ function limparFotosNuvem() {   // coleção "fotos" + campo foto dentro dos cad
       else if (lido) store.set(FOTO_LIMPA, true);   // sem internet: tenta de novo na próxima abertura
       fotosLimpando = false; });
 }
-function resetForm() { formBip = false; { const fe = $("fotoEd"); if (fe) fe.classList.add("hidden"); }
+// foto no cadastro de produto novo (Perecíveis): escolhida aqui, gravada junto com o produto (pelo nome)
+let fnFile = null, fnUrl = "";
+function fnPaint() {
+  const box = $("fnBox"); if (!box) return; if (fnUrl) { try { URL.revokeObjectURL(fnUrl); } catch (e) {} fnUrl = ""; }
+  if (fnFile) { fnUrl = URL.createObjectURL(fnFile); box.innerHTML = `<img class="pf-img" src="${fnUrl}" alt="Foto escolhida"><button type="button" class="secondary pf-btn" data-fnc="1">📷 Trocar</button><button type="button" class="secondary pf-btn" data-fng="1">🖼 Outra imagem</button><button type="button" class="secondary pf-btn" data-fnx="1">✕ Tirar</button>`; }
+  else box.innerHTML = `<button type="button" class="secondary pf-btn" data-fnc="1">📷 Tirar foto</button><button type="button" class="secondary pf-btn" data-fng="1">🖼 Escolher imagem</button>`;
+}
+function fnVis() {   // só para produto novo dos Perecíveis que ainda não tem foto cadastrada com esse nome
+  const el = $("fotoNovo"); if (!el) return; const nome = $("name").value.trim(), ja = nome && fotoCache[fotoK(nome)];
+  el.classList.toggle("hidden", !(!$("docId").value && $("category").value === PER && !ja)); }
+function fnLimpa() { fnFile = null; fnPaint(); fnVis(); }
+function resetForm() { formBip = false; { const fe = $("fotoEd"); if (fe) fe.classList.add("hidden"); } fnFile = null; fnPaint();
   $("productForm").reset(); $("docId").value = ""; $("quantity").value = 1;
   $("category").value = CATSET; $("saveNext").classList.remove("hidden"); toggleCodes();
   $("productForm").classList.remove("lote"); $("loteInfo").classList.add("hidden"); $("loteEdit").classList.add("hidden");
 }
 function toggleCodes() {
+  fnVis();
   const flv = $("category").value === "FLV"; $("expiry").required = !flv; $("expLabel").textContent = flv ? "Data de validade (opcional)" : "Data de validade *"; $("semCodigo").classList.toggle("hidden", !!$("barcode").value.trim() && !["FLV", "Padaria"].includes($("category").value)); }
 let scanBusy = Promise.resolve();
 async function liberaCamera(s) {
@@ -585,6 +597,8 @@ async function save(next) {
     if (id) products = products.map(x => x.id === id ? { ...x, ...data, updatedAt: Date.now() } : x); else products.push({ ...data, id: uid(), updatedAt: Date.now() });
     persist(); render();
   }
+  const ffoto = !id && data.category === PER ? fnFile : null; fnFile = null;
+  if (ffoto) fotoGravaNome(data.name, ffoto).then(ok => { if (ok) { fotoIcones(); toast("Produto e foto salvos."); } else toast("Produto salvo, mas a foto não foi salva."); });
   closeModal(); toast("Produto salvo."); { const nm = norm(data.name || ""); vmOk(() => [...document.querySelectorAll("#list article.product, #list article.pitem")].find(a => norm((a.querySelector("h3, .pi-nome") || {}).textContent || "") === nm)); } if (next) openScan();
 }
 let retView = false;
@@ -821,6 +835,9 @@ $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("modal").classList.contains("hidden")) closeModal(); });
 $("productForm").onsubmit = e => { e.preventDefault(); save(false); };
 $("saveNext").onclick = () => { if ($("productForm").reportValidity()) save(true); };
+$("fotoNovo").onclick = e => { if (e.target.closest("[data-fnc]")) $("fnCam").click(); else if (e.target.closest("[data-fng]")) $("fnGal").click(); else if (e.target.closest("[data-fnx]")) fnLimpa(); else if (e.target.closest(".pf-img")) fotoZoom(e.target.closest(".pf-img").getAttribute("src")); };
+$("fotoNovo").onchange = e => { const f = e.target.files && e.target.files[0]; e.target.value = ""; if (!f) return; if (!/^image\//.test(f.type)) return toast("Escolha uma imagem."); fnFile = f; fnPaint(); };
+$("name").addEventListener("input", fnVis);
 $("barcode").oninput = toggleCodes; $("category").onchange = toggleCodes; $("barcode").onchange = () => fillKnown($("barcode").value.trim());
 $("qMinus").onclick = () => { const q = Number(String($("quantity").value).replace(",", ".")) || 1; $("quantity").value = Math.max(1, Math.round(q) - 1); };
 $("qPlus").onclick = () => { $("quantity").value = Math.round(Number(String($("quantity").value).replace(",", ".")) || 0) + 1; };
