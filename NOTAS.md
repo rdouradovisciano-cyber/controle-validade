@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 09/11/2026 · versão 433.
+> Última atualização: 09/11/2026 · versão 434.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -91,3 +91,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v431: **Escala 5x2: feriados nacionais e de SP piscam** (calendário e lista; keyframes `escFerBrilho` na célula e `escFerPisca` no número). Facultativos (`fac`) e dias fora do mês ficam fixos; `prefers-reduced-motion` desliga a animação. Legenda do mês (`.efer`) enxuta, numa linha: «dia Nome» (só os facultativos levam «(facultativo)»); saiu «★ feriado · ☆ facultativo» do rodapé da tela (a imagem do WhatsApp mantém, pois não pisca). Teste: `/tmp` esc-fer (conferir animationName em `.ec.fer`).
 - v432: **Escala 5x2: «✔ Está certo do jeito que está»** no aviso «Para corrigir neste mês» (só quem pode editar). Guarda por mês (`escOk["AAAA-MM"]` = assinatura dos avisos do mês: dias em que os dois folgam, semanas fora da meta e 6º dia seguido) em `validamais-escala-ok` e na nuvem (`sh_cfg/escala`, campo `ok`). Enquanto a assinatura for a mesma o aviso fica oculto e aparece «✔ Mês conferido» + «Voltar a avisar»; se a escala mudar e surgir aviso novo, a assinatura muda e o aviso volta sozinho. Não altera a escala nem a imagem do WhatsApp.
 - v433: etiquetas do FLV: o selo de tamanho («P serrilhado»/M/G) saiu da coluna da direita (`.crr`, que não encolhe e espremia/cortava o código) e foi para baixo do nome (`.ctam` dentro de `.crl`). Os outros setores seguem com o selo ao lado da quantidade.
+- v434: **Atividade dos usuários › «🔎 Buscas» (só Admin).** Lê os docs `sh_cfg/pbh-<nome>` (campo `n` = nome, `l` = [[termo, vezes, última]], até 60 por pessoa) com `onSnapshot(query(sh_cfg, where("n", ">=", "")))` — sem índice novo e sem tocar nas fotos. Lista por pessoa (mais recente primeiro), com filtro «Pessoa»; esconde «Limpar histórico» nessa aba. Só mostra buscas dos Pesáveis, e só de quem pesquisou depois do histórico «na conta» (v416). As regras do Firestore precisam permitir ler `sh_cfg` (hoje abertas).
