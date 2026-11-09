@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 09/11/2026 · versão 432.
+> Última atualização: 09/11/2026 · versão 433.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -90,3 +90,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v428: **FLV com fotos, como os Perecíveis.** A foto por nome (`sh_cfg/foto-<nome>`, `fotoK`) agora vale para qualquer produto: `fotoDe`/`fotoCarrega`, campo de foto no Editar (`#fotoEd`), no produto novo (`#fotoNovo`) e no cadastro (`cFotoFile`) deixaram de exigir `category === PER`. Doação: `balIco`/`balIcoTop` mostram a foto (`balFoto`: nome exato; senão a de qualquer produto da mesma família = 1ª palavra, `famFotos` com memo por `fotoVer`) no lugar do emoji nos balões, sugestões (`#dSug`) e linhas lançadas (`dIco`); sem foto continua o emoji/desenho. `fotoIcones` também repinta a Doação (`renderDon`). Saúde do app › «FLV sem foto» (mesmo molde do «Perecíveis sem foto»: 🔎 Google Imagens + 📷 Foto) — `[PER, "FLV"].forEach(SS => …)`. O app **não baixa fotos sozinho da internet**: o usuário escolhe a imagem (galeria/câmera) e ela vai para a nuvem. A chave ⋮ › Visual › «Ícones nos produtos» também liga/desliga as fotos. Teste: `tools/foto-flv-test.mjs`.
 - v431: **Escala 5x2: feriados nacionais e de SP piscam** (calendário e lista; keyframes `escFerBrilho` na célula e `escFerPisca` no número). Facultativos (`fac`) e dias fora do mês ficam fixos; `prefers-reduced-motion` desliga a animação. Legenda do mês (`.efer`) enxuta, numa linha: «dia Nome» (só os facultativos levam «(facultativo)»); saiu «★ feriado · ☆ facultativo» do rodapé da tela (a imagem do WhatsApp mantém, pois não pisca). Teste: `/tmp` esc-fer (conferir animationName em `.ec.fer`).
 - v432: **Escala 5x2: «✔ Está certo do jeito que está»** no aviso «Para corrigir neste mês» (só quem pode editar). Guarda por mês (`escOk["AAAA-MM"]` = assinatura dos avisos do mês: dias em que os dois folgam, semanas fora da meta e 6º dia seguido) em `validamais-escala-ok` e na nuvem (`sh_cfg/escala`, campo `ok`). Enquanto a assinatura for a mesma o aviso fica oculto e aparece «✔ Mês conferido» + «Voltar a avisar»; se a escala mudar e surgir aviso novo, a assinatura muda e o aviso volta sozinho. Não altera a escala nem a imagem do WhatsApp.
+- v433: etiquetas do FLV: o selo de tamanho («P serrilhado»/M/G) saiu da coluna da direita (`.crr`, que não encolhe e espremia/cortava o código) e foi para baixo do nome (`.ctam` dentro de `.crl`). Os outros setores seguem com o selo ao lado da quantidade.

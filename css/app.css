@@ -1912,3 +1912,7 @@ html[data-tema=dark] .escv .efer span.fac,html[data-tema=dark] .escv .efer span.
 .eal.eaok button{flex:1;min-height:44px;border-radius:12px;border:1.5px solid #3f9f6f;background:rgba(63,159,111,.14);color:var(--ink);font-weight:800;font-size:14px}
 .escv .eok{margin:0 0 12px;padding:8px 12px;border-radius:12px;background:rgba(63,159,111,.12);border:1px solid rgba(63,159,111,.45);font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--ink)}
 .escv .eok button{margin-left:auto;min-height:32px;padding:0 10px;border-radius:9px;border:1px solid var(--ln,#555);background:transparent;color:var(--mut);font-size:12px;font-weight:700}
+
+/* tamanho do FLV (P serrilhado/M/G) vai embaixo do nome: a coluna da direita fica só com a quantidade e o código aparece inteiro */
+.crl .ctam{order:2;margin-top:4px;line-height:1}
+.crl .ctam .tbadge{margin-left:0;font-size:11.5px;padding:2px 9px}
