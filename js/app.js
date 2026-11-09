@@ -2735,9 +2735,11 @@ $("mnAtv").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("h
 $("mnPerfil").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } perfilEscolher(true); };
 // ---------- notificações de vencimento (cada pessoa liga e escolhe quantos dias antes quer ser avisada) ----------
 const NTK = "validamais-notif";
+const NOTIF_DIAS_PER = 3;   // Perecíveis: avisa o que vence em até 3 dias (e o que já venceu)
 const NOTIF_HORA = 8;   // avisa todos os dias (seg a dom) a partir das 08h
 const notifSuporte = () => "Notification" in window && "serviceWorker" in navigator;
-const notifCfg = () => { const c = store.get(NTK, null) || {}; return { on: !!c.on, dias: Number(c.dias) > 0 ? Number(c.dias) : (PERFIL === PER ? 7 : 2), setores: c.setores || (PERFIL === PER ? [PER] : PERFIL === "FLV" ? ["FLV"] : ["FLV", PER]), ultimo: c.ultimo || "" }; };
+const notifCfg = () => { const c = store.get(NTK, null) || {}; if (PERFIL === PER) return { on: true, dias: NOTIF_DIAS_PER, setores: [PER], ultimo: c.ultimo || "" };   // Perecíveis: aviso obrigatório, sem opções (sempre ligado, 3 dias, 08h)
+  return { on: !!c.on, dias: Number(c.dias) > 0 ? Number(c.dias) : (PERFIL === PER ? 7 : 2), setores: c.setores || (PERFIL === PER ? [PER] : PERFIL === "FLV" ? ["FLV"] : ["FLV", PER]), ultimo: c.ultimo || "" }; };
 const diaKey = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
 async function notifGravaCache(c) {   // o service worker lê esta cópia para avisar com o app fechado
   try { const ch = await caches.open("vm-cfg"); await ch.put("vm-cfg.json", new Response(JSON.stringify({ on: c.on, dias: c.dias, setores: c.setores, ultimo: c.ultimo, pid: fb.projectId || "", key: fb.apiKey || "" }), { headers: { "content-type": "application/json" } })); } catch (e) { console.warn(e); }
@@ -2778,7 +2780,34 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
 // app aberto antes das 08h: dispara na hora certa; depois confere de novo a cada 15 min (cobre o celular que dormiu)
 function notifAgenda() { const n = new Date(), alvo = new Date(n.getFullYear(), n.getMonth(), n.getDate(), NOTIF_HORA, 0, 5); if (alvo > n) setTimeout(() => { notifVerifica(); notifAgenda(); }, alvo - n); else setTimeout(() => { notifVerifica(); notifAgenda(); }, 15 * 60 * 1000); }
 notifAgenda();
+// Perecíveis: ao abrir o app o navegador pede a permissão (uma vez por abertura) e o aviso diário das 08h fica ligado, sem opção de desligar
+async function notifPerObrig(gesto) {
+  try { if (PERFIL !== PER || !notifSuporte()) return;
+    if (Notification.permission === "default" && (gesto || !sessionStorage.getItem("vm-notif-pedido"))) {
+      sessionStorage.setItem("vm-notif-pedido", "1");
+      try { await Notification.requestPermission(); } catch (e) { console.warn(e); }
+      if (Notification.permission === "default" && !gesto) {   // o navegador (ex.: iPhone) só pergunta depois de um toque: pergunta no primeiro toque
+        const um = () => { document.removeEventListener("pointerup", um, true); notifPerObrig(true); }; document.addEventListener("pointerup", um, true); } }
+    if (Notification.permission === "granted") { await notifSalva(notifCfg()); notifVerifica(); } } catch (e) { console.warn(e); }
+}
+setTimeout(notifPerObrig, 1500);
+function notifAbrirPer() {
+  const bg = document.createElement("div"); bg.className = "modal"; bg.id = "notifModal";
+  const sup = notifSuporte(), perm = sup ? Notification.permission : "unsupported";
+  const est = !sup ? "Este navegador não permite notificações." : perm === "granted" ? "✓ Ativado neste aparelho." : perm === "denied" ? "As notificações estão bloqueadas. Libere nas configurações do celular (Configurações → Apps → Valida+/Chrome → Notificações)." : "Falta permitir as notificações neste aparelho.";
+  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Notificações"><div class="sheethead"><h2>🔔 Aviso diário</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
+    <p class="note" id="nfEst">${esc(est)}</p>
+    <p class="note"><b>Todos os dias, às 08h</b>, o app avisa os produtos dos Perecíveis que vencem em até <b>${NOTIF_DIAS_PER} dias</b> (e os já vencidos). Este aviso é obrigatório neste perfil.</p>
+    ${sup && perm === "default" ? '<button type="button" class="primary big" id="nfPerm">Permitir notificações</button>' : ""}
+    <button type="button" class="secondary big" id="nfTeste" style="margin-top:8px" ${!sup || perm !== "granted" ? "disabled" : ""}>Testar agora</button>
+    <p class="note" style="margin-top:12px">No <b>Android</b>, com o app instalado na tela inicial, o aviso chega mesmo com o app fechado (o horário exato quem decide é o Android, então pode chegar alguns minutos ou horas depois das 08h). No <b>iPhone</b> o aviso aparece quando você abre o app depois das 08h.</p></section>`;
+  document.body.appendChild(bg);
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) bg.remove(); };
+  const pm = bg.querySelector("#nfPerm"); if (pm) pm.onclick = async () => { await notifPerObrig(true); bg.remove(); notifAbrirPer(); };
+  bg.querySelector("#nfTeste").onclick = async () => { const ok = await notifVerifica(true); if (ok) toast("Notificação enviada. Veja a barra do celular."); };
+}
 function notifAbrir() {
+  if (PERFIL === PER) return notifAbrirPer();
   const bg = document.createElement("div"); bg.className = "modal"; bg.id = "notifModal";
   const sup = notifSuporte(), perm = sup ? Notification.permission : "unsupported", c = notifCfg(), admin = PERFIL === "Admin";
   const opc = [1, 2, 3, 5, 7, 10, 15, 20, 30], estado = !sup ? "Este navegador não permite notificações." : perm === "denied" ? "As notificações estão bloqueadas para o app. Libere nas configurações do celular (Configurações → Apps → Valida+/Chrome → Notificações)." : c.on && perm === "granted" ? "Ativadas neste aparelho." : "Desativadas.";

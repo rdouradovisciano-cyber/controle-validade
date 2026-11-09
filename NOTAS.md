@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 09/11/2026 · versão 426.
+> Última atualização: 09/11/2026 · versão 427.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -84,3 +84,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v424: etiquetas do **FLV** entram sempre como **P (serrilhado)**: `tamOf(p)` devolve "P" quando `SETOR === "FLV"` (não lê nem grava o tamanho lembrado em `validamais-tam`). Na lista aparece o selo «serrilhado» (P), «M» ou «G»; na folha que abre ao segurar o item, o botão P vira «P serrilhado» e é ali que se escolhe M ou G. Outros setores seguem como antes (padrão M, lembrando o último tamanho). Itens já na lista não mudam. Teste: `tools/etq-tam-test.mjs`.
 - v425: **saiu a tela de abertura** (`#splash`: «Bom dia, nome» + data + VALIDA+, que ficava no mínimo 3,2 s). O app abre direto. Removidos o bloco no `index.html` e o script dele; `entradaLista` já tratava a ausência do `#splash`. Teste: abre em ~0,3 s no navegador de teste.
 - v426: o selo do P no FLV mostra «P serrilhado» (não só «serrilhado»).
+- v427: **Perecíveis: aviso diário obrigatório.** Para `PERFIL === PER`, `notifCfg()` devolve sempre `{on:true, dias:3 (NOTIF_DIAS_PER), setores:[PER]}` (ignora o que estiver salvo). Ao abrir o app, `notifPerObrig()` (1,5 s depois) pede a permissão do navegador uma vez por abertura (`sessionStorage vm-notif-pedido`); se o navegador não perguntar sem toque (iPhone), pergunta no primeiro toque. Com a permissão, grava a config e o cache do service worker (`notifSalva`) e o aviso das 08h sai todo dia. ⋮ › Notificações para Perecíveis (`notifAbrirPer`) só mostra o estado, «Permitir notificações» (se ainda não deu) e «Testar agora»; sem chave nem prazo. FLV, Fiscal e Admin seguem com as opções de antes. Se o usuário **bloquear** no navegador, o app não consegue pedir de novo (só pelas configurações do celular). Teste: `tools/notif-per-test.mjs`.
