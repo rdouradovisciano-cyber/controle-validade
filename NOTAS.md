@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 10/11/2026 · versão 446.
+> Última atualização: 10/11/2026 · versão 447.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -104,3 +104,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v444: (substituída pela v445) «quem lançou» embaixo do quadrado de dias — deixou o cartão mais alto e o 👤 azul chamava atenção demais.
 - v445: Validades: quem lançou (`.pi-op`) voltou para a linha «Qtd · vence …», **sem o ícone 👤**, em negrito dourado discreto (`#d8cfae`; claro `#5a4a1c`) e só se houver `por`. Decisão do usuário: «analise onde fica melhor». Motivo: manter a altura do cartão (a lista tem 50+ itens).
 - v446: Data de hoje no topo (`hojeTop`) virou mini calendário `.ht-cal` (mês em cima, dia grande) + `.ht-tx` (dia da semana por extenso e mês). Sábado/domingo: faixa vermelha (`.fds`); feriado de `ESC_FER`: faixa verde e «🎉 nome» (`.fer`; `hojeTop()` roda de novo logo depois de `ESC_FER` existir). Teste com data falsa: `fonte/tools/topo-data-test.mjs`.
+- v447: Visual do mini calendário do topo refeito (o quadrado branco da v446 destoava): `.ht-cal` escuro com borda e mês dourados (`--ac`), argolinhas `::before/::after`, dia em creme `#f6efd6`; fim de semana coral, feriado verde; tema claro usa dourado mais escuro.

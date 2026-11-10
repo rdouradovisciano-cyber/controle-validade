@@ -1966,15 +1966,18 @@ html[data-tema="light"] .hc.F .hav .eav,html[data-tema="light"] .hc.N .hav .eav{
 .pitem .pi-op{display:inline;margin:0;font-size:inherit;font-weight:800;opacity:1;white-space:normal;color:#d8cfae}
 html[data-tema="light"] .pitem .pi-op{color:#5a4a1c}
 
-/* topo: data de hoje como mini calendário */
-.hojeTop.ht{gap:8px;letter-spacing:0;font-weight:700;min-width:0}
-.ht-cal{flex:none;display:flex;flex-direction:column;width:34px;border-radius:8px;overflow:hidden;background:#f6f1e0;box-shadow:0 1px 4px rgba(0,0,0,.45);text-align:center;line-height:1}
-.ht-cal i{font-style:normal;background:#f3d87a;color:#241c00;font-size:9px;font-weight:900;padding:3px 0 2px;letter-spacing:.08em}
-.ht-cal b{font-size:18px;font-weight:900;color:#1b1b1f;padding:3px 0 4px}
-.hojeTop.fds .ht-cal i{background:#ff8f82;color:#3a0a05}
-.hojeTop.fer .ht-cal i{background:#8fd9a8;color:#06240f}
-.ht-tx{display:flex;flex-direction:column;gap:1px;line-height:1.1;min-width:0;text-align:left}
+/* topo: data de hoje como mini calendário (escuro com borda dourada, combinando com o app) */
+.hojeTop.ht{gap:9px;letter-spacing:0;font-weight:700;min-width:0}
+.ht-cal{--ac:#e2bf55;flex:none;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:40px;height:42px;border-radius:11px;background:linear-gradient(165deg,#252831 0%,#0e0f13 100%);border:1.5px solid var(--ac);box-shadow:0 0 0 1px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12);text-align:center;line-height:1}
+.ht-cal::before,.ht-cal::after{content:"";position:absolute;top:-3px;width:3px;height:6px;border-radius:2px;background:var(--ac)}   /* duas argolinhas, como um calendário de mesa */
+.ht-cal::before{left:9px}.ht-cal::after{right:9px}
+.ht-cal i{font-style:normal;color:var(--ac);font-size:9px;font-weight:900;letter-spacing:.14em;margin-top:3px;padding-left:.14em}
+.ht-cal b{font-size:21px;font-weight:900;color:#f6efd6;letter-spacing:-.02em;text-shadow:0 1px 0 rgba(0,0,0,.6)}
+.hojeTop.fds .ht-cal{--ac:#ff8f82}
+.hojeTop.fer .ht-cal{--ac:#7fdc9e}
+.ht-tx{display:flex;flex-direction:column;gap:2px;line-height:1.1;min-width:0;text-align:left}
 .ht-tx b{font-size:15px;font-weight:900;color:#fff;text-transform:none;white-space:nowrap}
-.ht-tx small{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.72);text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
-.hojeTop.fer .ht-tx small{color:#8fd9a8}
+.ht-tx small{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.65);text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.hojeTop.fer .ht-tx small{color:#7fdc9e}
 body.hs .ht-tx small{display:none}
+html[data-tema="light"] .ht-cal{--ac:#b8901c}
