@@ -1007,7 +1007,7 @@ function hojeTop() {   // data de hoje no topo: caixa dourada com «10/11/26» e
     let fer = null; try { fer = ESC_FER[key] || null; } catch (e) {}   // ESC_FER (feriados da Escala) só existe depois do carregamento; a 1ª chamada pode vir antes
   const fds = d.getDay() === 0 || d.getDay() === 6, sig = key + "|" + (fer ? fer.n : ""); if (el.dataset.sig === sig) return; el.dataset.sig = sig;
   el.className = "hojeTop ht" + (fds ? " fds" : "") + (fer ? " fer" : "");
-  el.innerHTML = `<i class="ht-l" aria-hidden="true"></i><b class="ht-d">${dd}/${mm}/${String(d.getFullYear()).slice(-2)}</b><i class="ht-l" aria-hidden="true"></i>`;
+  el.innerHTML = `<i class="ht-l" aria-hidden="true"></i><b class="ht-d">${dd}<em>/</em>${mm}<em>/</em>${String(d.getFullYear()).slice(-2)}</b><i class="ht-l" aria-hidden="true"></i>`;
   el.setAttribute("datetime", key);
   const longo = "Hoje, " + d.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) + (fer ? " · " + fer.n : "");
   el.setAttribute("aria-label", longo); el.title = longo;
