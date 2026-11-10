@@ -2459,12 +2459,25 @@ function escAnima(v) {   // deslize curto ao trocar de mês (só o conteúdo do 
   const d = escDir; escDir = 0; if (!d || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
   const el = v.querySelector(".escFull .etb, .ecard"); if (!el) return; el.classList.add(d > 0 ? "esl-n" : "esl-p"); setTimeout(() => el.classList.remove("esl-n", "esl-p"), 320);
 }
+function escHojeCards(P, hoje, c) {   // «Hoje» embaixo do calendário: quem trabalha brilha com o horário; quem folga fica apagado, dormindo (zzz) e com a data da volta
+  const agoraM = hoje.getHours() * 60 + hoje.getMinutes();
+  const volta = p => { for (let i = 1; i <= 14; i++) { const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + i, 12); if (escSt(p.k, d, c) === "T") return i === 1 ? "amanhã" : ESC_DSL[d.getDay()].toLowerCase() + " " + escDM(d); } return ""; };
+  return P.map(p => {
+    const st = escSt(p.k, hoje, c), sai = escSai(p, c), av = escAv(p, 56);
+    if (st === "T") { const ja = agoraM >= p.ent && agoraM < sai, fim = agoraM >= sai, txt = ja ? `<span class="hs on">🟢 Trabalhando agora</span>` : fim ? `<span class="hs">Turno encerrado</span>` : `<span class="hs">Ainda não chegou</span>`;
+      return `<div class="hc T ${p.k}${ja ? " agora" : ""}"><div class="hav">${av}</div><div class="htx"><b>${esc(p.n)}</b>${txt}<small>${escHm(p.ent)}–${escHm(sai)}</small></div></div>`; }
+    if (st === "FE") return `<div class="hc FE ${p.k}"><div class="hav">${av}<i class="hbd">🏖️</i></div><div class="htx"><b>${esc(p.n)}</b><span class="hs">De férias</span></div></div>`;
+    if (st === "-") return `<div class="hc N ${p.k}"><div class="hav">${av}</div><div class="htx"><b>${esc(p.n)}</b><span class="hs">Escala antiga</span></div></div>`;
+    const vt = volta(p);
+    return `<div class="hc F ${p.k}"><div class="hav">${av}<span class="zz" aria-hidden="true"><i>z</i><i>z</i><i>Z</i></span><i class="hbd">😴</i></div><div class="htx"><b>${esc(p.n)}</b><span class="hs">Folga hoje</span>${vt ? `<small>Volta ${vt}</small>` : ""}</div></div>`;
+  }).join("");
+}
 function escPaint() {
   const v = $("escV"); if (!v) return; const adm = PERFIL === "Admin" || PERFIL === "BENASSI" || escNome(), c = escCfg(), P = escP(), { y, m } = escMes, nomeM = new Date(y, m, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }).replace(/^./, s => s.toUpperCase());
   const hoje = new Date(), hk = escKey(hoje), ds = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"], pr = escProblemas(y, m, c), hrs = `${escH(c.dia)} por dia · ${c.int} min de intervalo · ${escH(c.meta)} por semana`, ferMes = Object.keys(ESC_FER).filter(k => k.startsWith(y + "-" + String(m + 1).padStart(2, "0")));
   const [iy0, im0, id0] = c.ini.split("-").map(Number), iniD = new Date(iy0, im0 - 1, id0), hoje0 = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()), falta = Math.round((iniD - hoje0) / 864e5);
   const aviso = `A escala nova começa em <b>${ESC_DSL[iniD.getDay()].toLowerCase()} ${escDM(iniD)}/${iy0}</b>.`;
-  const hj = falta > 0 ? `<div class="enota">${aviso} ${falta === 1 ? "É amanhã." : "Faltam " + falta + " dias."}</div>` : P.map(p => { const st = escSt(p.k, hoje, c); return `<span class="eh ${st}">${escAv(p, 24)}<b>${esc(p.n)}</b> ${st === "T" ? escHm(p.ent) + "–" + escHm(escSai(p, c)) : st === "FE" ? "férias" : st === "-" ? "escala antiga" : "folga"}</span>`; }).join("");
+  const hj = falta > 0 ? `<div class="enota">${aviso} ${falta === 1 ? "É amanhã." : "Faltam " + falta + " dias."}</div>` : escHojeCards(P, hoje, c);
   const ini = new Date(y, m, 1), fim = new Date(y, m + 1, 0); let d = new Date(y, m, 1 - ini.getDay()), rows = "";
   while (d <= fim) {
     let cels = "", semAntiga = true; const sd0 = new Date(d), tw = {}, fe = {}; P.forEach(q => { tw[q.k] = 0; fe[q.k] = false; });
@@ -2502,7 +2515,7 @@ function escPaint() {
   const [iy, im, id] = c.ini.split("-").map(Number);
   v.innerHTML = `<div class="eh0"><button type="button" id="escX" class="secondary">${PERFIL === "BENASSI" ? "Trocar perfil" : "Fechar"}</button>${adm ? `<button type="button" id="escCfgB" class="secondary">⚙️ Configurar</button>` : ""}<h2>🗓️ Escala 5x2</h2></div>
     <div class="enav"><button type="button" data-em="-1" aria-label="Mês anterior">‹</button><b>${nomeM}</b><button type="button" data-em="1" aria-label="Próximo mês">›</button></div>
-    ${alerta}${ferLista}${card}<div class="ehoje"><small>Hoje, ${hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</small><div>${hj}</div></div>
+    ${alerta}${ferLista}${card}<div class="ehoje"><small>Hoje, ${hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</small><div class="hcards">${hj}</div></div>
     <p class="muted eleg">${hrs}<br>Colorido = trabalha · cinza = folga · azul = férias · contorno vermelho = os dois folgam${adm ? " · Toque em um dia para mudar" : ""}</p>`;
   escAnima(v);
 }

@@ -1936,3 +1936,28 @@ html[data-tema=dark] .escv .efer span.fac,html[data-tema=dark] .escv .efer span.
 html[data-tema="light"] .pi-novo,html[data-tema="light"] .novobtn i{background:#f0c93a;color:#241c00}
 .pi-lt{font-weight:800}
 @media (prefers-reduced-motion:reduce){.pitem.chega{animation:none}}
+
+/* Escala 5x2 · «Hoje»: quem trabalha brilha; quem folga fica apagado e dormindo (zzz) */
+.hcards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hc{position:relative;display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;border:1px solid var(--ln);min-width:0;overflow:hidden}
+.hc .hav{position:relative;flex:none;width:56px;height:56px}.hc .hav .eav{width:56px!important;height:56px!important;border:3px solid transparent;box-sizing:border-box}
+.hc .htx{display:flex;flex-direction:column;gap:2px;min-width:0}.hc .htx b{font-size:17px;color:var(--ink)}.hc .htx small{font-size:12px;color:var(--mut);text-transform:none;margin:0}
+.hc .hs{font-size:13px;font-weight:800;color:var(--ink)}.hc .hs.on{color:#2fbf5a}
+.hc.T.r{background:rgba(224,160,48,.14);border-color:#e0a030}.hc.T.y{background:rgba(63,182,196,.14);border-color:#3fb6c4}
+.hc.T.r .eav{border-color:#e0a030}.hc.T.y .eav{border-color:#3fb6c4}
+.hc.agora .hav::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:2px solid #2fbf5a;animation:hcPulso 2s ease-out infinite}
+@keyframes hcPulso{0%{transform:scale(.95);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+.hc.F,.hc.N{background:rgba(120,120,130,.12);border-style:dashed}
+.hc.F .hav .eav,.hc.N .hav .eav{filter:grayscale(1) brightness(.6);opacity:.75;animation:hcRespira 4s ease-in-out infinite}
+.hc.F .htx b,.hc.F .hs,.hc.N .htx b,.hc.N .hs{color:var(--mut)}
+@keyframes hcRespira{0%,100%{transform:scale(1)}50%{transform:scale(.95)}}
+.hbd{position:absolute;right:-6px;bottom:-4px;font-style:normal;font-size:20px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+.hc.FE{background:rgba(80,140,255,.14);border-color:rgba(80,140,255,.5)}
+.zz{position:absolute;left:46px;top:-8px;width:30px;height:40px;pointer-events:none}
+.zz i{position:absolute;left:0;bottom:0;font-style:normal;font-weight:900;color:#8fa8ff;opacity:0;animation:hcZ 3s ease-in-out infinite;text-shadow:0 0 6px rgba(143,168,255,.7)}
+.zz i:nth-child(1){font-size:12px;animation-delay:0s}.zz i:nth-child(2){font-size:16px;animation-delay:1s}.zz i:nth-child(3){font-size:21px;animation-delay:2s}
+@keyframes hcZ{0%{transform:translate(0,4px) rotate(-8deg);opacity:0}20%{opacity:1}100%{transform:translate(16px,-26px) rotate(12deg);opacity:0}}
+html[data-tema="light"] .hc .hs.on{color:#17803a}html[data-tema="light"] .zz i{color:#4a63c9;text-shadow:none}
+html[data-tema="light"] .hc.F .hav .eav,html[data-tema="light"] .hc.N .hav .eav{filter:grayscale(1) brightness(.85)}
+@media (max-width:360px){.hcards{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.hc.agora .hav::after,.hc.F .hav .eav,.zz i{animation:none}.zz i{opacity:.8}.zz i:nth-child(1){transform:translate(4px,-6px)}.zz i:nth-child(2){transform:translate(10px,-14px)}.zz i:nth-child(3){transform:translate(16px,-24px)}}
