@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 09/11/2026 · versão 435.
+> Última atualização: 09/11/2026 · versão 436.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -93,3 +93,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v433: etiquetas do FLV: o selo de tamanho («P serrilhado»/M/G) saiu da coluna da direita (`.crr`, que não encolhe e espremia/cortava o código) e foi para baixo do nome (`.ctam` dentro de `.crl`). Os outros setores seguem com o selo ao lado da quantidade.
 - v434: **Atividade dos usuários › «🔎 Buscas» (só Admin).** Lê os docs `sh_cfg/pbh-<nome>` (campo `n` = nome, `l` = [[termo, vezes, última]], até 60 por pessoa) com `onSnapshot(query(sh_cfg, where("n", ">=", "")))` — sem índice novo e sem tocar nas fotos. Lista por pessoa (mais recente primeiro), com filtro «Pessoa»; esconde «Limpar histórico» nessa aba. Só mostra buscas dos Pesáveis, e só de quem pesquisou depois do histórico «na conta» (v416). As regras do Firestore precisam permitir ler `sh_cfg` (hoje abertas).
 - v435: **Fiscal com fotos.** Cadastros do Fiscal (`row` em `cadPaint`) mostra a miniatura (`.cfoto`, `fotoDe(x.p)`) antes dos códigos; `fotoIcones()` repinta Cadastros (`cadPaint`) quando as fotos chegam/mudam. No item aberto da lista de Validades o bloco `.pi-foto` (adicionar/trocar foto) deixou de ser só dos Perecíveis (vale para tudo que não é KÓRIN, `!isKor(p)`). Fiscal continua sem editar produto; a foto se adiciona pelo Admin/setor/Saúde do app.
+- v436: **FLV: buscar foto na internet pelo EAN.** Saúde do app › «FLV sem foto» tem «🌐 Buscar na internet pelo EAN» (`fotosPorEan("FLV")`): para cada produto do FLV sem foto e com EAN válido (8 ou 12–14 dígitos, não começando com 2 — esses são códigos internos de balança) consulta `world.openfoodfacts.org/api/v2/product/<ean>.json` (`image_front_url`/`image_url`), baixa a imagem, reduz e grava com `fotoGravaNome` (vale para todos os lotes e aparelhos). Roda no aparelho de quem toca (a internet do ambiente de desenvolvimento não alcança essa base): 350 ms entre consultas, mostra «n/total» no botão e um resumo no fim. Quem não estiver na base (comum em FLV a granel, que tem só código de balança) continua na lista. As imagens do Open Food Facts são colaborativas (CC BY-SA). **Não testado contra a API real**, só com internet simulada (`tools/foto-ean-test.mjs`).

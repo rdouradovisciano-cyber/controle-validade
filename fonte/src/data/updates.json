@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-09T22:10:00-03:00",
+  "itens": [
+   "FLV: ⋮ › Saúde do app › «FLV sem foto» ganhou «🌐 Buscar na internet pelo EAN». Busca no Open Food Facts a foto dos produtos sem foto que têm EAN e salva para todos; o que não achar continua na lista para você colocar à mão"
+  ]
+ },
+ {
   "t": "2026-11-09T16:55:00-03:00",
   "itens": [
    "Fiscal de loja: as fotos dos produtos aparecem na lista de Cadastros (FLV e Perecíveis) e atualizam sozinhas quando alguém troca a foto. O campo de foto no item aberto da lista de Validades também vale para o FLV"
