@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 09/11/2026 · versão 437.
+> Última atualização: 09/11/2026 · versão 438.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -95,3 +95,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v435: **Fiscal com fotos.** Cadastros do Fiscal (`row` em `cadPaint`) mostra a miniatura (`.cfoto`, `fotoDe(x.p)`) antes dos códigos; `fotoIcones()` repinta Cadastros (`cadPaint`) quando as fotos chegam/mudam. No item aberto da lista de Validades o bloco `.pi-foto` (adicionar/trocar foto) deixou de ser só dos Perecíveis (vale para tudo que não é KÓRIN, `!isKor(p)`). Fiscal continua sem editar produto; a foto se adiciona pelo Admin/setor/Saúde do app.
 
 - v437: removido o botão «🌐 Buscar na internet pelo EAN» da Saúde do app (v436): o usuário não quis. As fotos seguem só pelo 🔎 (Google Imagens) e 📷 de cada produto.
+- v438: Cadastros › Editar mostra a **foto atual** do produto (`cadAbrir`, lida de `fotoCache[fotoK(nome)]`) e o botão vira «📷 Trocar foto do produto»; a nova foto só é gravada em «Salvar alterações» (`fotoGravaNome`, já existia). O texto «a foto só é guardada em Perecíveis» saiu (desde a v428 vale para todos). `cadFotoZera` restaura o texto do botão. Lugares onde se troca foto: Cadastros › Editar, item aberto da lista de Validades, e ⋮ › Saúde do app › «sem foto».

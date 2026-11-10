@@ -1693,7 +1693,7 @@ async function cadFotoLer(file) {
   const box = $("cFotoBox"); cFotoFile = file; box.hidden = false;
   let thumb = ""; try { thumb = await fotoReduz(file); } catch (e) {}
   const per = (SETOR === FIS ? $("cCat").value : CATSET) === PER;
-  const cab = `<img class="pf-img" src="${thumb}" alt="Foto do produto"><div class="cfi"><b id="cFotoSt">Lendo o rótulo…</b><div id="cFotoOp"></div><small class="muted">${per ? "Esta foto fica salva no produto." : "A foto só é guardada em Perecíveis; aqui ela ajuda a ler o nome."}</small></div>`;
+  const cab = `<img class="pf-img" src="${thumb}" alt="Foto do produto"><div class="cfi"><b id="cFotoSt">Lendo o rótulo…</b><div id="cFotoOp"></div><small class="muted">${cadEdit ? "Esta será a nova foto do produto. Toque em «Salvar alterações» para guardar." : "Esta foto fica salva no produto."}</small></div>`;
   box.innerHTML = cab;
   const st = t => { const e = $("cFotoSt"); if (e) e.textContent = t; };
   try {   // código de barras na mesma foto
@@ -1710,7 +1710,8 @@ async function cadFotoLer(file) {
 $("cFotoBtn").onclick = () => $("cFotoIn").click();
 $("cFotoIn").onchange = () => { const f = $("cFotoIn").files && $("cFotoIn").files[0]; if (f) cadFotoLer(f); $("cFotoIn").value = ""; };
 $("cFotoBox").onclick = e => { const b = e.target.closest("[data-ocr]"); if (b) { $("cNome").value = ocrNome(b.dataset.ocr); $("cNome").dispatchEvent(new Event("input")); } };
-function cadFotoZera() { cFotoFile = null; const b = $("cFotoBox"); if (b) { b.hidden = true; b.innerHTML = ""; } }
+const CAD_FOTO_TXT = "📷 Foto do produto (lê o nome do rótulo)";
+function cadFotoZera() { cFotoFile = null; const b = $("cFotoBox"); if (b) { b.hidden = true; b.innerHTML = ""; } const bt = $("cFotoBtn"); if (bt) bt.textContent = CAD_FOTO_TXT; }
 function cadReset() { cadFotoZera(); cadEdit = null; if ($("cEanAv")) { $("cEanAv").hidden = true; $("cEanAv").innerHTML = ""; } ["cNome", "cEan", "cPlu", "cDon"].forEach(i => $(i).value = ""); $("cTitulo").textContent = "Novo cadastro"; $("cSalvar").textContent = "Cadastrar"; $("cCancela").hidden = true; $("cEanN").textContent = "0/13"; simOk = ""; if ($("cSim")) { $("cSim").hidden = true; $("cSim").innerHTML = ""; } }
 function cadSimList() {   // cadastros com nome igual ou parecido ao que está sendo digitado
   const nm = $("cNome").value.trim().replace(/\s+/g, " "); if (nm.length < 3) return [];
@@ -1799,7 +1800,9 @@ $("cLista").onclick = e => { const dt = e.target.closest("[data-cdet]"); if (dt 
   const x = cadGroups().find(y => y.k === b.dataset.cdel); if (x) cadExcluir(x); };
 function cadAbrir(x) { cadEdit = x.k;
   $("cNome").value = x.name; $("cEan").value = x.barcode; $("cPlu").value = x.plu; $("cDon").value = x.don; $("cEanN").textContent = x.barcode.length + "/13";
-  $("cTitulo").textContent = "Editando cadastro"; $("cSalvar").textContent = "Salvar alterações"; $("cCancela").hidden = false; window.scrollTo(0, 0); }
+  $("cTitulo").textContent = "Editando cadastro"; $("cSalvar").textContent = "Salvar alterações"; $("cCancela").hidden = false;
+  { cFotoFile = null; const d = fotoCache[fotoK(x.name)] || "", box = $("cFotoBox"); box.hidden = !d; box.innerHTML = d ? `<img class="pf-img" src="${d}" alt="Foto atual do produto"><div class="cfi"><b>Foto atual do produto</b><small class="muted">Para trocar, toque em «Trocar foto» e depois em «Salvar alterações».</small></div>` : ""; $("cFotoBtn").textContent = d ? "📷 Trocar foto do produto" : CAD_FOTO_TXT; }   // mostra a foto que o produto já tem e deixa trocar
+  window.scrollTo(0, 0); }
 function cadApagar(x) {   // manda o cadastro e todos os lotes para a lixeira (3 dias) e tira a marca de revisar
   const agora = Date.now();
   x.l.forEach(p => { if (db) V.updateDoc(V.doc(db, "products", p.id), { lixo: agora, updatedAt: V.serverTimestamp() }).catch(() => {
