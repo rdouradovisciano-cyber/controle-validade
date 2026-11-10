@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 10/11/2026 · versão 450.
+> Última atualização: 10/11/2026 · versão 452.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -108,3 +108,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v448: mini calendário do topo reduzido para 32×32 px (mesmo tamanho do ícone `h1::before`; 26 px com `body.hs`, que esconde o mês); antes (40×42) ficava maior que o logo. Regra: o que entra no topo deve respeitar a altura do ícone (32 px), o header tem 56 px fixos.
 - v449: Data do topo no **estilo desenhado pelo usuário**: caixa dourada `.ht-d` com «dd/mm/aa» (19px, 40px de altura) entre duas linhas douradas `.ht-l` (6px, flex:1) que ligam o ícone ao menu ⋮. Cor via `--ac`: dourado; sábado/domingo coral (`.fds`); feriado verde (`.fer`). Dia da semana e nome do feriado só em `title`/`aria-label`. Substituiu o mini calendário das v446–448 (não repetir). `body.hs` reduz a caixa para 30px.
 - v450: Data do topo (mesma estrutura da v449) mais estilosa: caixa `.ht-d` com degradê (`--ac2/--ac/--ac3`) e moldura interna, «/» esmaecidas (`<em>`), barras `.ht-l` que desvanecem para as pontas com losango (`::after`) perto da caixa e brilho diagonal (`htBrilho`, só com `data-fx=on` e sem `prefers-reduced-motion`).
+- v452: Topo redesenhado de novo (usuário achou a v450 «muito feia»): `hojeTop` agora desenha uma **faixa dos próximos 7 dias** (`.hd`): hoje = pastilha dourada com «HOJE» (`.hd.hoje`), demais dias com sigla e número; sábado/domingo coral (`.fds`), feriado verde (`.fer`); pontinho `u` embaixo do dia quando há lote não retirado vencendo nele (`.on` dourado; em «hoje» conta também os já vencidos e fica vermelho `.od`). `render()` chama `hojeTop()` para atualizar os pontinhos. Com `body.hs` só a pastilha de hoje fica. Nunca voltar às versões «caixa com barras» (v449–450) nem ao mini calendário (v446–448). Teste com data falsa e produtos: `fonte/tools/faixa-7dias-test.mjs`.

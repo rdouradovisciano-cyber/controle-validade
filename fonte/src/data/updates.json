@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-10T13:40:00-03:00",
+  "itens": [
+   "Topo redesenhado: em vez da caixa com barras, uma faixa dos próximos 7 dias. Hoje aparece numa pastilha dourada em destaque e os dias seguintes ao lado; fim de semana em coral, feriado em verde e um pontinho embaixo do dia avisa quando há produto vencendo (vermelho em hoje se já há vencidos, dourado nos próximos dias)"
+  ]
+ },
+ {
   "t": "2026-11-10T10:05:00-03:00",
   "itens": [
    "Topo mais estiloso: caixa da data com degradê dourado e moldura fina, barras que desvanecem para as pontas com um losango perto da caixa, barras «/» mais suaves e um brilho que passa pela caixa de tempos em tempos"
