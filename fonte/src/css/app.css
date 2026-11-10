@@ -1966,19 +1966,10 @@ html[data-tema="light"] .hc.F .hav .eav,html[data-tema="light"] .hc.N .hav .eav{
 .pitem .pi-op{display:inline;margin:0;font-size:inherit;font-weight:800;opacity:1;white-space:normal;color:#d8cfae}
 html[data-tema="light"] .pitem .pi-op{color:#5a4a1c}
 
-/* topo: data de hoje como mini calendário (escuro com borda dourada, combinando com o app) */
-.hojeTop.ht{gap:8px;letter-spacing:0;font-weight:700;min-width:0}
-.ht-cal{--ac:#e2bf55;flex:none;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:32px;height:32px;border-radius:9px;background:linear-gradient(165deg,#252831 0%,#0e0f13 100%);border:1.5px solid var(--ac);box-sizing:border-box;box-shadow:0 0 0 1px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12);text-align:center;line-height:1}
-.ht-cal::before,.ht-cal::after{content:"";position:absolute;top:-3px;width:2.5px;height:5px;border-radius:2px;background:var(--ac)}   /* duas argolinhas, como um calendário de mesa */
-.ht-cal::before{left:7px}.ht-cal::after{right:7px}
-.ht-cal i{font-style:normal;color:var(--ac);font-size:7px;font-weight:900;letter-spacing:.12em;margin-top:2px;padding-left:.12em}
-.ht-cal b{font-size:16px;font-weight:900;color:#f6efd6;letter-spacing:-.02em;text-shadow:0 1px 0 rgba(0,0,0,.6)}
-.hojeTop.fds .ht-cal{--ac:#ff8f82}
-.hojeTop.fer .ht-cal{--ac:#7fdc9e}
-.ht-tx{display:flex;flex-direction:column;gap:2px;line-height:1.1;min-width:0;text-align:left}
-.ht-tx b{font-size:14px;font-weight:900;color:#fff;text-transform:none;white-space:nowrap}
-.ht-tx small{font-size:11px;font-weight:700;color:rgba(255,255,255,.65);text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
-.hojeTop.fer .ht-tx small{color:#7fdc9e}
-body.hs .ht-tx small{display:none}
-body.hs .ht-cal{width:26px;height:26px;border-radius:8px}body.hs .ht-cal i{display:none}body.hs .ht-cal b{font-size:14px}
-html[data-tema="light"] .ht-cal{--ac:#b8901c}
+/* topo: data de hoje = caixa dourada com «10/11/26» entre duas linhas douradas (estilo escolhido pelo usuário) */
+.hojeTop.ht{--ac:#f2b928;flex:1;min-width:0;display:flex;align-items:center;gap:10px;letter-spacing:0;text-shadow:none}
+.ht-l{flex:1;min-width:8px;height:6px;border-radius:3px;background:var(--ac);box-shadow:0 0 10px color-mix(in srgb,var(--ac) 35%,transparent)}
+.ht-d{flex:none;display:inline-flex;align-items:center;height:40px;padding:0 11px;border-radius:7px;background:var(--ac);color:#1c1500;font-size:19px;font-weight:700;letter-spacing:.01em;font-variant-numeric:tabular-nums;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 8px rgba(0,0,0,.45)}
+.hojeTop.fds{--ac:#ff8f82}.hojeTop.fer{--ac:#7fdc9e}
+body.hs .ht-d{height:30px;font-size:15px;padding:0 8px}body.hs .ht-l{height:4px}
+@media (max-width:340px){.ht-d{font-size:16px;padding:0 8px}}

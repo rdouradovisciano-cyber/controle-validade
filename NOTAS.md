@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 10/11/2026 · versão 448.
+> Última atualização: 10/11/2026 · versão 449.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -106,3 +106,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v446: Data de hoje no topo (`hojeTop`) virou mini calendário `.ht-cal` (mês em cima, dia grande) + `.ht-tx` (dia da semana por extenso e mês). Sábado/domingo: faixa vermelha (`.fds`); feriado de `ESC_FER`: faixa verde e «🎉 nome» (`.fer`; `hojeTop()` roda de novo logo depois de `ESC_FER` existir). Teste com data falsa: `fonte/tools/topo-data-test.mjs`.
 - v447: Visual do mini calendário do topo refeito (o quadrado branco da v446 destoava): `.ht-cal` escuro com borda e mês dourados (`--ac`), argolinhas `::before/::after`, dia em creme `#f6efd6`; fim de semana coral, feriado verde; tema claro usa dourado mais escuro.
 - v448: mini calendário do topo reduzido para 32×32 px (mesmo tamanho do ícone `h1::before`; 26 px com `body.hs`, que esconde o mês); antes (40×42) ficava maior que o logo. Regra: o que entra no topo deve respeitar a altura do ícone (32 px), o header tem 56 px fixos.
+- v449: Data do topo no **estilo desenhado pelo usuário**: caixa dourada `.ht-d` com «dd/mm/aa» (19px, 40px de altura) entre duas linhas douradas `.ht-l` (6px, flex:1) que ligam o ícone ao menu ⋮. Cor via `--ac`: dourado; sábado/domingo coral (`.fds`); feriado verde (`.fer`). Dia da semana e nome do feriado só em `title`/`aria-label`. Substituiu o mini calendário das v446–448 (não repetir). `body.hs` reduz a caixa para 30px.

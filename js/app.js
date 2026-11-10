@@ -1002,13 +1002,12 @@ function pintaSetor() {   // botões do setor (agora dentro do menu ⋮) conform
   const ch = $("setorChip"); if (ch) ch.querySelectorAll("[data-s]").forEach(b => { b.hidden = false; b.classList.toggle("on", b.dataset.s === SETOR); b.setAttribute("aria-pressed", b.dataset.s === SETOR); b.onclick = () => { trocaSetor(b.dataset.s); if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } }; });
   const outros = ["FLV", PER, KOR].filter(x => x !== SETOR), nome = x => x === KOR ? "KÓRIN" : x;
   [["mnSetor", "mnSetorT", outros[0]], ["mnSetor2", "mnSetor2T", outros[1]]].forEach(([b, t, alvo]) => { if ($(b)) { $(t).textContent = "Ir para " + nome(alvo); $(b).onclick = () => { trocaSetor(alvo); if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } }; } }); }
-function hojeTop() {   // data de hoje no topo: mini calendário (mês em cima, dia grande) + dia da semana por extenso; fim de semana avermelhado; feriado mostra o nome
+function hojeTop() {   // data de hoje no topo: caixa dourada com «10/11/26» entre duas linhas douradas; fim de semana coral, feriado verde (o dia da semana e o nome do feriado ficam no title/aria-label)
   const el = $("hojeTop"); if (!el) return; const d = new Date(), dd = String(d.getDate()).padStart(2, "0"), mm = String(d.getMonth() + 1).padStart(2, "0"), key = d.getFullYear() + "-" + mm + "-" + dd;
-  const mesC = d.toLocaleDateString("pt-BR", { month: "short" }).replace(/\.$/, "").toUpperCase(), mesL = d.toLocaleDateString("pt-BR", { month: "long" }), sem = d.toLocaleDateString("pt-BR", { weekday: "long" });
-  let fer = null; try { fer = ESC_FER[key] || null; } catch (e) {}   // ESC_FER (feriados da Escala) só existe depois do carregamento; a 1ª chamada pode vir antes
+    let fer = null; try { fer = ESC_FER[key] || null; } catch (e) {}   // ESC_FER (feriados da Escala) só existe depois do carregamento; a 1ª chamada pode vir antes
   const fds = d.getDay() === 0 || d.getDay() === 6, sig = key + "|" + (fer ? fer.n : ""); if (el.dataset.sig === sig) return; el.dataset.sig = sig;
   el.className = "hojeTop ht" + (fds ? " fds" : "") + (fer ? " fer" : "");
-  el.innerHTML = `<span class="ht-cal" aria-hidden="true"><i>${mesC}</i><b>${d.getDate()}</b></span><span class="ht-tx"><b>${esc(sem.charAt(0).toUpperCase() + sem.slice(1))}</b><small>${fer ? "🎉 " + esc(fer.n) : esc(mesL)}</small></span>`;
+  el.innerHTML = `<i class="ht-l" aria-hidden="true"></i><b class="ht-d">${dd}/${mm}/${String(d.getFullYear()).slice(-2)}</b><i class="ht-l" aria-hidden="true"></i>`;
   el.setAttribute("datetime", key);
   const longo = "Hoje, " + d.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) + (fer ? " · " + fer.n : "");
   el.setAttribute("aria-label", longo); el.title = longo;
