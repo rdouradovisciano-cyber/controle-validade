@@ -1002,13 +1002,15 @@ function pintaSetor() {   // botões do setor (agora dentro do menu ⋮) conform
   const ch = $("setorChip"); if (ch) ch.querySelectorAll("[data-s]").forEach(b => { b.hidden = false; b.classList.toggle("on", b.dataset.s === SETOR); b.setAttribute("aria-pressed", b.dataset.s === SETOR); b.onclick = () => { trocaSetor(b.dataset.s); if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } }; });
   const outros = ["FLV", PER, KOR].filter(x => x !== SETOR), nome = x => x === KOR ? "KÓRIN" : x;
   [["mnSetor", "mnSetorT", outros[0]], ["mnSetor2", "mnSetor2T", outros[1]]].forEach(([b, t, alvo]) => { if ($(b)) { $(t).textContent = "Ir para " + nome(alvo); $(b).onclick = () => { trocaSetor(alvo); if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } }; } }); }
-function hojeTop() {   // data de hoje no topo (ex.: DOM · 08 NOV)
-  const el = $("hojeTop"); if (!el) return; const d = new Date(), dd = String(d.getDate()).padStart(2, "0"), mm = String(d.getMonth() + 1).padStart(2, "0");
-  const sem = d.toLocaleDateString("pt-BR", { weekday: "short" }).replace(/\.$/, "").toUpperCase();
-  const mes = d.toLocaleDateString("pt-BR", { month: "short" }).replace(/\.$/, "").toUpperCase();
-  el.textContent = sem + " · " + dd + " " + mes;
-  el.setAttribute("datetime", d.getFullYear() + "-" + mm + "-" + dd);
-  const longo = "Hoje, " + d.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+function hojeTop() {   // data de hoje no topo: mini calendário (mês em cima, dia grande) + dia da semana por extenso; fim de semana avermelhado; feriado mostra o nome
+  const el = $("hojeTop"); if (!el) return; const d = new Date(), dd = String(d.getDate()).padStart(2, "0"), mm = String(d.getMonth() + 1).padStart(2, "0"), key = d.getFullYear() + "-" + mm + "-" + dd;
+  const mesC = d.toLocaleDateString("pt-BR", { month: "short" }).replace(/\.$/, "").toUpperCase(), mesL = d.toLocaleDateString("pt-BR", { month: "long" }), sem = d.toLocaleDateString("pt-BR", { weekday: "long" });
+  let fer = null; try { fer = ESC_FER[key] || null; } catch (e) {}   // ESC_FER (feriados da Escala) só existe depois do carregamento; a 1ª chamada pode vir antes
+  const fds = d.getDay() === 0 || d.getDay() === 6, sig = key + "|" + (fer ? fer.n : ""); if (el.dataset.sig === sig) return; el.dataset.sig = sig;
+  el.className = "hojeTop ht" + (fds ? " fds" : "") + (fer ? " fer" : "");
+  el.innerHTML = `<span class="ht-cal" aria-hidden="true"><i>${mesC}</i><b>${d.getDate()}</b></span><span class="ht-tx"><b>${esc(sem.charAt(0).toUpperCase() + sem.slice(1))}</b><small>${fer ? "🎉 " + esc(fer.n) : esc(mesL)}</small></span>`;
+  el.setAttribute("datetime", key);
+  const longo = "Hoje, " + d.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) + (fer ? " · " + fer.n : "");
   el.setAttribute("aria-label", longo); el.title = longo;
 }
 hojeTop(); setInterval(hojeTop, 60000);
@@ -2398,6 +2400,7 @@ const ESC_FER = {   // feriados: n = nacional, e = estadual (SP), f = ponto facu
   "2027-11-20": { n: "Consciência Negra", t: "n" },
   "2027-12-25": { n: "Natal", t: "n" }
 };
+hojeTop();   // agora que ESC_FER existe, mostra também o nome do feriado no topo
 let escDir = 0, escFull = false, escWake = null, escVista = store.get("validamais-escala-vista", "lista"), escO = store.get(ESC_K, {}) || {}, escCr = store.get(ESC_CK, null), escOk = store.get("validamais-escala-ok", {}) || {}, escMes = (() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; })();
 const escCfg = () => { const s = escCr || {}, sp = s.p || {}; return { ini: !s.ini || s.ini === "2026-11-08" ? ESC_DEF.ini : s.ini, dia: s.dia || ESC_DEF.dia, int: s.int ?? ESC_DEF.int, meta: s.meta || ESC_DEF.meta,
   p: { r: { ...ESC_DEF.p.r, ...(sp.r || {}) }, y: { ...ESC_DEF.p.y, ...(sp.y || {}) } }, ciclo: s.ciclo && s.ciclo.r && s.ciclo.r.length && s.ciclo.y && s.ciclo.y.length && !ESC_CICLOS_ANTIGOS.includes(JSON.stringify({ r: s.ciclo.r, y: s.ciclo.y })) ? s.ciclo : ESC_DEF.ciclo }; };

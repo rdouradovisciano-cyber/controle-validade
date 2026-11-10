@@ -1965,3 +1965,16 @@ html[data-tema="light"] .hc.F .hav .eav,html[data-tema="light"] .hc.N .hav .eav{
 /* Validades: quem lançou vai na própria linha da validade, sem ícone, em tom discreto (cartão não cresce) */
 .pitem .pi-op{display:inline;margin:0;font-size:inherit;font-weight:800;opacity:1;white-space:normal;color:#d8cfae}
 html[data-tema="light"] .pitem .pi-op{color:#5a4a1c}
+
+/* topo: data de hoje como mini calendário */
+.hojeTop.ht{gap:8px;letter-spacing:0;font-weight:700;min-width:0}
+.ht-cal{flex:none;display:flex;flex-direction:column;width:34px;border-radius:8px;overflow:hidden;background:#f6f1e0;box-shadow:0 1px 4px rgba(0,0,0,.45);text-align:center;line-height:1}
+.ht-cal i{font-style:normal;background:#f3d87a;color:#241c00;font-size:9px;font-weight:900;padding:3px 0 2px;letter-spacing:.08em}
+.ht-cal b{font-size:18px;font-weight:900;color:#1b1b1f;padding:3px 0 4px}
+.hojeTop.fds .ht-cal i{background:#ff8f82;color:#3a0a05}
+.hojeTop.fer .ht-cal i{background:#8fd9a8;color:#06240f}
+.ht-tx{display:flex;flex-direction:column;gap:1px;line-height:1.1;min-width:0;text-align:left}
+.ht-tx b{font-size:15px;font-weight:900;color:#fff;text-transform:none;white-space:nowrap}
+.ht-tx small{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.72);text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.hojeTop.fer .ht-tx small{color:#8fd9a8}
+body.hs .ht-tx small{display:none}
