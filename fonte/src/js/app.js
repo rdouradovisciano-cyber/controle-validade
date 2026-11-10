@@ -225,22 +225,6 @@ async function fotoGravaNome(name, file) {   // grava a foto pelo nome (usado no
     if (db) await V.setDoc(V.doc(db, "sh_cfg", k), { d, n: name.slice(0, 120), por: myName().slice(0, 40), em: Date.now() }); else { const m = store.get(FTK, {}); m[k] = d; store.set(FTK, m); } return true; }
   catch (e) { console.warn(e); delete fotoCache[k]; return false; }
 }
-// FLV: busca a foto na internet pelo EAN (Open Food Facts, base aberta e colaborativa) e salva como foto do produto. Roda no aparelho de quem toca; só mexe em produto sem foto.
-const eanValido = e => /^\d{8}$|^\d{12,14}$/.test(e) && !/^2/.test(e);   // EAN que começa com 2 é código interno de balança, não existe na internet
-function fotoEanLista(SS) { const m = new Map(); rawAllAtivos().forEach(p => { if (setSet(p) !== SS || p.retirado) return; const k = fotoK(p.name); if (fotoCache[k] || m.has(k)) return; const e = [String(p.barcode || "").trim()].find(eanValido); if (e) m.set(k, { nome: p.name, ean: e }); }); return [...m.values()]; }
-async function fotoDaInternet(ean) {
-  const tm = ms => { const c = new AbortController(); setTimeout(() => c.abort(), ms); return c.signal; };
-  const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${ean}.json?fields=image_front_url,image_url`, { signal: tm(12000) });
-  if (!r.ok) return null; const j = await r.json(); const u = j && j.product && (j.product.image_front_url || j.product.image_url); if (!u) return null;
-  const ri = await fetch(u, { signal: tm(20000) }); if (!ri.ok) return null; const b = await ri.blob(); return /^image\//.test(b.type) ? b : null;
-}
-async function fotosPorEan(SS, onProg) {
-  const lista = fotoEanLista(SS), r = { total: lista.length, ok: 0, sem: 0, erro: 0 };
-  for (let i = 0; i < lista.length; i++) { onProg && onProg(i + 1, lista.length);
-    try { const b = await fotoDaInternet(lista[i].ean); if (!b) r.sem++; else if (await fotoGravaNome(lista[i].nome, b)) r.ok++; else r.erro++; } catch (e) { console.warn(e); r.erro++; }
-    await new Promise(z => setTimeout(z, 350)); }
-  fotoIcones(); try { saudeRepinta && saudeRepinta(); } catch (e) {} return r;
-}
 async function fotoApaga(id) {
   const p = products.find(x => x.id === id); if (!p || PERFIL !== "Admin") return; const k = fotoK(p.name);
   if (!(await askConfirm({ icon: "🗑", title: "Apagar a foto?", text: p.name, sub: "Vale para todos os aparelhos.", ok: "Apagar", cancel: "Cancelar" }))) return;
@@ -2194,9 +2178,9 @@ function saudeCalc() {
     const sem = sabe ? [...nomes.entries()].filter(([k]) => !fotoCache[k]).map(([, n]) => n).sort((x, y) => x.localeCompare(y, "pt-BR")) : [];
     if (!sabe) sec.push({ t: nomeSS + " sem foto", d: fotosErro ? "Não consegui ler as fotos da nuvem agora. Feche e abra de novo; se continuar, avise." : "Conferindo as fotos na nuvem… a lista aparece sozinha em instantes.", n: 1, it: ["<small class=\"note\">Aguarde um instante…</small>"] });
     else sec.push({ t: `${nomeSS} sem foto (${sem.length} de ${nomes.size})`, d: `De ${nomes.size} produtos ${SS === PER ? "dos Perecíveis" : "do FLV"}, ${nFot} têm foto e ${sem.length} não. Emoji não conta como foto. Toque em «📷 Foto» para tirar ou escolher; a foto vale para todos os lotes do produto.`, n: sem.length, todos: true,
-      it: (SS === "FLV" && fotoEanLista(SS).length ? [`<div class="shrow shfoto"><div class="shn2"><b>🌐 Buscar na internet pelo EAN</b><small class="note">${fotoEanLista(SS).length} produto(s) sem foto têm EAN. Busca no Open Food Facts e salva a foto; os que não estiverem lá continuam na lista.</small></div><span class="shbts"><button type="button" class="shact pri" data-eanfoto="${SS}">Buscar</button></span></div>`] : []).concat(sem.map(n => { const k = fotoK(n), eans = eanDe[k] ? [...eanDe[k]] : [], busca = "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent((eans[0] || "") + " " + n);
+      it: sem.map(n => { const k = fotoK(n), eans = eanDe[k] ? [...eanDe[k]] : [], busca = "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent((eans[0] || "") + " " + n);
         const cod = eans.length ? eans.map(e => `<button type="button" class="shcod" data-copia="${esc(e)}" title="Toque para copiar">EAN ${esc(e)} <i>⧉</i></button>`).join("") : (pluDe[k] ? `<span class="shcod sem">sem EAN · balança ${esc(pluDe[k])}</span>` : `<span class="shcod sem">sem código de barras</span>`);
-        return `<div class="shrow shfoto"><div class="shn2"><b>${esc(nomeBonito(n))}</b>${cod}</div><span class="shbts"><a class="shact" href="${esc(busca)}" target="_blank" rel="noopener" aria-label="Procurar imagem na internet">🔎</a><button type="button" class="shact pri" data-foto="${esc(n)}">📷 Foto</button></span></div>`; })) }); });
+        return `<div class="shrow shfoto"><div class="shn2"><b>${esc(nomeBonito(n))}</b>${cod}</div><span class="shbts"><a class="shact" href="${esc(busca)}" target="_blank" rel="noopener" aria-label="Procurar imagem na internet">🔎</a><button type="button" class="shact pri" data-foto="${esc(n)}">📷 Foto</button></span></div>`; }) }); });
   const fora = {}; products.forEach(p => { if (p.category && !CATS.includes(p.category)) fora[p.category] = (fora[p.category] || 0) + 1; });
   sec.push({ t: "Categoria fora da lista", d: "Produtos com uma categoria que o app não conhece.", n: Object.keys(fora).length, it: Object.keys(fora).map(c => esc(c) + " (" + fora[c] + ")") });
   return sec;
@@ -2288,9 +2272,6 @@ function saudeAbrir() {
   saudeRepinta = () => { if (bg.isConnected) paint(); else saudeRepinta = null; };
   paint(); document.body.appendChild(bg); memCalc().then(h => { memHtml = h; const m = bg.querySelector("#shMem"); if (m) m.innerHTML = h; });
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) { bg.remove(); return; }
-    const ef = e.target.closest("[data-eanfoto]"); if (ef) { if (ef.disabled) return; ef.disabled = true; const t0 = ef.textContent;
-      fotosPorEan(ef.dataset.eanfoto, (i, n) => { ef.textContent = `${i}/${n}…`; }).then(r => { toast(r.total ? `Fotos: ${r.ok} salvas · ${r.sem} sem foto na internet${r.erro ? " · " + r.erro + " com erro" : ""}.` : "Nenhum produto com EAN para buscar."); }).catch(x => { console.warn(x); toast("Não consegui buscar agora."); }).finally(() => { ef.disabled = false; ef.textContent = t0; });
-      return; }
     const cp = e.target.closest("[data-copia]"); if (cp) { const v = cp.dataset.copia; const ok = () => toast("Código copiado: " + v), falha = () => { try { const t = document.createElement("textarea"); t.value = v; t.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); ok(); } catch (x) { toast("Código: " + v); } };
       try { navigator.clipboard.writeText(v).then(ok, falha); } catch (x) { falha(); } return; }
     const ft = e.target.closest("[data-foto]"); if (ft) { bg._fotoNome = ft.dataset.foto; let inp = bg.querySelector("#shFotoIn"); if (!inp) { inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.id = "shFotoIn"; inp.hidden = true; bg.appendChild(inp);
