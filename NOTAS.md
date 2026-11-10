@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 09/11/2026 · versão 438.
+> Última atualização: 09/11/2026 · versão 439.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -96,3 +96,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 
 - v437: removido o botão «🌐 Buscar na internet pelo EAN» da Saúde do app (v436): o usuário não quis. As fotos seguem só pelo 🔎 (Google Imagens) e 📷 de cada produto.
 - v438: Cadastros › Editar mostra a **foto atual** do produto (`cadAbrir`, lida de `fotoCache[fotoK(nome)]`) e o botão vira «📷 Trocar foto do produto»; a nova foto só é gravada em «Salvar alterações» (`fotoGravaNome`, já existia). O texto «a foto só é guardada em Perecíveis» saiu (desde a v428 vale para todos). `cadFotoZera` restaura o texto do botão. Lugares onde se troca foto: Cadastros › Editar, item aberto da lista de Validades, e ⋮ › Saúde do app › «sem foto».
+- v439: Cadastros (novo e editar) ganhou «🖼️ Galeria» (`#cFotoGal`, sem `capture`: o botão da câmera abre direto a câmera no Android) e «🔎 Buscar na internet» (`#cFotoNet`: abre o Google Imagens com EAN + nome; o usuário segura a imagem, baixa e escolhe na galeria). Não há download automático de imagem da internet (a busca por EAN automática da v436 foi removida na v437).

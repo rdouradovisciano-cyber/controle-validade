@@ -1708,6 +1708,9 @@ async function cadFotoLer(file) {
   } catch (e) { console.warn(e); st("Leitura do rótulo indisponível agora. Digite o nome."); }
 }
 $("cFotoBtn").onclick = () => $("cFotoIn").click();
+$("cFotoGalBtn").onclick = () => $("cFotoGal").click();
+$("cFotoGal").onchange = () => { const f = $("cFotoGal").files && $("cFotoGal").files[0]; if (f) cadFotoLer(f); $("cFotoGal").value = ""; };
+$("cFotoNet").onclick = () => { const n = $("cNome").value.trim(), e = $("cEan").value.trim(); if (!n && !e) return toast("Digite o nome do produto primeiro."); window.open("https://www.google.com/search?tbm=isch&q=" + encodeURIComponent((e + " " + n).trim()), "_blank", "noopener"); toast("Segure a imagem escolhida › Baixar imagem. Depois toque em «Galeria»."); };   // foto da internet: busca, baixa no celular e escolhe na galeria
 $("cFotoIn").onchange = () => { const f = $("cFotoIn").files && $("cFotoIn").files[0]; if (f) cadFotoLer(f); $("cFotoIn").value = ""; };
 $("cFotoBox").onclick = e => { const b = e.target.closest("[data-ocr]"); if (b) { $("cNome").value = ocrNome(b.dataset.ocr); $("cNome").dispatchEvent(new Event("input")); } };
 const CAD_FOTO_TXT = "📷 Foto do produto (lê o nome do rótulo)";

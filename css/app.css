@@ -1922,3 +1922,6 @@ html[data-tema=dark] .escv .efer span.fac,html[data-tema=dark] .escv .efer span.
 /* Fiscal: foto do produto na lista de Cadastros */
 .cadrow .cfoto{flex:none;width:46px;height:46px;border-radius:10px;overflow:hidden;background:var(--lt2,#222);border:1px solid var(--ln)}
 .cadrow .cfoto img{width:100%;height:100%;object-fit:cover;display:block}
+
+#cFoto .cfrow{display:flex;gap:8px;margin-top:8px}
+#cFoto .cfrow button{flex:1;min-height:44px}
