@@ -1966,26 +1966,7 @@ html[data-tema="light"] .hc.F .hav .eav,html[data-tema="light"] .hc.N .hav .eav{
 .pitem .pi-op{display:inline;margin:0;font-size:inherit;font-weight:800;opacity:1;white-space:normal;color:#d8cfae}
 html[data-tema="light"] .pitem .pi-op{color:#5a4a1c}
 
-/* topo: faixa dos próximos 7 dias (hoje em pastilha dourada) */
-.hojeTop.ht{flex:1;min-width:0;display:flex;align-items:center;gap:1px;letter-spacing:0;text-shadow:none}
-.hd{position:relative;flex:1 1 0;min-width:0;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1;border-radius:13px;overflow:hidden}
-.hd i{font-style:normal;font-size:8.5px;font-weight:800;letter-spacing:.09em;color:rgba(255,255,255,.42)}
-.hd b{font-size:16px;font-weight:800;color:rgba(255,255,255,.86);font-variant-numeric:tabular-nums}
-.hd u{display:block;width:4px;height:4px;border-radius:50%;background:transparent}
-.hd u.on{background:#f2b928;box-shadow:0 0 6px rgba(242,185,40,.8)}
-.hd u.od{background:#ff5d4f;box-shadow:0 0 6px rgba(255,93,79,.9)}
-.hd:nth-child(n+4){opacity:.82}.hd:nth-child(n+6){opacity:.66}
-.hd.fds i,.hd.fds b{color:#ff9b8f}
-.hd.fer i,.hd.fer b{color:#86e0a6}
-.hd.hoje{flex:1.45 1 0;height:46px;opacity:1;background:linear-gradient(160deg,#ffe49a 0%,#f2b928 52%,#c9961a 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 0 0 1.5px rgba(0,0,0,.12),0 3px 10px rgba(0,0,0,.5),0 0 14px rgba(242,185,40,.25)}
-.hd.hoje i{color:#4a3500;font-size:9px}.hd.hoje b{color:#1a1300;font-size:20px}
-.hd.hoje u.on{background:#4a3500;box-shadow:none}.hd.hoje u.od{background:#c1170a;box-shadow:0 0 0 1.5px rgba(255,255,255,.7)}
-.hd.hoje.fds{background:linear-gradient(160deg,#ffd0c9,#ff8f82 52%,#c4554a)}.hd.hoje.fer{background:linear-gradient(160deg,#c9f5d7,#7fdc9e 52%,#3f9d63)}
-.hd.hoje.fds i,.hd.hoje.fds b,.hd.hoje.fer i,.hd.hoje.fer b{color:#1a1300}
-.hd.hoje::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.55) 50%,transparent 62%);transform:translateX(-140%);pointer-events:none}
-html[data-fx="on"] .hd.hoje::after{animation:htBrilho 8s ease-in-out 2s infinite}
-@keyframes htBrilho{0%,72%{transform:translateX(-140%)}100%{transform:translateX(140%)}}
-@media (prefers-reduced-motion:reduce){html[data-fx="on"] .hd.hoje::after{animation:none}}
-body.hs .hd:not(.hoje){display:none}body.hs .hojeTop.ht{justify-content:flex-start}body.hs .hd.hoje{flex:none;width:92px;height:34px;flex-direction:row;gap:6px}body.hs .hd.hoje b{font-size:17px}body.hs .hd.hoje u{display:none}
-html[data-tema="light"] .hd i{color:rgba(255,255,255,.7)}html[data-tema="light"] .hd b{color:#fff}
-@media (max-width:350px){.hd i{display:none}.hd{height:38px}}
+/* topo: data de hoje simples */
+.hojeTop.ht{flex:1;min-width:0;font-size:16px;font-weight:800;letter-spacing:0;text-transform:none;text-shadow:none;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.hs .hojeTop.ht{font-size:14px}
+html[data-tema="light"] .hojeTop.ht{color:#fff}

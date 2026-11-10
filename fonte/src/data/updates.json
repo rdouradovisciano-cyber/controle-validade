@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-10T13:45:00-03:00",
+  "itens": [
+   "Topo: a data de hoje agora é só um texto simples, «Terça-feira, 10 de novembro», sem caixas, cores nem pontinhos"
+  ]
+ },
+ {
   "t": "2026-11-10T13:40:00-03:00",
   "itens": [
    "Topo redesenhado: em vez da caixa com barras, uma faixa dos próximos 7 dias. Hoje aparece numa pastilha dourada em destaque e os dias seguintes ao lado; fim de semana em coral, feriado em verde e um pontinho embaixo do dia avisa quando há produto vencendo (vermelho em hoje se já há vencidos, dourado nos próximos dias)"

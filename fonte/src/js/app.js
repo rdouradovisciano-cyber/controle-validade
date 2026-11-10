@@ -423,7 +423,6 @@ function render() {
   if (openId) fotoCarrega(openId);
   fotosTodas();
   novoEfeito();
-  hojeTop();   // pontinhos de vencimento no topo acompanham a lista
   entradaLista(rows.length ? SETOR + "|" + (retView ? "r" : "v") + "|" + (typeof cat !== "undefined" ? cat : "") : "");
 }
 // os cartões sobem um a um — só quando a lista aparece pela 1ª vez ou o setor/visão muda (não a cada atualização da nuvem)
@@ -1003,24 +1002,11 @@ function pintaSetor() {   // botões do setor (agora dentro do menu ⋮) conform
   const ch = $("setorChip"); if (ch) ch.querySelectorAll("[data-s]").forEach(b => { b.hidden = false; b.classList.toggle("on", b.dataset.s === SETOR); b.setAttribute("aria-pressed", b.dataset.s === SETOR); b.onclick = () => { trocaSetor(b.dataset.s); if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } }; });
   const outros = ["FLV", PER, KOR].filter(x => x !== SETOR), nome = x => x === KOR ? "KÓRIN" : x;
   [["mnSetor", "mnSetorT", outros[0]], ["mnSetor2", "mnSetor2T", outros[1]]].forEach(([b, t, alvo]) => { if ($(b)) { $(t).textContent = "Ir para " + nome(alvo); $(b).onclick = () => { trocaSetor(alvo); if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } }; } }); }
-function hojeTop() {   // topo: faixa dos próximos 7 dias — hoje em pastilha dourada, fim de semana coral, feriado verde e um pontinho quando há produto vencendo naquele dia
-  const el = $("hojeTop"); if (!el) return; const hoje = new Date();
-  let ps = []; try { ps = products.filter(p => !p.retirado && p.expiry); } catch (e) {}   // products/ESC_FER podem não existir ainda na 1ª chamada
-  let fe = {}; try { fe = ESC_FER || {}; } catch (e) {}
-  const ymd = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-  const k0 = ymd(hoje); let html = "", sig = k0;
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + i, 12), k = ymd(d), wd = d.getDay(), fer = fe[k] || null;
-    const n = i === 0 ? ps.filter(p => p.expiry <= k).length : ps.filter(p => p.expiry === k).length;   // hoje conta também os já vencidos
-    const lb = i === 0 ? "HOJE" : d.toLocaleDateString("pt-BR", { weekday: "short" }).replace(/\.$/, "").toUpperCase();
-    const tt = d.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" }) + (fer ? " · " + fer.n : "") + (n ? " · " + n + (i === 0 ? " vencido(s) ou vencendo hoje" : n === 1 ? " produto vence" : " produtos vencem") : "");
-    sig += "|" + n + (fer ? "f" : "");
-    html += `<span class="hd${i === 0 ? " hoje" : ""}${wd === 0 || wd === 6 ? " fds" : ""}${fer ? " fer" : ""}" title="${esc(tt)}"><i>${lb}</i><b>${d.getDate()}</b><u class="${n ? (i === 0 ? "od" : "on") : ""}"></u></span>`;
-  }
-  if (el.dataset.sig === sig) return; el.dataset.sig = sig;
-  el.className = "hojeTop ht"; el.innerHTML = html; el.setAttribute("datetime", k0);
-  const longo = "Hoje, " + hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-  el.setAttribute("aria-label", longo); el.title = longo;
+function hojeTop() {   // data de hoje no topo, simples: «Terça-feira, 10 de novembro»
+  const el = $("hojeTop"); if (!el) return; const d = new Date();
+  const sem = d.toLocaleDateString("pt-BR", { weekday: "long" }), txt = sem.charAt(0).toUpperCase() + sem.slice(1) + ", " + d.getDate() + " de " + d.toLocaleDateString("pt-BR", { month: "long" });
+  if (el.textContent === txt) return; el.className = "hojeTop ht"; el.textContent = txt; el.setAttribute("datetime", d.toISOString().slice(0, 10));
+  el.title = txt + " de " + d.getFullYear();
 }
 hojeTop(); setInterval(hojeTop, 60000);
 function rotulosSetor() {   // Perecíveis: «código de doação» vira «código interno»
@@ -2409,7 +2395,6 @@ const ESC_FER = {   // feriados: n = nacional, e = estadual (SP), f = ponto facu
   "2027-11-20": { n: "Consciência Negra", t: "n" },
   "2027-12-25": { n: "Natal", t: "n" }
 };
-hojeTop();   // agora que ESC_FER existe, mostra também o nome do feriado no topo
 let escDir = 0, escFull = false, escWake = null, escVista = store.get("validamais-escala-vista", "lista"), escO = store.get(ESC_K, {}) || {}, escCr = store.get(ESC_CK, null), escOk = store.get("validamais-escala-ok", {}) || {}, escMes = (() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() }; })();
 const escCfg = () => { const s = escCr || {}, sp = s.p || {}; return { ini: !s.ini || s.ini === "2026-11-08" ? ESC_DEF.ini : s.ini, dia: s.dia || ESC_DEF.dia, int: s.int ?? ESC_DEF.int, meta: s.meta || ESC_DEF.meta,
   p: { r: { ...ESC_DEF.p.r, ...(sp.r || {}) }, y: { ...ESC_DEF.p.y, ...(sp.y || {}) } }, ciclo: s.ciclo && s.ciclo.r && s.ciclo.r.length && s.ciclo.y && s.ciclo.y.length && !ESC_CICLOS_ANTIGOS.includes(JSON.stringify({ r: s.ciclo.r, y: s.ciclo.y })) ? s.ciclo : ESC_DEF.ciclo }; };
