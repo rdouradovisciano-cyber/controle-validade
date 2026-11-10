@@ -393,7 +393,7 @@ function render() {
       const ly = t.querySelector('[data-t="y"] span'); if (ly) ly.textContent = "Até " + lim + " dias";
       const IC = { v: "⛔", h: "🚨", a: "⚠️", y: "⏳" }; $("tiersSum").innerHTML = ["v", "h", "a", "y"].map(k => `<i class="${c[k] ? "nz" : "z"}${tierF === k ? " on" : ""}">${IC[k]}${ainda ? "–" : c[k]}</i>`).join("");
       const ab = tiersAberto(); t.classList.toggle("aberto", ab); $("tiersBar").setAttribute("aria-expanded", ab ? "true" : "false"); $("tiersTog").textContent = ab ? "▴ recolher" : "▾ ver"; } }
-  const cnt = {}; products.forEach(p => { if (p.barcode) cnt[p.barcode] = (cnt[p.barcode] || 0) + 1; });
+  const cnt = {}; products.forEach(p => { if (p.barcode && !p.retirado) cnt[p.barcode] = (cnt[p.barcode] || 0) + 1; });   // «N lotes» só conta o que ainda está na loja (retirado não entra)
   const hoje = products.filter(p => !p.retirado && daysLeft(p.expiry) === 0 && (!cat || p.category === cat));
   $("todayBanner").classList.toggle("hidden", !hoje.length);
   $("todayBanner").textContent = `⚠ VENCEM HOJE (${hoje.length}): ` + hoje.slice(0, 5).map(p => p.name).join(", ") + (hoje.length > 5 ? "…" : "");

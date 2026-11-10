@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 10/11/2026 · versão 440.
+> Última atualização: 10/11/2026 · versão 441.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -98,3 +98,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v438: Cadastros › Editar mostra a **foto atual** do produto (`cadAbrir`, lida de `fotoCache[fotoK(nome)]`) e o botão vira «📷 Trocar foto do produto»; a nova foto só é gravada em «Salvar alterações» (`fotoGravaNome`, já existia). O texto «a foto só é guardada em Perecíveis» saiu (desde a v428 vale para todos). `cadFotoZera` restaura o texto do botão. Lugares onde se troca foto: Cadastros › Editar, item aberto da lista de Validades, e ⋮ › Saúde do app › «sem foto».
 - v439: Cadastros (novo e editar) ganhou «🖼️ Galeria» (`#cFotoGal`, sem `capture`: o botão da câmera abre direto a câmera no Android) e «🔎 Buscar na internet» (`#cFotoNet`: abre o Google Imagens com EAN + nome; o usuário segura a imagem, baixa e escolhe na galeria). Não há download automático de imagem da internet (a busca por EAN automática da v436 foi removida na v437).
 - v440: Validades › **Últimos lançados**: lote novo grava `createdAt` (no modo local também); item lançado há <30 min ganha selo «NOVO» (`.pi-novo`, `lancMs`, `NOVO_MS`), efeito dourado de chegada `.chega` uma vez por lote por aparelho (`novoEfeito`, `novoVisto`; a abertura do app não pisca) e, se fui eu que lancei, rola até o item e vibra (`meuNovo`). Botão «🆕 Últimos lançados» (`#novoBtn`, contador dos últimos 30 min) liga o filtro `novoF`: 15 mais recentes, ordem do mais novo, «há X min» (`haQuanto`) e quem lançou. Lotes antigos sem `createdAt` ficam de fora do filtro. Teste: `fonte/tools/novo-test.mjs`.
+- v441: «N lotes» no cartão da Validades (`cnt` em `render`) agora ignora lotes `retirado` — antes um produto com 1 lote na loja e 2 retirados mostrava «3 lotes».
