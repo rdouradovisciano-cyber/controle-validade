@@ -45,6 +45,8 @@
 <input id="search" type="search" inputmode="search" autocomplete="off" enterkeyhint="search" placeholder="🔎 buscar na lista" aria-label="Buscar produto na lista de validades">
 <div class="filters"><select id="categoryFilter" class="hidden" aria-label="Categoria"></select><select id="statusFilter" class="hidden" aria-label="Status"><option value="">Todos os status</option><option value="expired">Vencidos</option><option value="soon">Vencem em breve</option><option value="ok">Dentro do prazo</option></select></div>
 <button type="button" class="lnk" id="verTodos"></button><button type="button" class="lnk hidden" id="verRetTop">← Voltar às validades</button>
+<button type="button" class="lnk novobtn" id="novoBtn">🆕 Últimos lançados</button>
+<div id="novoBar" class="acaobar novobar hidden"><span>🆕 Os 15 últimos lançados, do mais novo para o mais antigo</span><button type="button" id="novoX" class="secondary">Ver tudo</button></div>
 <div id="acaoBar" class="acaobar hidden"><span>🔎 Só o que venceu ou vence hoje</span><button type="button" id="acaoX" class="secondary">Ver tudo</button></div>
 <div id="list"></div>
 <p id="listTotal" class="listtotal"></p>

@@ -1925,3 +1925,14 @@ html[data-tema=dark] .escv .efer span.fac,html[data-tema=dark] .escv .efer span.
 
 #cFoto .cfrow{display:flex;gap:8px;margin-top:8px}
 #cFoto .cfrow button{flex:1;min-height:44px}
+
+/* últimos lançados: selo NOVO, brilho de chegada e botão do filtro */
+.pi-novo{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;background:#f3d87a;color:#241c00;font-style:normal;font-size:10px;font-weight:900;letter-spacing:.06em;vertical-align:middle;line-height:1.5}
+.pitem.chega{animation:vmChega 1.6s cubic-bezier(.2,.8,.2,1) both;position:relative;z-index:1}
+@keyframes vmChega{0%{transform:translateY(-18px) scale(.96);opacity:0;box-shadow:0 0 0 0 rgba(243,216,122,.9)}22%{transform:none;opacity:1;box-shadow:0 0 0 6px rgba(243,216,122,.55),0 0 22px rgba(243,216,122,.6)}60%{box-shadow:0 0 0 3px rgba(243,216,122,.3),0 0 12px rgba(243,216,122,.3)}100%{box-shadow:0 0 0 0 rgba(243,216,122,0)}}
+.novobtn{display:inline-flex;align-items:center;gap:6px;font-weight:800}
+.novobtn i{font-style:normal;background:#f3d87a;color:#241c00;border-radius:99px;padding:0 7px;font-size:12px;font-weight:900}
+.novobtn.hidden,.novobar.hidden{display:none}
+html[data-tema="light"] .pi-novo,html[data-tema="light"] .novobtn i{background:#f0c93a;color:#241c00}
+.pi-lt{font-weight:800}
+@media (prefers-reduced-motion:reduce){.pitem.chega{animation:none}}
