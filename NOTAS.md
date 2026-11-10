@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 10/11/2026 · versão 444.
+> Última atualização: 10/11/2026 · versão 445.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -101,4 +101,5 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v441: «N lotes» no cartão da Validades (`cnt` em `render`) agora ignora lotes `retirado` — antes um produto com 1 lote na loja e 2 retirados mostrava «3 lotes».
 - v442: Escala 5x2 › «Hoje» (embaixo do calendário) virou `escHojeCards`: cartões `.hc` com foto 56px. Trabalha = cor da pessoa + horário (+ anel verde pulsando `.agora` dentro do turno; «Ainda não chegou» / «Turno encerrado»). Folga = foto em preto e branco respirando, 😴 e «z z Z» subindo (`.zz`), «Folga hoje» e «Volta amanhã/dia». Férias 🏖️. Respeita `prefers-reduced-motion`. Teste: `fonte/tools/esc-hoje-test.mjs` (usa o perfil Admin e a data de hoje).
 - v443: (substituída pela v444) «quem lançou» em linha própria abaixo de «Qtd · vence».
-- v444: Validades: «👤 quem lançou» (`.pi-op`) saiu da linha da validade e fica **embaixo do quadrado de dias, à direita** (`.pi-dir` agrupa badge + nome; só aparece se houver `por`; uma linha com reticências, `title` com o nome inteiro). Escolha do usuário entre 5 opções de posição.
+- v444: (substituída pela v445) «quem lançou» embaixo do quadrado de dias — deixou o cartão mais alto e o 👤 azul chamava atenção demais.
+- v445: Validades: quem lançou (`.pi-op`) voltou para a linha «Qtd · vence …», **sem o ícone 👤**, em negrito dourado discreto (`#d8cfae`; claro `#5a4a1c`) e só se houver `por`. Decisão do usuário: «analise onde fica melhor». Motivo: manter a altura do cartão (a lista tem 50+ itens).
