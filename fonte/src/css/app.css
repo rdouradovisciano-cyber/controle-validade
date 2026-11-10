@@ -1962,7 +1962,7 @@ html[data-tema="light"] .hc.F .hav .eav,html[data-tema="light"] .hc.N .hav .eav{
 @media (max-width:360px){.hcards{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.hc.agora .hav::after,.hc.F .hav .eav,.zz i{animation:none}.zz i{opacity:.8}.zz i:nth-child(1){transform:translate(4px,-6px)}.zz i:nth-child(2){transform:translate(10px,-14px)}.zz i:nth-child(3){transform:translate(16px,-24px)}}
 
-/* Validades: «👤 quem lançou» sempre numa linha própria, logo abaixo da quantidade/validade e alinhada com o título (antes caía solta e recuada quando não cabia) */
-.pitem .pi-op{display:block;margin:3px 0 0;font-size:12.5px;white-space:normal;overflow-wrap:anywhere}
-.pitem .pi-sub::after{content:none}
-.pitem .pi-op::after{content:" ▾";opacity:.5}.pitem.open .pi-op::after{content:" ▴"}
+/* Validades: «👤 quem lançou» fica embaixo do quadrado de dias, à direita */
+.pi-dir{flex:none;display:flex;flex-direction:column;align-items:center;gap:4px;max-width:96px}
+.pitem .pi-op{display:block;margin:0;max-width:96px;font-size:11.5px;font-weight:700;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.pitem .pi-op i{display:none}
