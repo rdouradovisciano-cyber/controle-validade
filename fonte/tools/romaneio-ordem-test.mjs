@@ -1,0 +1,26 @@
+import { chromium } from "playwright-core"; import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve(process.argv[2]), SHOT=process.argv[3];
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f)&&!/ocr\//.test(f))b=Buffer.from(b.toString().replace(/apiKey:\s*"[^"]*"/g,'apiKey:"COLE_"').replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const it=(nome,qtd,cod)=>({key:nome.toLowerCase()+"|kg",nome,unidade:"kg",qtd,lanc:1,cod});
+const don={itens:[it("Queijo Zebra",2.5,"Z1"),it("Abacate",4,"A2"),it("Maçã Fuji",6,"M3"),it("Banana Prata",3,"B4")],inicio:new Date().toISOString()};
+const ctx=await br.newContext({viewport:{width:390,height:860},deviceScaleFactor:2});
+await ctx.addInitScript(d=>{if(localStorage.getItem("s"))return;localStorage.setItem("s","1");localStorage.setItem("validamais-operador",JSON.stringify("T"));localStorage.setItem("validamais-perfil","Perecíveis");sessionStorage.setItem("validamais-setor","Perecíveis");localStorage.setItem("validamais-doacao-per",JSON.stringify(d))},don);
+const pg=await ctx.newPage();const errs=[];pg.on("pageerror",e=>errs.push(String(e)));
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(3000);
+await pg.evaluate(()=>document.getElementById("navDoacao").click());await pg.waitForTimeout(600);
+const lista=await pg.evaluate(()=>[...document.querySelectorAll("#dLista .ditem .dn b")].map(e=>e.textContent));
+await pg.evaluate(()=>document.getElementById("dStrip").click());await pg.waitForTimeout(400);
+const previa=await pg.evaluate(()=>document.getElementById("dFinBody").innerText.replace(/\s+/g," "));
+await pg.evaluate(()=>document.getElementById("dFinOk").click());await pg.waitForTimeout(1800);
+const rom=await pg.evaluate(()=>[...document.querySelectorAll("#romBody table.rom tbody tr")].map(r=>[...r.children].map(c=>c.textContent).join(" | ")));
+const cab=await pg.evaluate(()=>[...document.querySelectorAll("#romBody table.rom thead th")].map(c=>c.textContent));
+console.log(JSON.stringify({errs,lista,previa,cab,rom},null,1));
+await pg.evaluate(()=>document.getElementById("romBody").scrollIntoView({block:"start"}));await pg.waitForTimeout(500);
+await pg.screenshot({path:SHOT+"/romaneio.png"});
+const [dl]=await Promise.all([pg.waitForEvent("download",{timeout:15000}).catch(e=>null),pg.evaluate(()=>document.getElementById("rPdf").click())]);
+await pg.waitForTimeout(800);console.log("toast:",await pg.evaluate(()=>(document.querySelector("#toast, .toast")||{}).textContent),"| jsPDF:",await pg.evaluate(()=>typeof (window.jspdf||window.jsPDF)));
+if(dl){await dl.saveAs(SHOT+"/romaneio.pdf");console.log("PDF ok",dl.suggestedFilename(),errs.length?errs:"");}else console.log("sem download",errs);
+await br.close();srv.close();

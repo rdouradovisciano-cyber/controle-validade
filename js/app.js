@@ -1251,7 +1251,7 @@ $("dT6L").onclick=()=>{ if(window.dEditBal||$("dTop6")._open>=0) return; $("dBal
 $("dT6L").onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); $("dT6L").onclick(); } };
 $("dBalEdit").onclick=()=>{ window.dEditBal=!window.dEditBal; $("dTop6")._open=-1; dTop6Render(); };
 $("dBalAuto").onclick=()=>{ if(!confirm("Voltar aos atalhos automáticos? Os seus atalhos serão apagados.")) return; dBalSave(null); dTop6Render(); };
-function dFinOpen(){ if(!don.itens.length) return toast("Nada lançado ainda."); const nomes=[...don.itens].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR")).map(i=>esc(i.nome.replace(/\s+(kg|un)$/i,""))).join(" · ");
+function dFinOpen(){ if(!don.itens.length) return toast("Nada lançado ainda."); const nomes=[...don.itens].map(i=>esc(i.nome.replace(/\s+(kg|un)$/i,""))).join(" · ");
   $("dFinBody").innerHTML=`<div class="ft"><span>Itens</span><b>${don.itens.length}</b></div><div class="ft"><span>Total</span><b>${[sumU("kg")>0?fq(sumU("kg"))+" kg":"",sumU("un")>0?fq(sumU("un"))+" un":""].filter(Boolean).join(" + ")}</b></div><div class="ft" style="font-weight:600;font-size:13px">${nomes}</div>`;
   $("dFinSheet").classList.remove("hidden"); }
 function dFinClose(){ $("dFinSheet").classList.add("hidden"); }
@@ -1529,9 +1529,9 @@ function romPdf(d) {    // PDF com coluna CONFERIDO (caixinhas vazias para marca
   const pdf = new V.jsPDF(); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text("DOAÇÃO FLV", 14, 16);
   pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Data: ${dataBR(d.data)}   Loja: ${LOJA}`, 14, 23);
   pdf.setTextColor(22, 101, 52); pdf.textWithLink("Toque aqui para conferir e riscar os itens no celular", 14, 29, { url: confUrl(d) }); pdf.setTextColor(0);
-  V.autoTable(pdf, { startY: 34, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [22, 101, 52] }, footStyles: { fillColor: [226, 238, 229], textColor: [20, 83, 45] }, columnStyles: { 0: { cellWidth: 26 } },
-    head: [["CONFERIDO", "CÓDIGO", "NOME", "QUANTIDADES"]], body: d.itens.map(i => ["", i.cod || "-", i.nome, `${fq(i.qtd)} ${i.unidade}`]),
-    foot: [["", "TOTAL", totTxt(d.totalKg, d.totalUn, 0).replace(/ · 0 itens$/, ""), `${d.itens.length} itens`]],
+  V.autoTable(pdf, { startY: 34, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [22, 101, 52] }, footStyles: { fillColor: [226, 238, 229], textColor: [20, 83, 45] }, columnStyles: { 0: { cellWidth: 26 }, 1: { cellWidth: 12, halign: "center" } },
+    head: [["CONFERIDO", "Nº", "CÓDIGO", "NOME", "QUANTIDADES"]], body: d.itens.map((i, x) => ["", String(x + 1), i.cod || "-", i.nome, `${fq(i.qtd)} ${i.unidade}`]),
+    foot: [["", "", "TOTAL", totTxt(d.totalKg, d.totalUn, 0).replace(/ · 0 itens$/, ""), `${d.itens.length} itens`]],
     didDrawCell: h => { if (h.section === "body" && h.column.index === 0) { const c = h.cell; pdf.setDrawColor(60); pdf.setLineWidth(.3); pdf.rect(c.x + 9, c.y + c.height / 2 - 2, 4, 4); } } });
   let y = (pdf.lastAutoTable ? pdf.lastAutoTable.finalY : 40) + 10; const top = romTop(d);
   if (top.length) { if (y > 262) { pdf.addPage(); y = 20; } pdf.setFont("helvetica", "bold"); pdf.setFontSize(12); pdf.setTextColor(22, 101, 52); pdf.text("TOP 3 MAIS DOADOS · ÚLTIMOS 30 DIAS", 14, y); pdf.setTextColor(0); pdf.setFontSize(11);
@@ -1540,11 +1540,10 @@ function romPdf(d) {    // PDF com coluna CONFERIDO (caixinhas vazias para marca
 }
 const byName = (a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR", { sensitivity: "base" }) || (a.unidade || "").localeCompare(b.unidade || "");
 function showRomaneio(d) {
-  if (d && d.itens) d.itens.sort(byName);   // romaneio sempre em ordem alfabética
   curRom = d; romEdit = null; $("romBar").classList.remove("hidden"); $("donaEntrada").classList.add("hidden"); $("donaRomaneio").classList.remove("hidden");
   $("romHead").innerHTML = `<h3 class="romtitle">DOAÇÃO FLV</h3><p class="note">Data: ${dataBR(d.data)} · Loja: ${esc(LOJA)}${d.editada ? " · editada" : ""}</p>`;
-  $("romBody").innerHTML = `<div class="rwrap"><table class="rom"><thead><tr><th>CÓDIGO</th><th>NOME</th><th>QUANTIDADES</th></tr></thead><tbody>` +
-    d.itens.map(i => `<tr><td>${esc(i.cod || "—")}</td><td>${esc(i.nome)}</td><td>${fq(i.qtd)} ${esc(i.unidade)}</td></tr>`).join("") +
+  $("romBody").innerHTML = `<div class="rwrap"><table class="rom"><thead><tr><th class="rn">Nº</th><th>CÓDIGO</th><th>NOME</th><th>QUANTIDADES</th></tr></thead><tbody>` +
+    d.itens.map((i, x) => `<tr><td class="rn">${x + 1}</td><td>${esc(i.cod || "—")}</td><td>${esc(i.nome)}</td><td>${fq(i.qtd)} ${esc(i.unidade)}</td></tr>`).join("") +
     `</tbody></table></div><p class="romtotal">TOTAL: ${totTxt(d.totalKg, d.totalUn, d.itens.length)}</p>` +
     (romTop(d).length ? `<div class="romtop"><b>🏆 TOP 3 MAIS DOADOS · 30 DIAS</b>${romTop(d).map(t => `<div>${t.pos}º ${esc(t.nome)} — <b>${esc(t.q)}</b></div>`).join("")}</div>` : "");
 }
@@ -1593,7 +1592,7 @@ $("romBody").addEventListener("click", async e => { if (!romEdit) return; const 
     const itens = romEdit.filter(i => i.qtd > 0);
     if (!itens.length) return toast("A doação ficou sem itens. Para apagar tudo, use a lixeira em Doações anteriores.");
     const tot = u => Math.round(itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0) * 1000) / 1000;
-    const campos = { itens: itens.sort(byName).map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc: lanc || 1, cod: cod || "" })), totalKg: tot("kg"), totalUn: tot("un"), editada: true };
+    const campos = { itens: itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc: lanc || 1, cod: cod || "" })), totalKg: tot("kg"), totalUn: tot("un"), editada: true };
     try {
       if (db && curRom._id) await V.updateDoc(V.doc(db, "doacoes", curRom._id), campos);
       else { const l = store.get(HK, []), y = l.find(z => String(z.em) === hid(curRom)); if (y) { Object.assign(y, campos); store.set(HK, l); } }
@@ -1931,7 +1930,7 @@ function addToRom(nome, unidade, qtd, cod, bar) {
   if (it) { it.qtd = Math.round((it.qtd + qtd) * 1000) / 1000; it.lanc = (it.lanc || 1) + 1; if (!it.cod) it.cod = cod || ""; }
   else { it = { nome: nm, unidade, qtd, lanc: 1, cod: cod || (pr && (pr.codigo_doacao || pr.barcode || pr.codigo_balanca)) || "" }; itens.push(it); }
   const tot = u => Math.round(itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0) * 1000) / 1000;
-  const campos = { itens: itens.sort(byName).map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc: lanc || 1, cod: cod || "" })), totalKg: tot("kg"), totalUn: tot("un"), editada: true };
+  const campos = { itens: itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc: lanc || 1, cod: cod || "" })), totalKg: tot("kg"), totalUn: tot("un"), editada: true };
   const fim = () => { Object.assign(curRom, campos); showRomaneio(curRom); if (!db) reloadLocalHist(); renderTop(); };
   const local = () => { const m = store.get(EDK, {}); if (curRom._id) { m[curRom._id] = campos; store.set(EDK, m); } };
   if (db && curRom._id) V.updateDoc(V.doc(db, "doacoes", curRom._id), campos).catch(err => { console.error(err); local(); toast("Salvo só neste aparelho: o Firebase não permite alterar doações na nuvem."); });
@@ -1954,7 +1953,7 @@ function contCancela() {
 }
 function finalizaCont() {
   logAtv("doação", `continuou uma doação anterior (+ itens)`);
-  const c = don.cont, itens = don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc: lanc || 1, cod: cod || "" })).sort(byName);
+  const c = don.cont, itens = don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc: lanc || 1, cod: cod || "" }));   // ordem de lançamento
   const tot = u => Math.round(itens.filter(i => i.unidade === u).reduce((a, i) => a + i.qtd, 0) * 1000) / 1000, campos = { itens, totalKg: tot("kg"), totalUn: tot("un"), editada: true };
   const ant = (curRom && hid(curRom) === c.id ? curRom : null) || histList.find(x => hid(x) === c.id) || {}, rec = { ...ant, data: c.data, ...campos, _id: c._id || ant._id };
   const local = () => { const m = store.get(EDK, {}); if (c._id) { m[c._id] = campos; store.set(EDK, m); } };
@@ -1968,7 +1967,7 @@ function finalizeDon() {
   if (don.cont) return finalizaCont();
   logAtv("doação", `${don.itens.length} item(ns) lançado(s)`);
   const rec = { data: iso(new Date()), por: myName().slice(0, 40), totalKg: Math.round(sumU("kg") * 1000) / 1000, totalUn: Math.round(sumU("un") * 1000) / 1000,
-    itens: don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc, cod: cod || "" })).sort(byName) };
+    itens: don.itens.map(({ nome, unidade, qtd, lanc, cod }) => ({ nome, unidade, qtd, lanc, cod: cod || "" })) };   // ordem de lançamento (romaneio)
   if (db) V.addDoc(V.collection(db, "doacoes"), { ...rec, em: V.serverTimestamp() }).then(r => { rec._id = r.id; }).catch(e => { console.error(e); toast("Erro ao salvar na nuvem (confira as regras). O romaneio foi gerado."); });
   else { const hh = store.get(HK, []), em = Date.now(); rec.em = em; hh.unshift({ ...rec }); store.set(HK, hh.slice(0, 50)); }
   don = { itens: [], inicio: new Date().toISOString() }; store.set(DK, don); renderDon(); showRomaneio(rec); renderTop();

@@ -1970,3 +1970,6 @@ html[data-tema="light"] .pitem .pi-op{color:#5a4a1c}
 .hojeTop.ht{flex:1;min-width:0;font-size:16px;font-weight:800;letter-spacing:0;text-transform:none;text-shadow:none;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.hs .hojeTop.ht{font-size:14px}
 html[data-tema="light"] .hojeTop.ht{color:#fff}
+
+/* romaneio: coluna Nº (ordem de lançamento) */
+.rom th.rn,.rom td.rn{width:34px;text-align:center;font-variant-numeric:tabular-nums;opacity:.75}
