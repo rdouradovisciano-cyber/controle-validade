@@ -1,5 +1,13 @@
 [
  {
+  "t": "2026-11-11T17:10:00-03:00",
+  "itens": [
+   "O app agora sempre abre com os grupos recolhidos (Vencidos, Vence hoje, 1 a 3 dias, 4 a 7 dias, Dentro do prazo): só os títulos com a quantidade de cada um. Toque num título para abrir a lista daquele grupo",
+   "Os títulos viraram barras do mesmo tamanho, com a contagem e a seta alinhadas à direita",
+   "Ao lançar um produto novo, o grupo dele abre sozinho para você ver onde ele entrou. Na busca e nos filtros nada fica escondido"
+  ]
+ },
+ {
   "t": "2026-11-11T16:50:00-03:00",
   "itens": [
    "Atividade dos usuários › Buscas (Admin): corrigi a lista que aparecia vazia. Agora ela também encontra históricos antigos (sem o campo de nome), mostra as buscas feitas neste aparelho e avisa se não conseguir carregar"

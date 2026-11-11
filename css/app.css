@@ -2063,3 +2063,15 @@ html #list[data-visao=grade] .pi-nome::before{width:1em;height:1em}
 html #list[data-visao=grade] .pi-act{padding:0 10px 10px}
 html #list[data-visao=grade] .skelc{grid-column:auto}
 html #list[data-visao=grade] .pitem.open .pi-main .ico-lado,html #list[data-visao=grade] .pitem.open .pi-main .ico-tile{aspect-ratio:2.4/1}
+
+/* v463 · abre sempre com os grupos recolhidos; títulos viram barras niveladas (mesma altura, contagem e seta alinhadas à direita) */
+html .pgh[data-g]{min-height:54px;margin:8px 0 0;padding:0 14px 0 12px;border-radius:14px;border:1px solid color-mix(in srgb,var(--tc) 32%,transparent);border-left:5px solid var(--tc);background:color-mix(in srgb,var(--tc) 9%,transparent);font-size:14px;gap:10px}
+html .pgh[data-g]::after{content:none}
+html .pgh[data-g] span{flex:1;min-width:0;display:flex;align-items:center}
+html .pgh[data-g] i{order:2;min-width:30px;text-align:center;font-size:14px;padding:3px 10px}
+html .pgh[data-g] .pgc{order:3;margin:-3px 2px 0 0;flex:none}
+html .pgh[data-g].rec .pgc{margin:0 2px 0 0}
+html .pgh[data-g]:not(.rec){margin-bottom:6px}
+html .pgh[data-g]:active{filter:brightness(1.15)}
+html #list[data-visao=grade] .pgh[data-g]{margin:8px 0 0}
+html .pgh[data-g] span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;line-height:54px}
