@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-11T16:30:00-03:00",
+  "itens": [
+   "Nova opção em Configurações → Cores e prazos: \"Visualização da lista de Validades\". Escolha Lista (como era) ou Grade, com dois cartões por linha, foto grande do produto e selo de dias sobre a foto"
+  ]
+ },
+ {
   "t": "2026-11-11T14:40:00-03:00",
   "itens": [
    "Quando o mesmo produto tem mais de um lote, cada cartão mostra a posição dele — 1/3, 2/3, 3/3 — com uma barrinha, no lugar da etiqueta «N lotes». A ordem é a da validade (o que vence primeiro é o Lote 1) e a caixa de novo lote também numera «Lote 1/3», «Lote 2/3»…"

@@ -2040,3 +2040,26 @@ html[data-fonte=grande] .plb i{width:8px;height:6px}
 .pi-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pi-sub{white-space:normal;overflow:visible;text-overflow:clip}
 .pi-sub::after{content:none!important}
+
+/* v460 · visualização em grade (Configurações → Visualização da lista de Validades) */
+html #list[data-visao=grade]{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
+html #list[data-visao=grade]>:not(.pitem){grid-column:1/-1}
+html #list[data-visao=grade] .pgh{margin:12px 2px 0}
+html #list[data-visao=grade] .pitem{margin:0;border-left:1px solid var(--ln,#2a2f36);border-bottom:5px solid var(--tc);border-radius:16px;overflow:hidden}
+html #list[data-visao=grade] .pitem.open{grid-column:1/-1}
+html #list[data-visao=grade] .pi-main{display:block;position:relative;padding:0}
+html #list[data-visao=grade] .pi-main .ico-lado,html #list[data-visao=grade] .pi-main .ico-tile{display:flex;width:100%;height:auto;aspect-ratio:1/.82;border-radius:0;margin:0;border:0;align-items:center;justify-content:center}
+html #list[data-visao=grade] .pi-main .ico-lado .ico-img{width:100%;height:100%;border:0;border-radius:0;object-fit:cover}
+html #list[data-visao=grade] .ico-tile{font-size:54px;background:linear-gradient(135deg,color-mix(in srgb,var(--tc) 22%,#1b2026),#1b2026)}
+html #list[data-visao=grade] .pi-txt{padding:9px 10px 10px;gap:3px}
+html #list[data-visao=grade] .pi-nome{font-size:15px;-webkit-line-clamp:2}
+html #list[data-visao=grade] .pi-sub{font-size:12.5px}
+html #list[data-visao=grade] .pi-badge{position:absolute;top:8px;right:8px;min-width:0;padding:4px 9px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+html #list[data-visao=grade] .pi-badge b{font-size:14px}
+html #list[data-visao=grade] .pi-badge span{font-size:9px}
+html #list[data-visao=grade] .pitem.prok .pi-badge{background:rgba(18,22,26,.92)}
+html #list[data-visao=grade] .pi-novo{position:absolute;top:8px;left:8px;margin:0}
+html #list[data-visao=grade] .pi-nome::before{width:1em;height:1em}
+html #list[data-visao=grade] .pi-act{padding:0 10px 10px}
+html #list[data-visao=grade] .skelc{grid-column:auto}
+html #list[data-visao=grade] .pitem.open .pi-main .ico-lado,html #list[data-visao=grade] .pitem.open .pi-main .ico-tile{aspect-ratio:2.4/1}

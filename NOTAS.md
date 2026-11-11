@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 460.
+> Última atualização: 11/11/2026 · versão 461.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -116,3 +116,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v458: **cartão padronizado** (item 4 do layout): emoji do produto vai para um quadrado lateral (`icoLado`, `.ico-tile` 46px, igual à foto) em vez de ficar dentro do nome, então os nomes alinham; itens retirados usam o mesmo cartão (`.pitem.prret`, selo RETIRADO + data, botão "Voltar para a loja" sempre visível); esqueleto de carregamento tem a forma do cartão (`.pitem.skelc`).
 - v459: **Validades mais organizada**: foto/emoji lateral de 60px; visualizador de foto em tela cheia (`fotoZoom(src, legenda)` com nome/qtd/validade, duplo toque amplia, botão fechar); linha de detalhe em duas (`.pi-sub` Qtd+vence, `.pi-sub2` etiquetas de lotes/hora/quem lançou); grupos de urgência recolhíveis (`gRec`, `#list[data-rec~=…]`, `.pgh[data-g]`). Teste: `fonte/tools/foto-test.mjs`.
 - v460: **selo de lote** em `.pi-sub2`: cada cartão de um produto com mais de uma validade mostra `1/3`, `2/3`, `3/3` com uma barrinha (`.plb i`, acesa = posição), no lugar de «N lotes». Agrupamento igual ao `lotesDe` (por código de barras ou, sem código, pelo nome, sem retirados) e ordem pela validade (vence primeiro = Lote 1). `loteMode` também numera «Lote 1/3», «Lote 2/3»…
+- v461: **grade nas Validades como opção** (Configurações → Cores e prazos → "Visualização da lista de Validades"): `visaoDe()` lê `validamais-visao` (lista|grade), `#list[data-visao=grade]` em 2 colunas, foto/emoji grande, selo de dias sobre a foto, cartão aberto ocupa a linha toda. Padrão continua Lista. Teste: `fonte/tools/grade-test.mjs`.
