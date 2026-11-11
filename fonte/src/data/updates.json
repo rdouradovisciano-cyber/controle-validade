@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-11T17:25:00-03:00",
+  "itens": [
+   "Em \"Últimos lançados\", tocar em qualquer parte do balão amarelo já volta à lista normal, sem precisar apertar o botão \"Ver tudo\""
+  ]
+ },
+ {
   "t": "2026-11-11T17:10:00-03:00",
   "itens": [
    "O app agora sempre abre com os grupos recolhidos (Vencidos, Vence hoje, 1 a 3 dias, 4 a 7 dias, Dentro do prazo): só os títulos com a quantidade de cada um. Toque num título para abrir a lista daquele grupo",

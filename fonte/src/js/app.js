@@ -2752,7 +2752,8 @@ visAplica();
 // ---------- atalhos do ícone (segurar o ícone do app): ?acao=bipar | hoje ----------
 $("acaoX").onclick = () => { acaoF = ""; render(); };
 $("novoBtn").onclick = () => { novoF = true; render(); window.scrollTo(0, 0); };   // «🆕 Últimos lançados»
-$("novoX").onclick = () => { novoF = false; render(); };
+$("novoBar").onclick = () => { novoF = false; render(); };   // v464: tocar em qualquer parte do balão volta ao normal (o botão «Ver tudo» faz o mesmo)
+$("novoBar").onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("novoBar").click(); } };
 function acaoRoda(a) {
   if (a === "bipar") { $("fab").click(); }
   else if (a === "hoje") { if (curTab !== "Loja") tab("Loja"); acaoF = "hoje"; render(); window.scrollTo(0, 0); }
