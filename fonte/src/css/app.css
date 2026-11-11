@@ -1979,3 +1979,11 @@ button .ic.ti,.lnk .ic.ti{flex:none}
 .menu button .ic.ti{width:1.2em;height:1.2em;color:var(--gold1,#e2bf55)}
 .pgh .ic.ti,.tbs .ic.ti,.pitem .ic.ti{margin-right:.35em}
 .tbs i .ic.ti{margin-right:.15em;vertical-align:-.22em}
+
+/* v457 · regra de cores: a cor só significa urgência. Fundo do cartão neutro; cor na barra lateral, no selo e no ícone de status */
+html .pitem.prv,html .pitem.prh,html .pitem.pra,html .pitem.pry,html .pitem.prok{border-color:var(--ln);border-left-color:var(--tc);border-left-width:6px}
+html[data-tema=dark] .pitem.prv,html[data-tema=dark] .pitem.prh,html[data-tema=dark] .pitem.pra,html[data-tema=dark] .pitem.pry,html[data-tema=dark] .pitem.prok{background:#12161a}
+html:not([data-tema=dark]) .pitem.prv,html:not([data-tema=dark]) .pitem.prh,html:not([data-tema=dark]) .pitem.pra,html:not([data-tema=dark]) .pitem.pry,html:not([data-tema=dark]) .pitem.prok{background:#fff}
+html .pitem.prok{border-left-color:var(--cg,#3aa676)}
+html .pitem.pry .pi-nome::before{content:"";display:inline-block;width:1.15em;height:1.15em;margin-right:.4em;vertical-align:-.2em;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d9a800' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 3.5h10M7 20.5h10'/%3E%3Cpath d='M8 3.5c0 4 4 4.5 4 8.5s-4 4.5-4 8.5M16 3.5c0 4-4 4.5-4 8.5s4 4.5 4 8.5'/%3E%3C/svg%3E")}
+html .pitem.prh .pi-nome,html .pitem.prv .pi-nome,html .pitem.pra .pi-nome{color:inherit}
