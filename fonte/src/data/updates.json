@@ -1,5 +1,13 @@
 [
  {
+  "t": "2026-11-11T10:50:00-03:00",
+  "itens": [
+   "Validades mais organizada: foto maior no cartão (60 px); ao tocar na foto abre um visualizador em tela cheia com o nome, a quantidade e a validade, e dá para ampliar com duplo toque",
+   "Os detalhes do cartão ficaram em duas linhas: \"Qtd e vence\" em cima e, embaixo, etiquetas pequenas com lotes, quem lançou e há quanto tempo",
+   "Os grupos (Vencidos, Vence hoje, Dentro do prazo…) podem ser recolhidos com um toque no título"
+  ]
+ },
+ {
   "t": "2026-11-11T01:10:00-03:00",
   "itens": [
    "Cartões padronizados: o emoji do produto agora fica num quadradinho do mesmo tamanho da foto, então todos os nomes começam alinhados. Os itens retirados da loja e o \"carregando\" passaram a usar o mesmo formato de cartão da lista"
