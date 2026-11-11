@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 10/11/2026 · versão 459.
+> Última atualização: 11/11/2026 · versão 460.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -115,3 +115,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v457: **regra de cores** (item 2 do layout): a cor só significa urgência. Fundo dos cartões `.pitem.pr*` neutro (#12161a escuro / #fff claro), cor só na barra lateral, no selo de dias e no ícone de status (amarelo ganhou ampulheta); bloco `v457` no fim do `app.css`.
 - v458: **cartão padronizado** (item 4 do layout): emoji do produto vai para um quadrado lateral (`icoLado`, `.ico-tile` 46px, igual à foto) em vez de ficar dentro do nome, então os nomes alinham; itens retirados usam o mesmo cartão (`.pitem.prret`, selo RETIRADO + data, botão "Voltar para a loja" sempre visível); esqueleto de carregamento tem a forma do cartão (`.pitem.skelc`).
 - v459: **Validades mais organizada**: foto/emoji lateral de 60px; visualizador de foto em tela cheia (`fotoZoom(src, legenda)` com nome/qtd/validade, duplo toque amplia, botão fechar); linha de detalhe em duas (`.pi-sub` Qtd+vence, `.pi-sub2` etiquetas de lotes/hora/quem lançou); grupos de urgência recolhíveis (`gRec`, `#list[data-rec~=…]`, `.pgh[data-g]`). Teste: `fonte/tools/foto-test.mjs`.
+- v460: **selo de lote** em `.pi-sub2`: cada cartão de um produto com mais de uma validade mostra `1/3`, `2/3`, `3/3` com uma barrinha (`.plb i`, acesa = posição), no lugar de «N lotes». Agrupamento igual ao `lotesDe` (por código de barras ou, sem código, pelo nome, sem retirados) e ordem pela validade (vence primeiro = Lote 1). `loteMode` também numera «Lote 1/3», «Lote 2/3»…

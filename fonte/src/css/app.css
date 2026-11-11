@@ -2016,6 +2016,13 @@ html .pitem.prh .pi-nome,html .pitem.prv .pi-nome,html .pitem.pra .pi-nome{color
 .pi-sub2:empty{display:none}
 .pi-sub2>span{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;background:rgba(128,128,128,.16);color:var(--mut,#9aa3b2);font-weight:700}
 .pi-sub2>.pi-lotes{background:rgba(242,194,0,.16);color:#e2bf55}
+/* posição do lote (1/3, 2/3, 3/3) com barrinha: cada quadradinho é um lote, o aceso é o deste cartão */
+.pi-lotes{gap:5px}
+.pi-lotes b{font-weight:900;font-variant-numeric:tabular-nums}
+.plb{display:inline-flex;gap:2px}
+.plb i{display:block;width:6px;height:5px;border-radius:1.5px;background:currentColor;opacity:.28}
+.plb i.on{opacity:1}
+html[data-fonte=grande] .plb i{width:8px;height:6px}
 .pitem .pi-badge{min-width:74px}
 .pgh[data-g]{cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
 .pgh .pgc{order:4;width:9px;height:9px;border-right:2.5px solid var(--tc);border-bottom:2.5px solid var(--tc);transform:rotate(45deg);margin:-3px 4px 0 0;transition:transform .2s ease}
