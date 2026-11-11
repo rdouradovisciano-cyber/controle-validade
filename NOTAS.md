@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 468.
+> Última atualização: 11/11/2026 · versão 469.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -124,3 +124,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v466: grupos dos Pesáveis por `pesGrupo(nome)`: 1ª palavra sem pontuação; `q`, `qj`, `qjo`, `qjeo`, `q.j`, `queijos`… → QUEIJO; abreviações de `PES_ABREV` (muss→MUSSARELA…) também unem.
 - v467: `pesAgrupa(rows)` junta mais: (1) `pesGrupo` 1ª palavra; (2) nomes parecidos (prefixo comum ≥5 letras e ≥80% da menor) viram um grupo, o maior dá o nome (SALAME+SALAMINHO, PROVOLONE+PROVOLONETE); (3) item sozinho entra no grupo do mesmo tipo via `pesTipo` (emoji de `ICONES`); o resto vai para OUTROS.
 - v468: `pesGrupo`: minas, kit, parmes*, provolon*, requeij* também viram QUEIJO (mussarela fica separada).
+- v469: corrige o v468 (entendi o print ao contrário): minas, kit, parmes*, provolon*, requeij* vão para OUTROS, não para QUEIJO. `pesAgrupa` agora tem um único OUTROS, sempre por último.

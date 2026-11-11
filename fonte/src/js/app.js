@@ -193,8 +193,8 @@ const icoHtml = p => { const d = fotoDe(p), e = iconeDe(p); if (!d && !e) return
 const icoEmoji = p => fotoDe(p) ? "" : (iconeDe(p) ? `<span class="ico" data-id="${esc(p.id)}">${iconeDe(p)}</span>` : "");   // lista de Validades: emoji só quando não há foto
 const VSK = "validamais-visao", visaoDe = () => store.get(VSK, "lista") === "grade" ? "grade" : "lista";   // v460: Validades em lista ou grade (Configurações → Cores e prazos)
 // v466: nome do grupo = 1ª palavra, sem pontuação; Q, Q.J, QJ, QJO, QJEO e QUEIJOS entram todos em QUEIJO (e as abreviações do cadastro, como MUSS → MUSSARELA)
-// v468: Minas, Parmesão, Provolone(te), Requeijão e Kit também entram em QUEIJO (Mussarela continua separada)
-const pesGrupo = n => { const t = norm(String(n || "").trim().split(/\s+/)[0] || "").replace(/[^a-z0-9]/g, ""); if (!t) return "OUTROS"; if (/^q[jeos]{0,3}$/.test(t) || t.startsWith("queij") || /^(minas|kit|parmes|provolon|requeij)/.test(t)) return "QUEIJO"; return (PES_ABREV[t] || t).toUpperCase(); };
+// v469: Minas, Parmesão, Provolone(te), Requeijão e Kit ficam no grupo OUTROS (pedido do usuário)
+const pesGrupo = n => { const t = norm(String(n || "").trim().split(/\s+/)[0] || "").replace(/[^a-z0-9]/g, ""); if (!t) return "OUTROS"; if (/^q[jeos]{0,3}$/.test(t) || t.startsWith("queij")) return "QUEIJO"; if (/^(minas|kit|parmes|provolon|requeij)/.test(t)) return "OUTROS"; return (PES_ABREV[t] || t).toUpperCase(); };
 // v467: junta o máximo possível — (1) 1ª palavra normalizada; (2) palavras parecidas (SALAME/SALAMINHO, PROVOLONE/PROVOLONETE) viram um grupo, o maior dá o nome; (3) item sozinho entra no grupo do mesmo tipo (mesmo emoji do cadastro, ex. GORGONZOLA → QUEIJO); o que sobrar vai para OUTROS
 const pesTipo = p => { const m = ICONES.find(([r]) => r.test(String(p.name || "").toLowerCase() + " ")); return m ? m[1] : ""; };
 function pesAgrupa(rows) {
@@ -207,7 +207,8 @@ function pesAgrupa(rows) {
   fin.forEach((l, k) => { if (l.length >= 2 || k === "OUTROS") { gs.push([k, l]); return; }
     const t = pesTipo(l[0]), c = t && tipoG[t], melhor = c && Object.keys(c).sort((a, b) => c[b] - c[a])[0];
     if (melhor) fin.get(melhor).push(l[0]); else outros.push(l[0]); });
-  gs.sort((a, b) => a[0].localeCompare(b[0], "pt-BR")); if (outros.length) gs.push(["OUTROS", outros]);
+  const ex = gs.find(g => g[0] === "OUTROS"); if (ex) ex[1].push(...outros); else if (outros.length) gs.push(["OUTROS", outros]);   // um só OUTROS, sempre por último
+  gs.sort((a, b) => (a[0] === "OUTROS") - (b[0] === "OUTROS") || a[0].localeCompare(b[0], "pt-BR"));
   gs.forEach(g => g[1].sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "pt-BR", { sensitivity: "base" })));
   return gs;
 }
