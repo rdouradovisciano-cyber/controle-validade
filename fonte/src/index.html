@@ -109,9 +109,9 @@
 </div>
 <div id="tabPesaveis" class="hidden">
 <section class="panel">
-<input id="pesBusca" type="search" inputmode="search" autocomplete="off" placeholder="Buscar nome, PLU ou interno" aria-label="Buscar pesável">
+<div class="pesbar"><div class="pesfield"><svg class="ic pes-lupa" aria-hidden="true"><use href="#i-bus"/></svg><input id="pesBusca" type="search" inputmode="search" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Nome, PLU ou interno" aria-label="Buscar pesável"><button type="button" id="pesX" class="pesbtn hidden" aria-label="Limpar busca"><svg class="ic" aria-hidden="true"><use href="#i-fechar"/></svg></button><button type="button" id="pesMic" class="pesbtn hidden" aria-label="Buscar falando"><svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg></button></div>
 <div id="pesSug" class="pessug hidden"></div>
-<small id="pesInfo" class="pesinfo"></small>
+<small id="pesInfo" class="pesinfo"></small></div>
 <div id="pesLista" class="peslista"></div>
 </section>
 <div class="toolbar" style="margin-top:12px"><button class="primary big" id="pesBipar">▦ Bipar etiqueta</button><button class="secondary big" id="pesNovo">＋ Cadastrar pesável</button></div>

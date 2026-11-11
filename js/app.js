@@ -1187,9 +1187,10 @@ function tab(t) {
   curTab = t;
   ["Loja", "Doacao", "Pesaveis", "Etiquetas", "Inventario", "Cadastros", "Contagem"].forEach(n => { const p = $("tab" + n); if (p) p.classList.toggle("hidden", n !== t); const nb = $("nav" + n); if (nb) nb.classList.toggle("active", n === t); });
   [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Pesaveis", t === "Pesaveis"], ["Etiquetas", t === "Etiquetas"], ["Cadastros", t === "Cadastros"], ["Contagem", t === "Contagem"]].forEach(([n, on]) => { const b = $("tb" + n); if (b) b.classList.toggle("active", on); });
-  document.body.dataset.tab = t; document.body.dataset.grp = t;
+  const tAnt = document.body.dataset.tab; document.body.dataset.tab = t; document.body.dataset.grp = t;
   if (t === "Doacao" && typeof dView === "function") dView("lista");
   if (t === "Pesaveis" && typeof renderPesaveis === "function") renderPesaveis();
+  if (t === "Pesaveis" && tAnt !== "Pesaveis") setTimeout(() => { try { $("pesBusca").focus({ preventScroll: true }); } catch (e) {} }, 120);   // v470: abriu Pesáveis, já pode digitar
   if (t === "Contagem" && typeof kPaint === "function") kPaint();
 }
 function dCodTxt(i) {   // kg: código de doação · un: código de barras (ou, sem ele, o de doação); nunca o de balança
@@ -3180,7 +3181,16 @@ function pesSugRender() {
     (rec.length ? `<div class="pssec"><b>🕘 Suas últimas buscas</b><button type="button" class="pslimpa" data-psclr>limpar</button><div class="pschips">${rec.map(x => `<span class="pschip2">${chip(x[0])}<button type="button" class="psx" data-psx="${esc(x[0])}" aria-label="Apagar ${esc(x[0])}">×</button></span>`).join("")}</div></div>` : "");
   box.classList.remove("hidden");
 }
-$("pesBusca").oninput = () => { renderPesaveis(); pesSugRender(); };
+const pesX = () => { $("pesX").classList.toggle("hidden", !$("pesBusca").value); $("pesMic").classList.toggle("hidden", !!$("pesBusca").value || !(window.SpeechRecognition || window.webkitSpeechRecognition)); };
+$("pesBusca").oninput = () => { pesX(); renderPesaveis(); pesSugRender(); };
+$("pesX").onclick = () => { const i = $("pesBusca"); i.value = ""; pesX(); renderPesaveis(); i.focus(); pesSugRender(); };   // v470: limpar com um toque e já voltar a digitar
+$("pesMic").onclick = () => {   // v470: buscar falando
+  const R = window.SpeechRecognition || window.webkitSpeechRecognition; if (!R) return toast("Busca por voz não é suportada neste navegador.");
+  const r = new R(); r.lang = "pt-BR"; r.interimResults = false; const b = $("pesMic");
+  r.onresult = e => { const t = e.results[0][0].transcript.trim().replace(/[.!?]+$/, ""); $("pesBusca").value = t; pesX(); renderPesaveis(); if (t.length >= 3 && $("pesLista").querySelector("[data-pes]")) pesHRegistra(t); };
+  r.onerror = e => toast(e.error === "not-allowed" ? "Permita o microfone para buscar falando." : "Não entendi, tente de novo.");
+  r.onend = () => b.classList.remove("on"); b.classList.add("on"); toast("Fale o nome do produto…"); try { r.start(); } catch {} };
+pesX();
 $("pesBusca").onfocus = pesSugRender;
 $("pesBusca").onblur = () => { const v = $("pesBusca").value; setTimeout(() => { $("pesSug").classList.add("hidden"); if (v.trim().length >= 3 && $("pesLista").querySelector("[data-pes]")) pesHRegistra(v); }, 200); };
 $("pesBusca").onkeydown = e => { if (e.key === "Enter") { pesHRegistra($("pesBusca").value); $("pesBusca").blur(); } };
