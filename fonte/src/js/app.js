@@ -192,6 +192,7 @@ const icoHtml = p => { const d = fotoDe(p), e = iconeDe(p); if (!d && !e) return
   return `<span class="ico${d ? " ico-foto" : ""}" data-id="${esc(p.id)}">${d ? `<img class="ico-img" src="${d}" alt="" decoding="async">` : e}</span>`; };
 const icoEmoji = p => fotoDe(p) ? "" : (iconeDe(p) ? `<span class="ico" data-id="${esc(p.id)}">${iconeDe(p)}</span>` : "");   // lista de Validades: emoji só quando não há foto
 const VSK = "validamais-visao", visaoDe = () => store.get(VSK, "lista") === "grade" ? "grade" : "lista";   // v460: Validades em lista ou grade (Configurações → Cores e prazos)
+const pesAb = new Set();   // v465: grupos de Pesáveis abertos (começa vazio: tudo recolhido)
 const gRec = new Set(["v", "h", "a", "y", "ok"]);   // v463: o app SEMPRE abre com os grupos de urgência recolhidos (resumo limpo); toque no título abre/fecha
 const icoLado = p => { const e = fotoDe(p) ? "" : iconeDe(p); return e ? `<span class="ico ico-lado ico-tile" data-id="${esc(p.id)}">${e}</span>` : ""; };   // v458: emoji do produto num quadrado do mesmo tamanho da foto
 const fotoLado = p => { const d = fotoDe(p); return d ? `<span class="ico ico-foto ico-lado" data-id="${esc(p.id)}"><img class="ico-img" src="${d}" alt="" decoding="async"></span>` : ""; };   // lista de Validades: foto na lateral
@@ -3101,13 +3102,21 @@ function renderPesaveis() {
   const todos = pesaveis().sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "pt-BR", { sensitivity: "base" }));
   const base = todos, { rows, toks } = pesBusca(base, termo);
   if ($("pesInfo")) $("pesInfo").textContent = q ? `${rows.length} de ${todos.length} pesáveis` : `${todos.length} pesáveis`;
-  box.innerHTML = rows.length ? rows.map(p => {
+  const linha = p => {
     const plu = p.codigo_balanca || "", itn = p.codigo_doacao || "";
     const bc = String(p.barcode || ""), esq = plu ? `<span class="pesc plu"><i>PLU</i><b>${esc(plu)}</b></span>` : bc ? `<span class="pesc cod"><i>CÓD</i><b>${esc(bc)}</b></span>` : `<span class="pesc plu vz"><i>PLU</i><b>—</b></span>`;
     const cods = esq + `<span class="pesc itn${itn ? "" : " vz"}"><i>INTERNO</i><b>${itn ? esc(itn) : "—"}</b></span>`;
-    const etq = !!labelCode(p).code;
-    return `<div class="pesrow${pesOpen === p.id ? " open" : ""}" data-pes="${esc(p.id)}"><div class="pesn"><span class="pescods">${cods}</span><div class="pesl"><b class="pesnome">${icoHtml(p)}${pesHl(p.name, toks)}</b></div></div><div class="pesact">${etq ? `<button type="button" class="pesb primary" data-etq="${esc(p.id)}">🏷️ Lançar etiqueta</button>` : ""}<button type="button" class="pesb secondary" data-pedit="${esc(p.id)}">✏️ Editar</button></div></div>`;
-  }).join("") : `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
+    const etq = !!labelCode(p).code, lead = icoHtml(p);
+    return `<div class="pesrow${pesOpen === p.id ? " open" : ""}" data-pes="${esc(p.id)}"><div class="pes-main">${lead ? `<span class="pes-lead">${lead}</span>` : ""}<div class="pesn"><div class="pesl"><b class="pesnome">${pesHl(p.name, toks)}</b></div><span class="pescods">${cods}</span></div></div><div class="pesact">${etq ? `<button type="button" class="pesb primary" data-etq="${esc(p.id)}">${ico("etq")}Lançar etiqueta</button>` : ""}<button type="button" class="pesb secondary" data-pedit="${esc(p.id)}">${ico("lapis")}Editar</button></div></div>`;
+  };
+  if (!rows.length) box.innerHTML = `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
+  else if (q) box.innerHTML = rows.map(linha).join("");   // buscando: lista direta, sem grupos
+  else {   // v465: agrupa pela 1ª palavra do nome (BACON, QUEIJO…); grupos de 1 item vão para «Outros»; abre sempre recolhido
+    const gm = new Map(); rows.forEach(p => { const w = norm(String(p.name || "").trim().split(/\s+/)[0] || "").toUpperCase() || "OUTROS"; (gm.get(w) || gm.set(w, []).get(w)).push(p); });
+    const outros = []; const gs = [...gm.entries()].filter(([w, l]) => { if (l.length < 2 && w !== "OUTROS") { outros.push(...l); return false; } return true; });
+    if (outros.length) gs.push(["OUTROS", outros]);
+    box.innerHTML = gs.map(([w, l]) => { const ab = pesAb.has(w); return `<div class="pgh gp${ab ? "" : " rec"}" data-g="${esc(w)}" role="button" tabindex="0" aria-expanded="${ab}"><span>${esc(w)}</span><i>${l.length}</i><em class="pgc" aria-hidden="true"></em></div>` + (ab ? l.map(linha).join("") : ""); }).join("");
+  }
 }
 // ----- buscas dos Pesáveis: histórico de cada usuário («na conta», vale em qualquer aparelho) + os mais pesquisados -----
 const PES_SUG0 = ["mussarela", "minas", "bacon", "salame", "fracionado", "parmesão"];   // só enquanto o histórico ainda é pequeno
@@ -3165,6 +3174,7 @@ $("pesSug").onclick = e => {
   const c = e.target.closest("[data-pst]"); if (c) { const inp = $("pesBusca"); inp.value = c.dataset.pst; pesHRegistra(c.dataset.pst); renderPesaveis(); pesSugRender(); inp.blur(); }
 };
 $("pesLista").onclick = e => {
+  const gh = e.target.closest(".pgh[data-g]"); if (gh) { const w = gh.dataset.g; pesAb.has(w) ? pesAb.delete(w) : pesAb.add(w); const y = window.scrollY; renderPesaveis(); window.scrollTo(0, y); return; }
   const ic = e.target.closest(".ico"); if (ic) { const im = ic.querySelector("img"); if (im) fotoZoom(im.getAttribute("src")); else iconePicker(ic.dataset.id); return; }
   const b = e.target.closest("[data-etq]"); if (b) { const p = products.find(x => x.id === b.dataset.etq); if (p) labelPick(p); return; }
   const ed = e.target.closest("[data-pedit]"); if (ed) { edit(ed.dataset.pedit); return; }

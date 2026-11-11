@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-11T17:40:00-03:00",
+  "itens": [
+   "Pesáveis organizados como as Validades: a lista agrupa pela primeira palavra do nome (Bacon, Queijo, Presunto…) em barras recolhidas com a quantidade de cada grupo. Toque numa barra para abrir; os grupos de um item só ficam juntos em \"Outros\"",
+   "Cada pesável virou um cartão com a foto ou o ícone à esquerda, o nome em destaque e, embaixo, PLU e Interno em etiquetas lado a lado. Ao buscar, a lista aparece direta, sem grupos"
+  ]
+ },
+ {
   "t": "2026-11-11T17:25:00-03:00",
   "itens": [
    "Em \"Últimos lançados\", tocar em qualquer parte do balão amarelo já volta à lista normal, sem precisar apertar o botão \"Ver tudo\""

@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 464.
+> Última atualização: 11/11/2026 · versão 465.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -120,3 +120,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v462: **Buscas (Atividade dos usuários, Admin) não aparecia**: a consulta `where("n", ">=", "")` ignorava docs `sh_cfg/pbh-*` sem o campo `n`. Agora são duas consultas (`n` e `em`) juntadas, mais o histórico local (`pesHist`) do próprio aparelho; erro de leitura mostra aviso. `V.documentId` não é exportado pelo vendor.js, por isso não usei consulta por id.
 - v463: **abre sempre com os grupos recolhidos**: `gRec` começa com v/h/a/y/ok; `recOn` (só com `cat` e sem busca/filtro/tier/novo/retirados) controla `#list[data-rec]` e a classe `.rec` dos títulos — sem títulos nada fica escondido (corrige também o v459, que escondia cartões com filtro ligado). Títulos `.pgh[data-g]` viram barras de 54px (contagem + seta à direita); texto do grupo 1–3 dias encurtado para «1 a N dias · agir já». Lote lançado por este aparelho abre o grupo dele (`novoEfeito`). Teste: `fonte/tools/h-test.mjs`.
 - v464: «Últimos lançados»: o balão amarelo inteiro (`#novoBar`, role=button) volta ao normal ao toque; «Ver tudo» continua funcionando (o clique sobe até o balão).
+- v465: **Pesáveis organizados** (`renderPesaveis`): sem busca, agrupa pela 1ª palavra do nome (grupos com 1 item → «OUTROS»), barras `.pgh.gp` recolhidas por padrão (`pesAb`, declarado no topo por causa da TDZ); com busca, lista direta. Cartão `.pesrow` com `.pes-lead` (foto/emoji 52px), nome em até 2 linhas e chips PLU/INTERNO lado a lado; botões com ícone de linha. Teste: `fonte/tools/pes-test.mjs`.
