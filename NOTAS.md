@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 466.
+> Última atualização: 11/11/2026 · versão 467.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -122,3 +122,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v464: «Últimos lançados»: o balão amarelo inteiro (`#novoBar`, role=button) volta ao normal ao toque; «Ver tudo» continua funcionando (o clique sobe até o balão).
 - v465: **Pesáveis organizados** (`renderPesaveis`): sem busca, agrupa pela 1ª palavra do nome (grupos com 1 item → «OUTROS»), barras `.pgh.gp` recolhidas por padrão (`pesAb`, declarado no topo por causa da TDZ); com busca, lista direta. Cartão `.pesrow` com `.pes-lead` (foto/emoji 52px), nome em até 2 linhas e chips PLU/INTERNO lado a lado; botões com ícone de linha. Teste: `fonte/tools/pes-test.mjs`.
 - v466: grupos dos Pesáveis por `pesGrupo(nome)`: 1ª palavra sem pontuação; `q`, `qj`, `qjo`, `qjeo`, `q.j`, `queijos`… → QUEIJO; abreviações de `PES_ABREV` (muss→MUSSARELA…) também unem.
+- v467: `pesAgrupa(rows)` junta mais: (1) `pesGrupo` 1ª palavra; (2) nomes parecidos (prefixo comum ≥5 letras e ≥80% da menor) viram um grupo, o maior dá o nome (SALAME+SALAMINHO, PROVOLONE+PROVOLONETE); (3) item sozinho entra no grupo do mesmo tipo via `pesTipo` (emoji de `ICONES`); o resto vai para OUTROS.

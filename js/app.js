@@ -194,6 +194,22 @@ const icoEmoji = p => fotoDe(p) ? "" : (iconeDe(p) ? `<span class="ico" data-id=
 const VSK = "validamais-visao", visaoDe = () => store.get(VSK, "lista") === "grade" ? "grade" : "lista";   // v460: Validades em lista ou grade (Configurações → Cores e prazos)
 // v466: nome do grupo = 1ª palavra, sem pontuação; Q, Q.J, QJ, QJO, QJEO e QUEIJOS entram todos em QUEIJO (e as abreviações do cadastro, como MUSS → MUSSARELA)
 const pesGrupo = n => { const t = norm(String(n || "").trim().split(/\s+/)[0] || "").replace(/[^a-z0-9]/g, ""); if (!t) return "OUTROS"; if (/^q[jeos]{0,3}$/.test(t) || t.startsWith("queij")) return "QUEIJO"; return (PES_ABREV[t] || t).toUpperCase(); };
+// v467: junta o máximo possível — (1) 1ª palavra normalizada; (2) palavras parecidas (SALAME/SALAMINHO, PROVOLONE/PROVOLONETE) viram um grupo, o maior dá o nome; (3) item sozinho entra no grupo do mesmo tipo (mesmo emoji do cadastro, ex. GORGONZOLA → QUEIJO); o que sobrar vai para OUTROS
+const pesTipo = p => { const m = ICONES.find(([r]) => r.test(String(p.name || "").toLowerCase() + " ")); return m ? m[1] : ""; };
+function pesAgrupa(rows) {
+  const gm = new Map(); rows.forEach(p => { const w = pesGrupo(p.name); (gm.get(w) || gm.set(w, []).get(w)).push(p); });
+  const ks = [...gm.keys()].sort((a, b) => gm.get(b).length - gm.get(a).length || a.length - b.length), reps = [], fin = new Map();
+  const parecido = (a, b) => { let c = 0; while (c < a.length && c < b.length && a[c] === b[c]) c++; return c >= 5 && c >= 0.8 * Math.min(a.length, b.length); };
+  ks.forEach(k => { const r = reps.find(x => parecido(x, k)); const alvo = r || k; if (!r) reps.push(k); (fin.get(alvo) || fin.set(alvo, []).get(alvo)).push(...gm.get(k)); });
+  const tipoG = {}; fin.forEach((l, k) => { if (l.length < 2) return; l.forEach(p => { const t = pesTipo(p); if (t) { (tipoG[t] = tipoG[t] || {})[k] = (tipoG[t][k] || 0) + 1; } }); });
+  const outros = []; const gs = [];
+  fin.forEach((l, k) => { if (l.length >= 2 || k === "OUTROS") { gs.push([k, l]); return; }
+    const t = pesTipo(l[0]), c = t && tipoG[t], melhor = c && Object.keys(c).sort((a, b) => c[b] - c[a])[0];
+    if (melhor) fin.get(melhor).push(l[0]); else outros.push(l[0]); });
+  gs.sort((a, b) => a[0].localeCompare(b[0], "pt-BR")); if (outros.length) gs.push(["OUTROS", outros]);
+  gs.forEach(g => g[1].sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "pt-BR", { sensitivity: "base" })));
+  return gs;
+}
 const pesAb = new Set();   // v465: grupos de Pesáveis abertos (começa vazio: tudo recolhido)
 const gRec = new Set(["v", "h", "a", "y", "ok"]);   // v463: o app SEMPRE abre com os grupos de urgência recolhidos (resumo limpo); toque no título abre/fecha
 const icoLado = p => { const e = fotoDe(p) ? "" : iconeDe(p); return e ? `<span class="ico ico-lado ico-tile" data-id="${esc(p.id)}">${e}</span>` : ""; };   // v458: emoji do produto num quadrado do mesmo tamanho da foto
@@ -3114,9 +3130,7 @@ function renderPesaveis() {
   if (!rows.length) box.innerHTML = `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
   else if (q) box.innerHTML = rows.map(linha).join("");   // buscando: lista direta, sem grupos
   else {   // v465: agrupa pela 1ª palavra do nome (BACON, QUEIJO…); grupos de 1 item vão para «Outros»; abre sempre recolhido
-    const gm = new Map(); rows.forEach(p => { const w = pesGrupo(p.name); (gm.get(w) || gm.set(w, []).get(w)).push(p); });
-    const outros = []; const gs = [...gm.entries()].filter(([w, l]) => { if (l.length < 2 && w !== "OUTROS") { outros.push(...l); return false; } return true; });
-    if (outros.length) gs.push(["OUTROS", outros]);
+    const gs = pesAgrupa(rows);
     box.innerHTML = gs.map(([w, l]) => { const ab = pesAb.has(w); return `<div class="pgh gp${ab ? "" : " rec"}" data-g="${esc(w)}" role="button" tabindex="0" aria-expanded="${ab}"><span>${esc(w)}</span><i>${l.length}</i><em class="pgc" aria-hidden="true"></em></div>` + (ab ? l.map(linha).join("") : ""); }).join("");
   }
 }

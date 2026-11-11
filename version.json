@@ -1,1 +1,1 @@
-{"versao":"2026.11.11-466","nota":"Pesáveis: todos os queijos agora ficam num grupo só — \"Q\", \"Q.J\", \"QJ\", \"QJEO\", \"QJO\" e \"QUEIJO\" foram unidos em QUEIJO"}
+{"versao":"2026.11.11-467","nota":"Pesáveis com bem menos grupos: nomes parecidos se juntam (Salame com Salaminho, Provolone com Provolonete…) e o item que ficava sozinho entra no grupo do mesmo tipo (um queijo solto vai para Queijo). Só o que não combina com nada fica em \"Outros\""}
