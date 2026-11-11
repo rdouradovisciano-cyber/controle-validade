@@ -1987,3 +1987,19 @@ html:not([data-tema=dark]) .pitem.prv,html:not([data-tema=dark]) .pitem.prh,html
 html .pitem.prok{border-left-color:var(--cg,#3aa676)}
 html .pitem.pry .pi-nome::before{content:"";display:inline-block;width:1.15em;height:1.15em;margin-right:.4em;vertical-align:-.2em;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d9a800' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 3.5h10M7 20.5h10'/%3E%3Cpath d='M8 3.5c0 4 4 4.5 4 8.5s-4 4.5-4 8.5M16 3.5c0 4-4 4.5-4 8.5s4 4.5 4 8.5'/%3E%3C/svg%3E")}
 html .pitem.prh .pi-nome,html .pitem.prv .pi-nome,html .pitem.pra .pi-nome{color:inherit}
+
+/* v458 · cartão padronizado: coluna lateral fixa (foto ou emoji em quadrado de 52px), nome sempre alinhado; retirados e esqueleto usam o mesmo cartão */
+.ico-tile{display:flex;align-items:center;justify-content:center;width:52px;height:52px;padding:0;margin:0;border-radius:12px;font-size:28px;line-height:1;background:color-mix(in srgb,var(--tc,#888) 10%,transparent);border:1px solid var(--ln,#444);filter:none}
+.pi-main:has(.ico-tile){gap:10px}
+.pitem.prret{--tc:#7a8599;border-left:6px solid #7a8599;opacity:.88}
+.pitem.prret .pi-act{display:block}
+.pitem.prret .pi-badge{background:transparent;color:var(--mut,#9aa3b2);border:2px solid #7a8599}
+.pitem.prret .pi-badge b{font-size:13px;letter-spacing:.04em}
+.pitem.prret .pi-act button{width:100%}
+.pitem.skelc{pointer-events:none;box-shadow:none}
+.pitem.skelc .sk-ic{flex:none;width:52px;height:52px;border-radius:12px}
+.pitem.skelc .sk-t{height:15px;margin-bottom:9px}
+.pitem.skelc .sk-m{height:11px;width:60%;margin:0}
+.pitem.skelc .sk-b{flex:none;width:84px;height:54px;border-radius:12px}
+.ico-tile,.pi-main .ico-lado .ico-img{width:46px;height:46px}.ico-tile{font-size:25px;border-radius:11px}
+.pitem.prret .pi-sub::after,.pitem.prret .pi-nome::after{content:none}

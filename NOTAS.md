@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 10/11/2026 · versão 457.
+> Última atualização: 10/11/2026 · versão 458.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -113,3 +113,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v454: Doação › **romaneio na ordem de lançamento** (pedido do usuário): removidos todos os `.sort(byName)` (finalizeDon, finalizaCont, edição `reSave`, `addToRom`, `showRomaneio`) e o sort da prévia `dFinOpen`; novo `Nº` (coluna `.rn`) na tela e no PDF. Item repetido mantém a posição do 1º lançamento; item acrescentado na edição vai para o fim. A lista ao vivo (`dLista`) continua com o mais novo em cima. Romaneios antigos já foram salvos em ordem alfabética e ficam assim. Teste: `fonte/tools/romaneio-ordem-test.mjs` (o PDF não gera offline no teste: jsPDF vem da rede).
 - v455–v456: **emojis de interface → ícones de linha profissionais** (pedido "1" da lista de layout): helper `ico(n)` + sprite `i-*` no `index.html`; títulos de grupos, menu, botões, fotos, "Últimos lançados" e avisos usam SVG; o selo de status dentro do cartão (`.pitem.pra/prh/prv .pi-nome::before`) agora é ícone SVG (data-URI) em vez de ⚠/🚨/⛔ — removidos os overrides de `background` que pintavam o ::before. Emojis de comida dos produtos continuam. Restam emojis em Doação, Kórin e toasts (próxima passada).
 - v457: **regra de cores** (item 2 do layout): a cor só significa urgência. Fundo dos cartões `.pitem.pr*` neutro (#12161a escuro / #fff claro), cor só na barra lateral, no selo de dias e no ícone de status (amarelo ganhou ampulheta); bloco `v457` no fim do `app.css`.
+- v458: **cartão padronizado** (item 4 do layout): emoji do produto vai para um quadrado lateral (`icoLado`, `.ico-tile` 46px, igual à foto) em vez de ficar dentro do nome, então os nomes alinham; itens retirados usam o mesmo cartão (`.pitem.prret`, selo RETIRADO + data, botão "Voltar para a loja" sempre visível); esqueleto de carregamento tem a forma do cartão (`.pitem.skelc`).
