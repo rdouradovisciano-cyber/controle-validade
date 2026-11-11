@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 10/11/2026 · versão 454.
+> Última atualização: 10/11/2026 · versão 456.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -111,3 +111,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v452: Topo redesenhado de novo (usuário achou a v450 «muito feia»): `hojeTop` agora desenha uma **faixa dos próximos 7 dias** (`.hd`): hoje = pastilha dourada com «HOJE» (`.hd.hoje`), demais dias com sigla e número; sábado/domingo coral (`.fds`), feriado verde (`.fer`); pontinho `u` embaixo do dia quando há lote não retirado vencendo nele (`.on` dourado; em «hoje» conta também os já vencidos e fica vermelho `.od`). `render()` chama `hojeTop()` para atualizar os pontinhos. Com `body.hs` só a pastilha de hoje fica. Nunca voltar às versões «caixa com barras» (v449–450) nem ao mini calendário (v446–448). Teste com data falsa e produtos: `fonte/tools/faixa-7dias-test.mjs`.
 - v453: **Data do topo = texto simples** «Terça-feira, 10 de novembro» (`hojeTop`, `.hojeTop.ht`, 16px branco, reticências se faltar espaço). Pedido final do usuário: «só quero uma data de hoje simples». As versões enfeitadas (mini calendário v446–448, caixa com barras v449–450, faixa de 7 dias v452) foram removidas — **não reintroduzir enfeites no topo**; os testes delas (`topo-data-test`, `faixa-7dias-test`) foram apagados.
 - v454: Doação › **romaneio na ordem de lançamento** (pedido do usuário): removidos todos os `.sort(byName)` (finalizeDon, finalizaCont, edição `reSave`, `addToRom`, `showRomaneio`) e o sort da prévia `dFinOpen`; novo `Nº` (coluna `.rn`) na tela e no PDF. Item repetido mantém a posição do 1º lançamento; item acrescentado na edição vai para o fim. A lista ao vivo (`dLista`) continua com o mais novo em cima. Romaneios antigos já foram salvos em ordem alfabética e ficam assim. Teste: `fonte/tools/romaneio-ordem-test.mjs` (o PDF não gera offline no teste: jsPDF vem da rede).
+- v455–v456: **emojis de interface → ícones de linha profissionais** (pedido "1" da lista de layout): helper `ico(n)` + sprite `i-*` no `index.html`; títulos de grupos, menu, botões, fotos, "Últimos lançados" e avisos usam SVG; o selo de status dentro do cartão (`.pitem.pra/prh/prv .pi-nome::before`) agora é ícone SVG (data-URI) em vez de ⚠/🚨/⛔ — removidos os overrides de `background` que pintavam o ::before. Emojis de comida dos produtos continuam. Restam emojis em Doação, Kórin e toasts (próxima passada).

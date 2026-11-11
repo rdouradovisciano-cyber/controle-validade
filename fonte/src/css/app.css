@@ -1256,9 +1256,10 @@ html:not([data-tema=dark]) .peslista .pesrow .pesn .pesc.cod{background:#e6e6e6;
 .pgh.ga{--tc:#e5202e;--tx:#fff}
 .pitem.pra{border-width:2px;border-left-width:10px;background:color-mix(in srgb,#e5202e 16%,#fff)}
 html[data-tema=dark] .pitem.pra{background:color-mix(in srgb,#e5202e 26%,#0c0f0d)}
-.pitem.pra .pi-nome::before,.pitem.prh .pi-nome::before{content:"⚠";display:inline-block;margin-right:6px;padding:0 6px;border-radius:7px;background:#e5202e;color:#fff;font-size:15px;line-height:22px;vertical-align:1px}
-.pitem.prh .pi-nome::before{content:"🚨";background:none;padding:0;font-size:17px}
-.pitem.prv .pi-nome::before{content:"⛔";margin-right:6px;font-size:16px}
+.pitem.pra .pi-nome::before,.pitem.prh .pi-nome::before,.pitem.prv .pi-nome::before{content:"";display:inline-block;width:1.15em;height:1.15em;margin-right:.4em;vertical-align:-.2em;background:center/contain no-repeat}
+.pitem.pra .pi-nome::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e5202e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4 2.8 19.5h18.4z'/%3E%3Cpath d='M12 10v4.5M12 17.2v.1'/%3E%3C/svg%3E")}
+.pitem.prh .pi-nome::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e5202e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='13' r='7.5'/%3E%3Cpath d='M12 9.5V13l2.4 1.6M4 5.5 7 3M20 5.5 17 3'/%3E%3C/svg%3E")}
+.pitem.prv .pi-nome::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e5202e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='m9 9 6 6M15 9l-6 6'/%3E%3C/svg%3E")}
 .pitem.pra .pi-badge,.pitem.prh .pi-badge{box-shadow:0 0 0 3px color-mix(in srgb,#e5202e 35%,transparent)}
 .pitem.prh .pi-badge{animation:vmPulso 1.4s ease-in-out infinite}
 @keyframes vmPulso{50%{box-shadow:0 0 0 7px color-mix(in srgb,#e5202e 10%,transparent)}}
@@ -1308,12 +1309,10 @@ html .pgh{--tc:var(--cg,#3aa676);--tx:var(--tcg,#fff)}
 html .pgh.gv{--tc:var(--cv,#b3122a);--tx:var(--tcv,#fff)}html .pgh.gh{--tc:var(--ch,#e11d2e);--tx:var(--tch,#fff)}
 html .pgh.ga{--tc:var(--ca,#e5202e);--tx:var(--tca,#fff)}html .pgh.gy{--tc:var(--cy,#f2c200);--tx:var(--tcy,#241c00)}
 html .pitem.prv .pi-badge{background:repeating-linear-gradient(135deg,var(--cv,#8f1020) 0 10px,color-mix(in srgb,var(--cv,#8f1020) 60%,#000) 10px 20px)}
-html .pitem.pra .pi-nome::before{background:var(--ca,#e5202e);color:var(--tca,#fff)}
 html .pitem.pra{background:color-mix(in srgb,var(--ca,#e5202e) 16%,#fff)}
 html[data-tema=dark] .pitem.pra{background:color-mix(in srgb,var(--ca,#e5202e) 26%,#0c0f0d)}
 html .pitem.pry{background:color-mix(in srgb,var(--cy,#f2c200) 12%,#fff)}
 html[data-tema=dark] .pitem.pry{background:color-mix(in srgb,var(--cy,#f2c200) 24%,#0c0f0d)}
-html .pitem.prh .pi-nome::before{background:none}
 html[data-fonte=grande] .pitem .pi-nome{font-size:22px}
 html[data-fonte=grande] .pitem .pi-sub{font-size:15.5px}
 html[data-fonte=grande] .pitem .pi-badge b{font-size:25px}
@@ -1398,7 +1397,6 @@ html[data-tema=dark] .pitem .pi-nome{color:#ebe7da}
 html[data-tema=dark] .pitem .pi-sub{color:#a9a595;opacity:1}
 html .pitem.prv .pi-badge{background:repeating-linear-gradient(135deg,var(--cv,#8a3a45) 0 10px,color-mix(in srgb,var(--cv,#8a3a45) 78%,#000) 10px 20px)}
 html .pgh i{box-shadow:none}
-html .pitem.pra .pi-nome::before{background:var(--ca,#c7514a)}
 .pitem .pi-sub{letter-spacing:.01em;font-size:12px}
 html .pitem.prok{border-left-color:var(--cg,#4a9a78)}
 
@@ -1973,3 +1971,11 @@ html[data-tema="light"] .hojeTop.ht{color:#fff}
 
 /* romaneio: coluna Nº (ordem de lançamento) */
 .rom th.rn,.rom td.rn{width:34px;text-align:center;font-variant-numeric:tabular-nums;opacity:.75}
+
+/* ícones de linha no lugar de emojis (mesmo traço dos ícones das abas) */
+.ic.ti{width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.45em;stroke-width:1.9}
+.ic.ti.only{margin-right:0}.ic.ti.only.big{width:1.6em;height:1.6em;vertical-align:middle}
+button .ic.ti,.lnk .ic.ti{flex:none}
+.menu button .ic.ti{width:1.2em;height:1.2em;color:var(--gold1,#e2bf55)}
+.pgh .ic.ti,.tbs .ic.ti,.pitem .ic.ti{margin-right:.35em}
+.tbs i .ic.ti{margin-right:.15em;vertical-align:-.22em}
