@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-11T16:50:00-03:00",
+  "itens": [
+   "Atividade dos usuários › Buscas (Admin): corrigi a lista que aparecia vazia. Agora ela também encontra históricos antigos (sem o campo de nome), mostra as buscas feitas neste aparelho e avisa se não conseguir carregar"
+  ]
+ },
+ {
   "t": "2026-11-11T16:30:00-03:00",
   "itens": [
    "Nova opção em Configurações → Cores e prazos: \"Visualização da lista de Validades\". Escolha Lista (como era) ou Grade, com dois cartões por linha, foto grande do produto e selo de dias sobre a foto"

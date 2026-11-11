@@ -1,1 +1,1 @@
-{"versao":"2026.11.11-461","nota":"Nova opção em Configurações → Cores e prazos: \"Visualização da lista de Validades\". Escolha Lista (como era) ou Grade, com dois cartões por linha, foto grande do produto e selo de dias sobre a foto"}
+{"versao":"2026.11.11-462","nota":"Atividade dos usuários › Buscas (Admin): corrigi a lista que aparecia vazia. Agora ela também encontra históricos antigos (sem o campo de nome), mostra as buscas feitas neste aparelho e avisa se não conseguir carregar"}

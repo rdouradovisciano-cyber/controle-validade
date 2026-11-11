@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 461.
+> Última atualização: 11/11/2026 · versão 462.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -117,3 +117,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v459: **Validades mais organizada**: foto/emoji lateral de 60px; visualizador de foto em tela cheia (`fotoZoom(src, legenda)` com nome/qtd/validade, duplo toque amplia, botão fechar); linha de detalhe em duas (`.pi-sub` Qtd+vence, `.pi-sub2` etiquetas de lotes/hora/quem lançou); grupos de urgência recolhíveis (`gRec`, `#list[data-rec~=…]`, `.pgh[data-g]`). Teste: `fonte/tools/foto-test.mjs`.
 - v460: **selo de lote** em `.pi-sub2`: cada cartão de um produto com mais de uma validade mostra `1/3`, `2/3`, `3/3` com uma barrinha (`.plb i`, acesa = posição), no lugar de «N lotes». Agrupamento igual ao `lotesDe` (por código de barras ou, sem código, pelo nome, sem retirados) e ordem pela validade (vence primeiro = Lote 1). `loteMode` também numera «Lote 1/3», «Lote 2/3»…
 - v461: **grade nas Validades como opção** (Configurações → Cores e prazos → "Visualização da lista de Validades"): `visaoDe()` lê `validamais-visao` (lista|grade), `#list[data-visao=grade]` em 2 colunas, foto/emoji grande, selo de dias sobre a foto, cartão aberto ocupa a linha toda. Padrão continua Lista. Teste: `fonte/tools/grade-test.mjs`.
+- v462: **Buscas (Atividade dos usuários, Admin) não aparecia**: a consulta `where("n", ">=", "")` ignorava docs `sh_cfg/pbh-*` sem o campo `n`. Agora são duas consultas (`n` e `em`) juntadas, mais o histórico local (`pesHist`) do próprio aparelho; erro de leitura mostra aviso. `V.documentId` não é exportado pelo vendor.js, por isso não usei consulta por id.
