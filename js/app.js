@@ -192,6 +192,8 @@ const icoHtml = p => { const d = fotoDe(p), e = iconeDe(p); if (!d && !e) return
   return `<span class="ico${d ? " ico-foto" : ""}" data-id="${esc(p.id)}">${d ? `<img class="ico-img" src="${d}" alt="" decoding="async">` : e}</span>`; };
 const icoEmoji = p => fotoDe(p) ? "" : (iconeDe(p) ? `<span class="ico" data-id="${esc(p.id)}">${iconeDe(p)}</span>` : "");   // lista de Validades: emoji só quando não há foto
 const VSK = "validamais-visao", visaoDe = () => store.get(VSK, "lista") === "grade" ? "grade" : "lista";   // v460: Validades em lista ou grade (Configurações → Cores e prazos)
+// v466: nome do grupo = 1ª palavra, sem pontuação; Q, Q.J, QJ, QJO, QJEO e QUEIJOS entram todos em QUEIJO (e as abreviações do cadastro, como MUSS → MUSSARELA)
+const pesGrupo = n => { const t = norm(String(n || "").trim().split(/\s+/)[0] || "").replace(/[^a-z0-9]/g, ""); if (!t) return "OUTROS"; if (/^q[jeos]{0,3}$/.test(t) || t.startsWith("queij")) return "QUEIJO"; return (PES_ABREV[t] || t).toUpperCase(); };
 const pesAb = new Set();   // v465: grupos de Pesáveis abertos (começa vazio: tudo recolhido)
 const gRec = new Set(["v", "h", "a", "y", "ok"]);   // v463: o app SEMPRE abre com os grupos de urgência recolhidos (resumo limpo); toque no título abre/fecha
 const icoLado = p => { const e = fotoDe(p) ? "" : iconeDe(p); return e ? `<span class="ico ico-lado ico-tile" data-id="${esc(p.id)}">${e}</span>` : ""; };   // v458: emoji do produto num quadrado do mesmo tamanho da foto
@@ -3112,7 +3114,7 @@ function renderPesaveis() {
   if (!rows.length) box.innerHTML = `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
   else if (q) box.innerHTML = rows.map(linha).join("");   // buscando: lista direta, sem grupos
   else {   // v465: agrupa pela 1ª palavra do nome (BACON, QUEIJO…); grupos de 1 item vão para «Outros»; abre sempre recolhido
-    const gm = new Map(); rows.forEach(p => { const w = norm(String(p.name || "").trim().split(/\s+/)[0] || "").toUpperCase() || "OUTROS"; (gm.get(w) || gm.set(w, []).get(w)).push(p); });
+    const gm = new Map(); rows.forEach(p => { const w = pesGrupo(p.name); (gm.get(w) || gm.set(w, []).get(w)).push(p); });
     const outros = []; const gs = [...gm.entries()].filter(([w, l]) => { if (l.length < 2 && w !== "OUTROS") { outros.push(...l); return false; } return true; });
     if (outros.length) gs.push(["OUTROS", outros]);
     box.innerHTML = gs.map(([w, l]) => { const ab = pesAb.has(w); return `<div class="pgh gp${ab ? "" : " rec"}" data-g="${esc(w)}" role="button" tabindex="0" aria-expanded="${ab}"><span>${esc(w)}</span><i>${l.length}</i><em class="pgc" aria-hidden="true"></em></div>` + (ab ? l.map(linha).join("") : ""); }).join("");
