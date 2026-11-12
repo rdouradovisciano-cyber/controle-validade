@@ -232,13 +232,14 @@ const icoLado = p => fotoDe(p) || !iconesOn() || !p || p.category !== PER ? "" :
 // v473: a nota vira um balão amarelo no canto da foto do produto (sem foto/quadrado, o ícone continua ao lado do nome)
 const leadNota = p => { const l = fotoLado(p) || icoLado(p); if (!l) return ""; const n = notaDe(p.id); return `<span class="pi-lead">${l}</span>`; };
 const fotoLado = p => { const d = fotoDe(p); return d ? `<span class="ico ico-foto ico-lado" data-id="${esc(p.id)}"><img class="ico-img" src="${d}" alt="" decoding="async"></span>` : ""; };   // lista de Validades: foto na lateral
+const kFotoN = n => { if (!iconesOn() || !n) return ""; const d = fotoCache[fotoK(n)]; return d ? `<span class="ico ico-foto ico-lado" data-kn="${esc(n)}"><img class="ico-img" src="${d}" alt="" decoding="async"></span>` : `<span class="ico-tile ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`; };   // v484: foto do produto na contagem do KÓRIN
 let fotoIcTimer = 0, fotoVer = 0, famMemo = { p: null, n: -1, v: -1, m: new Map() };
 // foto para os balões e linhas da Doação (FLV): a do nome exato; senão a de qualquer produto da mesma família (1ª palavra: Banana, Tomate…)
 function famFotos() { if (famMemo.p === products && famMemo.n === products.length && famMemo.v === fotoVer) return famMemo.m;
   const m = new Map(); products.forEach(p => { if (!p || !p.name) return; const d = fotoCache[fotoK(p.name)]; if (!d) return; const k = dFamKey(p.name); if (k && !m.has(k)) m.set(k, d); });
   famMemo = { p: products, n: products.length, v: fotoVer, m }; return m; }
 function balFoto(w) { if (!iconesOn() || !w) return ""; const ex = fotoCache[fotoK(w)]; if (ex) return ex; const k = dFamKey(w); return k ? (famFotos().get(k) || "") : ""; }
-function fotoIcones() { clearTimeout(fotoIcTimer); fotoIcTimer = setTimeout(() => { fotoVer++; try { render(); } catch (e) {} try { if ($("dTop6")) renderDon(); } catch (e) {} try { if ($("pesLista") && $("pesLista").children.length) renderPesaveis(); } catch (e) {} try { if (SETOR === FIS) cadPaint(); } catch (e) {} }, 60); }
+function fotoIcones() { clearTimeout(fotoIcTimer); fotoIcTimer = setTimeout(() => { fotoVer++; try { render(); } catch (e) {} try { if ($("dTop6")) renderDon(); } catch (e) {} try { if ($("pesLista") && $("pesLista").children.length) renderPesaveis(); } catch (e) {} try { if (SETOR === FIS) cadPaint(); } catch (e) {} try { if (SETOR === KOR && $("kLista")) kPaint(); } catch (e) {} }, 60); }
 function fotosTodas() {
   if (fotosOuvindo) return; fotosOuvindo = true;
   if (!db) { const m = store.get(FTK, {}); Object.keys(m).forEach(k => { fotoCache[k] = m[k]; }); fotosPronto = true; return; }
@@ -279,9 +280,9 @@ function fotoZoom(src, leg) { const bg = document.createElement("div"); bg.class
   bg.onclick = e => { if (e.target === im) return; bg.remove(); }; document.body.appendChild(bg); }
 // v475: segurar a foto (0,5 s) amplia em tela cheia; um toque rápido abre/fecha o cartão normalmente
 (function fotoSegurar() {
-  let t = null, seg = false, x0 = 0, y0 = 0; const alvo = e => { const ic = e.target.closest && e.target.closest(".ico-foto"); return ic && ic.closest("#list, #pesLista") ? ic : null; }, para = () => { clearTimeout(t); t = null; };
+  let t = null, seg = false, x0 = 0, y0 = 0; const alvo = e => { const ic = e.target.closest && e.target.closest(".ico-foto"); return ic && ic.closest("#list, #pesLista, #kLista") ? ic : null; }, para = () => { clearTimeout(t); t = null; };
   document.addEventListener("pointerdown", e => { const ic = alvo(e); if (!ic) return; seg = false; para(); x0 = e.clientX; y0 = e.clientY;
-    t = setTimeout(() => { const im = ic.querySelector("img"); if (!im) return; seg = true; try { navigator.vibrate && navigator.vibrate(15); } catch (er) {} fotoZoom(im.getAttribute("src"), legFoto(ic.dataset.id)); }, 500); });
+    t = setTimeout(() => { const im = ic.querySelector("img"); if (!im) return; seg = true; try { navigator.vibrate && navigator.vibrate(15); } catch (er) {} fotoZoom(im.getAttribute("src"), ic.dataset.kn ? `<b>${esc(ic.dataset.kn)}</b>` : legFoto(ic.dataset.id)); }, 500); });
   document.addEventListener("pointermove", e => { if (t && Math.hypot(e.clientX - x0, e.clientY - y0) > 10) para(); });
   ["pointerup", "pointercancel"].forEach(n => document.addEventListener(n, para));
   document.addEventListener("click", e => { if (seg && alvo(e)) { e.stopPropagation(); e.preventDefault(); } seg = false; }, true);
@@ -2102,13 +2103,13 @@ const kOrd = () => kList.slice().sort((a, b) => a.n.localeCompare(b.n, "pt-BR", 
 const kTot = () => { const m = {}; kList.forEach(i => { m[i.u] = (m[i.u] || 0) + i.q; }); return Object.keys(m).map(u => fq(m[u]) + " " + u).join(" · ") || "0"; };
 function kPaint() {
   $("kSumP").textContent = kList.length; $("kSumT").textContent = kTot();
-  $("kLista").innerHTML = kList.length ? kOrd().map(i => `<div class="krow"><div class="kn"><b>${esc(i.n)}</b>${i.b ? `<small>EAN ${eanFin(i.b)}</small>` : ""}</div><button type="button" class="kq" data-ked="${esc(i.n)}|${i.u}">${fq(i.q)} ${esc(i.u)}</button><button type="button" class="kx" data-kdel="${esc(i.n)}|${i.u}" aria-label="Remover ${esc(i.n)}">✕</button></div>`).join("") : `<p class="empty">${SETOR === KOR && !products.length ? "Nenhum item do KÓRIN ainda. Em Cadastros, toque em «Escolher itens do KÓRIN»." : kModo === "ant" ? "Nada digitado ainda." : kModo === "rec" ? "Nada chegou ainda." : "Nada contado ainda."}</p>`;
+  $("kLista").innerHTML = kList.length ? kOrd().map(i => `<div class="krow">${kFotoN(i.n)}<div class="kn"><b>${esc(i.n)}</b>${i.b ? `<small>EAN ${eanFin(i.b)}</small>` : ""}</div><button type="button" class="kq" data-ked="${esc(i.n)}|${i.u}">${fq(i.q)} ${esc(i.u)}</button><button type="button" class="kx" data-kdel="${esc(i.n)}|${i.u}" aria-label="Remover ${esc(i.n)}">✕</button></div>`).join("") : `<p class="empty">${SETOR === KOR && !products.length ? "Nenhum item do KÓRIN ainda. Em Cadastros, toque em «Escolher itens do KÓRIN»." : kModo === "ant" ? "Nada digitado ainda." : kModo === "rec" ? "Nada chegou ainda." : "Nada contado ainda."}</p>`;
 }
 function kEscolhe(p) { kPick = p; $("kSel").hidden = !p; $("kSug").innerHTML = ""; if (!p) return; $("kBusca").value = ""; $("kSelNome").textContent = p.n; $("kQtd").value = ""; $("kQtd").focus(); }
 function kSug() {
   const q = norm($("kBusca").value.trim()); if (!q) { $("kSug").innerHTML = ""; return; }
   const hits = cadGroups().filter(x => norm(x.name).includes(q) || x.barcode.includes(q)).slice(0, 8);
-  $("kSug").innerHTML = hits.map((x, i) => `<div class="pick" data-kp="${i}"><b>${esc(x.name)}</b>${x.barcode ? ` <small class="muted">${esc(x.barcode)}</small>` : ""}</div>`).join("") + `<div class="pick" data-kp="novo">➕ Usar «${esc($("kBusca").value.trim())}» sem cadastro</div>`;
+  $("kSug").innerHTML = hits.map((x, i) => `<div class="pick kpk" data-kp="${i}">${kFotoN(x.name)}<span><b>${esc(x.name)}</b>${x.barcode ? ` <small class="muted">${esc(x.barcode)}</small>` : ""}</span></div>`).join("") + `<div class="pick" data-kp="novo">➕ Usar «${esc($("kBusca").value.trim())}» sem cadastro</div>`;
   $("kSug")._hits = hits; }
 $("kBusca").oninput = kSug;
 $("kBusca").onkeydown = e => { if (e.key === "Enter") { const b = $("kSug").querySelector("[data-kp]"); if (b) b.click(); } };

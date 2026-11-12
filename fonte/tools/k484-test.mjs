@@ -1,0 +1,20 @@
+import { chromium } from "playwright-core"; import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D=path.resolve(process.argv[2]),SHOT=process.argv[3];
+const srv=http.createServer((q,r)=>{let f=path.join(D,q.url.split("?")[0]);if(f.endsWith("/"))f+="index.html";if(!fs.existsSync(f)){r.writeHead(404);return r.end()}
+let b=fs.readFileSync(f);if(/\.(html|js)$/.test(f)&&!/ocr\//.test(f))b=Buffer.from(b.toString().replace(/apiKey:\s*"[^"]*"/g,'apiKey:"COLE_"').replace(/login:\s*\{\s*email:[^}]*\}/g,"login: null"));
+r.writeHead(200,{"content-type":{".html":"text/html",".js":"text/javascript",".css":"text/css"}[path.extname(f)]||"application/octet-stream"});r.end(b)}).listen(0);
+const br=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const ctx=await br.newContext({viewport:{width:390,height:860},deviceScaleFactor:2});
+await ctx.addInitScript(()=>{if(localStorage.getItem("s"))return;localStorage.setItem("s","1");
+const png="data:image/png;base64,"+"iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8z8BQz0AEYBxVSF+FABJADveWkH6oAAAAAElFTkSuQmCC";
+localStorage.setItem("validamais-operador",JSON.stringify("T"));localStorage.setItem("validamais-perfil","Admin");sessionStorage.setItem("validamais-setor","KÓRIN");
+localStorage.setItem("validamais-korin-ant",JSON.stringify([{n:"Coxa 700g",b:"7893753001317",q:114,u:"un"},{n:"Peito 1kg",b:"",q:8,u:"un"}]));
+localStorage.setItem("validamais-fotos-per",JSON.stringify({"foto-coxa 700g":png}));});
+const pg=await ctx.newPage();const errs=[];pg.on("pageerror",e=>errs.push(String(e)));
+await pg.goto(`http://localhost:${srv.address().port}/`);await pg.waitForTimeout(3500);
+const keys=await pg.evaluate(()=>Object.keys(JSON.parse(localStorage.getItem("validamais-fotos-per")||"{}")));
+const tab=await pg.$$eval("button",b=>b.filter(x=>/Contagem/.test(x.textContent)).length);console.log("tem aba contagem:",tab);
+await pg.evaluate(()=>{const b=[...document.querySelectorAll("button")].find(x=>/Contagem/.test(x.textContent)&&x.offsetParent);b&&b.click()});await pg.waitForTimeout(800);
+console.log("linhas:",await pg.$$eval("#kLista .krow",r=>r.map(x=>({foto:!!x.querySelector("img.ico-img"),vazio:!!x.querySelector(".ico-vazio"),n:x.querySelector("b").textContent}))).then(JSON.stringify));
+await pg.screenshot({path:SHOT+"/k484.png"});
+console.log(JSON.stringify(errs));await br.close();srv.close();
