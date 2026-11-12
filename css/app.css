@@ -2141,3 +2141,10 @@ html[data-tema=dark] .pi-bal{border-color:#12161a}
 .pi-bubble{margin:14px 12px 12px}
 .pi-bubble::before{left:22px}
 .ico-foto,.ico-foto img{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}.ico-foto{cursor:pointer}
+
+/* v476 · notas mais usadas: atalhos de um toque abaixo do campo de nota */
+.nt-fav{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}
+.nt-chip{border:1.5px solid color-mix(in srgb,#f2c200 55%,transparent);background:transparent;color:inherit;border-radius:99px;padding:7px 12px;font-size:13.5px;font-weight:700;line-height:1.1;-webkit-tap-highlight-color:transparent}
+.nt-chip.on{background:#f2c200;border-color:#f2c200;color:#241c00}
+.nt-chip:active{transform:scale(.97)}
+.nt-chip{padding:6px 11px;font-size:13px}.nt-fav{gap:5px}
