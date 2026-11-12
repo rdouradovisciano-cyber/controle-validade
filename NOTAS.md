@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 474.
+> Última atualização: 11/11/2026 · versão 475.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -130,3 +130,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v472: cartão aberto das Validades não repete mais a foto grande (`fotoHtml` devolve "" com foto e fora do Editar; `.pi-foto:empty{display:none}`); sem foto continuam «Tirar foto»/«Escolher imagem», agora com ícones de linha.
 - v473: nota = balão amarelo no canto da foto (`leadNota`, `.pi-lead` + `.pi-bal`, símbolo `i-balao`); sem foto/quadrado o ícone `pi-nt` continua ao lado do nome.
 - v474: a nota virou balão grande com a frase (`.pi-bubble`, ponta apontando para a foto, até 3 linhas) entre a linha principal e as ações; some no cartão aberto; a bolinha `.pi-bal` do v473 ficou escondida (`display:none`) e `pi-nt` saiu do nome.
+- v475: foto do produto: toque = abre/fecha o cartão (sem ampliar); segurar 0,5 s = tela cheia (`fotoSegurar`, pointer events; o clique seguinte é engolido; contextmenu bloqueado). Vale para Validades (#list) e Pesáveis (#pesLista). Teste: `fonte/tools/lp-test.mjs`.

@@ -2140,3 +2140,4 @@ html[data-tema=dark] .pi-bal{border-color:#12161a}
 .pitem.open .pi-bubble{display:none}
 .pi-bubble{margin:14px 12px 12px}
 .pi-bubble::before{left:22px}
+.ico-foto,.ico-foto img{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}.ico-foto{cursor:pointer}

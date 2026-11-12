@@ -265,6 +265,16 @@ async function fotoApaga(id) {
 function fotoZoom(src, leg) { const bg = document.createElement("div"); bg.className = "askbg fzv"; bg.innerHTML = `<button type="button" class="fz-x" aria-label="Fechar">${ico("fechar", "ic")}</button><img src="${src}" alt="Foto do produto">${leg ? `<div class="fz-leg">${leg}</div>` : ""}<small class="fz-dica">Toque duas vezes para ampliar</small>`; const im = bg.querySelector("img"); let z = false;
   im.ondblclick = e => { e.stopPropagation(); z = !z; im.classList.toggle("z", z); };
   bg.onclick = e => { if (e.target === im) return; bg.remove(); }; document.body.appendChild(bg); }
+// v475: segurar a foto (0,5 s) amplia em tela cheia; um toque rápido abre/fecha o cartão normalmente
+(function fotoSegurar() {
+  let t = null, seg = false, x0 = 0, y0 = 0; const alvo = e => { const ic = e.target.closest && e.target.closest(".ico-foto"); return ic && ic.closest("#list, #pesLista") ? ic : null; }, para = () => { clearTimeout(t); t = null; };
+  document.addEventListener("pointerdown", e => { const ic = alvo(e); if (!ic) return; seg = false; para(); x0 = e.clientX; y0 = e.clientY;
+    t = setTimeout(() => { const im = ic.querySelector("img"); if (!im) return; seg = true; try { navigator.vibrate && navigator.vibrate(15); } catch (er) {} fotoZoom(im.getAttribute("src"), legFoto(ic.dataset.id)); }, 500); });
+  document.addEventListener("pointermove", e => { if (t && Math.hypot(e.clientX - x0, e.clientY - y0) > 10) para(); });
+  ["pointerup", "pointercancel"].forEach(n => document.addEventListener(n, para));
+  document.addEventListener("click", e => { if (seg && alvo(e)) { e.stopPropagation(); e.preventDefault(); } seg = false; }, true);
+  document.addEventListener("contextmenu", e => { if (alvo(e)) e.preventDefault(); });
+})();
 const legFoto = id => { const p = products.find(x => x.id === id); return p ? `<b>${esc(nomeBonito(p.name))}</b><span>Qtd ${esc(p.quantity)} · vence ${fmtCurto(p.expiry)}</span>` : ""; };
 // ---------- aparência e prazos personalizáveis (cores + dias do vermelho/amarelo + tamanho da letra) ----------
 const VK = "validamais-visual", VIS_PAD = { red: 3, yel: null, cores: { v: "#8a3a45", h: "#bf4a52", a: "#c7514a", y: "#c9a22f", g: "#4a9a78" }, fonte: "normal" };
@@ -928,7 +938,7 @@ function fotoClique(e) { const pf = e.target.closest(".pi-foto"); if (!pf) retur
   if (e.target.closest("[data-fz]")) fotoZoom(e.target.closest("[data-fz]").src); else if (e.target.closest("[data-fadd]")) { const f = q("[data-fin][capture]"); if (f) f.click(); } else if (e.target.closest("[data-fgal]")) { const f = q("[data-fin]:not([capture])"); if (f) f.click(); } else if (e.target.closest("[data-fdel]")) fotoApaga(id); return true; }
 const fotoMuda = e => { const f = e.target.closest && e.target.closest("[data-fin]"); if (f && f.files && f.files[0]) { fotoSalva(f.dataset.fin, f.files[0]); f.value = ""; } };
 $("list").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("click", fotoClique);
-$("list").onclick = e => { const gh = e.target.closest(".pgh[data-g]"); if (gh) { const g = gh.dataset.g; gRec.has(g) ? gRec.delete(g) : gRec.add(g); gh.classList.toggle("rec", gRec.has(g)); gh.setAttribute("aria-expanded", !gRec.has(g)); $("list").dataset.rec = [...gRec].join(" "); return; } const ic = e.target.closest(".ico"); if (ic) { const im = ic.querySelector("img"); if (im) fotoZoom(im.getAttribute("src"), legFoto(ic.dataset.id)); else iconePicker(ic.dataset.id); return; } if (e.target.closest(".pi-nota")) return;
+$("list").onclick = e => { const gh = e.target.closest(".pgh[data-g]"); if (gh) { const g = gh.dataset.g; gRec.has(g) ? gRec.delete(g) : gRec.add(g); gh.classList.toggle("rec", gRec.has(g)); gh.setAttribute("aria-expanded", !gRec.has(g)); $("list").dataset.rec = [...gRec].join(" "); return; } if (e.target.closest(".pi-nota")) return;   // v475: toque na foto = comportamento normal do cartão; ampliar só segurando (ver fotoSegurar)
   if (fotoClique(e)) return; const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); if (openId) fotoCarrega(openId); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
 $("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(SETOR === FIS ? "fiscal" : curTab === "Doacao" ? "doacao" : curTab === "Pesaveis" ? "etiqueta" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : curTab === "Contagem" ? "contagem" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = () => { stopScanner(); if (scanMode === "form") { show("Cadastrar produto"); return; } if (scanMode !== "loja") closeModal(); else openForm(); };
@@ -3207,7 +3217,7 @@ $("pesSug").onclick = e => {
 };
 $("pesLista").onclick = e => {
   const gh = e.target.closest(".pgh[data-g]"); if (gh) { const w = gh.dataset.g; pesAb.has(w) ? pesAb.delete(w) : pesAb.add(w); const y = window.scrollY; renderPesaveis(); window.scrollTo(0, y); return; }
-  const ic = e.target.closest(".ico"); if (ic) { const im = ic.querySelector("img"); if (im) fotoZoom(im.getAttribute("src")); else iconePicker(ic.dataset.id); return; }
+  
   const b = e.target.closest("[data-etq]"); if (b) { const p = products.find(x => x.id === b.dataset.etq); if (p) labelPick(p); return; }
   const ed = e.target.closest("[data-pedit]"); if (ed) { edit(ed.dataset.pedit); return; }
   const r = e.target.closest("[data-pes]"); if (r) { if (pesOpen !== r.dataset.pes) pesHRegistra($("pesBusca").value); pesOpen = pesOpen === r.dataset.pes ? "" : r.dataset.pes; document.querySelectorAll("#pesLista .pesrow").forEach(x => x.classList.toggle("open", x.dataset.pes === pesOpen)); }
