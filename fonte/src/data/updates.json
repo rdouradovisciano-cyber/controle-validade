@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-12T10:00:00-03:00",
+  "itens": [
+   "Saíram do menu ⋮ as opções \"Cadastro manual\" e \"Perfil deste aparelho\". Para trocar o perfil do aparelho, toque 10 vezes seguidas na versão, no rodapé (continua pedindo a senha do Admin). O botão \"+ Cadastro\" da tela segue igual"
+  ]
+ },
+ {
   "t": "2026-11-12T09:00:00-03:00",
   "itens": [
    "O tour de boas-vindas foi removido, a pedido. O app abre direto, como antes"

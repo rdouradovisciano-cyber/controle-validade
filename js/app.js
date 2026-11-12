@@ -2898,7 +2898,6 @@ function atvAbrir() {
   else { dados = store.get(ATK, []); desenha(); }
 }
 $("mnAtv").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } atvAbrir(); };
-$("mnPerfil").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } perfilEscolher(true); };
 // ---------- notificações de vencimento (cada pessoa liga e escolhe quantos dias antes quer ser avisada) ----------
 const NTK = "validamais-notif";
 const NOTIF_DIAS_PER = 3;   // Perecíveis: avisa o que vence em até 3 dias (e o que já venceu)
@@ -3503,7 +3502,10 @@ $("rodOn").onclick = () => $("onChip").click();
   }
   window.addEventListener("load", () => setTimeout(check, 1500));
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") check(); });
-  $("appVer").onclick = () => { toast("Versão " + APP_VERSION + " · verificando…"); check(); };
+  { let vt = 0, vtm = 0;   // 10 toques seguidos na versão (rodapé) abrem a troca de perfil; toques espaçados > 2 s recomeçam a contagem
+  $("appVer").onclick = () => { clearTimeout(vtm); vt++; vtm = setTimeout(() => { vt = 0; }, 2000);
+    if (vt >= 10) { vt = 0; perfilEscolher(true); return; }
+    if (vt <= 2) { toast("Versão " + APP_VERSION + " · verificando…"); check(); } }; }
 })();
 let deferred; const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; $("installBtn").hidden = false; });

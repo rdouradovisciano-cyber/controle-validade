@@ -8,7 +8,6 @@ if(h&&!g("moreBtn")){var b=document.createElement("button");b.id="moreBtn";b.typ
 b.onclick=function(){m.classList.contains("hidden")?abre():fecha()};}
 bg.onclick=fecha;document.addEventListener("keydown",function(e){if(e.key==="Escape")fecha()});
 if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)g("mnInstall").classList.add("hidden");
-g("mnManual").onclick=function(){fecha();g("manualOpen").click()};
 g("mnCad").onclick=function(){fecha();g("navCadastros").click();window.scrollTo(0,0)};
 
 g("mnHist").onclick=function(){fecha();if(window.phOpen)window.phOpen()};
