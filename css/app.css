@@ -2148,3 +2148,13 @@ html[data-tema=dark] .pi-bal{border-color:#12161a}
 .nt-chip.on{background:#f2c200;border-color:#f2c200;color:#241c00}
 .nt-chip:active{transform:scale(.97)}
 .nt-chip{padding:6px 11px;font-size:13px}.nt-fav{gap:5px}
+
+/* v477 · remover a nota (balão) e tirar atalhos da lista das mais usadas */
+.pi-nota{position:relative}
+.nt-rem{flex:none;display:inline-flex;align-items:center;gap:5px;margin-left:6px;padding:0 10px;height:38px;border-radius:10px;border:1.5px solid color-mix(in srgb,#e5202e 60%,transparent);background:transparent;color:#e5202e;font-size:13px;font-weight:800}
+.nt-rem .ic{width:17px;height:17px}.nt-rem b{font-weight:800}
+.nt-chip{display:inline-flex;align-items:center;padding:0;overflow:hidden}
+.nt-chip .nt-use{border:0;background:transparent;color:inherit;font:inherit;padding:6px 4px 6px 11px}
+.nt-chip .nt-del{border:0;background:transparent;color:inherit;opacity:.55;display:flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0}
+.nt-chip .nt-del .ic{width:14px;height:14px;stroke-width:2.4}
+.nt-rest{border:0;background:transparent;color:var(--mut,#9aa3b2);font-size:12.5px;font-weight:700;text-decoration:underline;padding:6px 4px}

@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-11T23:00:00-03:00",
+  "itens": [
+   "Nas notas: agora existe o botão \"Remover\" ao lado do campo, que apaga a nota e faz o balão sumir de uma vez",
+   "Nos atalhos das notas mais usadas, cada um tem um X para tirá-lo da lista. Se mudar de ideia, o link \"Restaurar atalhos\" traz todos de volta"
+  ]
+ },
+ {
   "t": "2026-11-11T22:45:00-03:00",
   "itens": [
    "Notas mais usadas: ao abrir um item, abaixo do campo de nota aparecem atalhos com as notas que mais se repetem na loja (as de todos os aparelhos). Toque num atalho para colocar a nota na hora; toque de novo para tirar. Enquanto não há histórico, aparecem sugestões prontas como \"Já na promoção\" e \"Conferir\""
