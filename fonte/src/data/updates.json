@@ -1,8 +1,8 @@
 [
  {
-  "t": "2026-11-11T22:05:00-03:00",
+  "t": "2026-11-11T22:20:00-03:00",
   "itens": [
-   "Produto com nota agora mostra um balão amarelo no canto da foto, no lugar do ícone ao lado do nome. Toque no cartão para ler e editar a nota"
+   "A nota agora aparece num balão amarelo grande, com a frase escrita, logo abaixo da foto do produto e com a ponta apontando para ela. Ao abrir o cartão o balão some, porque a nota já aparece no campo"
   ]
  },
  {

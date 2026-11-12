@@ -2129,3 +2129,14 @@ html #pesBusca:focus{outline:0;border-color:#d9b13b;box-shadow:0 0 0 4px rgba(21
 .pi-bal{position:absolute;top:-8px;right:-8px;width:27px;height:27px;border-radius:50%;background:#f2c200;color:#241c00;display:flex;align-items:center;justify-content:center;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.28);font-style:normal;pointer-events:none}
 html[data-tema=dark] .pi-bal{border-color:#12161a}
 .pi-bal .ic{width:14px;height:14px;stroke-width:2.3}
+
+/* v474 · nota = balão grande com a frase, com a "ponta" apontando para a foto; some quando o cartão abre (a nota já aparece no campo) */
+.pi-bal{display:none!important}
+.pi-bubble{position:relative;display:flex;align-items:center;gap:10px;margin:14px 0 2px;padding:11px 14px;border-radius:16px;background:#f2c200;color:#241c00;box-shadow:0 3px 10px rgba(0,0,0,.18)}
+.pi-bubble::before{content:"";position:absolute;top:-9px;left:34px;width:18px;height:18px;background:#f2c200;transform:rotate(45deg);border-radius:4px 0 0 0}
+.pi-bubble>span{flex:none;display:flex}
+.pi-bubble .ic{width:22px;height:22px;stroke-width:2.1}
+.pi-bubble b{font-size:15.5px;font-weight:800;line-height:1.25;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.pitem.open .pi-bubble{display:none}
+.pi-bubble{margin:14px 12px 12px}
+.pi-bubble::before{left:22px}
