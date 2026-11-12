@@ -2855,17 +2855,11 @@ function atvAbrir() {
   const mantem = r => r.a === "erro" || (r.a === "retirou" && r.motivo);   // erros e retiradas com motivo
   const escondido = r => r.t <= corte.t && !(corte.manter && mantem(r));
   const desenha = () => {
-    const nomes = [...new Set([...dados.map(r => r.quem), ...(filtro === "@buscas" ? buscas.map(b => b.n) : [])])].sort((a, b) => a.localeCompare(b, "pt-BR"));
-    const nErr = dados.filter(r => r.a === "erro").length;
-    bg.querySelector("#atvF").innerHTML = `<div class="atvt">${[["", "Tudo"], ["@acessos", "👁️ Acessos"], ["@erros", "🐞 Erros" + (nErr ? " (" + nErr + ")" : "")], ...(PERFIL === "Admin" && db ? [["@buscas", "🔎 Buscas"]] : [])].map(([k, t]) => `<button type="button" class="${k === filtro ? "on" : ""}" data-n="${k}">${t}</button>`).join("")}</div>` +
+    const nomes = [...new Set(dados.filter(r => r.a !== "erro").map(r => r.quem))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+        bg.querySelector("#atvF").innerHTML = `<div class="atvt">${[["", "Tudo"], ["@acessos", "👁️ Acessos"]].map(([k, t]) => `<button type="button" class="${k === filtro ? "on" : ""}" data-n="${k}">${t}</button>`).join("")}</div>` +
       (`<label class="atvp"><span>👤 Pessoa</span><select id="atvPes"><option value="">Todas</option>${nomes.map(n => `<option value="${esc(n)}"${n === pessoa ? " selected" : ""}>${esc(n)}</option>`).join("")}</select></label>`);
-    if (filtro === "@buscas") {   // só Admin: o que cada pessoa pesquisou nos Pesáveis (histórico guardado na conta de cada usuário)
-      bg.querySelector("#atvSum").innerHTML = ""; bg.querySelector("#atvLimpa").classList.add("hidden");
-      const gente = buscas.filter(b => !pessoa || b.n === pessoa).sort((a, b) => (b.l[0] ? b.l[0][2] : 0) - (a.l[0] ? a.l[0][2] : 0));
-      bg.querySelector("#atvL").innerHTML = (gente.length ? gente.map(b => `<div class="atvd">${esc(b.n)} <small>· ${b.l.length} ${b.l.length === 1 ? "busca" : "buscas"}</small></div>` + b.l.map(x => `<div class="atvr"><time>${x[1] || 1}×</time><div><b>${esc(x[0])}</b> <small>${x[2] ? esc(dia(x[2])) + " " + hm(x[2]) : ""}</small></div></div>`).join("")).join("") : '<p class="note">Ainda não há buscas guardadas.</p>') + '<p class="note">Só as buscas feitas nos Pesáveis. Mostra os últimos 60 termos de cada pessoa, com quantas vezes e quando foi a última.</p>';
-      return; }
     bg.querySelector("#atvLimpa").classList.remove("hidden");
-    const l = dados.filter(r => (filtro !== "@erros" || r.a === "erro") && (filtro !== "@acessos" || r.a === "acessou") && (!pessoa || r.quem === pessoa)).sort((a, b) => b.t - a.t), hj = new Date(); hj.setHours(0, 0, 0, 0);
+    const l = dados.filter(r => r.a !== "erro" && (filtro !== "@acessos" || r.a === "acessou") && (!pessoa || r.quem === pessoa)).sort((a, b) => b.t - a.t), hj = new Date(); hj.setHours(0, 0, 0, 0);
     const res = {}; dados.filter(r => r.t >= hj).forEach(r => { const o = res[r.quem] || (res[r.quem] = { ent: 0, n: 0, ult: 0 }); if (r.a === "entrou") { if (!o.ent || r.t < o.ent) o.ent = r.t; } else o.n++; o.ult = Math.max(o.ult, r.t); });
     bg.querySelector("#atvSum").innerHTML = Object.keys(res).length ? "<b>Hoje</b>" + Object.entries(res).filter(([n]) => !pessoa || n === pessoa).map(([n, o]) => `<div><span>${esc(n)}</span><small>${o.ent ? "Entrou " + hm(o.ent) + " · " : ""}última ${hm(o.ult)}${o.n ? " · " + o.n + (o.n === 1 ? " ação" : " ações") : ""}</small></div>`).join("") : "";
     let ult = "";
@@ -2874,15 +2868,7 @@ function atvAbrir() {
     bg.querySelector("#atvL").innerHTML = l2.length ? l2.map(r => { const d = dia(r.t), h = d !== ult ? `<div class="atvd">${esc(d)}</div>` : ""; ult = d;
       return h + `<div class="atvr${r.a === "entrou" ? " ent" : ""}"><time>${hm(r.t)}</time><div><b>${esc(r.quem)}</b> ${ATV_ICO[r.a] || "•"} ${esc(ATV_VERBO[r.a] || r.a)}${r.n > 1 ? ` <small>${r.n}× no dia · 1ª às ${hm(r.prim)}</small>` : ""}${r.a === "erro" ? `<span class="atverr"><b>${esc(r.cat || "")}</b> ${esc(r.txt || "")}<small>${esc(r.ctx || "")}</small></span>` : r.txt && r.a !== "entrou" ? `<small>${esc(r.txt)}</small>` : ""}${r.a !== "entrou" && (r.perfil || r.setor) ? `<em>${esc(r.perfil || "")}${r.setor && r.setor !== r.perfil ? " · " + esc(r.setor) : ""}</em>` : ""}</div></div>`; }).join("") : '<p class="note">Nenhuma atividade registrada ainda. Ela começa a ser gravada a partir desta versão.</p>';
   };
-  let buscasUn = null;
-  if (db && PERFIL === "Admin") {   // v462: duas consultas (campo n OU em) para pegar também os históricos antigos, mais o histórico deste aparelho
-    const docsB = {}, un = [], junta = () => { const mapa = {}; Object.values(docsB).forEach(g => Object.entries(g).forEach(([id, d]) => { mapa[id] = d; }));
-      const out = Object.entries(mapa).filter(([id, x]) => /^pbh-/.test(id) && id !== "pbh-global" && Array.isArray(x.l) && x.l.length).map(([id, x]) => ({ n: String(x.n || id.slice(4)), l: x.l.filter(y => Array.isArray(y) && y[0]).sort((a, b) => (b[2] || 0) - (a[2] || 0)) }));
-      const eu = pesHist.filter(x => Array.isArray(x) && x[0]); if (eu.length && !out.some(b => norm(b.n) === norm(myName()))) out.push({ n: myName() || "Este aparelho", l: [...eu].sort((a, b) => (b[2] || 0) - (a[2] || 0)) });
-      buscas = out; if (filtro === "@buscas") desenha(); };
-    ["n", "em"].forEach(campo => { try { un.push(V.onSnapshot(V.query(V.collection(db, "sh_cfg"), V.where(campo, ">=", campo === "n" ? "" : 0)), sn => { const g = {}; sn.docs.forEach(d => { g[d.id] = d.data(); }); docsB[campo] = g; junta(); }, e => { console.warn("buscas", e); if (filtro === "@buscas" && !buscas.length) { const m = bg.querySelector("#atvL"); if (m) m.innerHTML = '<p class="note">Não consegui carregar as buscas agora. Feche e abra de novo.</p>'; } })); } catch (e) { console.warn(e); } });
-    buscasUn = () => un.forEach(u => { try { u(); } catch (e) {} }); try { pesHCarrega(); } catch (e) {} }
-  const fecha = () => { try { atvUn && atvUn(); } catch (e) {} atvUn = null; try { buscasUn && buscasUn(); } catch (e) {} bg.remove(); };
+  const fecha = () => { try { atvUn && atvUn(); } catch (e) {} atvUn = null; bg.remove(); };
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) fecha(); const b = e.target.closest("[data-n]"); if (b) { filtro = b.dataset.n; desenha(); } };
   bg.onchange = e => { if (e.target.id === "atvPes") { pessoa = e.target.value; desenha(); } };
   if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "atividade"), sn => { if (sn.exists() && sn.data().t) { const c = { t: Number(sn.data().t) || 0, manter: !!sn.data().manter }; if (c.t > corte.t) { corte = c; store.set("validamais-atv-corte", c); dados = dados.filter(r => !escondido(r)); desenha(); } } }, () => {}); } catch (e) { console.warn(e); } }
