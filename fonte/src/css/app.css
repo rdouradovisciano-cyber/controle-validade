@@ -2123,3 +2123,9 @@ html #pesBusca:focus{outline:0;border-color:#d9b13b;box-shadow:0 0 0 4px rgba(21
 .ico-tile.ico-vazio{flex:none;width:60px;height:60px;border-radius:14px;border:1px dashed var(--ln,#444);background:rgba(128,128,128,.08)}
 .peslista .pes-lead .ico-vazio{border:0}
 .pi-foto:empty{display:none}
+
+/* v473 · nota = balão amarelo no canto da foto */
+.pi-lead{position:relative;flex:none;align-self:center;display:block}
+.pi-bal{position:absolute;top:-8px;right:-8px;width:27px;height:27px;border-radius:50%;background:#f2c200;color:#241c00;display:flex;align-items:center;justify-content:center;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.28);font-style:normal;pointer-events:none}
+html[data-tema=dark] .pi-bal{border-color:#12161a}
+.pi-bal .ic{width:14px;height:14px;stroke-width:2.3}
