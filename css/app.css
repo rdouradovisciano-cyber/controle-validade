@@ -2171,18 +2171,3 @@ html[data-tema=dark] .pi-bal{border-color:#12161a}
 .pi-bubble{position:relative;z-index:2;width:fit-content;max-width:calc(100% - 56px);margin:12px 12px -4px 18px;padding:8px 20px 9px 12px;border-radius:2px;background:#fff176;color:#3b3200;transform:rotate(-2deg);box-shadow:0 4px 9px rgba(0,0,0,.35);clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%)}
 .pi-bubble::before{content:"";position:absolute;top:auto;left:auto;right:0;bottom:0;width:14px;height:14px;border-radius:0;transform:none;background:#d4bf3a}
 .pi-bubble b{font-size:14px;font-weight:800;-webkit-line-clamp:2}
-/* v481: tour de boas-vindas */
-.tr-ov{position:fixed;inset:0;z-index:100001}
-.tr-hl{position:fixed;display:none;border-radius:16px;border:2px solid #f3d87a;box-shadow:0 0 0 9999px rgba(3,5,8,.78),0 0 18px rgba(243,216,122,.55);pointer-events:none;transition:all .28s ease}
-.tr-card{position:fixed;width:min(340px,calc(100vw - 24px));box-sizing:border-box;padding:16px 18px 14px;border-radius:20px;background:#14181d;color:#f3efe2;border:1px solid #3a3320;box-shadow:0 14px 40px rgba(0,0,0,.6)}
-.tr-n{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#e5c158}
-.tr-card h3{margin:4px 0 6px;font-size:19px;line-height:1.2;color:#fff}
-.tr-card p{margin:0 0 12px;font-size:14.5px;line-height:1.45;color:#d9d4c4}
-.tr-dots{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
-.tr-dots i{width:7px;height:7px;border-radius:50%;background:#3b3f46}
-.tr-dots i.on{background:#f3d87a;width:18px;border-radius:4px}
-.tr-bt{display:flex;gap:8px;align-items:center}
-.tr-bt button{font:inherit;font-weight:800;font-size:14.5px;border-radius:12px;padding:10px 16px;border:0;cursor:pointer}
-.tr-next{margin-left:auto;background:linear-gradient(180deg,#f3d87a,#c9a227);color:#17130a}
-.tr-back{background:#252a31;color:#f3efe2}
-.tr-skip{background:transparent;color:#9aa3b2;padding:10px 4px!important}

@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-12T09:00:00-03:00",
+  "itens": [
+   "O tour de boas-vindas foi removido, a pedido. O app abre direto, como antes"
+  ]
+ },
+ {
   "t": "2026-11-12T08:00:00-03:00",
   "itens": [
    "Novo: tour de boas-vindas. Na primeira vez que o aparelho abre o app, um passeio rápido mostra o que dá para fazer (bipar, cadastro manual, validades, pesáveis, etiquetas, menu e as dicas das notas). Para rever, abra o menu ⋮ e toque em \"Ver o tour\""

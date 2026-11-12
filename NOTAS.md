@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 481.
+> Última atualização: 11/11/2026 · versão 482.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -136,4 +136,5 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v478: o × dos atalhos de nota só aparece no modo «Editar atalhos» (`ntEdit`, `data-nte`); «Restaurar atalhos» aparece nesse modo quando há ocultos; «Concluir» sai do modo.
 - v479: balão da nota (`.pi-bubble`) vai para o TOPO do cartão, acima da foto, com a ponta apontando para baixo (desenho do usuário); a faixa larga de baixo saiu; some com o cartão aberto.
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
-- v481: tour de boas-vindas (`js/tour.js`): 1ª entrada por aparelho (chave `validamais-tour-v1`, espera sumir `.askbg`/`#vmLogin`), spotlight `.tr-hl` + cartão `.tr-card` nos botões visíveis (`#fab`, `#manualOpen`, abas `#tb*`, `#moreBtn`); só passos cujo alvo está visível no perfil. Rever em Menu ⋮ › Ajuda › «Ver o tour» (`#mnTour`, `window.vmTour()`).
+- v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
+- v482: tour removido (tour.js, item de menu e CSS).
