@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-12T20:30:00-03:00",
+  "itens": [
+   "Pesáveis: ao abrir a aba, a busca não é mais selecionada sozinha (o teclado só abre quando você toca na busca)"
+  ]
+ },
+ {
   "t": "2026-11-12T20:00:00-03:00",
   "itens": [
    "Atividade dos usuários: saíram as abas \"Buscas\" e \"Erros\" (e os erros deixam de aparecer na lista). Ficam Tudo e Acessos"

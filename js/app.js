@@ -1221,7 +1221,7 @@ function tab(t) {
   const tAnt = document.body.dataset.tab; document.body.dataset.tab = t; document.body.dataset.grp = t;
   if (t === "Doacao" && typeof dView === "function") dView("lista");
   if (t === "Pesaveis" && typeof renderPesaveis === "function") renderPesaveis();
-  if (t === "Pesaveis" && tAnt !== "Pesaveis") setTimeout(() => { try { $("pesBusca").focus({ preventScroll: true }); } catch (e) {} }, 120);   // v470: abriu Pesáveis, já pode digitar
+  // v487: ao abrir Pesáveis a busca NÃO recebe foco (o teclado só abre quando a pessoa toca na busca)
   if (t === "Contagem" && typeof kPaint === "function") kPaint();
 }
 function dCodTxt(i) {   // kg: código de doação · un: código de barras (ou, sem ele, o de doação); nunca o de balança
