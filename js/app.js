@@ -167,7 +167,8 @@ function iconePicker(id) {
   document.body.appendChild(bg);
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) return bg.remove(); const b = e.target.closest("[data-e]"); if (b) { iconeSalva(p, b.dataset.e); return bg.remove(); } if (e.target.closest("[data-auto]")) { iconeSalva(p, null); return bg.remove(); } if (e.target.closest("[data-nenhum]")) { iconeSalva(p, ""); bg.remove(); } };
 }
-const iconeDe = p => { if (!iconesOn() || !p || p.category !== PER) return ""; const esc1 = icoEscolhido(p); if (esc1 !== null && esc1 !== undefined) return esc1; const n = String(p.name || "").toLowerCase(); const m = ICONES.find(([r]) => r.test(n + " ")); return m ? m[1] : "📦"; };
+const iconeDe = p => { return "";   // v471: emojis removidos de vez — só fotos (sem foto aparece um quadrado neutro com câmera)
+  if (!iconesOn() || !p || p.category !== PER) return ""; const esc1 = icoEscolhido(p); if (esc1 !== null && esc1 !== undefined) return esc1; const n = String(p.name || "").toLowerCase(); const m = ICONES.find(([r]) => r.test(n + " ")); return m ? m[1] : "📦"; };
 // ---------- foto do produto (Perecíveis e FLV): uma miniatura por nome, em sh_cfg/foto-<nome>; só é baixada quando o item é aberto ----------
 const FTK = "validamais-fotos-per", fotoK = n => "foto-" + icKey(n), fotoCache = {};
 function fotoHtml(k, ed) { const d = fotoCache[k]; if (d === undefined) return '<small class="muted">…</small>';
@@ -188,7 +189,8 @@ function fotoCarrega(id) {
 // miniatura no lugar do emoji (Perecíveis e FLV): uma única consulta traz as fotos de todos os produtos e continua ouvindo mudanças
 let fotosPronto = false, fotosOuvindo = false, fotosErro = false, saudeRepinta = null;
 const fotoDe = p => p && iconesOn() ? (fotoCache[fotoK(p.name)] || "") : "";
-const icoHtml = p => { const d = fotoDe(p), e = iconeDe(p); if (!d && !e) return "";   // inline (Pesáveis): miniatura ou emoji
+const icoVazio = () => `<span class="ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`;   // v471
+const icoHtml = p => { const d = fotoDe(p), e = iconeDe(p); if (!d && !e) return iconesOn() && p && p.category === PER ? icoVazio() : "";   // inline (Pesáveis): miniatura ou emoji
   return `<span class="ico${d ? " ico-foto" : ""}" data-id="${esc(p.id)}">${d ? `<img class="ico-img" src="${d}" alt="" decoding="async">` : e}</span>`; };
 const icoEmoji = p => fotoDe(p) ? "" : (iconeDe(p) ? `<span class="ico" data-id="${esc(p.id)}">${iconeDe(p)}</span>` : "");   // lista de Validades: emoji só quando não há foto
 const VSK = "validamais-visao", visaoDe = () => store.get(VSK, "lista") === "grade" ? "grade" : "lista";   // v460: Validades em lista ou grade (Configurações → Cores e prazos)
@@ -214,7 +216,7 @@ function pesAgrupa(rows) {
 }
 const pesAb = new Set();   // v465: grupos de Pesáveis abertos (começa vazio: tudo recolhido)
 const gRec = new Set(["v", "h", "a", "y", "ok"]);   // v463: o app SEMPRE abre com os grupos de urgência recolhidos (resumo limpo); toque no título abre/fecha
-const icoLado = p => { const e = fotoDe(p) ? "" : iconeDe(p); return e ? `<span class="ico ico-lado ico-tile" data-id="${esc(p.id)}">${e}</span>` : ""; };   // v458: emoji do produto num quadrado do mesmo tamanho da foto
+const icoLado = p => fotoDe(p) || !iconesOn() || !p || p.category !== PER ? "" : `<span class="ico-tile ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`;   // v458: emoji do produto num quadrado do mesmo tamanho da foto
 const fotoLado = p => { const d = fotoDe(p); return d ? `<span class="ico ico-foto ico-lado" data-id="${esc(p.id)}"><img class="ico-img" src="${d}" alt="" decoding="async"></span>` : ""; };   // lista de Validades: foto na lateral
 let fotoIcTimer = 0, fotoVer = 0, famMemo = { p: null, n: -1, v: -1, m: new Map() };
 // foto para os balões e linhas da Doação (FLV): a do nome exato; senão a de qualquer produto da mesma família (1ª palavra: Banana, Tomate…)
@@ -2374,7 +2376,7 @@ function visAbrir() {
     <label>Conjuntos de cores</label><div class="vspre"><button type="button" data-p="pad">Padrão</button><button type="button" data-p="dal">Daltonismo</button><button type="button" data-p="sua">Vivas</button></div>
     <div class="vscores">${Object.keys(nomes).map(k => `<label class="vsc"><span>${nomes[k]}</span><input type="color" data-c="${k}" value="${v.cores[k]}"></label>`).join("")}</div>
     <label class="nfrow"><span><b>🚨 Sirene e efeitos de urgência</b><small>O item vencido pisca, brilha e vibra ao abrir o app</small></span><input type="checkbox" id="vsFx" ${fxOn() ? "checked" : ""}></label>
-    <label class="nfrow"><span><b>🧀 Ícones nos produtos</b><small>Fotos dos produtos (Perecíveis e FLV) e, sem foto, um desenho por tipo</small></span><input type="checkbox" id="vsIco" ${iconesOn() ? "checked" : ""}></label>
+    <label class="nfrow"><span><b>Fotos nos produtos</b><small>Mostra a foto do produto nos cartões (Perecíveis e FLV). Sem foto, aparece um quadrado com câmera</small></span><input type="checkbox" id="vsIco" ${iconesOn() ? "checked" : ""}></label>
     <label>Visualização da lista de Validades</label><div class="vspre" id="vsV"><button type="button" data-v="lista">Lista</button><button type="button" data-v="grade">Grade (fotos grandes)</button></div>
     <label>Tamanho da letra da lista</label><div class="vspre" id="vsF"><button type="button" data-f="normal">Normal</button><button type="button" data-f="grande">Grande</button></div>
     <div class="vsprev" id="vsPrev"></div>

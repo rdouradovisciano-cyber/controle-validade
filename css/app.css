@@ -2116,3 +2116,9 @@ html #pesBusca:focus{outline:0;border-color:#d9b13b;box-shadow:0 0 0 4px rgba(21
 .pesbtn.on{background:#d9b13b;color:#1a1400}
 #pesX{right:6px}
 .pesbar .pesinfo{margin:6px 4px 0;font-size:13px;font-weight:700}
+
+/* v471 · sem emojis: só fotos. Sem foto = quadrado neutro com câmera (mantém os nomes alinhados) */
+.ico-vazio{display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:var(--mut,#8a93a3);opacity:.6}
+.ico-vazio .ic{width:24px;height:24px;stroke-width:1.7}
+.ico-tile.ico-vazio{flex:none;width:60px;height:60px;border-radius:14px;border:1px dashed var(--ln,#444);background:rgba(128,128,128,.08)}
+.peslista .pes-lead .ico-vazio{border:0}
