@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 479.
+> Última atualização: 11/11/2026 · versão 480.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -135,3 +135,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v477: botão «Remover» (`.nt-rem`, `data-ntx`) ao lado do campo de nota apaga a nota/balão; cada atalho de nota mais usada tem × (`data-ntd`) que o esconde (`validamais-notas-ocultas`, zera o contador) e o link «Restaurar atalhos» (`data-ntr`) traz de volta. Teste: `fonte/tools/r477-test.mjs`.
 - v478: o × dos atalhos de nota só aparece no modo «Editar atalhos» (`ntEdit`, `data-nte`); «Restaurar atalhos» aparece nesse modo quando há ocultos; «Concluir» sai do modo.
 - v479: balão da nota (`.pi-bubble`) vai para o TOPO do cartão, acima da foto, com a ponta apontando para baixo (desenho do usuário); a faixa larga de baixo saiu; some com o cartão aberto.
+- v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.

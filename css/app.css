@@ -2167,3 +2167,7 @@ html[data-tema=dark] .pi-bal{border-color:#12161a}
 .pi-bubble::before{top:auto;bottom:-8px;left:30px;width:17px;height:17px;border-radius:0 0 5px 0}
 .pi-bubble b{font-size:15px;-webkit-line-clamp:2}
 .pi-bubble::before{left:24px}
+/* v480: nota como post-it */
+.pi-bubble{position:relative;z-index:2;width:fit-content;max-width:calc(100% - 56px);margin:12px 12px -4px 18px;padding:8px 20px 9px 12px;border-radius:2px;background:#fff176;color:#3b3200;transform:rotate(-2deg);box-shadow:0 4px 9px rgba(0,0,0,.35);clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%)}
+.pi-bubble::before{content:"";position:absolute;top:auto;left:auto;right:0;bottom:0;width:14px;height:14px;border-radius:0;transform:none;background:#d4bf3a}
+.pi-bubble b{font-size:14px;font-weight:800;-webkit-line-clamp:2}
