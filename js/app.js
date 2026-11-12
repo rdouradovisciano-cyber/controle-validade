@@ -171,12 +171,12 @@ const iconeDe = p => { return "";   // v471: emojis removidos de vez — só fot
   if (!iconesOn() || !p || p.category !== PER) return ""; const esc1 = icoEscolhido(p); if (esc1 !== null && esc1 !== undefined) return esc1; const n = String(p.name || "").toLowerCase(); const m = ICONES.find(([r]) => r.test(n + " ")); return m ? m[1] : "📦"; };
 // ---------- foto do produto (Perecíveis e FLV): uma miniatura por nome, em sh_cfg/foto-<nome>; só é baixada quando o item é aberto ----------
 const FTK = "validamais-fotos-per", fotoK = n => "foto-" + icKey(n), fotoCache = {};
-function fotoHtml(k, ed) { const d = fotoCache[k]; if (d === undefined) return '<small class="muted">…</small>';
+function fotoHtml(k, ed) { const d = fotoCache[k]; if (d === undefined) return "";
   const adm = PERFIL === "Admin", img = d ? `<img class="pf-img" src="${d}" alt="Foto do produto" data-fz="1">` : "";
   const bt = (a, t) => `<button type="button" class="secondary pf-btn" ${a}="1">${t}</button>`;
-  if (!d) return bt("data-fadd", "📷 Tirar foto") + bt("data-fgal", "🖼 Escolher imagem");   // sem foto: botões no cartão
-  if (!ed) return img;                                                                            // com foto: só a imagem (trocar fica no Editar)
-  return img + (adm ? bt("data-fadd", "📷 Trocar") + bt("data-fgal", "🖼 Outra imagem") + bt("data-fdel", "🗑 Apagar") : ""); }
+  if (!d) return bt("data-fadd", ico("cam") + "Tirar foto") + bt("data-fgal", ico("img") + "Escolher imagem");   // sem foto: botões no cartão
+  if (!ed) return "";                                                                             // v472: com foto, o cartão aberto não repete a imagem (ela já está no quadrado e abre em tela cheia ao toque)
+  return img + (adm ? bt("data-fadd", ico("cam") + "Trocar") + bt("data-fgal", ico("img") + "Outra imagem") + bt("data-fdel", ico("lixo") + "Apagar") : ""); }
 function fotoPaint(id) { fotoVer++; const p = products.find(x => x.id === id); if (!p) return; document.querySelectorAll(`.pi-foto[data-id="${CSS.escape(id)}"]`).forEach(el => { el.innerHTML = fotoHtml(fotoK(p.name), el.dataset.ed === "1"); }); }
 function fotoCarrega(id) {
   const p = products.find(x => x.id === id); if (!p) return; const k = fotoK(p.name);

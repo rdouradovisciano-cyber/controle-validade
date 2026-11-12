@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-11T21:55:00-03:00",
+  "itens": [
+   "Ao abrir um item nas Validades, a foto grande não aparece mais repetida (ela já está no quadrado do cartão e, tocando nela, abre em tela cheia). Quando o produto não tem foto, os botões \"Tirar foto\" e \"Escolher imagem\" continuam no cartão"
+  ]
+ },
+ {
   "t": "2026-11-11T21:50:00-03:00",
   "itens": [
    "Os emojis dos produtos saíram de vez: agora só aparecem as fotos. O produto que ainda não tem foto mostra um quadradinho com uma câmera, para os nomes continuarem alinhados. Para colocar a foto, abra o cartão e use \"Tirar foto\""

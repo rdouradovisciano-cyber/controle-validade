@@ -2122,3 +2122,4 @@ html #pesBusca:focus{outline:0;border-color:#d9b13b;box-shadow:0 0 0 4px rgba(21
 .ico-vazio .ic{width:24px;height:24px;stroke-width:1.7}
 .ico-tile.ico-vazio{flex:none;width:60px;height:60px;border-radius:14px;border:1px dashed var(--ln,#444);background:rgba(128,128,128,.08)}
 .peslista .pes-lead .ico-vazio{border:0}
+.pi-foto:empty{display:none}

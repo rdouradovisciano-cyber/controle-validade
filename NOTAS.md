@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 471.
+> Última atualização: 11/11/2026 · versão 472.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -127,3 +127,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v469: corrige o v468 (entendi o print ao contrário): minas, kit, parmes*, provolon*, requeij* vão para OUTROS, não para QUEIJO. `pesAgrupa` agora tem um único OUTROS, sempre por último.
 - v470: **busca dos Pesáveis acessível**: `.pesbar` sticky sob o topo (campo 58px, borda dourada), botão X (`#pesX`) que limpa e mantém o foco, microfone (`#pesMic`, SpeechRecognition pt-BR, só aparece se o navegador suportar e o campo estiver vazio), foco automático ao abrir a aba (`tAnt !== "Pesaveis"`). Teste: `fonte/tools/busca-test.mjs`.
 - v471: **emojis dos produtos removidos, só fotos**: `iconeDe` devolve "" (o seletor de emoji `iconePicker` e `ICONES` ficam só para agrupar Pesáveis por tipo via `pesTipo`); sem foto aparece `.ico-vazio` (câmera, quadrado tracejado) em `icoLado`/`icoHtml` para manter o alinhamento; opção em Configurações renomeada «Fotos nos produtos».
+- v472: cartão aberto das Validades não repete mais a foto grande (`fotoHtml` devolve "" com foto e fora do Editar; `.pi-foto:empty{display:none}`); sem foto continuam «Tirar foto»/«Escolher imagem», agora com ícones de linha.
