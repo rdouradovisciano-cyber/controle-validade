@@ -232,7 +232,8 @@ const icoLado = p => fotoDe(p) || !iconesOn() || !p || p.category !== PER ? "" :
 // v473: a nota vira um balão amarelo no canto da foto do produto (sem foto/quadrado, o ícone continua ao lado do nome)
 const leadNota = p => { const l = fotoLado(p) || icoLado(p); if (!l) return ""; const n = notaDe(p.id); return `<span class="pi-lead">${l}</span>`; };
 const fotoLado = p => { const d = fotoDe(p); return d ? `<span class="ico ico-foto ico-lado" data-id="${esc(p.id)}"><img class="ico-img" src="${d}" alt="" decoding="async"></span>` : ""; };   // lista de Validades: foto na lateral
-const kFotoN = n => { if (!iconesOn() || !n) return ""; const d = fotoCache[fotoK(n)]; return d ? `<span class="ico ico-foto ico-lado" data-kn="${esc(n)}"><img class="ico-img" src="${d}" alt="" decoding="async"></span>` : `<span class="ico-tile ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`; };   // v484: foto do produto na contagem do KÓRIN
+const kFotoN = n => { if (PERFIL !== "Admin" || !iconesOn() || !n) return "";   // só no perfil Admin (personalização exclusiva)
+  const d = fotoCache[fotoK(n)]; return d ? `<span class="ico ico-foto ico-lado" data-kn="${esc(n)}"><img class="ico-img" src="${d}" alt="" decoding="async"></span>` : `<span class="ico-tile ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`; };   // v484: foto do produto na contagem do KÓRIN
 let fotoIcTimer = 0, fotoVer = 0, famMemo = { p: null, n: -1, v: -1, m: new Map() };
 // foto para os balões e linhas da Doação (FLV): a do nome exato; senão a de qualquer produto da mesma família (1ª palavra: Banana, Tomate…)
 function famFotos() { if (famMemo.p === products && famMemo.n === products.length && famMemo.v === fotoVer) return famMemo.m;

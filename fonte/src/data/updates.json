@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-12T16:00:00-03:00",
+  "itens": [
+   "KÓRIN: a foto do produto na contagem agora aparece só no perfil Admin"
+  ]
+ },
+ {
   "t": "2026-11-12T15:00:00-03:00",
   "itens": [
    "KÓRIN: a contagem (Tinha antes, Chegou, Tem agora) e a busca agora mostram a foto de cada produto, igual aos Perecíveis. Segure a foto para ampliar. Para trocar a foto, use Cadastros. Quem desliga as fotos em Configurações continua sem ver"
