@@ -47,11 +47,11 @@ async function adminSenha(motivo) {   // true se a senha do Admin foi confirmada
     if (await adminHash(n) === r.h) return true; toast("Senha incorreta."); }
   return false;
 }
-function perfilEscolher(troca) {   // pergunta uma vez qual é o setor deste aparelho
+function perfilEscolher(troca, comAdmin) {   // pergunta uma vez qual é o setor deste aparelho
   const bg = document.createElement("div"); bg.className = "askbg"; bg.id = "perfilBg";
   const op = (v, ic, t, s) => `<button type="button" class="perfop${PERFIL === v ? " on" : ""}" data-p="${v}"><span>${ic}</span><b>${t}</b><small>${s}</small></button>`;
   bg.innerHTML = `<div class="ask perfil"><div class="ai">👤</div><h3>${troca ? "Perfil deste aparelho" : "Qual é o seu setor?"}</h3><p>${troca ? "Escolha o novo perfil." : "Você escolhe uma vez e o app abre direto no seu setor."}</p>
-    ${op("FLV", "🥬", "FLV", "Hortifruti")}${op(PER, "🧀", "Perecíveis", "Validades e etiquetas")}${op("Admin", "🛡️", "Admin", "Acesso a todos os setores")}${troca ? '<button type="button" class="secondary" data-x style="margin-top:8px;width:100%">Cancelar</button>' : ""}</div>`;
+    ${op("FLV", "🥬", "FLV", "Hortifruti")}${op(PER, "🧀", "Perecíveis", "Validades e etiquetas")}${comAdmin || PERFIL === "Admin" ? op("Admin", "🛡️", "Admin", "Acesso a todos os setores") : ""}${troca ? '<button type="button" class="secondary" data-x style="margin-top:8px;width:100%">Cancelar</button>' : ""}</div>`;
   const aplica = v => { try { localStorage.setItem(PERFIL_K, v); sessionStorage.removeItem("validamais-setor"); } catch (err) {} location.reload(); };
   let ocupado = false;
   bg.onclick = async e => { if (troca && (e.target === bg || e.target.closest("[data-x]"))) return bg.remove();
@@ -3177,7 +3177,7 @@ $("rodOn").onclick = () => $("onChip").click();
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") check(); });
   { let vt = 0, vtm = 0;   // 10 toques seguidos na versão (rodapé) abrem a troca de perfil; toques espaçados > 2 s recomeçam a contagem
   $("appVer").onclick = () => { clearTimeout(vtm); vt++; vtm = setTimeout(() => { vt = 0; }, 2000);
-    if (vt >= 10) { vt = 0; perfilEscolher(true); return; }
+    if (vt >= 10) { vt = 0; perfilEscolher(true, true); return; }
     if (vt <= 2) { toast("Versão " + APP_VERSION + " · verificando…"); check(); } }; }
 })();
 let deferred; const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;

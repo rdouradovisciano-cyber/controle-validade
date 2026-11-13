@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-13T02:00:00-03:00",
+  "itens": [
+   "A escolha de perfil agora mostra só FLV e Perecíveis. A opção Admin só aparece depois de 10 toques na versão (rodapé), com a senha"
+  ]
+ },
+ {
   "t": "2026-11-13T01:30:00-03:00",
   "itens": [
    "O perfil e setor Fiscal foi removido. Aparelhos que estavam no perfil Fiscal vão pedir para escolher outro perfil na próxima abertura"
