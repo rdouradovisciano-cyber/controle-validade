@@ -9,7 +9,8 @@ const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congel
 // perfil do aparelho (escolhido uma vez): "FLV" e "Perecíveis" entram direto e só nesse setor; "Admin" acessa os dois
 const PERFIL_K = "validamais-perfil";
 let PERFIL = (() => { try { const s = localStorage.getItem(PERFIL_K); return s === "FLV" || s === PER || s === "Admin" ? s : null; } catch (e) { return null; } })();
-let SETOR = (() => { if (PERFIL === "FLV" || PERFIL === PER) return PERFIL; try { const s = sessionStorage.getItem("validamais-setor"); return s === PER ? s : "FLV"; } catch (e) { return "FLV"; } })();
+// v506: Admin volta no último setor aberto (localStorage), em vez de sempre FLV
+let SETOR = (() => { if (PERFIL === "FLV" || PERFIL === PER) return PERFIL; try { const s = localStorage.getItem("validamais-setor-adm") || sessionStorage.getItem("validamais-setor"); return s === PER ? s : "FLV"; } catch (e) { return "FLV"; } })();
 const setorDe = p => p.category === PER ? PER : "FLV";   // Perecíveis tem cadastro próprio; FLV usa o cadastro «FLV» e as demais categorias
 const doSetor = p => { const s = setorDe(p); if (SETOR === PER) return s === PER; return s !== PER; };
 let formBip = false;   // o código do produto novo veio do bipe (ou de um produto já cadastrado)
@@ -2715,7 +2716,7 @@ function trocaSetor(alvo) {   // troca FLV / Perecíveis sem recarregar a págin
   try { if (typeof stopScanner === "function") stopScanner(); closeModal(); } catch (e) {}
   const todos = db ? rawAll : products.concat(lixeira, outros);   // todos os cadastros, de todos os setores
   if (SETOR === "FLV") etqFlv = labels;
-  SETOR = alvo; try { sessionStorage.setItem("validamais-setor", alvo); } catch (e) {}
+  SETOR = alvo; try { sessionStorage.setItem("validamais-setor", alvo); if (PERFIL === "Admin") localStorage.setItem("validamais-setor-adm", alvo); } catch (e) {}
   derivaSetor(); separaLixo(todos); lixoBtn();
   DK = chaveSetor("validamais-doacao"); don = store.get(DK, null) || { itens: [], inicio: new Date().toISOString() }; dSel = ""; dVal = "";
   EK = chaveSetor(EK_FLV); EHK = chaveSetor("validamais-etqhist");
