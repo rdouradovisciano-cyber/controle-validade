@@ -137,6 +137,7 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v479: balão da nota (`.pi-bubble`) vai para o TOPO do cartão, acima da foto, com a ponta apontando para baixo (desenho do usuário); a faixa larga de baixo saiu; some com o cartão aberto.
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
+- v505: aviso ao salvar nome sem gramagem nos Perecíveis (`nomeSemGramagem`, só nome novo/alterado, não em lote) + seção «Nomes sem gramagem» na Saúde do app.
 - v503: caixa de lote (#loteInfo) mostra a foto do produto (`loteFoto`/`lotePinta`, espera a foto chegar da nuvem).
 - v502: `efeitoSai` faz a foto do item voar (clone `.foto-voa`, WAAPI) ao retirar; some com reduced-motion.
 - v501: FLV: linhas da lista de Etiquetas mostram foto (`etqFoto`, usa `balFoto`: foto exata ou da família).

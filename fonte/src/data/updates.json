@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-13T20:45:00-03:00",
+  "itens": [
+   "Perecíveis: ao salvar um nome sem gramagem (ex.: Danone grego light), o app pergunta se quer detalhar",
+   "Saúde do app: nova lista \"Nomes sem gramagem\" para corrigir os cadastros antigos"
+  ]
+ },
+ {
   "t": "2026-11-13T18:10:00-03:00",
   "itens": [
    "Ao lançar um novo lote de um produto já cadastrado, a foto dele aparece na caixa de aviso, para conferir se é o produto certo"
