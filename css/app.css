@@ -2201,3 +2201,16 @@ html[data-tema=dark] .pgh[data-g]:not(.rec){background:linear-gradient(color-mix
 html:not([data-tema=dark]) .pgh[data-g]:not(.rec){background:linear-gradient(color-mix(in srgb,var(--tc) 14%,transparent),color-mix(in srgb,var(--tc) 14%,transparent)),#fff}
 html .pi-bubble{max-width:calc(100% - 28px);margin:12px 14px 8px 16px;padding:11px 24px 12px 14px;transform:rotate(-1.2deg)}
 html .pi-bubble b{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;white-space:normal;font-size:16.5px;line-height:1.3;font-weight:800;color:#2e2600}
+/* v493: Atividade dos usuários mais limpa */
+.atvf{display:flex;gap:8px;align-items:center;flex-wrap:nowrap;margin:4px 0 12px}
+.atvf .atvp{flex:1;min-width:0;margin:0}.atvf .atvp select{width:100%;min-height:42px}
+.atvf .atvmais{flex:none;min-height:42px;padding:0 12px;border-radius:12px;font-size:13px;font-weight:800;white-space:nowrap;background:transparent;border:1.5px solid var(--ln);color:var(--mut,#8a9a90)}
+.atvf .atvmais.on{background:#e5b92b;border-color:#e5b92b;color:#241c00}
+html .atvsum{padding:6px 14px}
+html .atvsum div{display:flex!important;justify-content:space-between;align-items:baseline;gap:10px;padding:7px 0!important}
+html .atvsum div span{display:inline;font-size:15px;font-weight:800}
+html .atvsum div small{display:inline;font-size:12.5px;white-space:nowrap}
+html .atvr b{text-transform:none;letter-spacing:0;font-size:15px}
+html .atvr{padding:10px 0;align-items:flex-start}
+html .atvr time{width:46px;font-weight:700;font-size:13px;color:var(--mut,#8a9a90);padding-top:2px}
+html .atvd{position:static;background:transparent;margin:14px 0 2px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut,#8a9a90)}

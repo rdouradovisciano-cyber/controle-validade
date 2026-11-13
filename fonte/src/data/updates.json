@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-12T23:40:00-03:00",
+  "itens": [
+   "Atividade dos usuários mais limpa: a lista mostra só as ações (cadastrou, editou, retirou…). Entradas e telas acessadas ficam atrás do botão \"Entradas e telas\". Nomes sem \"(Admin)\" e sem linhas extras"
+  ]
+ },
+ {
   "t": "2026-11-12T23:20:00-03:00",
   "itens": [
    "O item \"Produtos novos\" saiu do menu do Admin"
