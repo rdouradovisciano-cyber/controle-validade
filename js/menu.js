@@ -10,7 +10,6 @@ bg.onclick=fecha;document.addEventListener("keydown",function(e){if(e.key==="Esc
 if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)g("mnInstall").classList.add("hidden");
 g("mnCad").onclick=function(){fecha();g("navCadastros").click();window.scrollTo(0,0)};
 
-g("mnHist").onclick=function(){fecha();if(window.phOpen)window.phOpen()};
 g("mnInstall").onclick=function(){fecha();var b=g("installBtn");
 if(b&&!b.hidden){b.click();return}
 if(/iphone|ipad|ipod/i.test(navigator.userAgent)){var h=g("iosHint");if(h){h.classList.remove("hidden");window.scrollTo(0,0)}msg("No iPhone: toque em Compartilhar e depois em Adicionar à Tela de Início.");return}

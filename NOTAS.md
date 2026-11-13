@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 491.
+> Última atualização: 11/11/2026 · versão 492.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -137,6 +137,7 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v479: balão da nota (`.pi-bubble`) vai para o TOPO do cartão, acima da foto, com a ponta apontando para baixo (desenho do usuário); a faixa larga de baixo saiu; some com o cartão aberto.
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
+- v492: menu ⋮ sem «Produtos novos» (`#mnHist` e handler em menu.js removidos; o modal `#phModal` e `phOpen` continuam no código, sem acesso).
 - v491: Validades em acordeão (abrir um grupo fecha os outros, rola a barra ao topo); barra do grupo aberto `position:sticky` abaixo do topo; post-it maior (16px, 3 linhas, sem sobrepor a foto).
 - v490: nomes da prévia `.pgn` com min-width:0/overflow hidden para não vazar da barra.
 - v489: prévia na barra de grupo fechado (`.pgp`: até 4 miniaturas `.pgt` com dias, `+N`, nomes); `prevHtml(g)` usa as linhas já ordenadas; some com o grupo aberto; não aparece em «Dentro do prazo», com busca ou filtros.
