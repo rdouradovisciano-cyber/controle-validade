@@ -2127,3 +2127,6 @@ body[data-perfil="Admin"] .setorsw button{padding:0 7px;font-size:12px}body[data
 .pi-lotes{cursor:pointer}
 .lotesbox .ltl{display:flex;flex-direction:column;gap:6px;margin:10px 0;max-height:50vh;overflow:auto;text-align:left}
 .lotesbox .lt.me{outline:2px solid #3f9f6f}
+
+/* v500 — foto da prévia é tocável */
+.pgt[data-id]{cursor:pointer}
