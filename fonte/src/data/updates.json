@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-12T23:00:00-03:00",
+  "itens": [
+   "Validades: abrir um grupo fecha os outros e leva a barra para o topo; com o grupo aberto, a barra fica fixa no topo para fechar de qualquer ponto da lista",
+   "A nota (post-it) ficou maior, com letra maior e até 3 linhas, sem encostar na foto"
+  ]
+ },
+ {
   "t": "2026-11-12T22:40:00-03:00",
   "itens": [
    "Validades: os nomes na prévia das barras agora ficam dentro da barra (com reticências quando são muitos)"

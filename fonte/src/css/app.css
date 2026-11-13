@@ -2194,3 +2194,10 @@ html .pgh[data-g].rec .pgp{display:flex}
 html .pgh[data-g] .pgp{min-width:0;max-width:100%;overflow:hidden}
 .pgp .pgn{min-width:0;max-width:100%;width:100%;display:block;flex:0 0 auto;box-sizing:border-box}
 html .pgh[data-g] .pgp{padding-top:10px;margin-top:-2px;padding-right:6px}
+/* v491: abrir/fechar mais ágil e nota mais legível */
+html .pgh[data-g]{scroll-margin-top:calc(var(--top-h,56px) + env(safe-area-inset-top) + 8px)}
+html .pgh[data-g]:not(.rec){position:sticky;top:calc(var(--top-h,56px) + env(safe-area-inset-top) + 6px);z-index:7;box-shadow:0 6px 14px rgba(0,0,0,.28)}
+html[data-tema=dark] .pgh[data-g]:not(.rec){background:linear-gradient(color-mix(in srgb,var(--tc) 14%,transparent),color-mix(in srgb,var(--tc) 14%,transparent)),#0d1114}
+html:not([data-tema=dark]) .pgh[data-g]:not(.rec){background:linear-gradient(color-mix(in srgb,var(--tc) 14%,transparent),color-mix(in srgb,var(--tc) 14%,transparent)),#fff}
+html .pi-bubble{max-width:calc(100% - 28px);margin:12px 14px 8px 16px;padding:11px 24px 12px 14px;transform:rotate(-1.2deg)}
+html .pi-bubble b{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;white-space:normal;font-size:16.5px;line-height:1.3;font-weight:800;color:#2e2600}
