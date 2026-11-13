@@ -2138,3 +2138,10 @@ body[data-perfil="Admin"] .setorsw button{padding:0 7px;font-size:12px}body[data
 
 /* v502 — foto que voa ao retirar */
 .foto-voa{position:fixed;z-index:9999;object-fit:cover;border-radius:13px;box-shadow:0 10px 24px rgba(0,0,0,.35);pointer-events:none;margin:0}
+
+/* v503 — foto do produto na caixa de lote */
+#loteInfo .lhead{display:flex;gap:12px;align-items:center}
+#loteInfo .lhtx{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+#loteInfo .lfoto{flex:none;width:76px;height:76px;border-radius:14px;overflow:hidden;background:rgba(128,128,128,.12);border:1px solid var(--ln)}
+#loteInfo .lfoto:empty{display:none}
+#loteInfo .lfoto img{width:100%;height:100%;object-fit:cover;display:block}

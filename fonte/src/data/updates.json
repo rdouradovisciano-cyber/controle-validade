@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-13T18:10:00-03:00",
+  "itens": [
+   "Ao lançar um novo lote de um produto já cadastrado, a foto dele aparece na caixa de aviso, para conferir se é o produto certo"
+  ]
+ },
+ {
   "t": "2026-11-13T17:45:00-03:00",
   "itens": [
    "Ao retirar um item, a foto dele se solta do cartão e voa para fora da tela"

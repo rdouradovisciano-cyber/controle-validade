@@ -809,6 +809,14 @@ function lotesDe(k) {   // validades que já estão na loja deste produto (o que
   const mesmo = p => k.barcode ? p.barcode === k.barcode : norm(p.name || "") === norm(k.name || "");
   return products.filter(p => !p.retirado && mesmo(p)).sort((a, b) => (a.expiry || "9999").localeCompare(b.expiry || "9999"));
 }
+// v503: foto do produto na caixa de lote (Perecíveis); se ainda não chegou da nuvem, pinta quando chegar
+const loteFoto = k => { if (!iconesOn() || !k || !k.name || (k.category && k.category !== PER && SETOR === PER)) return ""; const d = fotoDe(k); return `<span class="lfoto" data-n="${esc(k.name)}">${d ? `<img src="${d}" alt="" decoding="async">` : ""}</span>`; };
+function lotePinta(k, n = 0) {
+  const el = document.querySelector("#loteInfo .lfoto"); if (!el || !k) return; const d = fotoDe(k);
+  if (d) { el.innerHTML = `<img src="${d}" alt="" decoding="async">`; return; }
+  if (n === 0) { const ref = products.find(x => x.id && norm(x.name || "") === norm(k.name || "")); if (ref) fotoCarrega(ref.id); }
+  if (n < 6) setTimeout(() => lotePinta(k, n + 1), 600);
+}
 function loteMode(k) {          // produto já cadastrado: só pede validade e quantidade deste lote
   if (!k || !k.name) return;
   $("productForm").classList.add("lote");
@@ -816,11 +824,12 @@ function loteMode(k) {          // produto já cadastrado: só pede validade e q
   if (ls.length) {   // avisa na hora: já existe validade deste produto na loja
     const linha = (p, i) => { const d = daysLeft(p.expiry), cor = d === null ? "ok" : d < 0 ? "v" : d <= 3 ? "a" : d <= 7 ? "y" : "ok";
       return `<div class="lt ${cor}"><b>Lote ${i + 1}/${ls.length}</b><span>${p.expiry ? "vence " + fmtCurto(p.expiry) : "sem validade"}${d === null ? "" : d < 0 ? " · vencido" : d === 0 ? " · hoje" : " · " + d + (d === 1 ? " dia" : " dias")}</span><em>${esc(p.quantity)} un.</em></div>`; };
-    $("loteInfo").innerHTML = `<span class="ltt">⚠️ Já tem validade deste produto na loja (${ls.length} ${ls.length === 1 ? "lote" : "lotes"})</span><span class="ltn">${esc(k.name)}${esc(cod)}</span><div class="ltl">${ls.map(linha).join("")}<div class="lt novo"><b>Lote ${ls.length + 1}/${ls.length + 1}</b><span>este que você vai lançar agora</span></div></div>`;
+    $("loteInfo").innerHTML = `<div class="lhead">${loteFoto(k)}<div class="lhtx"><span class="ltt">⚠️ Já tem validade deste produto na loja (${ls.length} ${ls.length === 1 ? "lote" : "lotes"})</span><span class="ltn">${esc(k.name)}${esc(cod)}</span></div></div><div class="ltl">${ls.map(linha).join("")}<div class="lt novo"><b>Lote ${ls.length + 1}/${ls.length + 1}</b><span>este que você vai lançar agora</span></div></div>`;
     $("loteInfo").classList.add("lotebox");
     try { sinal("ok"); } catch (e) {} try { if (navigator.vibrate) navigator.vibrate([60, 40, 60]); } catch (e) {}
     toast(`⚠️ Já há ${ls.length} ${ls.length === 1 ? "lote" : "lotes"} deste produto na loja. Este será o Lote ${ls.length + 1}.`);
-  } else { $("loteInfo").classList.remove("lotebox"); $("loteInfo").textContent = `Produto já cadastrado: ${k.name}${cod}. Informe só a validade e a quantidade deste lote.`; }
+  } else { $("loteInfo").classList.remove("lotebox"); $("loteInfo").innerHTML = `<div class="lhead">${loteFoto(k)}<div class="lhtx">Produto já cadastrado: ${esc(k.name)}${esc(cod)}. Informe só a validade e a quantidade deste lote.</div></div>`; }
+  lotePinta(k);
   $("loteInfo").classList.remove("hidden"); $("loteEdit").classList.remove("hidden");
 }
 $("loteEdit").onclick = () => { $("productForm").classList.remove("lote"); $("loteInfo").classList.add("hidden"); $("loteEdit").classList.add("hidden"); };
