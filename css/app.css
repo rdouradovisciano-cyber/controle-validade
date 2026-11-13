@@ -2122,3 +2122,8 @@ html .atvr time{width:46px;font-weight:700;font-size:13px;color:var(--mut,#8a9a9
 html .atvd{position:static;background:transparent;margin:14px 0 2px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut,#8a9a90)}
 /* v496: mantido (era da seção do Fiscal) */
 body[data-perfil="Admin"] .setorsw button{padding:0 7px;font-size:12px}body[data-perfil="Admin"] .setorsw{margin-right:2px}
+
+/* v499 — lista de lotes ao tocar no selo */
+.pi-lotes{cursor:pointer}
+.lotesbox .ltl{display:flex;flex-direction:column;gap:6px;margin:10px 0;max-height:50vh;overflow:auto;text-align:left}
+.lotesbox .lt.me{outline:2px solid #3f9f6f}

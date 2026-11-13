@@ -785,6 +785,15 @@ function sinal(k) {
   else { tone(1000, 0, .09); v(60); }
 }
 function alarm() { /* sem som nem vibração: o aviso de vencimento agora é só a aba piscando */ }
+function loteLista(id) {   // toque no selo "1/3": lista todos os lotes deste produto
+  const p0 = products.find(x => String(x.id) === String(id)); if (!p0) return;
+  const ls = lotesDe(p0), bg = document.createElement("div"); bg.className = "askbg";
+  const linha = (p, i) => { const d = daysLeft(p.expiry), cor = d === null ? "ok" : d < 0 ? "v" : d <= 3 ? "a" : d <= 7 ? "y" : "ok";
+    return `<div class="lt ${cor}${p.id === p0.id ? " me" : ""}"><b>Lote ${i + 1}/${ls.length}</b><span>${p.expiry ? "vence " + fmtCurto(p.expiry) : "sem validade"}${d === null ? "" : d < 0 ? " · vencido" : d === 0 ? " · hoje" : " · " + d + (d === 1 ? " dia" : " dias")}</span><em>${esc(p.quantity)} un.</em></div>`; };
+  bg.innerHTML = `<div class="ask lotesbox" role="dialog" aria-modal="true"><h3>${esc(p0.name)}</h3><p class="asub">${ls.length} ${ls.length === 1 ? "lote" : "lotes"} na loja</p><div class="ltl">${ls.map(linha).join("")}</div><div class="arow"><button type="button" class="ok" data-a="1">Fechar</button></div></div>`;
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-a]")) bg.remove(); };
+  document.body.appendChild(bg);
+}
 function lotesDe(k) {   // validades que já estão na loja deste produto (o que vence primeiro é o Lote 1)
   if (!k) return [];
   const mesmo = p => k.barcode ? p.barcode === k.barcode : norm(p.name || "") === norm(k.name || "");
@@ -954,7 +963,8 @@ function fotoClique(e) { const pf = e.target.closest(".pi-foto"); if (!pf) retur
   if (e.target.closest("[data-fz]")) fotoZoom(e.target.closest("[data-fz]").src); else if (e.target.closest("[data-fadd]")) { const f = q("[data-fin][capture]"); if (f) f.click(); } else if (e.target.closest("[data-fgal]")) { const f = q("[data-fin]:not([capture])"); if (f) f.click(); } else if (e.target.closest("[data-fdel]")) fotoApaga(id); return true; }
 const fotoMuda = e => { const f = e.target.closest && e.target.closest("[data-fin]"); if (f && f.files && f.files[0]) { fotoSalva(f.dataset.fin, f.files[0]); f.value = ""; } };
 $("list").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("click", fotoClique);
-$("list").onclick = e => { const nx = e.target.closest("[data-ntx]"); if (nx) { notaSalva(nx.dataset.ntx, ""); return; }
+$("list").onclick = e => { const lc = e.target.closest(".pi-lotes"); if (lc) { e.stopPropagation(); const ar = lc.closest(".pitem"); if (ar) loteLista(ar.dataset.id); return; }
+  const nx = e.target.closest("[data-ntx]"); if (nx) { notaSalva(nx.dataset.ntx, ""); return; }
   const nd = e.target.closest("[data-ntd]"); if (nd) { const t = nd.dataset.ntd, o = ntOcultas(); if (!o.some(x => norm(x) === norm(t))) o.push(t); store.set(NTH, o); const f = store.get(NTF, {}); Object.keys(f).forEach(k => { if (norm(k) === norm(t)) delete f[k]; }); store.set(NTF, f); render(); return; }
   if (e.target.closest("[data-ntr]")) { store.set(NTH, []); render(); return; }
   if (e.target.closest("[data-nte]")) { ntEdit = !ntEdit; render(); return; } const nf = e.target.closest("[data-ntf]"); if (nf) { const ar = nf.closest(".pitem"); if (ar) { const id = ar.dataset.id, igual = norm((notaDe(id) || {}).t || "") === norm(nf.dataset.ntf); notaSalva(id, igual ? "" : nf.dataset.ntf); } return; } const gh = e.target.closest(".pgh[data-g]"); if (gh) { const g = gh.dataset.g; const abrindo = gRec.has(g); abrindo ? gRec.delete(g) : gRec.add(g);
