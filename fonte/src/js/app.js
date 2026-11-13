@@ -3,21 +3,18 @@
 "use strict";
 if (window.__LOGIN_WAIT) return;
 const C = window.VALIDA_CONFIG || {}, V = window.V || {}, fb = C.firebase || {};
-const PER = "Perecíveis", KOR = "KÓRIN", FIS = "Fiscal";   // Fiscal de loja: só consulta, vê os cadastros de FLV e Perecíveis juntos
-const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros", PER, KOR];
+const PER = "Perecíveis", FIS = "Fiscal";   // Fiscal de loja: só consulta, vê os cadastros de FLV e Perecíveis juntos
+const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congelados","Higiene e limpeza","Outros", PER];
 // setor escolhido na abertura (sessionStorage): "FLV" (tudo que não é Perecíveis, como sempre foi) ou "Perecíveis" (cadastros e validades próprios)
 // perfil do aparelho (escolhido uma vez): "FLV" e "Perecíveis" entram direto e só nesse setor; "Admin" acessa os dois
 const PERFIL_K = "validamais-perfil";
 let PERFIL = (() => { try { const s = localStorage.getItem(PERFIL_K); return s === "FLV" || s === PER || s === FIS || s === "Admin" ? s : null; } catch (e) { return null; } })();
-let SETOR = (() => { if (PERFIL === "FLV" || PERFIL === PER || PERFIL === FIS) return PERFIL; try { const s = sessionStorage.getItem("validamais-setor"); return s === PER || s === KOR || s === FIS ? s : "FLV"; } catch (e) { return "FLV"; } })();
-const setorDe = p => p.category === PER ? PER : "FLV";   // Perecíveis tem cadastro próprio; FLV e KÓRIN usam o mesmo cadastro (categoria «FLV» e as demais)
-// KÓRIN usa o mesmo banco do FLV; quais produtos são dele fica em sh_cfg/korin (e uma cópia neste aparelho)
-const KORK = "validamais-korin-itens"; let korSet = {}, korNuvem = null; try { korSet = JSON.parse(localStorage.getItem(KORK) || "{}") || {}; } catch (e) {}
-const korMapa = () => ({ ...korSet, ...(korNuvem || {}) }), korChave = p => norm(p.name || ""), isKor = p => !!korMapa()[korChave(p)];
-const doSetor = p => { const s = setorDe(p); if (SETOR === FIS) return !isKor(p); if (SETOR === PER) return s === PER; if (s === PER) return false; return SETOR === KOR ? isKor(p) : !isKor(p); };
+let SETOR = (() => { if (PERFIL === "FLV" || PERFIL === PER || PERFIL === FIS) return PERFIL; try { const s = sessionStorage.getItem("validamais-setor"); return s === PER || s === FIS ? s : "FLV"; } catch (e) { return "FLV"; } })();
+const setorDe = p => p.category === PER ? PER : "FLV";   // Perecíveis tem cadastro próprio; FLV usa o cadastro «FLV» e as demais categorias
+const doSetor = p => { const s = setorDe(p); if (SETOR === FIS) return true; if (SETOR === PER) return s === PER; return s !== PER; };
 let formBip = false;   // o código do produto novo veio do bipe (ou de um produto já cadastrado)
 let CATS_VIS, CATSET;   // CATSET = categoria gravada nos cadastros do setor atual
-const derivaSetor = () => { CATS_VIS = SETOR === PER ? [PER] : SETOR === FIS ? CATS.filter(c => c !== KOR) : CATS.filter(c => c !== PER && c !== KOR); CATSET = SETOR === PER ? PER : "FLV"; document.body.dataset.setor = SETOR; document.body.dataset.perfil = PERFIL || ""; };
+const derivaSetor = () => { CATS_VIS = SETOR === PER ? [PER] : SETOR === FIS ? CATS : CATS.filter(c => c !== PER); CATSET = SETOR === PER ? PER : "FLV"; document.body.dataset.setor = SETOR; document.body.dataset.perfil = PERFIL || ""; };
 derivaSetor();
 const ADM_L = "validamais-admin-h";
 const adminHash = async pin => { const b = new TextEncoder().encode("valida+|" + pin); try { return [...new Uint8Array(await crypto.subtle.digest("SHA-256", b))].map(x => x.toString(16).padStart(2, "0")).join(""); } catch (e) { let h = 5381; for (const c of "valida+|" + pin) h = ((h << 5) + h + c.charCodeAt(0)) >>> 0; return "x" + h; } };
@@ -232,15 +229,13 @@ const icoLado = p => fotoDe(p) || !iconesOn() || !p || p.category !== PER ? "" :
 // v473: a nota vira um balão amarelo no canto da foto do produto (sem foto/quadrado, o ícone continua ao lado do nome)
 const leadNota = p => { const l = fotoLado(p) || icoLado(p); if (!l) return ""; const n = notaDe(p.id); return `<span class="pi-lead">${l}</span>`; };
 const fotoLado = p => { const d = fotoDe(p); return d ? `<span class="ico ico-foto ico-lado" data-id="${esc(p.id)}"><img class="ico-img" src="${d}" alt="" decoding="async"></span>` : ""; };   // lista de Validades: foto na lateral
-const kFotoN = n => { if (PERFIL !== "Admin" || !iconesOn() || !n) return "";   // só no perfil Admin (personalização exclusiva)
-  const d = fotoCache[fotoK(n)]; return d ? `<span class="ico ico-foto ico-lado" data-kn="${esc(n)}"><img class="ico-img" src="${d}" alt="" decoding="async"></span>` : `<span class="ico-tile ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`; };   // v484: foto do produto na contagem do KÓRIN
 let fotoIcTimer = 0, fotoVer = 0, famMemo = { p: null, n: -1, v: -1, m: new Map() };
 // foto para os balões e linhas da Doação (FLV): a do nome exato; senão a de qualquer produto da mesma família (1ª palavra: Banana, Tomate…)
 function famFotos() { if (famMemo.p === products && famMemo.n === products.length && famMemo.v === fotoVer) return famMemo.m;
   const m = new Map(); products.forEach(p => { if (!p || !p.name) return; const d = fotoCache[fotoK(p.name)]; if (!d) return; const k = dFamKey(p.name); if (k && !m.has(k)) m.set(k, d); });
   famMemo = { p: products, n: products.length, v: fotoVer, m }; return m; }
 function balFoto(w) { if (!iconesOn() || !w) return ""; const ex = fotoCache[fotoK(w)]; if (ex) return ex; const k = dFamKey(w); return k ? (famFotos().get(k) || "") : ""; }
-function fotoIcones() { clearTimeout(fotoIcTimer); fotoIcTimer = setTimeout(() => { fotoVer++; try { render(); } catch (e) {} try { if ($("dTop6")) renderDon(); } catch (e) {} try { if ($("pesLista") && $("pesLista").children.length) renderPesaveis(); } catch (e) {} try { if (SETOR === FIS) cadPaint(); } catch (e) {} try { if (SETOR === KOR && $("kLista")) kPaint(); } catch (e) {} }, 60); }
+function fotoIcones() { clearTimeout(fotoIcTimer); fotoIcTimer = setTimeout(() => { fotoVer++; try { render(); } catch (e) {} try { if ($("dTop6")) renderDon(); } catch (e) {} try { if ($("pesLista") && $("pesLista").children.length) renderPesaveis(); } catch (e) {} try { if (SETOR === FIS) cadPaint(); } catch (e) {}  }, 60); }
 function fotosTodas() {
   if (fotosOuvindo) return; fotosOuvindo = true;
   if (!db) { const m = store.get(FTK, {}); Object.keys(m).forEach(k => { fotoCache[k] = m[k]; }); fotosPronto = true; return; }
@@ -281,9 +276,9 @@ function fotoZoom(src, leg) { const bg = document.createElement("div"); bg.class
   bg.onclick = e => { if (e.target === im) return; bg.remove(); }; document.body.appendChild(bg); }
 // v475: segurar a foto (0,5 s) amplia em tela cheia; um toque rápido abre/fecha o cartão normalmente
 (function fotoSegurar() {
-  let t = null, seg = false, x0 = 0, y0 = 0; const alvo = e => { const ic = e.target.closest && e.target.closest(".ico-foto"); return ic && ic.closest("#list, #pesLista, #kLista") ? ic : null; }, para = () => { clearTimeout(t); t = null; };
+  let t = null, seg = false, x0 = 0, y0 = 0; const alvo = e => { const ic = e.target.closest && e.target.closest(".ico-foto"); return ic && ic.closest("#list, #pesLista") ? ic : null; }, para = () => { clearTimeout(t); t = null; };
   document.addEventListener("pointerdown", e => { const ic = alvo(e); if (!ic) return; seg = false; para(); x0 = e.clientX; y0 = e.clientY;
-    t = setTimeout(() => { const im = ic.querySelector("img"); if (!im) return; seg = true; try { navigator.vibrate && navigator.vibrate(15); } catch (er) {} fotoZoom(im.getAttribute("src"), ic.dataset.kn ? `<b>${esc(ic.dataset.kn)}</b>` : legFoto(ic.dataset.id)); }, 500); });
+    t = setTimeout(() => { const im = ic.querySelector("img"); if (!im) return; seg = true; try { navigator.vibrate && navigator.vibrate(15); } catch (er) {} fotoZoom(im.getAttribute("src"), legFoto(ic.dataset.id)); }, 500); });
   document.addEventListener("pointermove", e => { if (t && Math.hypot(e.clientX - x0, e.clientY - y0) > 10) para(); });
   ["pointerup", "pointercancel"].forEach(n => document.addEventListener(n, para));
   document.addEventListener("click", e => { if (seg && alvo(e)) { e.stopPropagation(); e.preventDefault(); } seg = false; }, true);
@@ -364,7 +359,7 @@ function separaLixo(arr) {
   const agora = Date.now(), venc = arr.filter(p => (p.lixo && agora - Number(p.lixo) > LIXO_MS) || (p.retirado && p.retEm && agora - Number(p.retEm) > RET_MS));   // lixeira vencida e retirados há mais de 30 dias saem de vez
   outros = arr.filter(p => !doSetor(p) && !venc.includes(p));   // do outro setor: não aparece aqui (e é preservado no modo local)
   const meu = arr.filter(doSetor);
-  products = meu.filter(p => !p.lixo && !venc.includes(p)).map(p => p.category === KOR ? { ...p, category: "FLV" } : p); lixeira = meu.filter(p => p.lixo && !venc.includes(p));
+  products = meu.filter(p => !p.lixo && !venc.includes(p)).map(p => p.category === "KÓRIN" ? { ...p, category: "FLV" } : p); lixeira = meu.filter(p => p.lixo && !venc.includes(p));
   if (db) { const loc = lixoLocalLer().filter(doSetor); if (loc.length) lixeira = lixeira.concat(loc); }   // lixeira deste aparelho (quando a nuvem não aceita o campo "lixo")
   if (venc.length) { if (db) venc.forEach(p => V.deleteDoc(V.doc(db, "products", p.id)).catch(() => {})); else persist(); }
 }
@@ -480,7 +475,7 @@ function render() {
     if (cat && !q && !tierF && !nvF && g !== lastG) { lastG = g; const GN = { v: ico("s-v") + "Vencidos", h: ico("s-h") + "Vence hoje", a: ico("s-a") + "1 a " + visCfg().red + " dia" + (visCfg().red > 1 ? "s" : "") + " · agir já", y: ico("s-y") + "De " + (visCfg().red + 1) + " a " + lim + " dias", ok: ico("s-ok") + "Dentro do prazo" }; hd = `<div class="pgh g${g}${recOn && gRec.has(g) ? " rec" : ""}" data-g="${g}" role="button" tabindex="0" aria-expanded="${!(recOn && gRec.has(g))}"><span>${GN[g]}</span><i>${gcnt[g]}</i><em class="pgc" aria-hidden="true"></em>${prevHtml(g)}</div>`; }
     const big = dl === null ? "—" : dl < 0 ? "VENCIDO" : dl === 0 ? "HOJE" : dl === 1 ? "AMANHÃ" : String(dl), small = dl === null ? "sem validade" : dl < 0 ? "há " + (-dl) + (dl < -1 ? " dias" : " dia") : dl <= 1 ? "" : "dias";
     const tl = lancMs(p), novo = tl > 0 && Date.now() - tl < NOVO_MS;   // lançado há menos de 30 min
-    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${novo ? " pnovo" : ""}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}" data-lt="${tl}">${notaDe(p.id) ? `<div class="pi-bubble" role="note" title="Nota"><b>${esc(notaDe(p.id).t)}</b></div>` : ""}<div class="pi-main">${leadNota(p)}<div class="pi-txt"><b class="pi-nome">${esc(nomeBonito(p.name))}${novo ? '<i class="pi-novo">NOVO</i>' : ""}</b><small class="pi-sub"><b>Qtd ${esc(p.quantity)}</b> · vence ${fmtCurto(p.expiry)}</small><small class="pi-sub2">${lo ? `<span class="pi-lotes" aria-label="Lote ${lo.i} de ${lo.n}"><b>${lo.i}/${lo.n}</b><span class="plb">${Array.from({ length: lo.n }, (_, j) => j < lo.i ? '<i class="on"></i>' : "<i></i>").join("")}</span></span>` : ""}${nvF && tl ? `<span class="pi-lt" data-lt="${tl}">${haQuanto(tl)}</span>` : ""}${semAdmin(p.por) ? `<span class="pi-op" title="Lançado por ${esc(semAdmin(p.por))}">${porHtml(p.por)}</span>` : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act">${!isKor(p) ? `<div class="pi-foto" data-id="${esc(p.id)}"></div><input type="file" accept="image/*" capture="environment" hidden data-fin="${esc(p.id)}"><input type="file" accept="image/*" hidden data-fin="${esc(p.id)}">` : ""}<label class="pi-nota"><span>${ico("nota", "ic ti only")}</span><input type="text" maxlength="60" data-nota="${esc(p.id)}" value="${esc((notaDe(p.id) || {}).t || "")}" placeholder="Nota (ex.: gôndola 3, já na promoção)" autocomplete="off" enterkeyhint="done">${notaDe(p.id) ? `<button type="button" class="nt-rem" data-ntx="${esc(p.id)}" aria-label="Remover a nota e o balão">${ico("lixo", "ic")}<b>Remover</b></button>` : ""}</label><div class="nt-fav" aria-label="Notas mais usadas">${notasTop().map(t => `<span class="nt-chip${norm(t) === norm((notaDe(p.id) || {}).t || "") ? " on" : ""}"><button type="button" class="nt-use" data-ntf="${esc(t)}">${esc(t)}</button>${ntEdit ? `<button type="button" class="nt-del" data-ntd="${esc(t)}" aria-label="Tirar «${esc(t)}» dos atalhos">${ico("fechar", "ic")}</button>` : ""}</span>`).join("")}<span class="nt-ctl">${ntEdit && ntOcultas().length ? `<button type="button" class="nt-rest" data-ntr="1">Restaurar atalhos</button>` : ""}<button type="button" class="nt-rest" data-nte="1">${ntEdit ? "Concluir" : "Editar atalhos"}</button></span></div><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
+    return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${novo ? " pnovo" : ""}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}" data-lt="${tl}">${notaDe(p.id) ? `<div class="pi-bubble" role="note" title="Nota"><b>${esc(notaDe(p.id).t)}</b></div>` : ""}<div class="pi-main">${leadNota(p)}<div class="pi-txt"><b class="pi-nome">${esc(nomeBonito(p.name))}${novo ? '<i class="pi-novo">NOVO</i>' : ""}</b><small class="pi-sub"><b>Qtd ${esc(p.quantity)}</b> · vence ${fmtCurto(p.expiry)}</small><small class="pi-sub2">${lo ? `<span class="pi-lotes" aria-label="Lote ${lo.i} de ${lo.n}"><b>${lo.i}/${lo.n}</b><span class="plb">${Array.from({ length: lo.n }, (_, j) => j < lo.i ? '<i class="on"></i>' : "<i></i>").join("")}</span></span>` : ""}${nvF && tl ? `<span class="pi-lt" data-lt="${tl}">${haQuanto(tl)}</span>` : ""}${semAdmin(p.por) ? `<span class="pi-op" title="Lançado por ${esc(semAdmin(p.por))}">${porHtml(p.por)}</span>` : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act"><div class="pi-foto" data-id="${esc(p.id)}"></div><input type="file" accept="image/*" capture="environment" hidden data-fin="${esc(p.id)}"><input type="file" accept="image/*" hidden data-fin="${esc(p.id)}"><label class="pi-nota"><span>${ico("nota", "ic ti only")}</span><input type="text" maxlength="60" data-nota="${esc(p.id)}" value="${esc((notaDe(p.id) || {}).t || "")}" placeholder="Nota (ex.: gôndola 3, já na promoção)" autocomplete="off" enterkeyhint="done">${notaDe(p.id) ? `<button type="button" class="nt-rem" data-ntx="${esc(p.id)}" aria-label="Remover a nota e o balão">${ico("lixo", "ic")}<b>Remover</b></button>` : ""}</label><div class="nt-fav" aria-label="Notas mais usadas">${notasTop().map(t => `<span class="nt-chip${norm(t) === norm((notaDe(p.id) || {}).t || "") ? " on" : ""}"><button type="button" class="nt-use" data-ntf="${esc(t)}">${esc(t)}</button>${ntEdit ? `<button type="button" class="nt-del" data-ntd="${esc(t)}" aria-label="Tirar «${esc(t)}» dos atalhos">${ico("fechar", "ic")}</button>` : ""}</span>`).join("")}<span class="nt-ctl">${ntEdit && ntOcultas().length ? `<button type="button" class="nt-rest" data-ntr="1">Restaurar atalhos</button>` : ""}<button type="button" class="nt-rest" data-nte="1">${ntEdit ? "Concluir" : "Editar atalhos"}</button></span></div><small class="pi-cod">Cód.: ${esc(p.barcode || (p.codigo_balanca ? "PLU " + p.codigo_balanca : "—"))} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
   $("list").dataset.visao = visaoDe();
   $("list").dataset.rec = recOn ? [...gRec].join(" ") : "";   // com busca/filtro ligado não há títulos de grupo: nada fica escondido
@@ -663,7 +658,7 @@ function dupReview() {
 window.dupReview = dupReview;
 // ---------- histórico de atividade (Admin vê quem entrou e o que fez; gravado na coleção "acessos", que as regras já aceitam) ----------
 const ATK = "validamais-atv";
-const ACS_NOMES = { Loja: "Validades (Loja)", Doacao: "Doação", Pesaveis: "Pesáveis", Etiquetas: "Etiquetas", Inventario: "Inventário", Cadastros: "Cadastros", Contagem: "Contagem" };
+const ACS_NOMES = { Loja: "Validades (Loja)", Doacao: "Doação", Pesaveis: "Pesáveis", Etiquetas: "Etiquetas", Inventario: "Inventário", Cadastros: "Cadastros" };
 function logAcesso(nome) {   // «acessou X»: no máximo 1× a cada 5 min por tela neste aparelho (para não encher o histórico)
   try { const m = store.get("validamais-acs", {}) || {}, agora = Date.now(); if (agora - (m[nome] || 0) < 5 * 60 * 1000) return; m[nome] = agora; store.set("validamais-acs", m); logAtv("acessou", nome); } catch (e) { /* sem registro */ } }
 function logAtv(a, txt, extra) {
@@ -971,7 +966,7 @@ $("list").onclick = e => { const nx = e.target.closest("[data-ntx]"); if (nx) { 
     $("list").dataset.rec = [...gRec].join(" ");
     requestAnimationFrame(() => { try { const th = (document.querySelector(".top") || {}).offsetHeight || 0; if (abrindo || gh.getBoundingClientRect().top < th + 4) gh.scrollIntoView({ block: "start", behavior: "smooth" }); } catch (er) {} }); return; } if (e.target.closest(".pi-nota")) return;   // v475: toque na foto = comportamento normal do cartão; ampliar só segurando (ver fotoSegurar)
   if (fotoClique(e)) return; const b = e.target.closest("button"); if (!b) { const it = e.target.closest(".pitem"); if (it) { openId = openId === it.dataset.id ? "" : it.dataset.id; document.querySelectorAll("#list .pitem").forEach(x => x.classList.toggle("open", x.dataset.id === openId)); if (openId) fotoCarrega(openId); } return; } if (b.dataset.edit) edit(b.dataset.edit); if (b.dataset.ret) retirar(b.dataset.ret, true); if (b.dataset.volta) retirar(b.dataset.volta, false); };
-$("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(SETOR === FIS ? "fiscal" : curTab === "Doacao" ? "doacao" : curTab === "Pesaveis" ? "etiqueta" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : curTab === "Contagem" ? "contagem" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
+$("manualOpen").onclick = () => openForm(); $("fab").onclick = () => openScan(SETOR === FIS ? "fiscal" : curTab === "Doacao" ? "doacao" : curTab === "Pesaveis" ? "etiqueta" : curTab === "Etiquetas" ? "etiqueta" : curTab === "Cadastros" ? "cadastro" : "loja"); $("retryScan").onclick = () => openScan(scanMode);
 $("scanManual").onclick = () => { stopScanner(); if (scanMode === "form") { show("Cadastrar produto"); return; } if (scanMode !== "loja") closeModal(); else openForm(); };
 $("closeModal").onclick = closeModal; $("cancelForm").onclick = closeModal;
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("modal").classList.contains("hidden")) closeModal(); });
@@ -1081,7 +1076,7 @@ $("scansBox").ontoggle = () => {
 // ---------- setor, menu lateral e voz ----------
 function pintaSetor() {   // botões do setor (agora dentro do menu ⋮) conforme o setor atual
   const ch = $("setorChip"); if (ch) ch.querySelectorAll("[data-s]").forEach(b => { b.hidden = false; b.classList.toggle("on", b.dataset.s === SETOR); b.setAttribute("aria-pressed", b.dataset.s === SETOR); b.onclick = () => { trocaSetor(b.dataset.s); if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } }; });
-  const outros = ["FLV", PER, KOR].filter(x => x !== SETOR), nome = x => x === KOR ? "KÓRIN" : x;
+  const outros = ["FLV", PER].filter(x => x !== SETOR), nome = x => x;
   [["mnSetor", "mnSetorT", outros[0]], ["mnSetor2", "mnSetor2T", outros[1]]].forEach(([b, t, alvo]) => { if ($(b)) { $(t).textContent = "Ir para " + nome(alvo); $(b).onclick = () => { trocaSetor(alvo); if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } }; } }); }
 function hojeTop() {   // data de hoje no topo, simples: «Terça-feira, 10 de novembro»
   const el = $("hojeTop"); if (!el) return; const d = new Date();
@@ -1230,13 +1225,12 @@ const FERR = ["Etiquetas", "Inventario", "Cadastros"], FK = "validamais-ferr";
 function tab(t) {
   if (t !== curTab && ACS_NOMES[t]) logAcesso(ACS_NOMES[t]);
   curTab = t;
-  ["Loja", "Doacao", "Pesaveis", "Etiquetas", "Inventario", "Cadastros", "Contagem"].forEach(n => { const p = $("tab" + n); if (p) p.classList.toggle("hidden", n !== t); const nb = $("nav" + n); if (nb) nb.classList.toggle("active", n === t); });
-  [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Pesaveis", t === "Pesaveis"], ["Etiquetas", t === "Etiquetas"], ["Cadastros", t === "Cadastros"], ["Contagem", t === "Contagem"]].forEach(([n, on]) => { const b = $("tb" + n); if (b) b.classList.toggle("active", on); });
+  ["Loja", "Doacao", "Pesaveis", "Etiquetas", "Inventario", "Cadastros"].forEach(n => { const p = $("tab" + n); if (p) p.classList.toggle("hidden", n !== t); const nb = $("nav" + n); if (nb) nb.classList.toggle("active", n === t); });
+  [["Loja", t === "Loja"], ["Doacao", t === "Doacao"], ["Pesaveis", t === "Pesaveis"], ["Etiquetas", t === "Etiquetas"], ["Cadastros", t === "Cadastros"]].forEach(([n, on]) => { const b = $("tb" + n); if (b) b.classList.toggle("active", on); });
   const tAnt = document.body.dataset.tab; document.body.dataset.tab = t; document.body.dataset.grp = t;
   if (t === "Doacao" && typeof dView === "function") dView("lista");
   if (t === "Pesaveis" && typeof renderPesaveis === "function") renderPesaveis();
   // v487: ao abrir Pesáveis a busca NÃO recebe foco (o teclado só abre quando a pessoa toca na busca)
-  if (t === "Contagem" && typeof kPaint === "function") kPaint();
 }
 function dCodTxt(i) {   // kg: código de doação · un: código de barras (ou, sem ele, o de doação); nunca o de balança
   const pr = products.find(x => norm(x.name || "") === norm(i.nome)) || {};
@@ -1733,7 +1727,7 @@ function cadPaint() {
   lixoBtn(); $("cCount").textContent = all.length + (q ? " · " + g.length + " achados" : "");
   const ini = x => { const c = x.name.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").charAt(0).toUpperCase(); return /[A-Z]/.test(c) ? c : "#"; };
   let ult = "", letras = [];
-  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}">${SETOR === FIS && fotoDe(x.p) ? `<span class="cfoto"><img src="${fotoDe(x.p)}" alt="" decoding="async"></span>` : ""}<div class="ci"${SETOR === FIS ? ` data-cdet="${esc(x.k)}"` : ""}>${SETOR === FIS ? `<div class="fcod"><span class="fch bal${x.plu ? "" : " vz"}"><i>CÓD. BALANÇA</i><b>${x.plu ? ultVm(x.plu) : "—"}</b></span>${x.p.category === PER ? `<span class="fch itn${x.don ? "" : " vz"}"><i>INTERNO</i><b>${x.don ? esc(x.don) : "—"}</b></span>` : ""}<span class="fch ean${x.barcode ? "" : " vz"}"><i>EAN</i><b>${x.barcode ? esc(x.barcode) : "—"}</b></span></div>` : ""}<b${SETOR === FIS ? ' class="fnome"' : ""}>${SETOR === FIS ? setEmo(x.p.category) + " " : ""}${esc(x.name)}</b><small${SETOR === FIS ? " hidden" : ""}>EAN ${x.barcode ? esc(x.barcode) : "—"}${SETOR === KOR ? "" : ` · PLU ${x.plu ? esc(x.plu) : "—"} · ${SETOR === PER || (SETOR === FIS && x.p.category === PER) ? "Interno" : "Doação"} ${x.don ? esc(x.don) : "—"}`}</small>${PERFIL === "Admin" ? `<small class="porx">👤 ${esc(x.l.map(l => l.por).find(Boolean) || "autor não registrado")} · ${dayOf(x.l[0])}</small>` : ""}${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small><button type="button" class="dpres" data-cres="${esc(x.k)}">Resolver código repetido</button>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
+  const row = x => `<div class="cadrow${x.rev ? " rv" : ""}">${SETOR === FIS && fotoDe(x.p) ? `<span class="cfoto"><img src="${fotoDe(x.p)}" alt="" decoding="async"></span>` : ""}<div class="ci"${SETOR === FIS ? ` data-cdet="${esc(x.k)}"` : ""}>${SETOR === FIS ? `<div class="fcod"><span class="fch bal${x.plu ? "" : " vz"}"><i>CÓD. BALANÇA</i><b>${x.plu ? ultVm(x.plu) : "—"}</b></span>${x.p.category === PER ? `<span class="fch itn${x.don ? "" : " vz"}"><i>INTERNO</i><b>${x.don ? esc(x.don) : "—"}</b></span>` : ""}<span class="fch ean${x.barcode ? "" : " vz"}"><i>EAN</i><b>${x.barcode ? esc(x.barcode) : "—"}</b></span></div>` : ""}<b${SETOR === FIS ? ' class="fnome"' : ""}>${SETOR === FIS ? setEmo(x.p.category) + " " : ""}${esc(x.name)}</b><small${SETOR === FIS ? " hidden" : ""}>EAN ${x.barcode ? esc(x.barcode) : "—"} · PLU ${x.plu ? esc(x.plu) : "—"} · ${SETOR === PER || (SETOR === FIS && x.p.category === PER) ? "Interno" : "Doação"} ${x.don ? esc(x.don) : "—"}</small>${PERFIL === "Admin" ? `<small class="porx">👤 ${esc(x.l.map(l => l.por).find(Boolean) || "autor não registrado")} · ${dayOf(x.l[0])}</small>` : ""}${x.dup.length ? `<small class="duptxt">⚠ ${esc(dupTxt(x.dup))}</small><button type="button" class="dpres" data-cres="${esc(x.k)}">Resolver código repetido</button>` : ""}</div><button type="button" class="crev${x.rev ? " on" : ""}" data-crev="${esc(x.k)}" aria-label="${x.rev ? "Tirar a marca de revisar" : "Marcar para revisar"}: ${esc(x.name)}" aria-pressed="${x.rev ? "true" : "false"}">🚩</button><button class="secondary" data-ced="${esc(x.k)}">Editar</button><button class="cdel" data-cdel="${esc(x.k)}" aria-label="Excluir ${esc(x.name)}">✕</button></div>`;
   $("cLista").innerHTML = g.length ? g.map(x => { const l = ini(x); let h = ""; if (l !== ult) { ult = l; letras.push(l); h = `<div class="cadlt" id="cl-${l === "#" ? "num" : l}">${l}</div>`; } return h + row(x); }).join("") : '<p class="empty">Nenhum produto encontrado.</p>';
   const rail = $("cIdx"); rail.hidden = g.length < 12 || letras.length < 2; $("cLista").classList.toggle("cadidx", !rail.hidden);
   rail.innerHTML = rail.hidden ? "" : letras.map(l => `<button type="button" tabindex="-1" data-l="${l}">${l}</button>`).join("");
@@ -1745,36 +1739,6 @@ function cadPula(l) { const e = $("cl-" + (l === "#" ? "num" : l)); if (!e) retu
   r.addEventListener("pointerdown", ev => { ativo = true; try { r.setPointerCapture(ev.pointerId) } catch (e) {} const l = letraEm(ev.clientX, ev.clientY); if (l) cadPula(l); ev.preventDefault(); });
   r.addEventListener("pointermove", ev => { if (!ativo) return; const l = letraEm(ev.clientX, ev.clientY); if (l) cadPula(l); });
   const fim = () => { ativo = false; }; r.addEventListener("pointerup", fim); r.addEventListener("pointercancel", fim); })();
-function korMarca(nomes, on) {
-  const upd = {}; nomes.forEach(n => { const k = korChave({ name: n }); if (k) upd[k] = on ? 1 : 0; });
-  if (!Object.keys(upd).length) return;
-  korSet = { ...korSet, ...upd }; try { localStorage.setItem(KORK, JSON.stringify(korSet)); } catch (e) {}
-  if (db) { korNuvem = { ...(korNuvem || {}), ...upd }; V.setDoc(V.doc(db, "sh_cfg", "korin"), { m: upd }, { merge: true }).catch(e => { console.warn(e); toast("Itens do KÓRIN salvos só neste aparelho (a nuvem recusou)."); }); }
-  const todos = db ? rawAll : products.concat(lixeira, outros); separaLixo(todos); lixoBtn(); render(); try { cadPaint(); kPaint(); } catch (e) {}
-}
-function korEscolher() {
-  const todos = (db ? rawAll : products.concat(lixeira, outros)).filter(p => p.name && !p.lixo && setorDe(p) === "FLV"), m = new Map();
-  todos.forEach(p => { const k = korChave(p); if (k && !m.has(k)) m.set(k, p.name); });
-  const atual = korMapa(), vazio = !Object.values(atual).some(Boolean), dica = new Set();
-  if (vazio) { [KCK, KRK].forEach(k => store.get(k, []).forEach(i => dica.add(norm(i.n)))); store.get(KBK, []).forEach(b => b.itens.forEach(i => dica.add(norm(i.n)))); store.get(KRH, []).forEach(r => r.itens.forEach(i => dica.add(norm(i.n)))); }
-  const sel = new Set([...m.keys()].filter(k => atual[k] || dica.has(k)));
-  const itens = [...m.entries()].sort((a, b) => a[1].localeCompare(b[1], "pt-BR", { sensitivity: "base" }));
-  const bg = document.createElement("div"); bg.className = "modal"; bg.id = "korEscModal";
-  const paint = () => { const q = norm(bg.querySelector("#kqBusca") ? bg.querySelector("#kqBusca").value : ""), y = bg.querySelector(".kqlist") ? bg.querySelector(".kqlist").scrollTop : 0;
-    const vis = itens.filter(([k, n]) => !q || k.includes(q));
-    bg.querySelector(".kqlist").innerHTML = vis.length ? vis.map(([k, n]) => `<label class="kqrow"><input type="checkbox" data-k="${esc(k)}"${sel.has(k) ? " checked" : ""}><span>${esc(n)}</span></label>`).join("") : '<p class="note">Nada encontrado.</p>';
-    bg.querySelector("#kqN").textContent = sel.size + " marcado" + (sel.size === 1 ? "" : "s"); bg.querySelector(".kqlist").scrollTop = y; };
-  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Itens do KÓRIN"><div class="sheethead"><h2>🗂️ Itens do KÓRIN</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
-    <p class="note">Marque os produtos que são do KÓRIN. Só eles aparecem aqui e saem do FLV.${vazio && dica.size ? " Já marquei os que aparecem nas suas contagens." : ""}</p>
-    <input id="kqBusca" type="search" placeholder="Buscar produto" autocomplete="off" style="width:100%;box-sizing:border-box"><div class="kqlist"></div>
-    <div class="toolbar" style="margin-top:10px"><button type="button" class="primary big" id="kqSalva">Salvar <span id="kqN"></span></button></div></section>`;
-  document.body.appendChild(bg); paint();
-  bg.querySelector("#kqBusca").oninput = paint;
-  bg.onchange = e => { const c = e.target.closest("[data-k]"); if (c) { c.checked ? sel.add(c.dataset.k) : sel.delete(c.dataset.k); bg.querySelector("#kqN").textContent = sel.size + " marcado" + (sel.size === 1 ? "" : "s"); } };
-  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) { bg.remove(); return; }
-    if (e.target.closest("#kqSalva")) { const on = [], off = []; m.forEach((n, k) => { const era = !!atual[k], ficou = sel.has(k); if (ficou && !era) on.push(n); else if (!ficou && era) off.push(n); }); bg.remove(); if (on.length) korMarca(on, true); if (off.length) korMarca(off, false); toast("✓ " + sel.size + " itens do KÓRIN."); } };
-}
-$("cKorEsc").onclick = korEscolher;
 // ---------- foto no cadastro: vira a foto do produto (Perecíveis) e lê o rótulo (OCR no próprio aparelho) para sugerir o nome ----------
 let cFotoFile = null, ocrW = null, ocrP = null;
 const OCR_RUIM = /(validade|val\b|fab|lote|peso|r\$|kg\b|preco|pre[cç]o|cnpj|sif|ingredientes|informa|nutri|conservar|refriger|indústria|industria|brasil|www|\.com)/i;
@@ -1877,13 +1841,11 @@ $("cSalvar").onclick = async () => {
   if (mine.length) {
     if (db) { const ts = V.serverTimestamp(); mine.forEach(x => V.updateDoc(V.doc(db, "products", x.id), { ...f, updatedAt: ts }).catch(fail)); }
     else { mine.forEach(x => Object.assign(x, f)); persist(); render(); }
-    if (SETOR === KOR && mine[0] && norm(mine[0].name) !== norm(name)) { const antigo = mine[0].name; setTimeout(() => { korMarca([antigo], false); korMarca([name], true); }, db ? 700 : 0); }
     toast("Cadastro atualizado.");
   } else {
     const rec = { ...f, category: SETOR === FIS ? $("cCat").value : CATSET, expiry: "", quantity: 1, por: myName() };
     if (db) { const ts = V.serverTimestamp(); V.addDoc(V.collection(db, "products"), { ...rec, createdAt: ts, updatedAt: ts }).catch(fail); }
     else { products.push({ ...rec, id: uid(), updatedAt: Date.now() }); persist(); render(); }
-    if (SETOR === KOR) korMarca([name], true);
     toast("«" + name + "» cadastrado.");
   }
   if (cFotoFile) fotoGravaNome(name, cFotoFile).then(ok => ok && toast("Foto salva no produto."));
@@ -2101,171 +2063,13 @@ $("histBox").ontoggle = () => {
 const go = t => { tab(t); side(false); };
 $("navHist").onclick = () => { go("Doacao"); try { if (typeof dView === "function") dView("lista"); } catch (e) {} document.body.classList.add("histOn"); const hb = $("histBox"); hb.open = true; hb.ontoggle && hb.ontoggle(); setTimeout(() => $("histSec").scrollIntoView({ block: "start", behavior: "smooth" }), 120); };
  $("tbPesaveis").onclick = () => go("Pesaveis");
- $("navLoja").onclick = () => go("Loja"); $("navContagem").onclick = () => go("Contagem"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("navInventario").onclick = () => go("Inventario"); $("navCadastros").onclick = () => go("Cadastros"); $("dScan").onclick = () => openScan("doacao");
+ $("navLoja").onclick = () => go("Loja"); $("navDoacao").onclick = () => go("Doacao"); $("navEtiquetas").onclick = () => go("Etiquetas"); $("navInventario").onclick = () => go("Inventario"); $("navCadastros").onclick = () => go("Cadastros"); $("dScan").onclick = () => openScan("doacao");
 // ----- top 3 mais doados (últimos 30 dias, compacto) -----
 let topDb = [];
 // recalcula os balões «Mais doados» (o painel antigo de top 3 foi removido)
 function renderTop() { try { dTop6Render(); } catch (e) {} }
 if (db) V.onSnapshot(V.query(V.collection(db, "doacoes"), V.orderBy("em", "desc"), V.limit(40)), s => { topDb = s.docs.map(d => withEdits({ ...d.data(), _id: d.id })); renderTop(); }, console.error);
 renderDon(); renderKey(); renderTop();
-// ---------- contagem do KÓRIN: lista de produtos e quantidades, enviada por WhatsApp (texto) ou PDF ----------
-const KCK = "validamais-contagem-kor";
-let kList = store.get(KCK, []), kPick = null;   // kPick: produto escolhido {n, b} esperando a quantidade
-const KAK = "validamais-korin-ant", KRK = "validamais-korin-rec-aberto", KBK = "validamais-korin-base", KRH = "validamais-korin-rec-hist";
-let kModo = "cont";   // cont = contagem do estoque · rec = recebimento (chegou mercadoria) · vend = comparação
-const kKey = m => m === "rec" ? KRK : m === "ant" ? KAK : KCK, kSave = () => { store.set(kKey(kModo), kList); kPassos(); };
-const kOrd = () => kList.slice().sort((a, b) => a.n.localeCompare(b.n, "pt-BR", { sensitivity: "base" }) || a.u.localeCompare(b.u));
-const kTot = () => { const m = {}; kList.forEach(i => { m[i.u] = (m[i.u] || 0) + i.q; }); return Object.keys(m).map(u => fq(m[u]) + " " + u).join(" · ") || "0"; };
-function kPaint() {
-  $("kSumP").textContent = kList.length; $("kSumT").textContent = kTot();
-  $("kLista").innerHTML = kList.length ? kOrd().map(i => `<div class="krow">${kFotoN(i.n)}<div class="kn"><b>${esc(i.n)}</b>${i.b ? `<small>EAN ${eanFin(i.b)}</small>` : ""}</div><button type="button" class="kq" data-ked="${esc(i.n)}|${i.u}">${fq(i.q)} ${esc(i.u)}</button><button type="button" class="kx" data-kdel="${esc(i.n)}|${i.u}" aria-label="Remover ${esc(i.n)}">✕</button></div>`).join("") : `<p class="empty">${SETOR === KOR && !products.length ? "Nenhum item do KÓRIN ainda. Em Cadastros, toque em «Escolher itens do KÓRIN»." : kModo === "ant" ? "Nada digitado ainda." : kModo === "rec" ? "Nada chegou ainda." : "Nada contado ainda."}</p>`;
-}
-function kEscolhe(p) { kPick = p; $("kSel").hidden = !p; $("kSug").innerHTML = ""; if (!p) return; $("kBusca").value = ""; $("kSelNome").textContent = p.n; $("kQtd").value = ""; $("kQtd").focus(); }
-function kSug() {
-  const q = norm($("kBusca").value.trim()); if (!q) { $("kSug").innerHTML = ""; return; }
-  const hits = cadGroups().filter(x => norm(x.name).includes(q) || x.barcode.includes(q)).slice(0, 8);
-  $("kSug").innerHTML = hits.map((x, i) => `<div class="pick kpk" data-kp="${i}">${kFotoN(x.name)}<span><b>${esc(x.name)}</b>${x.barcode ? ` <small class="muted">${esc(x.barcode)}</small>` : ""}</span></div>`).join("") + `<div class="pick" data-kp="novo">➕ Usar «${esc($("kBusca").value.trim())}» sem cadastro</div>`;
-  $("kSug")._hits = hits; }
-$("kBusca").oninput = kSug;
-$("kBusca").onkeydown = e => { if (e.key === "Enter") { const b = $("kSug").querySelector("[data-kp]"); if (b) b.click(); } };
-$("kSug").onclick = e => { const b = e.target.closest("[data-kp]"); if (!b) return; const nome = $("kBusca").value.trim().replace(/\s+/g, " ");
-  if (b.dataset.kp === "novo") { if (nome) kEscolhe({ n: nome, b: "" }); return; }
-  const x = ($("kSug")._hits || [])[Number(b.dataset.kp)]; if (x) kEscolhe({ n: x.name, b: x.barcode || "" }); };
-function kAdd() {
-  if (!kPick) return toast("Escolha o produto primeiro.");
-  const q = Math.round(Number(String($("kQtd").value).replace(",", ".")) * 1000) / 1000, u = $("kUn").value;
-  if (!(q > 0)) { toast("Digite a quantidade."); return $("kQtd").focus(); }
-  const ja = kList.find(i => norm(i.n) === norm(kPick.n) && i.u === u);
-  if (ja) { ja.q = Math.round((ja.q + q) * 1000) / 1000; toast("Somado: «" + ja.n + "» agora tem " + fq(ja.q) + " " + u + "."); } else { kList.push({ n: kPick.n, b: kPick.b, q, u }); }
-  kSave(); kEscolhe(null); kPaint(); $("kBusca").focus(); }
-$("kAdd").onclick = kAdd; $("kCancela").onclick = () => kEscolhe(null);
-$("kQtd").onkeydown = e => { if (e.key === "Enter") kAdd(); };
-$("kLista").onclick = e => { const d = e.target.closest("[data-kdel]"), ed = e.target.closest("[data-ked]"); const chave = (d || ed || {}).dataset; if (!chave) return;
-  const [n, u] = (d ? d.dataset.kdel : ed.dataset.ked).split("|"); const i = kList.findIndex(x => x.n === n && x.u === u); if (i < 0) return;
-  if (d) { const it = kList.splice(i, 1)[0]; kSave(); kPaint(); toast("«" + it.n + "» removido.", "Desfazer", () => { kList.splice(Math.min(i, kList.length), 0, it); kSave(); kPaint(); }); return; }
-  const v = prompt("Quantidade de «" + n + "» (" + u + ")", String(kList[i].q).replace(".", ",")); if (v === null) return;
-  const q = Math.round(Number(String(v).replace(",", ".")) * 1000) / 1000; if (!(q > 0)) return toast("Quantidade inválida."); kList[i].q = q; kSave(); kPaint(); };
-$("kLimpa").onclick = () => { if (!kList.length) return; if (!confirm("Limpar toda a contagem?")) return; kList = []; kSave(); kPaint(); };
-// ----- recebimento e vendas do KÓRIN: tinha (estoque de referência) + chegou (recebimentos) − agora (contagem atual) = vendeu -----
-const kChave = i => norm(i.n) + "|" + i.u;
-const kD = t => new Date(t).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
-const kDM = t => new Date(t).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
-const kQ = t => new Date(t).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-function kModoSet(m) {
-  kModo = m; kList = store.get(kKey(m), []); kEscolhe(null);
-  document.querySelectorAll("#kModo [data-m]").forEach(b => b.classList.toggle("on", b.dataset.m === m));
-  const vend = m === "vend"; $("kEntrada").hidden = vend; $("kListaBox").hidden = vend; $("kVend").hidden = !vend;
-  const T = { ant: ["① Tinha antes · KÓRIN", "Conte o que TINHA na loja na contagem anterior (ou digite as quantidades dela). Quando terminar, toque em Salvar «Tinha antes»."], rec: ["② Chegou · KÓRIN", "Chegou mercadoria? Busque o produto (ou bipe), digite quanto CHEGOU e adicione. Ao terminar, toque em Guardar o que chegou."], cont: ["③ Tem agora · KÓRIN", "Conte o que TEM na loja agora. Busque o produto (ou bipe), digite a quantidade e adicione. Depois veja o resultado em ④ Vendeu."] }[m] || ["", ""];
-  $("kTitulo").textContent = T[0]; $("kNota").textContent = T[1];
-  $("kBase").hidden = m !== "ant"; $("kFecha").hidden = m !== "rec"; $("kLimpa").textContent = m === "rec" ? "Limpar o que chegou" : m === "ant" ? "Limpar «Tinha antes»" : "Limpar contagem";
-  kPaint(); kPassos(); if (vend) kVendPaint(); }
-function kPassos() {
-  const bs = store.get(KBK, []), b0 = bs[0], set = (id, t) => { const el = $(id); if (el) el.textContent = t; };
-  set("kS1", b0 ? "✓ " + kDM(b0.t) + " · " + b0.itens.length + " itens" : "falta fazer");
-  const nr = b0 ? store.get(KRH, []).filter(r => r.t > b0.t).length : store.get(KRH, []).length; set("kS2", nr ? nr + (nr === 1 ? " chegada" : " chegadas") : "nada ainda");
-  const na = (kModo === "cont" ? kList : store.get(KCK, [])).length; set("kS3", na ? na + " itens contados" : "falta contar");
-  set("kS4", b0 && na ? "ver resultado" : "precisa de ① e ③"); }
-$("kModo").onclick = e => { const b = e.target.closest("[data-m]"); if (b) kModoSet(b.dataset.m); };
-kModoSet(store.get(KBK, []).length ? "cont" : "ant");
-$("kBase").onclick = () => { if (!kList.length) return toast("Conte (ou digite) o que tinha primeiro.");
-  const hj = new Date(), v = prompt("Que dia foi essa contagem do «Tinha antes»? (dia/mês, ex.: 28/10)", hj.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })); if (v === null) return;
-  const m = String(v).match(/(\d{1,2})\s*[\/\-.]\s*(\d{1,2})(?:\s*[\/\-.]\s*(\d{2,4}))?/); if (!m) return toast("Data inválida. Use dia/mês, por exemplo 28/10.");
-  let ano = m[3] ? Number(m[3]) : hj.getFullYear(); if (ano < 100) ano += 2000; let dt = new Date(ano, Number(m[2]) - 1, Number(m[1]), 12, 0); if (!m[3] && dt > hj) dt = new Date(ano - 1, Number(m[2]) - 1, Number(m[1]), 12, 0);
-  if (isNaN(dt) || dt.getMonth() !== Number(m[2]) - 1) return toast("Data inválida. Use dia/mês, por exemplo 28/10.");
-  const b = store.get(KBK, []); b.unshift({ id: uid().slice(0, 8), t: dt.getTime(), por: kNome(), itens: kList.map(i => ({ ...i })) }); store.set(KBK, b.slice(0, 12)); kList = []; kSave(); kPaint(); toast("📌 «Tinha antes» salvo (" + kD(dt.getTime()) + "). Agora registre o que chegou e conte o que tem agora."); kModoSet("rec"); };
-$("kFecha").onclick = () => { if (!kList.length) return toast("Nada para abastecer ainda.");
-  if (!confirm("Fechar este abastecimento (" + kList.length + " produtos)? Ele entra na conta das vendas.")) return;
-  const h = store.get(KRH, []); h.unshift({ id: uid().slice(0, 8), t: Date.now(), por: kNome(), itens: kList.map(i => ({ ...i })) }); store.set(KRH, h.slice(0, 40));
-  kList = []; kSave(); kPaint(); toast("✔ Guardado. Agora conte o que tem na loja em ③ Tem agora."); kModoSet("cont"); };
-function kCalc(base) {
-  const todos = store.get(KRH, []), rec = todos.filter(r => r.t > base.t || kInc.has(r.id)), velhos = todos.filter(r => r.t <= base.t && !kInc.has(r.id)), atual = store.get(KCK, []), m = new Map();
-  const ent = i => { const k = kChave(i); return m.get(k) || (m.set(k, { n: i.n, u: i.u, b: i.b || "", tinha: 0, chegou: 0, agora: 0, contado: false }), m.get(k)); };
-  base.itens.forEach(i => { ent(i).tinha += i.q; }); rec.forEach(r => r.itens.forEach(i => { ent(i).chegou += i.q; })); atual.forEach(i => { const e = ent(i); e.agora += i.q; e.contado = true; });
-  const depois = kDepois(), r3 = x => Math.round(x * 1000) / 1000;   // depois: a contagem de hoje já inclui o que abasteci · antes: abasteço depois de contar
-  const rows = [...m.values()].map(e => ({ ...e, vendeu: r3(depois ? e.tinha + e.chegou - e.agora : e.tinha - e.agora), fica: r3(depois ? e.agora : e.agora + e.chegou) })).sort((a, b) => a.n.localeCompare(b.n, "pt-BR", { sensitivity: "base" }));
-  return { rec, velhos, atual, rows }; }
-let kVSel = "";
-const kInc = new Set();   // abastecimentos fechados antes da referência que o usuário quis incluir
-const kDepois = () => store.get("validamais-korin-conta", "antes") === "depois";
-function kVendPaint() {
-  const box = $("kVend"), bases = store.get(KBK, []);
-  if (!bases.length) { box.innerHTML = '<h2 class="h2">Vendas · KÓRIN</h2><p class="note">Para comparar:</p><ol class="note" style="margin:0 0 10px 18px;padding:0"><li><b>① Tinha antes</b>: conte (ou digite) o que tinha na contagem anterior e salve.</li><li><b>② Chegou</b>: registre o que chegou e guarde.</li><li><b>③ Tem agora</b>: conte o que tem na loja agora.</li><li>Depois volte aqui em <b>④ Vendeu</b>.</li></ol>'; return; }
-  if (!bases.some(b => b.id === kVSel)) kVSel = bases[0].id;
-  const base = bases.find(b => b.id === kVSel), c = kCalc(base);
-  const vend = c.rows.filter(r => r.vendeu > 0), conf = c.rows.filter(r => r.vendeu < 0), semC = c.rows.filter(r => !r.contado);
-  const fmtU2 = rows => { const t = {}; rows.forEach(r => { t[r.u] = (t[r.u] || 0) + r.fica; }); return Object.keys(t).map(u => fq(t[u]) + " " + u).join(" · ") || "0"; };
-  const fmtU = (arr) => { const t = {}; arr.forEach(r => { t[r.u] = (t[r.u] || 0) + r.vendeu; }); return Object.keys(t).map(u => fq(t[u]) + " " + u).join(" · ") || "0"; };
-  box.innerHTML = `<h2 class="h2">Vendas · KÓRIN</h2>
-  <label class="note" for="kVBase">Comparar com o estoque de</label><select id="kVBase" style="width:100%;margin-bottom:8px">${bases.map(b => `<option value="${b.id}"${b.id === kVSel ? " selected" : ""}>${kD(b.t)} · ${b.itens.length} produtos${b.por ? " · " + esc(b.por) : ""}</option>`).join("")}</select>
-  <button type="button" class="secondary" id="kVData" style="min-height:36px;padding:4px 12px;font-size:13px;margin-bottom:6px">📅 Mudar a data do «antes»</button>
-  <p class="note" style="margin:6px 0 4px">Quando você contou o «Tem agora», o que chegou já estava na loja?</p>
-  <div class="vspre" id="kConta" style="margin:0 0 8px"><button type="button" data-c="antes" class="${kDepois() ? "" : "on"}">Não, ainda ia colocar</button><button type="button" data-c="depois" class="${kDepois() ? "on" : ""}">Sim, já estava</button></div>
-  <p class="note" style="margin:0 0 8px">Chegou desde o «Tinha antes»: <b>${c.rec.length}</b> ${c.rec.length === 1 ? "chegada" : "chegadas"} · Tem agora: <b>${c.atual.length}</b> produtos contados</p>
-  ${c.rec.length ? `<div class="kvrec">${c.rec.map(r => `<span>${kQ(r.t)} · ${r.itens.length} itens<button type="button" data-krdel="${r.id}" aria-label="Apagar abastecimento">✕</button></span>`).join("")}</div>` : ""}
-  ${c.velhos.length ? `<p class="note" style="margin:0 0 8px;color:#e5b92b">${c.velhos.length} abastecimento${c.velhos.length === 1 ? "" : "s"} fechado${c.velhos.length === 1 ? "" : "s"} <b>antes</b> do «antes» (não entra${c.velhos.length === 1 ? "" : "m"} na conta): ${c.velhos.map(r => `<button type="button" class="secondary" data-krinc="${r.id}" style="min-height:30px;padding:2px 10px;font-size:12px;margin:2px">+ incluir ${kQ(r.t)}</button>`).join("")}</p>` : ""}
-  ${!c.atual.length ? '<p class="note" style="color:#e5b92b">Falta o «Tem agora»: conte o que tem na loja em ③ Tem agora.</p>' : ""}
-  <div class="csum"><div><span>VENDEU</span><b>${esc(fmtU(vend))}</b></div><div><span>FICA NA LOJA</span><b>${esc(fmtU2(c.rows))}</b></div></div>
-  ${c.rows.map(r => `<div class="kvr${r.vendeu < 0 ? " cf" : ""}"><div class="kvn"><b>${esc(r.n)}</b>${r.b ? `<small class="keanl">EAN ${eanFin(r.b)}</small>` : ""}${!r.contado ? "<small>não contado hoje</small>" : r.vendeu < 0 ? "<small>conferir: tem mais do que devia</small>" : ""}</div><div class="kvg"><div><small>Tinha ${kDM(base.t)}</small>${fq(r.tinha)}</div><div><small>Chegou</small>${r.chegou ? "+" + fq(r.chegou) : "–"}</div><div><small>Tem agora</small>${fq(r.agora)}</div><div class="kvv"><small>Vendeu</small><b>${fq(r.vendeu)}</b></div><div class="kvt"><small>Fica</small><b>${fq(r.fica)}</b></div></div></div>`).join("")}
-  ${conf.length || semC.length ? `<p class="note" style="margin-top:8px">${semC.length ? semC.length + " produto(s) sem contagem agora (aparecem como vendidos por inteiro). " : ""}${conf.length ? conf.length + " com sobra para conferir." : ""}</p>` : ""}
-  <div class="toolbar" style="margin-top:12px"><button type="button" class="primary big" id="kVZap">Enviar no WhatsApp</button><button type="button" class="primary big" id="kVPdf">Enviar em PDF</button></div>
-  <div class="toolbar" style="margin-top:8px"><button type="button" class="secondary big" id="kVNova">📌 Começar novo período</button></div>
-  <p class="note" style="margin:6px 0 0">«Começar novo período» usa o «Tem agora» como o «Tinha antes» da próxima vez.</p>`;
-  box.querySelector("#kConta").onclick = e => { const b = e.target.closest("[data-c]"); if (b) { store.set("validamais-korin-conta", b.dataset.c); kVendPaint(); } };
-  box.querySelector("#kVBase").onchange = e => { kVSel = e.target.value; kVendPaint(); };
-  box.onclick = e => { if (e.target.id === "kVData") { const bs = store.get(KBK, []), b0 = bs.find(x => x.id === kVSel); if (!b0) return;
-      const v = prompt("Em que dia foi feita a contagem «antes»? (dia/mês, ex.: 28/10)", new Date(b0.t).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })); if (v === null) return;
-      const m = String(v).match(/(\d{1,2})\s*[\/\-.]\s*(\d{1,2})(?:\s*[\/\-.]\s*(\d{2,4}))?/); if (!m) return toast("Data inválida. Use dia/mês, por exemplo 28/10.");
-      const hoje = new Date(); let ano = m[3] ? Number(m[3]) : hoje.getFullYear(); if (ano < 100) ano += 2000; let dt = new Date(ano, Number(m[2]) - 1, Number(m[1]), 12, 0);
-      if (!m[3] && dt > hoje) dt = new Date(ano - 1, Number(m[2]) - 1, Number(m[1]), 12, 0);
-      if (isNaN(dt) || dt.getMonth() !== Number(m[2]) - 1) return toast("Data inválida. Use dia/mês, por exemplo 28/10.");
-      b0.t = dt.getTime(); store.set(KBK, bs); kVendPaint(); toast("📅 «Antes» agora é de " + kD(b0.t) + "."); return; }
-    const inc = e.target.closest("[data-krinc]"); if (inc) { kInc.add(inc.dataset.krinc); kVendPaint(); return; } const d = e.target.closest("[data-krdel]"); if (d) { if (!confirm("Apagar este abastecimento?")) return; store.set(KRH, store.get(KRH, []).filter(r => r.id !== d.dataset.krdel)); kVendPaint(); return; }
-    if (e.target.id === "kVNova") { const at = store.get(KCK, []); if (!at.length) return toast("Faça a contagem atual primeiro."); if (!confirm("Usar a contagem de hoje (mais o que foi abastecido, se contou depois) como novo «antes» e zerar a contagem?")) return;
-      const b = store.get(KBK, []); const nb = { id: uid().slice(0, 8), t: Date.now(), por: kNome(), itens: at.map(i => ({ ...i })) }; b.unshift(nb); store.set(KBK, b.slice(0, 12)); kVSel = nb.id; kInc.clear(); store.set(KCK, []); kList = []; kVendPaint(); toast("📌 Novo «antes» salvo. A contagem foi zerada para o próximo período."); return; }
-    if (e.target.id === "kVPdf") { const bs = store.get(KBK, []).find(x => x.id === kVSel); if (!bs) return; const cc = kCalc(bs), dep = kDepois();
-      (async () => { try { const pdf = new V.jsPDF(); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text("RELATÓRIO KÓRIN", 14, 16);
-        pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Loja: ${LOJA}   Feito por: ${kNome()}`, 14, 23);
-        pdf.text(`${kDM(bs.t)}: contagem de ${kD(bs.t)}   Hoje: ${kD(Date.now())}`, 14, 29);
-        const tv = {}, tf = {}; cc.rows.forEach(r => { if (r.vendeu > 0) tv[r.u] = (tv[r.u] || 0) + r.vendeu; tf[r.u] = (tf[r.u] || 0) + r.fica; });
-        const sm = t => Object.keys(t).map(u => fq(t[u]) + " " + u).join(" · ") || "0";
-        V.autoTable(pdf, { startY: 34, styles: { fontSize: 9.5, cellPadding: 2.2 }, headStyles: { fillColor: [70, 60, 20] }, footStyles: { fillColor: [235, 230, 205], textColor: [40, 35, 10] },
-          columnStyles: { 1: { cellWidth: 31 }, 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right", fontStyle: "bold" }, 5: { halign: "right" }, 6: { halign: "right", fontStyle: "bold" } }, didParseCell: d => { if (d.column.index > 1 && (d.section === "head" || d.section === "foot")) d.cell.styles.halign = "right"; eanPdfHide(d, 1); }, didDrawCell: d => eanPdfDraw(pdf, d, 1),
-          head: [["PRODUTO", "EAN", kDM(bs.t), "HOJE", "VENDEU", "ABASTECI", "TOTAL AGORA"]],
-          body: cc.rows.filter(r => r.tinha || r.agora || r.chegou).map(r => [r.n + (!r.contado ? " (não contado hoje)" : r.vendeu < 0 ? " (conferir)" : ""), r.b || "-", fq(r.tinha), fq(r.agora), fq(r.vendeu), r.chegou ? "+" + fq(r.chegou) : "-", fq(r.fica)]),
-          foot: [["TOTAL", "", "", "", sm(tv), "", sm(tf)]] });
-        const blob = pdf.output("blob"), file = new File([blob], "Contagem frango KÓRIN Sam's Radial.pdf", { type: "application/pdf" });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Relatório KÓRIN", files: [file] }); else download(blob, file.name);
-      } catch (er) { if (er.name !== "AbortError") { console.error(er); toast("Não foi possível gerar o PDF."); } } })(); return; }
-    if (e.target.id === "kVZap") { const bs = store.get(KBK, []).find(x => x.id === kVSel); if (!bs) return; const cc = kCalc(bs), dep = kDepois();
-      const lin = cc.rows.filter(r => r.tinha || r.agora || r.chegou).map(r => `*${r.n}*${r.b ? "\nEAN " + eanZap(r.b) : ""}\n${kDM(bs.t)}: ${fq(r.tinha)} · Hoje: ${fq(r.agora)}${r.chegou ? " · Abasteci: +" + fq(r.chegou) : ""}\n${r.vendeu < 0 ? "⚠ Conferir (tem mais do que devia: " + fq(-r.vendeu) + ")" : "Vendeu: " + fq(r.vendeu)} ${r.vendeu < 0 ? "" : r.u} · Total agora: ${fq(r.fica)} ${r.u}\n`);
-      const t = ["*RELATÓRIO KÓRIN*", "Loja: " + LOJA, "Feito por: " + kNome(), "", "Antes: contagem de " + kD(bs.t), "Hoje: contagem de " + kD(Date.now()), "Abastecido: " + (cc.rec.length ? cc.rec.reduce((n, r) => n + r.itens.length, 0) + " itens em " + cc.rec.length + " abastecimento" + (cc.rec.length === 1 ? "" : "s") : "nada"), "", ...lin, `*TOTAL VENDIDO: ${fmtU(cc.rows.filter(r => r.vendeu > 0))}*`].join("\n");
-      if (navigator.share) navigator.share({ title: "Relatório KÓRIN", text: t }).catch(() => {}); else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank"); } };
-}
-function fiscalScan(code) {   // Fiscal: bipa o produto e vê todos os códigos; se não existir, oferece cadastrar
-  stopScanner(); closeModal();
-  const d = String(code).replace(/\D/g, ""), x = cadGroups().find(g => (d && g.barcode === d) || (isScale(d) && g.plu && Number(g.plu) === Number(String(Number(parseScale(d).item)))));
-  sinal(x ? "ok" : "erro"); if (x) return cadCodigos(x);
-  toast("Código " + (d || code) + " não cadastrado.", "Cadastrar", () => { $("cForm").classList.add("fisopen"); if (d && !isScale(d) && d.length <= 13) { $("cEan").value = d; } $("cNome").focus(); $("cForm").scrollIntoView({ block: "start" }); }); }
-function contagemScan(code) {
-  stopScanner(); closeModal();
-  const d = String(code).replace(/\D/g, ""), x = cadGroups().find(g => (d && g.barcode === d) || (isScale(d) && g.plu && Number(g.plu) === Number(String(Number(parseScale(d).item)))));
-  sinal(x ? "ok" : "erro"); if (!x) { toast("Código não cadastrado. Digite o nome para contar."); $("kBusca").focus(); return; }
-  kEscolhe({ n: x.name, b: x.barcode || "" }); }
-const kQuando = () => new Date().toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
-const kNome = () => String(myName()).replace(/\s*[\(\[]?\s*admin\s*[\)\]]?/gi, "").replace(/\s+/g, " ").trim();   // só o nome (sem «admin»)
-function kTexto() { const l = kOrd();   // cada produto em negrito, quantidade em negrito logo abaixo, uma linha em branco entre eles
-  return [kModo === "rec" ? "*ABASTECIMENTO KÓRIN*" : "*CONTAGEM KÓRIN*", "Data: " + kQuando(), "Loja: " + LOJA, (kModo === "rec" ? "Feito por: " : "Contado por: ") + kNome(), "", ...l.map(i => `*${i.n}*\n*${fq(i.q)} ${i.u}*${i.b ? " · EAN " + eanZap(i.b) : ""}\n`), `*TOTAL: ${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}*`].join("\n"); }
-$("kZap").onclick = async () => { if (!kList.length) return toast("A contagem está vazia.");
-  const t = kTexto(); if (navigator.share) { try { await navigator.share({ title: "Contagem KÓRIN", text: t }); } catch (e) { if (e.name !== "AbortError") toast("Não foi possível compartilhar."); } }
-  else window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank"); };
-$("kPdf").onclick = async () => { if (!kList.length) return toast("A contagem está vazia.");
-  try { const l = kOrd(), pdf = new V.jsPDF(); pdf.setFontSize(18); pdf.setFont("helvetica", "bold"); pdf.text(kModo === "rec" ? "ABASTECIMENTO KÓRIN" : "CONTAGEM KÓRIN", 14, 16);
-    pdf.setFont("helvetica", "normal"); pdf.setFontSize(10); pdf.text(`Data: ${kQuando()}   Loja: ${LOJA}   ${kModo === "rec" ? "Feito" : "Contado"} por: ${kNome()}`, 14, 23);
-    V.autoTable(pdf, { startY: 28, styles: { fontSize: 10, cellPadding: 2.5 }, headStyles: { fillColor: [70, 60, 20] }, footStyles: { fillColor: [235, 230, 205], textColor: [40, 35, 10] },
-      head: [["CÓDIGO", "PRODUTO", "QUANTIDADE"]], body: l.map(i => [i.b || "-", i.n, `${fq(i.q)} ${i.u}`]), didParseCell: d => eanPdfHide(d, 0), didDrawCell: d => eanPdfDraw(pdf, d, 0), foot: [["", "TOTAL", `${l.length} produto${l.length === 1 ? "" : "s"} · ${kTot()}`]] });
-    const blob = pdf.output("blob"), file = new File([blob], "contagem-korin-" + iso(new Date()) + ".pdf", { type: "application/pdf" });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: "Contagem KÓRIN", files: [file] }); else download(blob, file.name);
-  } catch (e) { if (e.name !== "AbortError") { console.error(e); toast("Não foi possível gerar o PDF."); } } };
 // ---------- Saúde do app: confere os cadastros e testa se a nuvem aceita cada setor ----------
 const ST_NOME = "__AUTOTESTE__";
 const setSet = p => setorDe(p) === PER ? PER : "FLV";
@@ -2333,9 +2137,8 @@ function saudeLocal() {   // o que existe só neste aparelho
   const l = [], n = (a) => Array.isArray(a) ? a.length : 0;
   if (Object.keys(retLoc).length) l.push(`Retiradas da loja: ${Object.keys(retLoc).length} (a nuvem recusou o campo «retirado»)`);
   if (n(lixoLocalLer())) l.push(`Lixeira local: ${n(lixoLocalLer())} item(ns) (a nuvem não aceitou o campo «lixo»)`);
-  if (kList.length) l.push(`Contagem do KÓRIN: ${kList.length} produto(s)`);
-  [["validamais-etiquetas-per", "Etiquetas de Perecíveis"], ["validamais-etiquetas-kor", "Etiquetas do KÓRIN"]].forEach(([k, t]) => { if (n(store.get(k, []))) l.push(`${t}: ${n(store.get(k, []))} item(ns)`); });
-  [["validamais-doacao-per", "Doação de Perecíveis"], ["validamais-doacao-kor", "Doação do KÓRIN"]].forEach(([k, t]) => { const d = store.get(k, null); if (d && n(d.itens)) l.push(`${t} (rascunho): ${n(d.itens)} item(ns)`); });
+  [["validamais-etiquetas-per", "Etiquetas de Perecíveis"]].forEach(([k, t]) => { if (n(store.get(k, []))) l.push(`${t}: ${n(store.get(k, []))} item(ns)`); });
+  [["validamais-doacao-per", "Doação de Perecíveis"]].forEach(([k, t]) => { const d = store.get(k, null); if (d && n(d.itens)) l.push(`${t} (rascunho): ${n(d.itens)} item(ns)`); });
   return l;
 }
 const erroTxt = e => { const c = (e && (e.code || e.message)) || String(e); return /permission-denied/.test(c) ? "recusado pelas regras do Firebase" : /timeout|sem resposta/.test(c) ? "sem resposta da nuvem em 10 s (sem internet?)" : /unavailable|network/.test(c) ? "sem conexão com a nuvem" : c; };
@@ -2394,7 +2197,7 @@ function saudeAbrir() {
         inp.onchange = async () => { const f = inp.files && inp.files[0], nome = bg._fotoNome; inp.value = ""; if (!f || !nome) return; toast("Salvando a foto…"); const ok = await fotoGravaNome(nome, f); toast(ok ? "Foto salva: " + nomeBonito(nome) : "Não consegui salvar a foto."); fotoIcones(); paint(); }; }
       inp.click(); return; }
     const ac = e.target.closest("[data-a]"); if (ac) { saudeAcao({ ...ac.dataset }, paint); return; }
-    const n = e.target.closest("[data-sn]"); if (n) { const nome = n.dataset.sn, set = n.dataset.ss; bg.remove(); if (set && set !== (SETOR === PER ? PER : "FLV") && SETOR !== KOR) trocaSetor(set); $("navCadastros").click(); $("cBusca").value = nome; cadPaint(); window.scrollTo(0, 0); return; }
+    const n = e.target.closest("[data-sn]"); if (n) { const nome = n.dataset.sn, set = n.dataset.ss; bg.remove(); if (set && set !== (SETOR === PER ? PER : "FLV")) trocaSetor(set); $("navCadastros").click(); $("cBusca").value = nome; cadPaint(); window.scrollTo(0, 0); return; }
     if (e.target.id === "shRun") { const b = e.target, out = $("shRes"); b.disabled = true; b.textContent = "Testando…"; out.innerHTML = "";
       const ic = { ok: "✓", erro: "✗", aviso: "⚠", info: "ⓘ" };
       autoteste((nome, est, extra) => { out.insertAdjacentHTML("beforeend", `<div class="shr ${est}"><b>${ic[est] || ""} ${esc(nome)}</b>${extra ? `<small>${esc(extra)}</small>` : ""}</div>`); })
@@ -2446,7 +2249,6 @@ function visAbrir() {
     try { localStorage.removeItem(VK); } catch (e) {} visAplica(); render(); bg.remove(); toast(admin ? "Padrão restaurado." : "Voltou ao padrão da loja."); };
   prev();
 }
-if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "korin"), sn => { korNuvem = (sn.exists() && sn.data().m) || {}; separaLixo(rawAll); lixoBtn(); render(); try { cadPaint(); kPaint(); } catch (e) {} }, e => console.warn("korin", e)); } catch (e) { console.warn(e); } }
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "atalhos"), sn => {
   if (sn.exists() && Array.isArray(sn.data().l)) { const l = sn.data().l, at = JSON.stringify(store.get("validamais-dbal", null)), nv = JSON.stringify(l.length ? l : null); if (at !== nv) { store.set("validamais-dbal", l.length ? l : null); try { dTop6Render(); } catch (e) {} } }
   else if (!sn.exists() && PERFIL === "Admin" && dBalCfg()) dBalSave(dBalCfg());   // primeira vez: os atalhos do Admin viram os oficiais
@@ -2888,9 +2690,9 @@ function notifAbrir() {
 $("mnNotif").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } notifAbrir(); };
 const mnFecha = () => { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); };
 $("mnSaude").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } saudeAbrir(); };
-const tabInicial = () => SETOR === FIS ? "Cadastros" : SETOR === PER ? "Loja" : SETOR === KOR ? "Contagem" : "Doacao";
-function trocaSetor(alvo) {   // troca FLV / Perecíveis / KÓRIN sem recarregar a página
-  if (alvo === SETOR || ![ "FLV", PER, KOR, FIS ].includes(alvo)) return;
+const tabInicial = () => SETOR === FIS ? "Cadastros" : SETOR === PER ? "Loja" : "Doacao";
+function trocaSetor(alvo) {   // troca FLV / Perecíveis sem recarregar a página
+  if (alvo === SETOR || ![ "FLV", PER, FIS ].includes(alvo)) return;
   if (PERFIL !== "Admin" && alvo !== PERFIL) return;   // só o Admin troca de setor
   try { if (typeof stopScanner === "function") stopScanner(); closeModal(); } catch (e) {}
   const todos = db ? rawAll : products.concat(lixeira, outros);   // todos os cadastros, de todos os setores
@@ -2900,12 +2702,12 @@ function trocaSetor(alvo) {   // troca FLV / Perecíveis / KÓRIN sem recarregar
   DK = chaveSetor("validamais-doacao"); don = store.get(DK, null) || { itens: [], inicio: new Date().toISOString() }; dSel = ""; dVal = "";
   EK = chaveSetor(EK_FLV); EHK = chaveSetor("validamais-etqhist");
   labels = alvo === "FLV" ? (etqFlv || store.get(EK_FLV, [])) : store.get(EK, []); pend = null; eHits = []; eFiltro = "";
-  ["search", "cBusca", "eBusca", "dBusca", "kBusca"].forEach(i => { const e = $(i); if (e) e.value = ""; }); $("eRes").innerHTML = ""; if ($("kSug")) $("kSug").innerHTML = "";
+  ["search", "cBusca", "eBusca", "dBusca"].forEach(i => { const e = $(i); if (e) e.value = ""; }); $("eRes").innerHTML = "";
   cFiltro = ""; retView = false; $("statusFilter").value = "";
   fillCategories(); $("categoryFilter").dataset.sig = ""; $("categoryFilter").value = CATSET; store.set(LC, CATSET);
-  cadReset(); if (typeof kEscolhe === "function") kEscolhe(null);
+  cadReset();
   pintaSetor(); rotulosSetor();
-  render(); cadPaint(); renderDon(); renderLabels(); kPaint();
+  render(); cadPaint(); renderDon(); renderLabels();
   tab(tabInicial()); window.scrollTo(0, 0); }
 tab(tabInicial()); if (SETOR === FIS) cadPaint();
 
