@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-12T22:30:00-03:00",
+  "itens": [
+   "Validades: com o grupo fechado, a barra agora mostra miniaturas dos itens mais urgentes (com os dias que faltam) e os nomes deles. Ao abrir o grupo, a prévia some"
+  ]
+ },
+ {
   "t": "2026-11-12T21:00:00-03:00",
   "itens": [
    "Ao lançar uma validade muito longe (mais de 6 meses; no FLV, mais de 2 meses), o app avisa e pede para conferir a data antes de salvar"

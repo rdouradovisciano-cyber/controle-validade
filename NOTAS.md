@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 488.
+> Última atualização: 11/11/2026 · versão 489.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -137,6 +137,7 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v479: balão da nota (`.pi-bubble`) vai para o TOPO do cartão, acima da foto, com a ponta apontando para baixo (desenho do usuário); a faixa larga de baixo saiu; some com o cartão aberto.
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
+- v489: prévia na barra de grupo fechado (`.pgp`: até 4 miniaturas `.pgt` com dias, `+N`, nomes); `prevHtml(g)` usa as linhas já ordenadas; some com o grupo aberto; não aparece em «Dentro do prazo», com busca ou filtros.
 - v488: aviso de validade muito longa no `save()` (>180 dias; FLV >60), só quando a data foi alterada; `askConfirm` com «Corrigir a data» devolve o foco ao `#expiry`.
 - v487: Pesáveis não foca mais a busca ao abrir a aba (removido o foco automático da v470).
 - v486: Atividade dos usuários sem abas «Buscas» e «Erros» (e sem linhas de erro na lista); removidas as consultas `pbh-*`. O registro de erros/`pesHist` continua gravando, só não é exibido.
