@@ -1044,6 +1044,7 @@ async function pollStats() {          // contagem agregada: 1 leitura por consul
 function chipOnline(n) { const c = $("onChip"); c.classList.remove("hidden"); c.textContent = "● " + n + " online"; c.classList.toggle("on", n > 0); }
 $("onChip").onclick = () => {
   if (!db) return toast("Modo local: só este aparelho está em uso.");
+  if (PERFIL !== "Admin") return toast(($("nOnline").textContent || "–") + " online agora");   // v498: só o Admin vê os nomes de quem está online
   const bg = document.createElement("div"); bg.className = "askbg"; document.body.appendChild(bg);
   const pinta = lista => { bg.innerHTML = `<div class="ask" style="text-align:left;max-height:80dvh;overflow:auto"><div class="ai" style="text-align:center">🟢</div><h3 style="text-align:center">${lista ? lista.length + " online agora" : "Verificando…"}</h3>` +
     (lista ? (lista.length ? lista.map(d => `<div class="dupr"><span><b>${esc(d.nome || "Aparelho")}</b>${d.id === myId ? " <small>(você)</small>" : ""}</span><small>${d.min < 1 ? "agora" : "há " + d.min + " min"} · ${esc(d.ua || "")}</small></div>`).join("") : '<p style="text-align:center">Ninguém online.</p>') : "") +
