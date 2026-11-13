@@ -726,9 +726,18 @@ function retOverlay() { products.forEach(p => { if (p.retirado == null && retLoc
 function efeitoSai(id) {
   const el = [...document.querySelectorAll("#list .pitem")].find(x => x.dataset.id === id);
   if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return Promise.resolve();
+  try {   // v502: a foto se solta do card, gira e voa para fora da tela
+    const im = el.querySelector(".ico-lado .ico-img, .pi-lead .ico-img"), r = im && im.getBoundingClientRect();
+    if (im && r.width && el.animate) {
+      const fl = im.cloneNode(true); fl.className = "foto-voa"; fl.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;
+      document.body.appendChild(fl); im.style.visibility = "hidden";
+      const dx = window.innerWidth - r.left + 40, dy = -Math.min(r.top, 220) - 40;
+      fl.animate([{ transform: "translate(0,0) scale(1) rotate(0)", opacity: 1 }, { transform: "translate(" + dx * .35 + "px," + (dy * .15 - 14) + "px) scale(1.15) rotate(8deg)", opacity: 1, offset: .3 }, { transform: "translate(" + dx + "px," + dy + "px) scale(.35) rotate(40deg)", opacity: 0 }], { duration: 620, easing: "cubic-bezier(.3,.1,.4,1)", fill: "forwards" }).onfinish = () => fl.remove();
+      setTimeout(() => fl.remove(), 900);
+    } } catch (e) {}
   el.style.maxHeight = el.offsetHeight + "px"; void el.offsetHeight; el.classList.add("saindo");
   try { if (fxOn() && navigator.vibrate) navigator.vibrate([14, 30, 14]); } catch (e) {}   // toque curto: «saiu»
-  return new Promise(r => setTimeout(r, 420));
+  return new Promise(r => setTimeout(r, 560));
 }
 const MOTIVOS = ["Vencido", "Quebra/estragou", "Vendido em oferta", "Vendido"], ENGANO = ["Lançado por engano"];   // "engano" só apaga o lote da lista, sem registro
 async function retirar(id, sai, semPerguntar) {
