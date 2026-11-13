@@ -1080,7 +1080,7 @@ body[data-setor="Perecíveis"] #micBtn{display:none!important}
 html[data-tema="light"] .shact.del{color:#b3261e;border-color:#b3261e66}
 
 /* perfil do aparelho: só o Admin troca de setor */
-body[data-perfil="FLV"] #setorChip,body[data-perfil="Perecíveis"] #setorChip,body[data-perfil="Fiscal"] #setorChip,body[data-perfil="Fiscal"] #mnSetor,body[data-perfil="Fiscal"] #mnSetor2,body[data-perfil="FLV"] #mnSetor,body[data-perfil="Perecíveis"] #mnSetor,body[data-perfil="FLV"] #mnSetor2,body[data-perfil="Perecíveis"] #mnSetor2{display:none!important}
+body[data-perfil="FLV"] #setorChip,body[data-perfil="Perecíveis"] #setorChip,body[data-perfil="FLV"] #mnSetor,body[data-perfil="Perecíveis"] #mnSetor,body[data-perfil="FLV"] #mnSetor2,body[data-perfil="Perecíveis"] #mnSetor2{display:none!important}
 .perfil p{margin:0 0 10px;color:var(--mut,#a9a38f);font-size:14px}
 .perfop{display:grid;grid-template-columns:44px 1fr;align-items:center;text-align:left;width:100%;margin-top:8px;padding:12px 14px;border-radius:16px;border:1px solid var(--ln);background:rgba(255,255,255,.04);color:inherit;min-height:64px}
 .perfop span{grid-row:1/3;font-size:28px}.perfop b{font-size:18px}.perfop small{color:#a9a38f}
@@ -1468,38 +1468,9 @@ html[data-fx="on"] .pitem.prv .pi-nome::before{animation:fxWig 2.6s ease-in-out 
 .moremenu .mnh{padding:14px 14px 4px!important}
 
 
-/* setor Fiscal de loja: só consulta de cadastros (FLV + Perecíveis) */
-body[data-setor="Fiscal"] #tbCadastros{display:flex}
-body[data-setor="Fiscal"] #tbLoja,body[data-setor="Fiscal"] #tbDoacao,body[data-setor="Fiscal"] #tbEtiquetas,body[data-setor="Fiscal"] #tbPesaveis,body[data-setor="Fiscal"] #tbContagem,body[data-setor="Fiscal"] .fabnew,body[data-setor="Fiscal"] #mnManual,body[data-setor="Fiscal"] #cLixo,body[data-setor="Fiscal"] #cKorEsc,body[data-setor="Fiscal"] #mnInv,body[data-setor="Fiscal"] #mnDoaAnt,body[data-setor="Fiscal"] #mnEtqHist,body[data-setor="Fiscal"] .cadrow .dpres,body[data-setor="Fiscal"] .cadrow [data-ced],body[data-setor="Fiscal"] .cadrow [data-cdel],body[data-setor="Fiscal"] .cadrow [data-crev]{display:none!important}
-body[data-setor="Fiscal"] .setorsw button.on{background:linear-gradient(180deg,#b9d6ff,#6aa0e8);color:#0b1f3d}
-body[data-perfil="Admin"] .setorsw button{padding:0 7px;font-size:12px}body[data-perfil="Admin"] .setorsw{margin-right:2px}
 
-#cCatBox,#cSetorF{display:none}
-body[data-setor="Fiscal"] #cCatBox{display:block}body[data-setor="Fiscal"] #cSetorF{display:block;width:100%;margin-bottom:8px}
-body[data-setor="Fiscal"] .cadrow .ci{cursor:pointer}
-.codbar{background:#fff;border-radius:14px;padding:14px 12px 10px;text-align:center;margin:6px 0 10px;color:#111}
-.codsvg svg{width:100%;height:96px;display:block}.codnum{display:block;font-size:22px;letter-spacing:.12em;margin-top:6px;font-variant-numeric:tabular-nums}.codbar small{display:block;color:#555;margin-top:4px}
-.codgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.codgrid>div{border:1px solid var(--ln);border-radius:14px;padding:10px 12px}
-.codgrid small{display:block;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}.codgrid b{font-size:24px;font-variant-numeric:tabular-nums}
 
-body[data-setor="Fiscal"] #cForm{display:none}body[data-setor="Fiscal"] #cForm.fisopen{display:block}
-#cFisNovo{display:none}body[data-setor="Fiscal"] #cFisNovo{display:block;width:100%;margin:0 0 10px;min-height:44px}
-body[data-setor="Fiscal"] #cSetorF{margin:0 0 10px}
-body[data-setor="Fiscal"] .cadrow .ci small[hidden]{display:none!important}
-
-/* Fiscal: códigos em blocos coloridos, como na aba Pesáveis (nome embaixo) */
-.fcod{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 4px}
-.fch{display:inline-flex;align-items:baseline;gap:6px;padding:3px 11px 4px;border-radius:10px;flex:1 1 0;min-width:0;white-space:nowrap}
-.fch i{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.06em}
-.fch b{font-size:22px;font-weight:900;letter-spacing:.02em;line-height:1.1;font-variant-numeric:tabular-nums;color:inherit!important}
-.fch.bal{background:#f3d87a;color:#1a1405}.fch.itn{background:#8fe0ec;color:#06242a}
-.fch.ean{flex:1 1 100%;background:#d9c7f5;color:#2a0f55}html[data-tema=dark] .fch.ean{background:#5b3e99;color:#fff}
-.fch.vz{opacity:.45}
-em.ult{font-style:normal;color:#d1121f}.fch.bal em.ult{color:#c1121f}
-html[data-tema=dark] .codgrid em.ult{color:#ff5a5f}
-body[data-setor="Fiscal"] .cadrow .fnome{display:block;font-size:13.5px;font-weight:600;color:var(--mut,#a9a38f);white-space:normal}
-body[data-setor="Fiscal"] #cForm:not(.perSel) label[for="cDon"],body[data-setor="Fiscal"] #cForm:not(.perSel) #cDon{display:none!important}
-.codgrid:has(> div:only-child){grid-template-columns:1fr}
+em.ult{font-style:normal;color:#d1121f}
 
 
 .dupbar{position:sticky;top:-18px;z-index:2;background:var(--card,#16181b);padding:10px 0 8px;margin:-10px 0 6px;border-bottom:1px solid var(--ln)}
@@ -1864,9 +1835,6 @@ html[data-tema=dark] .escv .efer span.fac,html[data-tema=dark] .escv .efer span.
 
 #atvSum:empty{display:none}
 
-/* Fiscal: foto do produto na lista de Cadastros */
-.cadrow .cfoto{flex:none;width:46px;height:46px;border-radius:10px;overflow:hidden;background:var(--lt2,#222);border:1px solid var(--ln)}
-.cadrow .cfoto img{width:100%;height:100%;object-fit:cover;display:block}
 
 #cFoto .cfrow{display:flex;gap:8px;margin-top:8px}
 #cFoto .cfrow button{flex:1;min-height:44px}
@@ -2152,3 +2120,5 @@ html .atvr b{text-transform:none;letter-spacing:0;font-size:15px}
 html .atvr{padding:10px 0;align-items:flex-start}
 html .atvr time{width:46px;font-weight:700;font-size:13px;color:var(--mut,#8a9a90);padding-top:2px}
 html .atvd{position:static;background:transparent;margin:14px 0 2px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut,#8a9a90)}
+/* v496: mantido (era da seção do Fiscal) */
+body[data-perfil="Admin"] .setorsw button{padding:0 7px;font-size:12px}body[data-perfil="Admin"] .setorsw{margin-right:2px}

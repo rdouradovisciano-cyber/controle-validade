@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-13T01:30:00-03:00",
+  "itens": [
+   "O perfil e setor Fiscal foi removido. Aparelhos que estavam no perfil Fiscal vão pedir para escolher outro perfil na próxima abertura"
+  ]
+ },
+ {
   "t": "2026-11-13T01:00:00-03:00",
   "itens": [
    "O setor KÓRIN foi removido (contagem, recebimento, vendas e relatórios). Cadastros que eram só do KÓRIN voltam a aparecer no FLV"
