@@ -2130,3 +2130,8 @@ body[data-perfil="Admin"] .setorsw button{padding:0 7px;font-size:12px}body[data
 
 /* v500 — foto da prévia é tocável */
 .pgt[data-id]{cursor:pointer}
+
+/* v501 — foto na lista de etiquetas (FLV) */
+.crw .elead{flex:none;width:48px;height:48px;border-radius:12px;border:1px solid var(--ln);background:rgba(128,128,128,.12);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.crw .elead .ico-img{width:100%;height:100%;object-fit:cover;border:0;border-radius:0}
+.crw .elead .ico-vazio{border:0;opacity:.5}

@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 500.
+> Última atualização: 11/11/2026 · versão 501.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -137,6 +137,7 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v479: balão da nota (`.pi-bubble`) vai para o TOPO do cartão, acima da foto, com a ponta apontando para baixo (desenho do usuário); a faixa larga de baixo saiu; some com o cartão aberto.
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
+- v501: FLV: linhas da lista de Etiquetas mostram foto (`etqFoto`, usa `balFoto`: foto exata ou da família).
 - v500: foto (.pgt[data-id]) da prévia do grupo recolhido abre o grupo e o card do item (openId).
 - v499: toque no selo de lote (.pi-lotes) abre `loteLista(id)` com todos os lotes do produto (sem local).
 - v498: tocar em «ONLINE» (`#rodOn`/`#onChip`) mostra a lista de nomes só para o Admin; os outros perfis veem só o número em um aviso.

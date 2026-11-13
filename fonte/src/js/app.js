@@ -243,6 +243,7 @@ function fotosTodas() {
     sn.docChanges().forEach(c => { fotoCache[c.doc.id] = c.type === "removed" ? "" : (c.doc.data().d || ""); });
     if (!sn.metadata.fromCache || Date.now() - t0 > 6000) fotosPronto = true;
     fotoIcones(); try { saudeRepinta && saudeRepinta(); } catch (e) {}
+    try { if (curTab === "Etiquetas" && SETOR === "FLV") renderLabels(); } catch (e) {}   // v501: foto chegou, repinta a lista de etiquetas
   }, e => { console.warn("fotos", e); fotosErro = true; try { saudeRepinta && saudeRepinta(); } catch (x) {} });
     setTimeout(() => { if (!fotosPronto && !fotosErro) { fotosPronto = true; try { saudeRepinta && saudeRepinta(); } catch (e) {} } }, 7000);   // se a nuvem não confirmar, vale o que veio do cache
   } catch (e) { console.warn("fotos", e); fotosErro = true; }
@@ -2727,13 +2728,17 @@ function etqFixEan() {
     if (l.orig !== cod || l.kg !== kg) { l.orig = cod; l.code = uniCode(cod); l.kg = kg; mud = true; } });
   if (mud) store.set(EK, labels);
 }
+function etqFoto(l) {   // v501: no FLV cada etiqueta da lista mostra a foto do produto (foto exata ou da mesma família)
+  if (SETOR !== "FLV" || !iconesOn()) return "";
+  const d = balFoto(l.nome);
+  return `<span class="elead">${d ? `<img class="ico-img" src="${d}" alt="" decoding="async">` : icoVazio()}</span>`; }
 function renderLabels() {
   etqFixEan();
   $("eLimpa").classList.toggle("hidden", labels.length <= 5); { const n = labels.filter(l => l.ok).length; $("eMarc").textContent = labels.length ? `✓ ${n} de ${labels.length} já colocadas para impressão` : ""; } $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
   const mapaE = codMapa(), infoE = labels.map(l => ({ rev: revOn(l.nome), dup: dupLabel(l, mapaE) }));
   filtBar($("eFilt"), eFiltro, infoE.filter(o => o.rev).length, infoE.filter(o => o.dup.length).length);
   const ord = { P: 0, M: 1, G: 2 };   // lista única: primeiro os P, depois M, depois G (mantém a ordem de inclusão dentro de cada tamanho)
-  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).filter(({ i }) => !eFiltro || (eFiltro === "rev" ? infoE[i].rev : infoE[i].dup.length)).map(({ l, i }) => `<div class="crwrap"><div class="crw${l.ok ? " done" : ""}${infoE[i].rev ? " rv" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button><div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}${infoE[i].rev ? ` <span class="rvtag">🚩 revisar</span>` : ""}${infoE[i].dup.length ? ` <span class="duptag" data-dupi="${i}">⚠ repetido</span>` : ""}</div><div class="cname">${esc(l.nome)}</div>${SETOR === "FLV" ? `<div class="ctam"><span class="tbadge">${(l.tam || "P") === "P" ? "P serrilhado" : l.tam}</span></div>` : ""}</div><div class="crr"><div class="cqty">${l.qtd}${SETOR !== "FLV" && (l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div></div><button type="button" class="crx" data-ldrop="${i}" aria-label="Remover etiqueta: ${esc(l.nome)}">✕</button></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
+  $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).filter(({ i }) => !eFiltro || (eFiltro === "rev" ? infoE[i].rev : infoE[i].dup.length)).map(({ l, i }) => `<div class="crwrap"><div class="crw${l.ok ? " done" : ""}${infoE[i].rev ? " rv" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button>${etqFoto(l)}<div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}${infoE[i].rev ? ` <span class="rvtag">🚩 revisar</span>` : ""}${infoE[i].dup.length ? ` <span class="duptag" data-dupi="${i}">⚠ repetido</span>` : ""}</div><div class="cname">${esc(l.nome)}</div>${SETOR === "FLV" ? `<div class="ctam"><span class="tbadge">${(l.tam || "P") === "P" ? "P serrilhado" : l.tam}</span></div>` : ""}</div><div class="crr"><div class="cqty">${l.qtd}${SETOR !== "FLV" && (l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div></div><button type="button" class="crx" data-ldrop="${i}" aria-label="Remover etiqueta: ${esc(l.nome)}">✕</button></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
 }
 // efeito: o item novo é escrito à mão, devagar — uma mão (✍️) vai riscando o código e depois o nome, com tinta vermelha que seca
 function etqEscrever(row) {
