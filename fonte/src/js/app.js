@@ -267,6 +267,14 @@ async function fotoGravaNome(name, file) {   // grava a foto pelo nome (usado no
     if (db) await V.setDoc(V.doc(db, "sh_cfg", k), { d, n: name.slice(0, 120), por: myName().slice(0, 40), em: Date.now() }); else { const m = store.get(FTK, {}); m[k] = d; store.set(FTK, m); } return true; }
   catch (e) { console.warn(e); delete fotoCache[k]; return false; }
 }
+// v508: ao trocar o nome do produto, a foto (guardada pelo nome) vai junto para o nome novo, se o novo ainda não tiver foto
+function fotoMove(de, para) {
+  try { if (!de || !para) return; const ko = fotoK(de), kn = fotoK(para); if (ko === kn) return;
+    let d = fotoCache[ko]; if (d === undefined && !db) d = (store.get(FTK, {}))[ko] || ""; if (!d || fotoCache[kn]) return;
+    fotoCache[kn] = d;
+    if (db) V.setDoc(V.doc(db, "sh_cfg", kn), { d, n: String(para).slice(0, 120), por: myName().slice(0, 40), em: Date.now() }).catch(e => { console.warn(e); delete fotoCache[kn]; }); else { const m = store.get(FTK, {}); m[kn] = d; store.set(FTK, m); }
+    fotoIcones(); } catch (e) { console.warn(e); }
+}
 async function fotoApaga(id) {
   const p = products.find(x => x.id === id); if (!p || PERFIL !== "Admin") return; const k = fotoK(p.name);
   if (!(await askConfirm({ icon: "🗑", title: "Apagar a foto?", text: p.name, sub: "Vale para todos os aparelhos.", ok: "Apagar", cancel: "Cancelar" }))) return;
@@ -623,7 +631,7 @@ async function dupUnirCore(g, alvo, paint, setor) {   // une o grupo num só cad
   const ean = pega("ean"), plu = pega("plu"), doa = pega("doa"), set = new Set(g.map(x => norm(x.nome))), pool = setor || (SETOR === PER ? PER : "FLV");   // setor: quando a chamada vem de outro setor (Saúde do app)
   const ok = await askConfirm({ icon: "🔗", title: "Unir cadastros?", text: "«" + alvo.nome + "»", sub: `Este nome fica e o outro some: todos passam a ser «${alvo.nome}» com ${ean ? "EAN " + ean : "sem EAN"}${plu ? " · PLU " + plu : ""}${doa ? " · Cód. " + doa : ""}. As validades e quantidades que estão na loja (dos dois) continuam, agora neste nome.`, ok: "Unir", cancel: "Cancelar" });
   if (!ok) return; let n = 0;
-  rawAllAtivos().forEach(p => { if (!set.has(norm(p.name || "")) || setSet(p) !== pool) return; const d = { name: alvo.nome }; if (ean) d.barcode = ean; if (plu) d.codigo_balanca = plu; if (doa) d.codigo_doacao = doa;
+  rawAllAtivos().forEach(p => { if (!set.has(norm(p.name || "")) || setSet(p) !== pool) return; fotoMove(p.name, alvo.nome); const d = { name: alvo.nome }; if (ean) d.barcode = ean; if (plu) d.codigo_balanca = plu; if (doa) d.codigo_doacao = doa;
     if (Object.keys(d).every(k => (p[k] || "") === d[k])) return; n++;
     if (db) V.updateDoc(V.doc(db, "products", p.id), { ...d, updatedAt: V.serverTimestamp() }).catch(err => console.error(err)); else Object.assign(p, d); });
   persist(); if (!db) render(); toast(`${n} cadastro(s) unidos em «${alvo.nome}».`); if (paint) paint();
@@ -652,6 +660,7 @@ function dupReview() {
     if (b.dataset.u) return dupUnir(+b.dataset.g, +b.dataset.n, paint);
     const gs = JSON.parse(bg.dataset.g), alvo = gs[b.dataset.g][b.dataset.n], set = new Set(gs[b.dataset.g].map(norm)); let n = 0;
     products.forEach(p => { if (set.has(norm(p.name || "")) && (p.name || "").trim() !== alvo) { n++;
+      fotoMove(p.name, alvo);
       if (db) V.updateDoc(V.doc(db, "products", p.id), { name: alvo, updatedAt: V.serverTimestamp() }).catch(err => console.error(err)); else p.name = alvo; } });
     persist(); if (!db) render(); toast(`${n} cadastro(s) renomeado(s) para «${alvo}».`); paint(); };
   paint(); document.body.appendChild(bg);
@@ -702,6 +711,7 @@ async function save(next) {
     }
   }
   const antes = id ? ((products.find(x => x.id === id) || {}).name || "") : "";
+  if (id && antes && fotoK(antes) !== fotoK(data.name)) fotoMove(antes, data.name);
   if (!id || norm(antes) !== norm(data.name)) {
     const sim = similarNames(data.name, antes);
     if (sim.length) {
@@ -2144,7 +2154,7 @@ async function saudeAcao(d, repaint) {
     else { const agora = Date.now(); alvo.forEach(p => { p.lixo = agora; }); const todos = [...new Set(products.concat(lixeira, outros))]; separaLixo(todos); persist(); render(); lixoBtn(); }   // local: o cadastro pode ser de outro setor (fica em «outros»), então refaz as listas
     toast(`«${d.n}» foi para a lixeira.`); }
   else if (d.a === "ren") { const alvo = lotes().filter(p => (p.barcode || "") === (d.b || "")); const novo = (prompt("Novo nome para este cadastro:", d.n) || "").trim().slice(0, 120);
-    if (!novo || novo === d.n) return; saudeSet(alvo, { name: novo }); toast(`Renomeado para «${novo}».`); }
+    if (!novo || novo === d.n) return; fotoMove(d.n, novo); saudeSet(alvo, { name: novo }); toast(`Renomeado para «${novo}».`); }
   else if (d.a === "jun") { const alvo = lotes(), pick = f => alvo.map(p => p[f]).find(Boolean) || "";
     const r = await askConfirm({ icon: "🔗", title: "Juntar em um só?", text: `«${d.n}»`, sub: "Os cadastros passam a usar os mesmos códigos. Os lotes e validades continuam como estão.", ok: "Juntar", cancel: "Cancelar" });
     if (r !== true) return; saudeSet(alvo, { barcode: pick("barcode"), codigo_balanca: pick("codigo_balanca"), codigo_doacao: pick("codigo_doacao") }); toast("Cadastros juntados."); }
