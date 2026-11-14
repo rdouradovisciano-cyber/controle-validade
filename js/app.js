@@ -247,7 +247,7 @@ async function fidbCarrega() {
   try { FIDB.db = await new Promise(ok => { try { const r = indexedDB.open("validamais-fotos-cache", 1); r.onupgradeneeded = () => r.result.createObjectStore("f"); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); } catch (e) { ok(null); } });
     if (!FIDB.db) return; const st = FIDB.db.transaction("f").objectStore("f"), ks = await idbReq(st.getAllKeys()), vs = await idbReq(st.getAll()); let n = 0;
     ks.forEach((k, i) => { if (fotoCache[k] === undefined && vs[i]) { fotoCache[k] = vs[i]; n++; } });
-    if (n) fotoIcones(); } catch (e) { console.warn("fotos-cache", e); }
+    FIDB.n = ks.length; if (n) fotoIcones(); } catch (e) { console.warn("fotos-cache", e); }
 }
 function fidbGrava(ch) {   // ch: [[chave, dado|null]]
   try { if (!FIDB.db || !ch.length) return; const st = FIDB.db.transaction("f", "readwrite").objectStore("f"); ch.forEach(([k, d]) => d ? st.put(d, k) : st.delete(k)); } catch (e) { console.warn("fotos-cache", e); }
@@ -1100,6 +1100,11 @@ if (cloud && V.initializeApp) {
     }, err => { console.error(err); carregando = false; render(); setSync("erro de sincronização (confira as regras do Firestore)"); toast("Erro ao ler os dados da nuvem."); });
   } catch (e) { console.error(e); db = null; setSync("falha ao iniciar o Firebase"); }
 } else { setTimeout(() => notifVerifica(), 1500); separaLixo(store.get(LK, []).map(({ foto, ...r }) => r)); persist(); setSync("modo local neste aparelho (configure o Firebase para sincronizar)"); render(); }
+// v519: tela de abertura: só some quando a lista e as fotos estiverem prontas (no máximo ~5 s)
+(function splashAbertura() { const sp = document.getElementById("splash"); if (!sp) return; const t0 = Date.now(); let fechado = false;
+  const fim = () => { if (fechado) return; fechado = true; clearInterval(tm); sp.classList.add("sai"); setTimeout(() => sp.remove(), 400); };
+  const tm = setInterval(() => { const ms = Date.now() - t0, fotosOk = !db || fotosPronto || FIDB.n > 0; if ((!carregando && fotosOk && ms > 500) || ms > 5000) fim(); }, 100);
+  sp.onclick = fim; })();
 
 // ---------- aparelho, contadores (visitas/online) e histórico de leituras ----------
 const myId = store.get("validamais-device", null) || (() => { const i = uid().slice(0, 8); store.set("validamais-device", i); return i; })();
