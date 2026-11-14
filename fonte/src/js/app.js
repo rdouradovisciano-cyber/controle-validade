@@ -2834,6 +2834,13 @@ function renderLabels() {
   filtBar($("eFilt"), eFiltro, infoE.filter(o => o.rev).length, infoE.filter(o => o.dup.length).length);
   const ord = { P: 0, M: 1, G: 2 };   // lista única: primeiro os P, depois M, depois G (mantém a ordem de inclusão dentro de cada tamanho)
   $("eLista").innerHTML = labels.length ? labels.map((l, i) => ({ l, i })).sort((a, b) => (ord[a.l.tam || "M"] - ord[b.l.tam || "M"]) || (a.i - b.i)).filter(({ i }) => !eFiltro || (eFiltro === "rev" ? infoE[i].rev : infoE[i].dup.length)).map(({ l, i }) => `<div class="crwrap"><div class="crw${l.ok ? " done" : ""}${infoE[i].rev ? " rv" : ""}" data-li="${i}"><button type="button" class="lchk" data-lchk="${i}" role="checkbox" aria-checked="${l.ok ? "true" : "false"}" aria-label="Já colocada para impressão: ${esc(l.nome)}">${l.ok ? "✓" : ""}</button>${etqFoto(l)}<div class="crl"><div class="ccode${(l.code || "").length > 14 ? " long" : ""}">${l.code ? esc(l.code) : "SEM CÓDIGO"}${l.orig && l.orig !== l.code ? ` <span class="unib">unificado</span>` : ""}${infoE[i].rev ? ` <span class="rvtag">🚩 revisar</span>` : ""}${infoE[i].dup.length ? ` <span class="duptag" data-dupi="${i}">⚠ repetido</span>` : ""}</div><div class="cname">${esc(l.nome)}</div>${SETOR === "FLV" ? `<div class="ctam"><span class="tbadge">${(l.tam || "P") === "P" ? "P serrilhado" : l.tam}</span></div>` : ""}</div><div class="crr"><div class="cqty">${l.qtd}${SETOR !== "FLV" && (l.tam || "M") !== "M" ? `<span class="tbadge">${l.tam}</span>` : ""}</div></div><button type="button" class="crx" data-ldrop="${i}" aria-label="Remover etiqueta: ${esc(l.nome)}">✕</button></div></div>`).join("") : '<p class="empty">Nenhum item na lista.</p>';
+  fitCodigos(); setTimeout(fitCodigos, 350);   // v523: o código nunca fica cortado
+}
+// v523: encolhe o código da etiqueta até caber inteiro na linha (13+ dígitos + quantidade)
+try { if (window.ResizeObserver && $("eLista")) new ResizeObserver(() => fitCodigos()).observe($("eLista")); } catch (e) {}   // a aba pode estar escondida ao desenhar: refaz quando aparece
+function fitCodigos() {
+  try { document.querySelectorAll("#eLista .ccode").forEach(el => { el.style.removeProperty("font-size"); let fs = parseFloat(getComputedStyle(el).fontSize) || 24, n = 0;
+    while (el.clientWidth && el.scrollWidth > el.clientWidth + 1 && fs > 12 && n++ < 40) { fs -= 1; el.style.setProperty("font-size", fs + "px", "important"); } }); } catch (e) { console.warn(e); }
 }
 // efeito: o item novo é escrito à mão, devagar — uma mão (✍️) vai riscando o código e depois o nome, com tinta vermelha que seca
 function etqEscrever(row) {
