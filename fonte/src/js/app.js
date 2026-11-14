@@ -2625,7 +2625,17 @@ function erroAbrir() {
 }
 $("mnErro").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } erroAbrir(); };
 const ATV_ICO = { entrou: "🚪", cadastrou: "➕", editou: "✏️", retirou: "📦", devolveu: "↩️", removeu: "🗑️", "doação": "🎁", etiqueta: "🏷️", acessou: "👁️", importou: "📥", oferta: "🔥", erro: "🐞" };
-const ATV_VERBO = { entrou: "entrou no app", cadastrou: "cadastrou", editou: "editou", retirou: "retirou da loja", devolveu: "devolveu à loja", removeu: "removeu", "doação": "fez doação", etiqueta: "lançou etiqueta", acessou: "acessou", importou: "importou", oferta: "criou oferta", erro: "reportou um erro" };
+const ATV_VERBO = { entrou: "entrou no app", cadastrou: "lançou uma validade", editou: "corrigiu um lançamento", retirou: "retirou da loja", devolveu: "devolveu à loja", removeu: "apagou da lista", "doação": "fez doação", etiqueta: "lançou etiqueta", acessou: "acessou", importou: "importou", oferta: "criou oferta", erro: "reportou um erro" };
+// v521: detalhe claro de cada ação (nome, validade com dias, quantidade, motivo) + foto do item
+function atvItem(r) {
+  const m = /^(.*?) · vence (\d{2})\/(\d{2})\/(\d{4})(?: · qtd (\d+))?(?: · (.+))?$/.exec(r.txt || "");
+  if (!["cadastrou", "editou", "retirou", "devolveu"].includes(r.a) || !m) { const nm = /^(.*?) \(só da lista\)$/.exec(r.txt || ""); if (r.a === "removeu" && nm) return atvFoto(nm[1]) + `<div class="atvit"><strong>${esc(nm[1])}</strong></div>`; return r.txt && r.a !== "entrou" ? `<small>${esc(r.txt)}</small>` : ""; }
+  const dt = new Date(+m[4], +m[3] - 1, +m[2]), hj = new Date(); hj.setHours(0, 0, 0, 0); const dd = Math.round((dt - hj) / 864e5);
+  const quando = dd < 0 ? `venceu há ${-dd} ${-dd === 1 ? "dia" : "dias"}` : dd === 0 ? "vence hoje" : dd === 1 ? "vence amanhã" : `vence em ${dd} dias`;
+  const det = [`validade ${m[2]}/${m[3]}/${m[4]} (${quando})`, m[5] ? `${m[5]} un.` : "", r.a === "retirou" || r.a === "devolveu" ? (m[6] ? "motivo: " + m[6] : "") : ""].filter(Boolean).join(" · ");
+  return atvFoto(m[1]) + `<div class="atvit"><strong>${esc(m[1])}</strong><small>${esc(det)}</small></div>`;
+}
+function atvFoto(nome) { if (!iconesOn()) return ""; const d = fotoVal(fotoK(nome)); return `<span class="atvf">${d ? `<img src="${d}" alt="" decoding="async">` : ""}</span>`; }
 let atvUn = null;
 function atvAbrir() {
   const bg = document.createElement("div"); bg.className = "modal"; bg.id = "atvModal"; const q0 = x => bg.querySelector(x);
@@ -2647,7 +2657,7 @@ function atvAbrir() {
     const gp = {}, l2 = [];   // várias "entrou no app" da mesma pessoa no mesmo dia viram uma linha só
     l.forEach(r => { if (r.a !== "entrou") { l2.push(r); return; } const k = r.quem + "|" + dia(r.t), g = gp[k]; if (g) { g.n++; g.prim = Math.min(g.prim, r.t); } else { const c = { ...r, n: 1, prim: r.t }; gp[k] = c; l2.push(c); } });
     bg.querySelector("#atvL").innerHTML = l2.length ? l2.map(r => { const d = dia(r.t), h = d !== ult ? `<div class="atvd">${esc(d)}</div>` : ""; ult = d;
-      return h + `<div class="atvr${r.a === "entrou" ? " ent" : ""}"><time>${hm(r.t)}</time><div><b>${esc(semAdmin(r.quem))}</b> ${ATV_ICO[r.a] || "•"} ${esc(ATV_VERBO[r.a] || r.a)}${r.n > 1 ? ` <small>${r.n}× no dia · 1ª às ${hm(r.prim)}</small>` : ""}${r.a === "erro" ? `<span class="atverr"><b>${esc(r.cat || "")}</b> ${esc(r.txt || "")}<small>${esc(r.ctx || "")}</small></span>` : r.txt && r.a !== "entrou" ? `<small>${esc(r.txt)}</small>` : ""}</div></div>`; }).join("") : '<p class="note">Nenhuma ação registrada.</p>';
+      return h + `<div class="atvr${r.a === "entrou" ? " ent" : ""}"><time>${hm(r.t)}</time><div><b>${esc(semAdmin(r.quem))}</b> ${ATV_ICO[r.a] || "•"} ${esc(ATV_VERBO[r.a] || r.a)}${r.n > 1 ? ` <small>${r.n}× no dia · 1ª às ${hm(r.prim)}</small>` : ""}${r.a === "erro" ? `<span class="atverr"><b>${esc(r.cat || "")}</b> ${esc(r.txt || "")}<small>${esc(r.ctx || "")}</small></span>` : `<div class="atvbox">${atvItem(r)}</div>`}</div></div>`; }).join("") : '<p class="note">Nenhuma ação registrada.</p>';
   };
   const fecha = () => { try { atvUn && atvUn(); } catch (e) {} atvUn = null; bg.remove(); };
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) fecha(); const b = e.target.closest("[data-n]"); if (b) { filtro = b.dataset.n; desenha(); } };
