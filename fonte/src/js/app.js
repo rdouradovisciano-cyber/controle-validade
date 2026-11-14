@@ -700,7 +700,7 @@ async function save(next) {
   if (data.expiry) { const antes = id ? ((products.find(x => x.id === id) || {}).expiry || "") : "", hj0 = new Date(); hj0.setHours(0, 0, 0, 0); const alvo0 = new Date(data.expiry + "T00:00:00"), dias0 = Math.round((alvo0 - hj0) / 86400000), lim0 = data.category === "FLV" ? 60 : 180;
     if (data.expiry !== antes && dias0 > lim0) { const meses0 = Math.round(dias0 / 30), ok0 = await askConfirm({ icon: "📅", title: "Validade muito longe", text: `A data ${alvo0.toLocaleDateString("pt-BR")} fica a ${meses0 >= 2 ? meses0 + " meses" : dias0 + " dias"} daqui. Está certa?`, sub: "Confira o dia, o mês e o ano antes de salvar.", ok: "Está certa, salvar", cancel: "Corrigir a data" }); if (!ok0) { try { $("expiry").focus(); } catch (e) {} return; } } }
   // v505: Perecíveis — nome novo ou alterado sem gramagem: pergunta se quer detalhar (não bloqueia)
-  if (data.category === PER && nomeSemGramagem(data.name) && !$("productForm").classList.contains("lote")) { const nomeAntes = id ? ((products.find(x => x.id === id) || {}).name || "") : "";
+  if (data.category === PER && !data.codigo_balanca && nomeSemGramagem(data.name) && !$("productForm").classList.contains("lote")) { const nomeAntes = id ? ((products.find(x => x.id === id) || {}).name || "") : "";
     if (norm(nomeAntes) !== norm(data.name)) { const ok1 = await askConfirm({ icon: "✏️", title: "Falta detalhar o produto", text: `«${data.name}» está sem a gramagem.`, sub: "Coloque o peso e o tipo para não misturar versões. Ex.: Danone grego light 400g · Queijo prato 150g · Yorgus BDJ 500g.", ok: "Salvar assim mesmo", cancel: "Detalhar o nome" }); if (!ok1) { try { $("name").focus(); } catch (e) {} return; } } }
   if (!id) {   // produto novo: bipar primeiro; digitar só quando não há código
     const conhecido = (data.barcode && products.some(x => x.barcode === data.barcode)) || products.some(x => norm(x.name || "") === norm(data.name));
@@ -2120,7 +2120,7 @@ function saudeCalc() {
   sec.push({ t: "Mesmo nome em cadastros separados", d: "Aparecem como linhas repetidas em Cadastros.", n: iguais.length, it: iguais });
   const par = dupGroups();
   sec.push({ t: "Nomes parecidos", d: "Podem ser o mesmo produto escrito de formas diferentes.", n: par.length, it: par.length ? [par.map(a => a.map(x => esc(x.nome)).join(" ≈ ")).slice(0, 6).join("<br>"), `<button type="button" class="shact pri" data-a="uni">Escolher o nome certo</button>`] : [] });
-  if (atual === PER) { const sg = grupos.filter(x => setSet(x.p) === PER && nomeSemGramagem(x.name));
+  if (atual === PER) { const sg = grupos.filter(x => setSet(x.p) === PER && !x.plu && nomeSemGramagem(x.name));   // pesáveis (com código de balança) não entram
     sec.push({ t: "Nomes sem gramagem (Perecíveis)", d: "O nome não tem peso nem quantidade (g, kg, ml, un). Toque para abrir o cadastro e detalhar. Ex.: «Danone grego light 400g».", n: sg.length, it: sg.map(x => lk(x.name, PER)) }); }
   // Perecíveis sem foto (Admin): uma linha por produto (a foto vale para todos os lotes do mesmo nome). Emoji NÃO conta como foto.
   [PER, "FLV"].forEach(SS => { const nomeSS = SS === PER ? "Perecíveis" : "FLV"; const nomes = new Map(), eanDe = {}, pluDe = {}; rawAllAtivos().forEach(p => { if (setSet(p) !== SS || p.retirado) return; const k = fotoK(p.name); if (!nomes.has(k)) nomes.set(k, p.name); if (p.barcode) (eanDe[k] = eanDe[k] || new Set()).add(String(p.barcode).trim()); if (p.codigo_balanca) pluDe[k] = pluDe[k] || String(p.codigo_balanca).trim(); });
