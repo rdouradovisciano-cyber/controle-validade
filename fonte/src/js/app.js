@@ -689,7 +689,8 @@ function porHtml(por) {   // «Ronaldo <i>(Renato ajustou)</i>»
 }
 // v505: nome sem gramagem/peso (ex.: «Danone grego light») — confunde versões do mesmo produto
 const GRAM_RE = /\d+(?:[.,]\d+)?\s*(?:g|gr|grs|kg|mg|ml|l|lt|litros?|un|und|unid|unids|unidades?|fatias?|pcs?|p[cç]s?|sach[eê]s?)(?![a-zà-ú])|\b\d+\s*x\s*\d+/i;
-const nomeSemGramagem = n => !GRAM_RE.test(String(n || ""));
+const POR_KG_RE = /(^|[^a-zà-ú])(kg|quilo|quilos|fracionad[oa]s?|granel|pes[aá]vel)(?![a-zà-ú])/i;   // vendido por peso: não precisa de gramagem
+const nomeSemGramagem = n => !GRAM_RE.test(String(n || "")) && !POR_KG_RE.test(String(n || ""));
 async function save(next) {
   const id = $("docId").value, q = Number(String($("quantity").value).replace(",", "."));
   const data = { barcode: $("barcode").value.trim().slice(0, 32), name: $("name").value.trim().slice(0, 120),
