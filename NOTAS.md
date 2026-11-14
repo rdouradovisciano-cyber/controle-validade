@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 503.
+> Última atualização: 11/11/2026 · versão 516.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -137,6 +137,7 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v479: balão da nota (`.pi-bubble`) vai para o TOPO do cartão, acima da foto, com a ponta apontando para baixo (desenho do usuário); a faixa larga de baixo saiu; some com o cartão aberto.
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
+- v516: tela de Cadastros (`cSalvar`) também chama `fotoMove` ao renomear (era o caminho que faltava).
 - v515: Saúde: `fotoCasar(SS)` acha fotos órfãs (nome sem produto) cujo conjunto de palavras ⊆/⊇ o nome de um produto sem foto; botão «Recuperar» chama `fotoMove`.
 - v512: `fotoDe` usa a foto do nome sem gramagem (`semGram`) quando o nome novo não tem foto (recupera renomeações antigas).
 - v511: botão ✓ OK em «Nomes sem gramagem» (`nomesOk`, Firestore sh_cfg/nomes_ok + localStorage `validamais-nomes-ok`); também some do aviso ao salvar.

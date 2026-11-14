@@ -1903,6 +1903,7 @@ $("cSalvar").onclick = async () => {
   if (!cadEdit && simOk !== norm(name)) { const sl = cadSimList(); if (sl.length) { simOk = norm(name); cadSimPaint(); return toast("Já existe «" + sl[0] + "». Toque no nome para usar, ou em Cadastrar de novo para criar mesmo assim."); } }
   const f = { name, barcode: ean, codigo_balanca: plu, codigo_doacao: don }, fail = e => { console.error(e); toast("Erro ao salvar na nuvem (confira as regras do Firebase)."); };
   if (mine.length) {
+    if (mine[0].name && fotoK(mine[0].name) !== fotoK(name)) fotoMove(mine[0].name, name);   // v516: a foto acompanha o nome novo também na tela de Cadastros
     if (db) { const ts = V.serverTimestamp(); mine.forEach(x => V.updateDoc(V.doc(db, "products", x.id), { ...f, updatedAt: ts }).catch(fail)); }
     else { mine.forEach(x => Object.assign(x, f)); persist(); render(); }
     toast("Cadastro atualizado.");
