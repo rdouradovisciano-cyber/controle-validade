@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-14T00:35:00-03:00",
+  "itens": [
+   "Tela de abertura sem texto: só a logo e a barrinha"
+  ]
+ },
+ {
   "t": "2026-11-14T00:50:00-03:00",
   "itens": [
    "Tela de abertura com a logo: o app só aparece quando a lista e as fotos estiverem carregadas (no máximo uns 5 segundos)"
