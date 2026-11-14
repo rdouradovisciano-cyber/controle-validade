@@ -137,6 +137,7 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v479: balão da nota (`.pi-bubble`) vai para o TOPO do cartão, acima da foto, com a ponta apontando para baixo (desenho do usuário); a faixa larga de baixo saiu; some com o cartão aberto.
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
+- v511: botão ✓ OK em «Nomes sem gramagem» (`nomesOk`, Firestore sh_cfg/nomes_ok + localStorage `validamais-nomes-ok`); também some do aviso ao salvar.
 - v510: pesáveis (codigo_balanca/plu) fora do aviso e da lista «Nomes sem gramagem».
 - v509: `nomeSemGramagem` ignora nomes com KG/fracionado/granel/pesável (`POR_KG_RE`).
 - v508: `fotoMove(de, para)` leva a foto para o nome novo ao renomear (save, Saúde «ren», unir/nomes parecidos). Foto é guardada por nome (`fotoK`).

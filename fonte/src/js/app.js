@@ -688,9 +688,13 @@ function porHtml(por) {   // «Ronaldo <i>(Renato ajustou)</i>»
   return m ? `${esc(m[1])} <i>(${esc(m[2])})</i>` : esc(t);
 }
 // v505: nome sem gramagem/peso (ex.: «Danone grego light») — confunde versões do mesmo produto
+// v511: nomes que o Admin marcou como «ok» (não precisam de gramagem): somem da lista e do aviso; compartilhado via sh_cfg/nomes_ok
+const NOK_K = "validamais-nomes-ok"; let nomesOk = new Set(store.get(NOK_K, []));
+const nomeOk = n => nomesOk.has(norm(n || ""));
+function nomesOkSalva() { const l = [...nomesOk].slice(0, 2000); store.set(NOK_K, l); if (db) V.setDoc(V.doc(db, "sh_cfg", "nomes_ok"), { l, em: Date.now() }).catch(e => { console.warn(e); toast("Não consegui salvar na nuvem."); }); }
 const GRAM_RE = /\d+(?:[.,]\d+)?\s*(?:g|gr|grs|kg|mg|ml|l|lt|litros?|un|und|unid|unids|unidades?|fatias?|pcs?|p[cç]s?|sach[eê]s?)(?![a-zà-ú])|\b\d+\s*x\s*\d+/i;
 const POR_KG_RE = /(^|[^a-zà-ú])(kg|quilo|quilos|fracionad[oa]s?|granel|pes[aá]vel)(?![a-zà-ú])/i;   // vendido por peso: não precisa de gramagem
-const nomeSemGramagem = n => !GRAM_RE.test(String(n || "")) && !POR_KG_RE.test(String(n || ""));
+const nomeSemGramagem = n => !GRAM_RE.test(String(n || "")) && !POR_KG_RE.test(String(n || "")) && !nomeOk(n);
 async function save(next) {
   const id = $("docId").value, q = Number(String($("quantity").value).replace(",", "."));
   const data = { barcode: $("barcode").value.trim().slice(0, 32), name: $("name").value.trim().slice(0, 120),
@@ -2121,7 +2125,7 @@ function saudeCalc() {
   const par = dupGroups();
   sec.push({ t: "Nomes parecidos", d: "Podem ser o mesmo produto escrito de formas diferentes.", n: par.length, it: par.length ? [par.map(a => a.map(x => esc(x.nome)).join(" ≈ ")).slice(0, 6).join("<br>"), `<button type="button" class="shact pri" data-a="uni">Escolher o nome certo</button>`] : [] });
   if (atual === PER) { const sg = grupos.filter(x => setSet(x.p) === PER && !x.plu && nomeSemGramagem(x.name));   // pesáveis (com código de balança) não entram
-    sec.push({ t: "Nomes sem gramagem (Perecíveis)", d: "O nome não tem peso nem quantidade (g, kg, ml, un). Toque para abrir o cadastro e detalhar. Ex.: «Danone grego light 400g».", n: sg.length, it: sg.map(x => lk(x.name, PER)) }); }
+    sec.push({ t: "Nomes sem gramagem (Perecíveis)", d: "O nome não tem peso nem quantidade (g, kg, ml, un). Toque no nome para detalhar, ou em «✓ OK» se está certo assim (ele some da lista).", n: sg.length, it: sg.map(x => `<div class="shrow">${lk(x.name, PER)}<span class="shbts"><button type="button" class="shact" data-a="nok" data-n="${esc(x.name)}" aria-label="Está certo assim">✓ OK</button></span></div>`) }); }
   // Perecíveis sem foto (Admin): uma linha por produto (a foto vale para todos os lotes do mesmo nome). Emoji NÃO conta como foto.
   [PER, "FLV"].forEach(SS => { const nomeSS = SS === PER ? "Perecíveis" : "FLV"; const nomes = new Map(), eanDe = {}, pluDe = {}; rawAllAtivos().forEach(p => { if (setSet(p) !== SS || p.retirado) return; const k = fotoK(p.name); if (!nomes.has(k)) nomes.set(k, p.name); if (p.barcode) (eanDe[k] = eanDe[k] || new Set()).add(String(p.barcode).trim()); if (p.codigo_balanca) pluDe[k] = pluDe[k] || String(p.codigo_balanca).trim(); });
     const sabe = !db || fotosPronto, nFot = [...nomes.keys()].filter(k => fotoCache[k]).length;
@@ -2141,6 +2145,7 @@ function saudeSet(lots, campos) {
 }
 async function saudeAcao(d, repaint) {
   const lotes = () => rawAllAtivos().filter(p => norm(p.name) === norm(d.n) && setSet(p) === d.s);
+  if (d.a === "nok") { nomesOk.add(norm(d.n)); nomesOkSalva(); toast("Ok: «" + d.n + "» não aparece mais na lista."); repaint && repaint(); return; }
   if (d.a === "uni2") { const ch = codChave(d.t, d.c), campo = CAMPO[d.t], lotes2 = rawAllAtivos().filter(p => setSet(p) === d.s && codChave(d.t, p[campo]) === ch), mp = new Map();
     lotes2.forEach(p => { const k = norm(p.name), o = mp.get(k) || { nome: p.name, ean: new Set(), plu: new Set(), doa: new Set() }; if (p.barcode) o.ean.add(p.barcode); if (p.codigo_balanca) o.plu.add(p.codigo_balanca); if (p.codigo_doacao) o.doa.add(p.codigo_doacao); mp.set(k, o); });
     const g = [...mp.values()], alvo = g.find(x => norm(x.nome) === norm(d.n)); if (alvo) await dupUnirCore(g, alvo, null, d.s); }
@@ -2236,6 +2241,7 @@ function saudeAbrir() {
 }
 
 // nuvem: padrão da loja (só o Admin grava); cada aparelho pode ter o seu (fica local)
+if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "nomes_ok"), sn => { if (sn.exists() && Array.isArray(sn.data().l)) { nomesOk = new Set(sn.data().l); store.set(NOK_K, [...nomesOk]); try { saudeRepinta && saudeRepinta(); } catch (e) {} } }, e => console.warn("nomes_ok", e)); } catch (e) { console.warn(e); } }
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "visual"), sn => { visCloud = sn.exists() && sn.data().cores ? sn.data() : null; visAplica(); render(); }, e => console.warn("visual", e)); } catch (e) { console.warn(e); } }
 function visAbrir() {
   const v0 = visCfg(), admin = PERFIL === "Admin", loc = !!store.get(VK, null);

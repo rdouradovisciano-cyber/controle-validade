@@ -1,1 +1,1 @@
-{"versao":"2026.11.13-510","nota":"Produtos pesáveis (com código de balança) não entram mais na lista \"Nomes sem gramagem\" nem geram o aviso"}
+{"versao":"2026.11.13-511","nota":"Saúde do app: cada nome da lista \"Nomes sem gramagem\" tem um botão ✓ OK; ao tocar, ele some da lista e deixa de gerar aviso (vale para todos os aparelhos)"}
