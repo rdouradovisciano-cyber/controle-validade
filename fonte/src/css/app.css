@@ -2169,3 +2169,21 @@ body[data-perfil="Admin"] .setorsw button{padding:0 7px;font-size:12px}body[data
 
 /* v522 — último dígito do PLU em vermelho */
 .plu-u{color:#d11a2a;font-weight:inherit}
+
+/* v525 — resumo do dia */
+.vhero{margin:2px 2px 14px;padding:14px 14px 12px;border-radius:20px;background:linear-gradient(135deg,rgba(232,193,58,.16),rgba(232,193,58,.04));border:1px solid rgba(232,193,58,.28)}
+.vhero.hidden{display:none}
+.vh-top{display:flex;gap:12px;align-items:center}
+.vh-ic{font-size:26px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
+.vh-top b{display:block;font-size:19px;font-weight:800;line-height:1.2}
+.vh-top small{display:block;margin-top:2px;font-size:13px;opacity:.72}
+.vh-bar{display:flex;gap:3px;height:10px;margin-top:12px;border-radius:8px;overflow:hidden}
+.vh-bar i{display:block;min-width:6px;border-radius:3px;cursor:pointer;transform-origin:left;transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.vhero.vh-in .vh-bar i{animation:vhgrow .8s cubic-bezier(.2,.8,.2,1) both}
+@keyframes vhgrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.vh-bar .s-v{background:#b3122b}.vh-bar .s-h{background:#e03a3e}.vh-bar .s-a{background:#f08a24}.vh-bar .s-y{background:#e8c13a}.vh-bar .s-ok{background:#3f9f6f}
+.vh-leg{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.vh-leg .lg{font:inherit;font-size:12.5px;padding:5px 10px;border-radius:999px;border:1px solid rgba(128,128,128,.28);background:rgba(128,128,128,.1);color:inherit;cursor:pointer}
+.vh-leg .lg b{font-weight:800;margin-right:2px}
+.vh-leg .lg-v b,.vh-leg .lg-h b{color:#e0474a}.vh-leg .lg-a b{color:#f08a24}.vh-leg .lg-y b{color:#d4aa1f}.vh-leg .lg-ok b{color:#3f9f6f}
+@media (prefers-reduced-motion:reduce){.vhero.vh-in .vh-bar i{animation:none}}
