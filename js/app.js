@@ -240,12 +240,24 @@ function famFotos() { if (famMemo.p === products && famMemo.n === products.lengt
   famMemo = { p: products, n: products.length, v: fotoVer, m }; return m; }
 function balFoto(w) { if (!iconesOn() || !w) return ""; const ex = fotoCache[fotoK(w)]; if (ex) return ex; const k = dFamKey(w); return k ? (famFotos().get(k) || "") : ""; }
 function fotoIcones() { clearTimeout(fotoIcTimer); fotoIcTimer = setTimeout(() => { fotoVer++; try { render(); } catch (e) {} try { if ($("dTop6")) renderDon(); } catch (e) {} try { if ($("pesLista") && $("pesLista").children.length) renderPesaveis(); } catch (e) {}  }, 60); }
+// v517: fotos guardadas no aparelho (IndexedDB): aparecem na hora ao abrir; a nuvem só atualiza o que mudou
+const FIDB = { db: null };
+const idbReq = r => new Promise((ok, no) => { r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); });
+async function fidbCarrega() {
+  try { FIDB.db = await new Promise(ok => { try { const r = indexedDB.open("validamais-fotos-cache", 1); r.onupgradeneeded = () => r.result.createObjectStore("f"); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); } catch (e) { ok(null); } });
+    if (!FIDB.db) return; const st = FIDB.db.transaction("f").objectStore("f"), ks = await idbReq(st.getAllKeys()), vs = await idbReq(st.getAll()); let n = 0;
+    ks.forEach((k, i) => { if (fotoCache[k] === undefined && vs[i]) { fotoCache[k] = vs[i]; n++; } });
+    if (n) fotoIcones(); } catch (e) { console.warn("fotos-cache", e); }
+}
+function fidbGrava(ch) {   // ch: [[chave, dado|null]]
+  try { if (!FIDB.db || !ch.length) return; const st = FIDB.db.transaction("f", "readwrite").objectStore("f"); ch.forEach(([k, d]) => d ? st.put(d, k) : st.delete(k)); } catch (e) { console.warn("fotos-cache", e); }
+}
 function fotosTodas() {
   if (fotosOuvindo) return; fotosOuvindo = true;
   if (!db) { const m = store.get(FTK, {}); Object.keys(m).forEach(k => { fotoCache[k] = m[k]; }); fotosPronto = true; return; }
   const t0 = Date.now();
   try { V.onSnapshot(V.query(V.collection(db, "sh_cfg"), V.where("d", ">=", "data:")), { includeMetadataChanges: true }, sn => {   // com metadata: avisa também quando só a origem muda (cache → servidor)
-    sn.docChanges().forEach(c => { fotoCache[c.doc.id] = c.type === "removed" ? "" : (c.doc.data().d || ""); });
+    const gr = []; sn.docChanges().forEach(c => { const d = c.type === "removed" ? "" : (c.doc.data().d || ""); if (fotoCache[c.doc.id] !== d) { fotoCache[c.doc.id] = d; gr.push([c.doc.id, d || null]); } }); fidbGrava(gr);
     if (!sn.metadata.fromCache || Date.now() - t0 > 6000) fotosPronto = true;
     fotoIcones(); try { saudeRepinta && saudeRepinta(); } catch (e) {}
     try { if (curTab === "Etiquetas" && SETOR === "FLV") renderLabels(); } catch (e) {}   // v501: foto chegou, repinta a lista de etiquetas
@@ -1073,6 +1085,7 @@ if (cloud && V.initializeApp) {
   try {
     const app = V.initializeApp(fb);
     db = V.initializeFirestore(app, { localCache: V.persistentLocalCache({ tabManager: V.persistentMultipleTabManager() }) });
+    fidbCarrega();   // v517: fotos do aparelho aparecem antes da nuvem responder
     carregando = true; $("list").innerHTML = SKEL;   // silhuetas até chegar o primeiro dado (no máximo 6 s, para não ficar preso sem internet)
     setTimeout(() => { if (carregando) { carregando = false; render(); } }, 6000);
     // abertura rápida: mostra na hora a última lista guardada neste aparelho; a nuvem substitui em seguida
