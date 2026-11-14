@@ -2166,3 +2166,6 @@ body[data-perfil="Admin"] .setorsw button{padding:0 7px;font-size:12px}body[data
 .atvit{min-width:0;display:flex;flex-direction:column;gap:2px}
 .atvit strong{font-size:15px;font-weight:800;line-height:1.25;text-transform:none}
 .atvit small{margin:0}
+
+/* v522 — último dígito do PLU em vermelho */
+.plu-u{color:#d11a2a;font-weight:inherit}
