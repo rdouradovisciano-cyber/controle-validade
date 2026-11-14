@@ -180,7 +180,7 @@ const iconeDe = p => { return "";   // v471: emojis removidos de vez — só fot
   if (!iconesOn() || !p || p.category !== PER) return ""; const esc1 = icoEscolhido(p); if (esc1 !== null && esc1 !== undefined) return esc1; const n = String(p.name || "").toLowerCase(); const m = ICONES.find(([r]) => r.test(n + " ")); return m ? m[1] : "📦"; };
 // ---------- foto do produto (Perecíveis e FLV): uma miniatura por nome, em sh_cfg/foto-<nome>; só é baixada quando o item é aberto ----------
 const FTK = "validamais-fotos-per", fotoK = n => "foto-" + icKey(n), fotoCache = {};
-function fotoHtml(k, ed) { const d = fotoCache[k]; if (d === undefined) return "";
+function fotoHtml(k, ed) { const d = fotoVal(k); if (d === undefined) return "";
   const adm = PERFIL === "Admin", img = d ? `<img class="pf-img" src="${d}" alt="Foto do produto" data-fz="1">` : "";
   const bt = (a, t) => `<button type="button" class="secondary pf-btn" ${a}="1">${t}</button>`;
   if (!d) return bt("data-fadd", ico("cam") + "Tirar foto") + bt("data-fgal", ico("img") + "Escolher imagem");   // sem foto: botões no cartão
@@ -197,7 +197,11 @@ function fotoCarrega(id) {
 }
 // miniatura no lugar do emoji (Perecíveis e FLV): uma única consulta traz as fotos de todos os produtos e continua ouvindo mudanças
 let fotosPronto = false, fotosOuvindo = false, fotosErro = false, saudeRepinta = null;
-const fotoDe = p => p && iconesOn() ? (fotoCache[fotoK(p.name)] || "") : "";
+// v512: se o nome ganhou gramagem depois da foto (ex.: «Batido Zero» → «Batido Zero 170g»), usa a foto do nome sem a gramagem
+const semGram = n => String(n || "").replace(/\d+(?:[.,]\d+)?\s*(?:g|gr|grs|kg|mg|ml|l|lt|litros?|un|und|unid|unids|unidades?|uni|fatias?|pcs?|p[cç]s?|sach[eê]s?)(?![a-zà-ú])/gi, " ").replace(/\s+/g, " ").trim();
+// foto pela chave; se não houver, tenta a do nome sem gramagem (undefined = ainda não carregou)
+const fotoVal = k => { const d = fotoCache[k]; if (d) return d; try { const b = semGram(String(k).slice(5)); const kb = b ? fotoK(b) : k; return kb !== k && fotoCache[kb] ? fotoCache[kb] : d; } catch (e) { return d; } };
+const fotoDe = p => p && iconesOn() ? (fotoVal(fotoK(p.name)) || "") : "";
 const icoVazio = () => `<span class="ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`;   // v471
 const icoHtml = p => { const d = fotoDe(p), e = iconeDe(p); if (!d && !e) return iconesOn() && p && p.category === PER ? icoVazio() : "";   // inline (Pesáveis): miniatura ou emoji
   return `<span class="ico${d ? " ico-foto" : ""}" data-id="${esc(p.id)}">${d ? `<img class="ico-img" src="${d}" alt="" decoding="async">` : e}</span>`; };
@@ -474,7 +478,7 @@ function render() {
   // v489: prévia dentro da barra do grupo (fechado): até 4 itens mais urgentes com foto e dias
   const gprev = {}; if (cat && !q && !tierF && !nvF && !retView) rows.forEach(p => { if (p.retirado) return; const k = prioDe(p) || "ok"; if (k === "ok") return; (gprev[k] = gprev[k] || []).push(p); });
   const prevHtml = g => { const l = gprev[g]; if (!l || !l.length) return ""; const fo = iconesOn();
-    const th = l.slice(0, 4).map(p => { const dl = daysLeft(p.expiry), tag = dl === null ? "" : dl < 0 ? "venc." : dl === 0 ? "hoje" : dl + "d", d = fo ? fotoCache[fotoK(p.name)] : "";
+    const th = l.slice(0, 4).map(p => { const dl = daysLeft(p.expiry), tag = dl === null ? "" : dl < 0 ? "venc." : dl === 0 ? "hoje" : dl + "d", d = fo ? fotoVal(fotoK(p.name)) : "";
       return fo ? `<div class="pgt${d ? "" : " vz"}" data-id="${esc(p.id)}">${d ? `<img src="${d}" alt="" decoding="async">` : ico("cam", "ic")}${tag ? `<u>${tag}</u>` : ""}</div>` : ""; }).join("");
     const mais = l.length > 4 ? `<div class="pgm">+${l.length - 4}</div>` : "";
     return `<div class="pgp" aria-hidden="true">${th}${mais}<div class="pgn">${l.slice(0, 4).map(p => esc(nomeBonito(p.name))).join(" · ")}${l.length > 4 ? "…" : ""}</div></div>`; };

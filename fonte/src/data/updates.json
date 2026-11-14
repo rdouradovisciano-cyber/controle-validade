@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-13T23:20:00-03:00",
+  "itens": [
+   "Produto que ganhou gramagem no nome (ex.: Batido Zero 170g) volta a mostrar a foto que estava no nome antigo"
+  ]
+ },
+ {
   "t": "2026-11-13T22:00:00-03:00",
   "itens": [
    "Saúde do app: cada nome da lista \"Nomes sem gramagem\" tem um botão ✓ OK; ao tocar, ele some da lista e deixa de gerar aviso (vale para todos os aparelhos)"
