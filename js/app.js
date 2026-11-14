@@ -272,6 +272,19 @@ async function fotoGravaNome(name, file) {   // grava a foto pelo nome (usado no
   catch (e) { console.warn(e); delete fotoCache[k]; return false; }
 }
 // v508: ao trocar o nome do produto, a foto (guardada pelo nome) vai junto para o nome novo, se o novo ainda não tiver foto
+// v515: recupera fotos "órfãs" (guardadas num nome que não existe mais) para produtos sem foto cujo nome ficou mais longo/curto
+const FT_STOP = new Set(["de", "da", "do", "das", "dos", "com", "sem", "e", "un", "uni", "unid", "unidade", "unidades", "bandeja", "caixa", "embalagem", "pacote", "pc", "kg"]);
+const fotoToks = n => new Set(semGram(norm(n || "")).split(/[^a-z0-9]+/).filter(t => t.length > 1 && !/^\d+$/.test(t) && !FT_STOP.has(t)));
+function fotoCasar(SS) {
+  const nomes = new Map(), usadas = new Set(); rawAllAtivos().forEach(p => { if (!p.name) return; usadas.add(fotoK(p.name)); if (setSet(p) === SS && !p.retirado) nomes.set(fotoK(p.name), p.name); });
+  const orfas = Object.keys(fotoCache).filter(k => k.startsWith("foto-") && fotoCache[k] && !usadas.has(k)).map(k => ({ k, nome: k.slice(5), t: fotoToks(k.slice(5)) })).filter(o => o.t.size >= 2);
+  const out = [];
+  nomes.forEach((nome, k) => { if (fotoVal(k)) return; const tn = fotoToks(nome); if (tn.size < 2) return; let melhor = null, emp = false;
+    orfas.forEach(o => { const [a, b] = o.t.size <= tn.size ? [o.t, tn] : [tn, o.t]; if (![...a].every(t => b.has(t))) return; const sc = a.size;
+      if (!melhor || sc > melhor.sc) { melhor = { o, sc }; emp = false; } else if (sc === melhor.sc && fotoCache[o.k] !== fotoCache[melhor.o.k]) emp = true; });
+    if (melhor && !emp) out.push({ nome, de: melhor.o.nome }); });
+  return out;
+}
 function fotoMove(de, para) {
   try { if (!de || !para) return; const ko = fotoK(de), kn = fotoK(para); if (ko === kn) return;
     let d = fotoCache[ko]; if (d === undefined && !db) d = (store.get(FTK, {}))[ko] || ""; if (!d || fotoCache[kn]) return;
@@ -2132,6 +2145,8 @@ function saudeCalc() {
     sec.push({ t: "Nomes sem gramagem (Perecíveis)", d: "O nome não tem peso nem quantidade (g, kg, ml, un). Toque no nome para detalhar, ou em «✓ OK» se está certo assim (ele some da lista).", n: sg.length, it: sg.map(x => `<div class="shrow">${lk(x.name, PER)}<span class="shbts"><button type="button" class="shact" data-a="nok" data-n="${esc(x.name)}" aria-label="Está certo assim">✓ OK</button></span></div>`) }); }
   // Perecíveis sem foto (Admin): uma linha por produto (a foto vale para todos os lotes do mesmo nome). Emoji NÃO conta como foto.
   [PER, "FLV"].forEach(SS => { const nomeSS = SS === PER ? "Perecíveis" : "FLV"; const nomes = new Map(), eanDe = {}, pluDe = {}; rawAllAtivos().forEach(p => { if (setSet(p) !== SS || p.retirado) return; const k = fotoK(p.name); if (!nomes.has(k)) nomes.set(k, p.name); if (p.barcode) (eanDe[k] = eanDe[k] || new Set()).add(String(p.barcode).trim()); if (p.codigo_balanca) pluDe[k] = pluDe[k] || String(p.codigo_balanca).trim(); });
+    if (!db || fotosPronto) { const rc = fotoCasar(SS); if (rc.length) sec.push({ t: `${nomeSS}: fotos que dá para recuperar (${rc.length})`, d: "Essas fotos ficaram guardadas num nome antigo. Toque em «Recuperar» para ligá-las aos nomes novos (a foto antiga não é apagada).", n: rc.length,
+      it: [`<div class="shrow"><div class="shn2"><b>${rc.length} ${rc.length === 1 ? "foto" : "fotos"}</b><small class="note">${rc.slice(0, 3).map(x => esc(x.de) + " → " + esc(x.nome)).join("<br>")}${rc.length > 3 ? "<br>…" : ""}</small></div><span class="shbts"><button type="button" class="shact pri" data-a="recfoto" data-s="${SS}">Recuperar</button></span></div>`] }); }
     const sabe = !db || fotosPronto, nFot = [...nomes.keys()].filter(k => fotoCache[k]).length;
     const sem = sabe ? [...nomes.entries()].filter(([k]) => !fotoCache[k]).map(([, n]) => n).sort((x, y) => x.localeCompare(y, "pt-BR")) : [];
     if (!sabe) sec.push({ t: nomeSS + " sem foto", d: fotosErro ? "Não consegui ler as fotos da nuvem agora. Feche e abra de novo; se continuar, avise." : "Conferindo as fotos na nuvem… a lista aparece sozinha em instantes.", n: 1, it: ["<small class=\"note\">Aguarde um instante…</small>"] });
@@ -2149,6 +2164,7 @@ function saudeSet(lots, campos) {
 }
 async function saudeAcao(d, repaint) {
   const lotes = () => rawAllAtivos().filter(p => norm(p.name) === norm(d.n) && setSet(p) === d.s);
+  if (d.a === "recfoto") { const rc = fotoCasar(d.s); rc.forEach(x => fotoMove(x.de, x.nome)); toast(rc.length + (rc.length === 1 ? " foto recuperada." : " fotos recuperadas.")); repaint && repaint(); return; }
   if (d.a === "nok") { nomesOk.add(norm(d.n)); nomesOkSalva(); toast("Ok: «" + d.n + "» não aparece mais na lista."); repaint && repaint(); return; }
   if (d.a === "uni2") { const ch = codChave(d.t, d.c), campo = CAMPO[d.t], lotes2 = rawAllAtivos().filter(p => setSet(p) === d.s && codChave(d.t, p[campo]) === ch), mp = new Map();
     lotes2.forEach(p => { const k = norm(p.name), o = mp.get(k) || { nome: p.name, ean: new Set(), plu: new Set(), doa: new Set() }; if (p.barcode) o.ean.add(p.barcode); if (p.codigo_balanca) o.plu.add(p.codigo_balanca); if (p.codigo_doacao) o.doa.add(p.codigo_doacao); mp.set(k, o); });
