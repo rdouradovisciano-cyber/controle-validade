@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 537.
+> Última atualização: 11/11/2026 · versão 538.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -138,6 +138,7 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
 - v531: tour do cartão (`js/tour.js` recriado a pedido; só os passos do cartão). Admin liga/desliga em ⋮ › «Tour da equipe» (Firestore sh_cfg/tour {on,id}); cada aparelho Perecíveis vê 1× por id; «Ver o tour do cartão» para o Admin rever.
+- v538: o aviso «Nova versão disponível» mostra todos os itens da novidade (antes só o 1º; versão sem entrada mostrava a nota da anterior). Regra: toda versão visível ao usuário ganha entrada em updates.json. v537 passa a ser anunciada aqui.
 - v537: cores dos grupos de Validades mais fortes (fundo 24%→11% degradê, borda 62%, faixa 7px, sombra colorida, miniaturas com borda 3px). Sem novidade no popup.
 - v536: Saúde › Códigos repetidos: «Unir neste» passa a unir também entre setores (antes só dentro do setor e nada mudava); mesmo nome em setores diferentes não conta como repetido. Popup de novidades reúne v533–536.
 - v535: Escala 5x2: 25/01/2027 (Aniversário de São Paulo, feriado municipal) adicionado a ESC_FER com t:"m". Os feriados de 2026 anteriores a nov. não estão na lista (a escala começa em nov/2026); em 2028 incluir 25/01 de novo.

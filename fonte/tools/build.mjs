@@ -17,7 +17,7 @@ const hoje = process.env.BUILD_DATE || new Intl.DateTimeFormat("sv-SE", { timeZo
 const versao = `${hoje}-${ver.seq}`;
 
 const updates = JSON.parse(fs.readFileSync(path.join(src, "data/updates.json"), "utf8"));
-const nota = (updates[0] && updates[0].itens && updates[0].itens[0]) || "";
+const nota = (updates[0] && updates[0].itens && updates[0].itens.length ? updates[0].itens.map(x => "• " + x).join("\n") : "");   // aviso mostra TODOS os itens da novidade, um por linha
 
 fs.rmSync(dist, { recursive: true, force: true });
 fs.cpSync(src, dist, { recursive: true });

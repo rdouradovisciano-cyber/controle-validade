@@ -3264,7 +3264,7 @@ $("rodOn").onclick = () => $("onChip").click();
     const b = document.createElement("div");
     b.setAttribute("role", "alert");
     b.style.cssText = "position:fixed;left:12px;right:12px;top:12px;z-index:99999;background:#166534;color:#fff;border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.45);font:600 15px system-ui,sans-serif";
-    b.innerHTML = `<span style="flex:1">Nova versão disponível${nova ? " (v" + esc(nova.split("-").pop()) + ")" : ""}${nota ? `<small style="display:block;font-weight:500;font-size:13px;opacity:.92;margin-top:3px;line-height:1.3">${esc(nota)}</small>` : ""}</span><button style="background:#fff;color:#166534;border:0;border-radius:10px;padding:9px 14px;font-weight:800;font-size:15px">Atualizar</button>`;
+    b.innerHTML = `<span style="flex:1">Nova versão disponível${nova ? " (v" + esc(nova.split("-").pop()) + ")" : ""}${nota ? `<small style="display:block;font-weight:500;font-size:13px;opacity:.92;margin-top:3px;line-height:1.35;white-space:pre-line">${esc(nota)}</small>` : ""}</span><button style="background:#fff;color:#166534;border:0;border-radius:10px;padding:9px 14px;font-weight:800;font-size:15px">Atualizar</button>`;
     b.querySelector("button").onclick = async () => {
       b.firstChild.textContent = "Atualizando…";
       try { const rs = await navigator.serviceWorker.getRegistrations(); await Promise.all(rs.map(r => r.unregister())); } catch (e) {}
