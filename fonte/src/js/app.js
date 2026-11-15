@@ -2283,6 +2283,7 @@ function saudeAbrir() {
 
 // nuvem: padrão da loja (só o Admin grava); cada aparelho pode ter o seu (fica local)
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "nomes_ok"), sn => { if (sn.exists() && Array.isArray(sn.data().l)) { nomesOk = new Set(sn.data().l); store.set(NOK_K, [...nomesOk]); try { saudeRepinta && saudeRepinta(); } catch (e) {} } }, e => console.warn("nomes_ok", e)); } catch (e) { console.warn(e); } }
+if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "tour"), sn => { if (sn.exists()) { tourCfg = { on: !!sn.data().on, id: String(sn.data().id || "") }; store.set("validamais-tour-cfg", tourCfg); tourUi(); try { window.vmTourCfg && window.vmTourCfg(tourCfg); } catch (e) {} } }, e => console.warn("tour", e)); } catch (e) { console.warn(e); } }
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "visual"), sn => { visCloud = sn.exists() && sn.data().cores ? sn.data() : null; visAplica(); render(); }, e => console.warn("visual", e)); } catch (e) { console.warn(e); } }
 function visAbrir() {
   const v0 = visCfg(), admin = PERFIL === "Admin", loc = !!store.get(VK, null);
@@ -2710,6 +2711,15 @@ function equipeAbrir() {
   else { dados = store.get(ATK, []); desenha(); }
 }
 if ($("verEq")) $("verEq").onclick = equipeAbrir;
+// v531: tour do cartão — o Admin liga/desliga para a equipe dos Perecíveis (sh_cfg/tour) e pode rever
+let tourCfg = store.get("validamais-tour-cfg", { on: false, id: "" });
+const tourUi = () => { const e = $("mnTourEqT"); if (e) e.textContent = "Tour da equipe: " + (tourCfg.on ? "ligado" : "desligado"); };
+$("mnTourEq").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); }
+  tourCfg = { on: !tourCfg.on, id: tourCfg.on ? tourCfg.id : String(Date.now()) }; store.set("validamais-tour-cfg", tourCfg); tourUi();
+  if (db) V.setDoc(V.doc(db, "sh_cfg", "tour"), tourCfg).catch(e => { console.warn(e); toast("Não consegui salvar na nuvem."); });
+  toast(tourCfg.on ? "Tour ligado: cada pessoa dos Perecíveis vê uma vez ao abrir o app." : "Tour desligado."); };
+$("mnTour").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } setTimeout(() => window.vmTour && window.vmTour(), 200); };
+tourUi();
 $("mnAtv").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } atvAbrir(); };
 // ---------- notificações de vencimento (cada pessoa liga e escolhe quantos dias antes quer ser avisada) ----------
 const NTK = "validamais-notif";
