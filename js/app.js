@@ -661,7 +661,7 @@ async function dupUnirCore(g, alvo, paint, setor) {   // une o grupo num só cad
   const ean = pega("ean"), plu = pega("plu"), doa = pega("doa"), set = new Set(g.map(x => norm(x.nome))), pool = setor || (SETOR === PER ? PER : "FLV");   // setor: quando a chamada vem de outro setor (Saúde do app)
   const ok = await askConfirm({ icon: "🔗", title: "Unir cadastros?", text: "«" + alvo.nome + "»", sub: `Este nome fica e o outro some: todos passam a ser «${alvo.nome}» com ${ean ? "EAN " + ean : "sem EAN"}${plu ? " · PLU " + plu : ""}${doa ? " · Cód. " + doa : ""}. As validades e quantidades que estão na loja (dos dois) continuam, agora neste nome.`, ok: "Unir", cancel: "Cancelar" });
   if (!ok) return; let n = 0;
-  rawAllAtivos().forEach(p => { if (!set.has(norm(p.name || "")) || setSet(p) !== pool) return; fotoMove(p.name, alvo.nome); const d = { name: alvo.nome }; if (ean) d.barcode = ean; if (plu) d.codigo_balanca = plu; if (doa) d.codigo_doacao = doa;
+  rawAllAtivos().forEach(p => { if (!set.has(norm(p.name || "")) || pool !== "*" && setSet(p) !== pool) return; fotoMove(p.name, alvo.nome); const d = { name: alvo.nome }; if (ean) d.barcode = ean; if (plu) d.codigo_balanca = plu; if (doa) d.codigo_doacao = doa;
     if (Object.keys(d).every(k => (p[k] || "") === d[k])) return; n++;
     if (db) V.updateDoc(V.doc(db, "products", p.id), { ...d, updatedAt: V.serverTimestamp() }).catch(err => console.error(err)); else Object.assign(p, d); });
   persist(); if (!db) render(); toast(`${n} cadastro(s) unidos em «${alvo.nome}».`); if (paint) paint();
@@ -2151,7 +2151,8 @@ function saudeCalc() {
   sec.push({ t: "Cadastros sem nenhum código", d: "Toque no nome para abrir o cadastro e preencher EAN, balança ou código interno.", n: semCod.length, it: semCod.map(x => lk(x.name, atual)) });
   // códigos repetidos (todos os setores)
   const m = new Map(), lots = rawAllAtivos();
-  lots.forEach(p => { const set = setSet(p); [["ean", p.barcode], ["plu", p.codigo_balanca], ["doa", p.codigo_doacao]].forEach(([t, c]) => { const k = codChave(t, c); if (!k) return; const o = m.get(k) || { t, c: String(c).trim(), e: new Map() }; o.e.set(set + "|" + norm(p.name), { n: p.name, set }); m.set(k, o); }); });
+  lots.forEach(p => { const set = setSet(p); [["ean", p.barcode], ["plu", p.codigo_balanca], ["doa", p.codigo_doacao]].forEach(([t, c]) => { const k = codChave(t, c); if (!k) return; const o = m.get(k) || { t, c: String(c).trim(), e: new Map() }; o.e.set(norm(p.name), o.e.get(norm(p.name)) || { n: p.name, set }); m.set(k, o); }); });
+  // mesmo nome em setores diferentes = já está unido, não é repetido
   const rep = []; m.forEach(o => { if (o.e.size < 2) return; const ents = [...o.e.values()], cruza = new Set(ents.map(e => e.set)).size > 1;
     rep.push(`<div class="shg"><b>${tNome(o.t, ents.every(e => e.set === PER) ? true : ents.some(e => e.set === PER) ? null : false)} ${esc(o.c)}</b>${cruza ? " <small>(entre setores)</small>" : ""}${ents.map(e => `<div class="shrow">${lk(e.n, e.set)}${cruza ? `<small> · ${esc(e.set)}</small>` : ""}<span class="shbts"><button type="button" class="shact pri" data-a="uni2" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Unir neste</button><button type="button" class="shact" data-a="lim" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Tirar daqui</button><button type="button" class="shact del" data-a="exc" data-t="${o.t}" data-c="${esc(o.c)}" data-n="${esc(e.n)}" data-s="${esc(e.set)}">Excluir cadastro</button></span></div>`).join("")}</div>`); });
   sec.push({ t: "Códigos repetidos", d: "O mesmo código em produtos diferentes (quase sempre é o mesmo produto com dois nomes). «Unir neste» deixa todos com este nome; «Tirar daqui» apaga o código só daquele produto (o cadastro continua); «Excluir cadastro» manda aquele cadastro para a lixeira.", n: rep.length, it: rep });
@@ -2188,9 +2189,9 @@ async function saudeAcao(d, repaint) {
   const lotes = () => rawAllAtivos().filter(p => norm(p.name) === norm(d.n) && setSet(p) === d.s);
   if (d.a === "recfoto") { const rc = fotoCasar(d.s); rc.forEach(x => fotoMove(x.de, x.nome)); toast(rc.length + (rc.length === 1 ? " foto recuperada." : " fotos recuperadas.")); repaint && repaint(); return; }
   if (d.a === "nok") { nomesOk.add(norm(d.n)); nomesOkSalva(); toast("Ok: «" + d.n + "» não aparece mais na lista."); repaint && repaint(); return; }
-  if (d.a === "uni2") { const ch = codChave(d.t, d.c), campo = CAMPO[d.t], lotes2 = rawAllAtivos().filter(p => setSet(p) === d.s && codChave(d.t, p[campo]) === ch), mp = new Map();
+  if (d.a === "uni2") { const ch = codChave(d.t, d.c), campo = CAMPO[d.t], lotes2 = rawAllAtivos().filter(p => codChave(d.t, p[campo]) === ch), mp = new Map();
     lotes2.forEach(p => { const k = norm(p.name), o = mp.get(k) || { nome: p.name, ean: new Set(), plu: new Set(), doa: new Set() }; if (p.barcode) o.ean.add(p.barcode); if (p.codigo_balanca) o.plu.add(p.codigo_balanca); if (p.codigo_doacao) o.doa.add(p.codigo_doacao); mp.set(k, o); });
-    const g = [...mp.values()], alvo = g.find(x => norm(x.nome) === norm(d.n)); if (alvo) await dupUnirCore(g, alvo, null, d.s); }
+    const g = [...mp.values()], alvo = g.find(x => norm(x.nome) === norm(d.n)); if (alvo) await dupUnirCore(g, alvo, null, "*"); }
   else if (d.a === "lim") { const campo = CAMPO[d.t], alvo = lotes().filter(p => codChave(d.t, p[campo]) === codChave(d.t, d.c));
     const r = await askConfirm({ icon: "🧹", title: "Tirar o código deste produto?", text: `${tNome(d.t, d.s === PER)} ${d.c}`, sub: `de «${d.n}» (${d.s}). O produto continua cadastrado, só sem esse código.`, ok: "Tirar código", cancel: "Cancelar" });
     if (r !== true) return; saudeSet(alvo, { [campo]: "" }); toast(`Código tirado de «${d.n}».`); }
