@@ -464,7 +464,7 @@ function render() {
   const base = products.filter(p => !p.retirado && (!cat || p.category === cat)), ex = base.filter(p => status(p) === "expired").length, so = base.filter(p => status(p) === "soon").length;
   const ainda = carregando && !products.length;   // Firebase ainda não respondeu: não mostra "0"
   $("countAll").textContent = ainda ? "–" : products.length;
-  { const nr = products.filter(p => p.retirado).length; $("verRet").classList.toggle("hidden", !nr && !retView); if ($("verEq")) $("verEq").classList.toggle("hidden", retView); $("verRet").innerHTML = retView ? ico("voltar") + "Voltar às validades" : ico("caixa") + `Retirados da loja (${nr})`; $("verRetTop").classList.toggle("hidden", !retView); }
+  { const nr = products.filter(p => p.retirado).length; $("verRet").classList.toggle("hidden", !nr && !retView); $("verRet").innerHTML = retView ? ico("voltar") + "Voltar às validades" : ico("caixa") + `Retirados da loja (${nr})`; $("verRetTop").classList.toggle("hidden", !retView); }
   { const vt = $("verTodos"); if (vt) vt.textContent = ainda ? "Conectando…" : cat ? `Ver todos os ${products.length} cadastrados` : "Voltar ao " + SETOR; }
   // os dois atalhos saíram da tela: ficam no menu ⋮; o link só aparece quando é preciso voltar
   { $("verTodos").classList.toggle("hidden", !!cat);
@@ -2283,7 +2283,6 @@ function saudeAbrir() {
 
 // nuvem: padrão da loja (só o Admin grava); cada aparelho pode ter o seu (fica local)
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "nomes_ok"), sn => { if (sn.exists() && Array.isArray(sn.data().l)) { nomesOk = new Set(sn.data().l); store.set(NOK_K, [...nomesOk]); try { saudeRepinta && saudeRepinta(); } catch (e) {} } }, e => console.warn("nomes_ok", e)); } catch (e) { console.warn(e); } }
-if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "tour"), sn => { if (sn.exists()) { tourCfg = { on: !!sn.data().on, id: String(sn.data().id || "") }; store.set("validamais-tour-cfg", tourCfg); tourUi(); try { window.vmTourCfg && window.vmTourCfg(tourCfg); } catch (e) {} } }, e => console.warn("tour", e)); } catch (e) { console.warn(e); } }
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "visual"), sn => { visCloud = sn.exists() && sn.data().cores ? sn.data() : null; visAplica(); render(); }, e => console.warn("visual", e)); } catch (e) { console.warn(e); } }
 function visAbrir() {
   const v0 = visCfg(), admin = PERFIL === "Admin", loc = !!store.get(VK, null);
@@ -2679,47 +2678,6 @@ function atvAbrir() {
     refs = sn.docs.filter(d => (d.data() || {}).tipo === "atv" && d.data().t); dados = refs.map(d => ({ ...d.data(), _ref: d.ref })).filter(r => !escondido(r)); desenha(); }, e => { console.warn(e); bg.querySelector("#atvL").innerHTML = '<p class="note">Não consegui ler o histórico na nuvem (confira se as regras permitem ler «acessos»).</p>'; }); } catch (e) { console.warn(e); } }
   else { dados = store.get(ATK, []); desenha(); }
 }
-// v528: «Histórico da equipe» — todos veem quem fez o quê (lançou, corrigiu, retirou, apagou), por pessoa, com horário; tocar na ação abre o item
-const EQ_ACOES = ["cadastrou", "editou", "retirou", "devolveu", "removeu"];
-function equipeAbrir() {
-  const bg = document.createElement("div"); bg.className = "modal"; bg.id = "eqModal";
-  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Histórico da equipe"><div class="sheethead"><h2>Histórico da equipe</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
-    <div class="atvf"><label class="atvp"><select id="eqPer" aria-label="Período"><option value="hoje">Hoje</option><option value="ontem">Ontem</option><option value="7d">Últimos 7 dias</option></select></label></div>
-    <div id="eqL" class="atvl"><p class="note">Carregando…</p></div></section>`;
-  document.body.appendChild(bg);
-  let dados = [], per = "hoje", un = null; const abertas = new Set(), ls = [];
-  const hm = t => new Date(t).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), dm = t => new Date(t).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
-  const fecha = () => { try { un && un(); } catch (e) {} bg.remove(); };
-  const desenha = () => {
-    const hj = new Date(); hj.setHours(0, 0, 0, 0); const h0 = hj.getTime(), de = per === "hoje" ? h0 : per === "ontem" ? h0 - 864e5 : h0 - 6 * 864e5, ate = per === "ontem" ? h0 : Infinity;
-    const l = dados.filter(r => EQ_ACOES.includes(r.a) && r.t >= de && r.t < ate && (!r.setor || r.setor === SETOR)).sort((a, b) => b.t - a.t);
-    ls.length = 0; const pessoas = new Map(); l.forEach(r => { const n = semAdmin(r.quem) || "?"; if (!pessoas.has(n)) pessoas.set(n, []); pessoas.get(n).push(r); });
-    bg.querySelector("#eqL").innerHTML = pessoas.size ? [...pessoas.entries()].map(([n, rs]) => { const aberto = abertas.has(n);
-      return `<div class="eqp${aberto ? " on" : ""}"><button type="button" class="eqh" data-p="${esc(n)}" aria-expanded="${aberto}"><b>${esc(n)}</b><span>${rs.length} ${rs.length === 1 ? "ação" : "ações"}</span></button>${aberto ? `<div class="eqa">${rs.map(r => { ls.push(r); const i = ls.length - 1;
-        return `<div class="atvr a-${esc(r.a)} eqr" data-i="${i}" role="button" tabindex="0"><time>${hm(r.t)}${per === "7d" ? `<small>${dm(r.t)}</small>` : ""}</time><div><b>${esc(ATV_VERBO[r.a] || r.a)}</b><div class="atvbox">${atvItem(r)}</div></div></div>`; }).join("")}</div>` : ""}</div>`; }).join("") : `<p class="note">Nenhuma ação ${per === "hoje" ? "hoje" : per === "ontem" ? "ontem" : "nos últimos 7 dias"}.</p>`;
-  };
-  const abreItem = r => {
-    const m = /^(.*?)(?: \(só da lista\))?(?: · vence (\d{2})\/(\d{2})\/(\d{4}))?(?: ·.*)?$/.exec(r.txt || ""); if (!m) return;
-    const nome = m[1], iso = m[2] ? `${m[4]}-${m[3]}-${m[2]}` : "", cand = products.filter(p => !p.retirado && norm(p.name) === norm(nome)), p = cand.find(x => x.expiry === iso) || cand[0];
-    if (!p) { toast("Este item não está mais na lista."); return; }
-    fecha(); const dl = daysLeft(p.expiry); gRec.delete(dl === null ? "ok" : dl < 0 ? "v" : dl === 0 ? "h" : status(p) !== "soon" ? "ok" : dl <= visCfg().red ? "a" : "y"); openId = p.id; render(); setTimeout(() => { const it = $("list").querySelector('.pitem[data-id="' + CSS.escape(p.id) + '"]'); if (it) it.scrollIntoView({ block: "center", behavior: "smooth" }); }, 60);
-  };
-  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) return fecha(); const h = e.target.closest(".eqh"); if (h) { const n = h.dataset.p; abertas.has(n) ? abertas.delete(n) : abertas.add(n); desenha(); return; } const r = e.target.closest(".eqr"); if (r && ls[+r.dataset.i]) abreItem(ls[+r.dataset.i]); };
-  bg.onkeydown = e => { if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("eqr")) { e.preventDefault(); e.target.click(); } };
-  bg.onchange = e => { if (e.target.id === "eqPer") { per = e.target.value; desenha(); } };
-  if (db) { try { un = V.onSnapshot(V.query(V.collection(db, "acessos"), V.orderBy("t", "desc"), V.limit(400)), sn => { dados = sn.docs.map(d => d.data() || {}).filter(r => r.tipo === "atv" && r.t); desenha(); }, e => { console.warn(e); bg.querySelector("#eqL").innerHTML = '<p class="note">Não consegui ler o histórico (as regras do Firebase precisam permitir ler «acessos» para todos).</p>'; }); } catch (e) { console.warn(e); } }
-  else { dados = store.get(ATK, []); desenha(); }
-}
-if ($("verEq")) $("verEq").onclick = equipeAbrir;
-// v531: tour do cartão — o Admin liga/desliga para a equipe dos Perecíveis (sh_cfg/tour) e pode rever
-let tourCfg = store.get("validamais-tour-cfg", { on: false, id: "" });
-const tourUi = () => { const e = $("mnTourEqT"); if (e) e.textContent = "Tour da equipe: " + (tourCfg.on ? "ligado" : "desligado"); };
-$("mnTourEq").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); }
-  tourCfg = { on: !tourCfg.on, id: tourCfg.on ? tourCfg.id : String(Date.now()) }; store.set("validamais-tour-cfg", tourCfg); tourUi();
-  if (db) V.setDoc(V.doc(db, "sh_cfg", "tour"), tourCfg).catch(e => { console.warn(e); toast("Não consegui salvar na nuvem."); });
-  toast(tourCfg.on ? "Tour ligado: cada pessoa dos Perecíveis vê uma vez ao abrir o app." : "Tour desligado."); };
-$("mnTour").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } setTimeout(() => window.vmTour && window.vmTour(), 200); };
-tourUi();
 $("mnAtv").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } atvAbrir(); };
 // ---------- notificações de vencimento (cada pessoa liga e escolhe quantos dias antes quer ser avisada) ----------
 const NTK = "validamais-notif";
