@@ -503,8 +503,9 @@ function render() {
   // v489: prévia dentro da barra do grupo (fechado): até 4 itens mais urgentes com foto e dias
   const gprev = {}; if (cat && !q && !tierF && !nvF && !retView) rows.forEach(p => { if (p.retirado) return; const k = prioDe(p) || "ok"; if (k === "ok") return; (gprev[k] = gprev[k] || []).push(p); });
   const prevHtml = g => { const l = gprev[g]; if (!l || !l.length) return ""; const fo = iconesOn();
-    const th = l.slice(0, 4).map(p => { const dl = daysLeft(p.expiry), tag = dl === null ? "" : dl < 0 ? "venc." : dl === 0 ? "hoje" : dl + "d", d = fo ? fotoVal(fotoK(p.name)) : "";
-      return fo ? `<div class="pgt${d ? "" : " vz"}" data-id="${esc(p.id)}">${d ? `<img src="${d}" alt="" decoding="async">` : ico("cam", "ic")}${tag ? `<u>${tag}</u>` : ""}</div>` : ""; }).join("");
+    const base = { v: 72, h: 72, a: 60, y: 48 }[g] || 46;
+    const th = l.slice(0, 4).map((p, i) => { const sz = base - i * 5, dl = daysLeft(p.expiry), tag = dl === null ? "" : dl < 0 ? "venc." : dl === 0 ? "hoje" : dl + "d", d = fo ? fotoVal(fotoK(p.name)) : "";
+      return fo ? `<div class="pgt${d ? "" : " vz"}" data-id="${esc(p.id)}" style="--s:${sz}px">${d ? `<img src="${d}" alt="" decoding="async">` : ico("cam", "ic")}${tag ? `<u>${tag}</u>` : ""}</div>` : ""; }).join("");
     const mais = l.length > 4 ? `<div class="pgm">+${l.length - 4}</div>` : "";
     return `<div class="pgp" aria-hidden="true">${th}${mais}<div class="pgn">${l.slice(0, 4).map(p => esc(nomeBonito(p.name))).join(" · ")}${l.length > 4 ? "…" : ""}</div></div>`; };
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p), lo = lotes[p.id];

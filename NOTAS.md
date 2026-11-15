@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 532.
+> Última atualização: 11/11/2026 · versão 533.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -138,6 +138,7 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
 - v531: tour do cartão (`js/tour.js` recriado a pedido; só os passos do cartão). Admin liga/desliga em ⋮ › «Tour da equipe» (Firestore sh_cfg/tour {on,id}); cada aparelho Perecíveis vê 1× por id; «Ver o tour do cartão» para o Admin rever.
+- v533: miniaturas dos grupos fechados em onda (vencido/hoje 72px, 1–3 dias 60, 4–7 dias 48; cada item 5px menor que o anterior). Sem novidade no popup.
 - v532: removidos o «Histórico da equipe» (v530) e o tour do cartão (v531), a pedido. Não recriar sem ele pedir.
 - v528–530: `equipeAbrir()` «Histórico da equipe» (link `#verEq` abaixo de «Retirados da loja»): por pessoa, acordeão, período hoje/ontem/7 dias, sem emoji; toque na ação abre o item (`abreItem`). Lê `acessos` (precisa de regra de leitura para todos). Sem emoji/parabéns por pedido do usuário.
 - v527: Atividade: corrigido choque de classe (`.atvf` era do filtro e da foto → foto virou `.atvfoto`); linhas com barra colorida por ação (`a-cadastrou` etc.), motivo em pílula, foto 56px. Sem entrada em updates.json (usuário não quer aviso).
