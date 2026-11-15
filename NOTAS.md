@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 525.
+> Última atualização: 11/11/2026 · versão 526.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -137,7 +137,8 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v479: balão da nota (`.pi-bubble`) vai para o TOPO do cartão, acima da foto, com a ponta apontando para baixo (desenho do usuário); a faixa larga de baixo saiu; some com o cartão aberto.
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
-- v525: `#vHero` resumo do dia no topo de Validades (título por urgência, barra proporcional v/h/a/y/ok, chips que levam ao grupo, retirados hoje).
+- v526: volta ao visual anterior à v525 (sem resumo do dia). Sem entrada em updates.json.
+- v525: (desfeito na v526, a pedido do usuário) resumo do dia `#vHero` no topo de Validades. Não recriar sem ele pedir.
 - v523/524: `fitCodigos()` encolhe `.ccode` da lista de etiquetas até caber (antes cortava 13 dígitos); refaz via ResizeObserver quando a aba aparece.
 - v522: `pluH(v)` destaca o último dígito do PLU (`.plu-u`, vermelho) em Pesáveis, cartão, Cadastros, duplicados.
 - v521: Atividade: verbos claros (lançou uma validade / corrigiu um lançamento / apagou da lista), nome em destaque, validade com dias, quantidade, motivo e foto (`atvItem`/`atvFoto`). Sem entrada em updates.json (pedido do usuário: não mostrar nas novidades).

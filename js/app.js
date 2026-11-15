@@ -522,15 +522,6 @@ function render() {
     if (bt) { const n30 = base.filter(p => { const t = lancMs(p); return t > 0 && Date.now() - t < NOVO_MS; }).length; bt.classList.toggle("hidden", nvF || retView); bt.innerHTML = ico("his") + "Últimos lançados" + (n30 ? ` <i>${n30}</i>` : ""); } }
   { const urg = base.filter(p => { const k = prioDe(p); return k === "v" || k === "h" || k === "a"; }).length; try { if (base.some(p => prioDe(p) === "v") && fxOn() && !window.__sirV) { window.__sirV = 1;   // o Chrome só deixa vibrar depois do primeiro toque na tela: espera esse toque
       document.addEventListener("pointerdown", () => { try { if (fxOn() && navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 450]); } catch (e) {} }, { once: true, passive: true }); } } catch (e) {} try { if (navigator.setAppBadge) { if (urg > 0) navigator.setAppBadge(urg).catch(() => {}); else navigator.clearAppBadge && navigator.clearAppBadge().catch(() => {}); } } catch (e) {} }   // número no ícone do app = itens em vermelho
-  // v525: resumo do dia no topo (situação da loja de relance + retirados hoje)
-  { const hv = $("vHero"); if (hv) { const mostra = recOn && rows.length > 0; hv.classList.toggle("hidden", !mostra);
-    if (mostra) { const c = k => gcnt[k] || 0, tot = rows.length, ini = new Date(); ini.setHours(0, 0, 0, 0);
-      const ret = products.filter(p => p.retirado && Number(p.retEm) >= ini.getTime() && (!cat || p.category === cat)).length, urg = c("v") + c("h"), ag = c("a");
-      const tit = urg ? `${urg} ${urg === 1 ? "item precisa" : "itens precisam"} sair hoje` : ag ? `${ag} ${ag === 1 ? "item pede" : "itens pedem"} ação já` : "Tudo em ordem hoje";
-      const ic = urg ? "🔴" : ag ? "🟠" : "🟢", sub = ret ? `✓ ${ret} ${ret === 1 ? "retirado" : "retirados"} hoje · ${tot} na lista` : `${tot} ${tot === 1 ? "item" : "itens"} na lista`;
-      const seg = [["v", "venc."], ["h", "hoje"], ["a", "1–3 dias"], ["y", "4–7 dias"], ["ok", "no prazo"]].filter(([k]) => c(k));
-      hv.innerHTML = `<div class="vh-top"><span class="vh-ic" aria-hidden="true">${ic}</span><div><b>${tit}</b><small>${sub}</small></div></div><div class="vh-bar" role="img" aria-label="Distribuição por urgência">${seg.map(([k]) => `<i class="s-${k}" style="flex:${c(k)}" data-g="${k}"></i>`).join("")}</div><div class="vh-leg">${seg.map(([k, n]) => `<button type="button" class="lg lg-${k}" data-g="${k}"><b>${c(k)}</b> ${n}</button>`).join("")}</div>`;
-      if (!hv.dataset.on) { hv.dataset.on = "1"; hv.classList.add("vh-in"); setTimeout(() => hv.classList.remove("vh-in"), 900); } } } }
   { const n = rows.length, lt = $("listTotal"); lt.classList.toggle("hidden", !n); lt.textContent = retView ? `${n} ${n === 1 ? "item retirado" : "itens retirados"}` : `${n} ${n === 1 ? "item" : "itens"} na lista`; }
   if (typeof renderPesaveis === "function") renderPesaveis();
   if (openId) fotoCarrega(openId);
@@ -1044,7 +1035,6 @@ function fotoClique(e) { const pf = e.target.closest(".pi-foto"); if (!pf) retur
   if (e.target.closest("[data-fz]")) fotoZoom(e.target.closest("[data-fz]").src); else if (e.target.closest("[data-fadd]")) { const f = q("[data-fin][capture]"); if (f) f.click(); } else if (e.target.closest("[data-fgal]")) { const f = q("[data-fin]:not([capture])"); if (f) f.click(); } else if (e.target.closest("[data-fdel]")) fotoApaga(id); return true; }
 const fotoMuda = e => { const f = e.target.closest && e.target.closest("[data-fin]"); if (f && f.files && f.files[0]) { fotoSalva(f.dataset.fin, f.files[0]); f.value = ""; } };
 $("list").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("click", fotoClique);
-if ($("vHero")) $("vHero").onclick = e => { const g = e.target.closest("[data-g]"); if (!g) return; const bar = $("list").querySelector('.pgh[data-g="' + g.dataset.g + '"]'); if (bar) { if (gRec.has(g.dataset.g)) bar.click(); else bar.scrollIntoView({ block: "center", behavior: "smooth" }); } };
 $("list").onclick = e => { const lc = e.target.closest(".pi-lotes"); if (lc) { e.stopPropagation(); const ar = lc.closest(".pitem"); if (ar) loteLista(ar.dataset.id); return; }
   const nx = e.target.closest("[data-ntx]"); if (nx) { notaSalva(nx.dataset.ntx, ""); return; }
   const nd = e.target.closest("[data-ntd]"); if (nd) { const t = nd.dataset.ntd, o = ntOcultas(); if (!o.some(x => norm(x) === norm(t))) o.push(t); store.set(NTH, o); const f = store.get(NTF, {}); Object.keys(f).forEach(k => { if (norm(k) === norm(t)) delete f[k]; }); store.set(NTF, f); render(); return; }
