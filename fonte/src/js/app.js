@@ -2324,12 +2324,13 @@ const ESC_DEF = { ini: "2026-11-09", dia: 504, int: 60, meta: 2520,
   p: { r: { n: "Renato", full: "", foto: "", ent: 660 }, y: { n: "Yossef", full: "", foto: "", ent: 420 } },
   ciclo: { r: ["FTTFTTT", "TTFFTTT"], y: ["TTFTFTT", "FTTTFTT"] } };   // ciclo = D S T Q Q S S. Renato folga sempre na quarta, Yossef na quinta; domingo alterna: quem folga no domingo já tem sua 2ª folga; quem trabalha no domingo folga também na terça (semana 1: Renato domingo+quarta, Yossef terça+quinta; semana 2: Renato terça+quarta, Yossef domingo+quinta). Ninguém passa de 5 dias seguidos.
 const ESC_CICLOS_ANTIGOS = [{ r: ["FTTFTTT", "TTFTFTT"], y: ["TTFFTTT", "FTTTFTT"] }, { r: ["FTFTTTT", "TTFFTTT"], y: ["TTTFFTT", "FTTTFTT"] }, { r: ["FTTFTTT", "TTFFTTT", "FTTFTTT"], y: ["TTFTFTT", "FTTTFTT", "TTFFTTT"] }, { r: ["FTFTTTT", "TFFTTTT"], y: ["TTTTFFT", "FTTTFTT"] }].map(x => JSON.stringify(x));   // padrões antigos: migram sozinhos para o atual (o primeiro é o ciclo trocado que deixava os dois de folga toda semana)
-const ESC_FER = {   // feriados: n = nacional, e = estadual (SP), f = ponto facultativo (2026: nov/dez; 2027: ano inteiro)
+const ESC_FER = {   // feriados: n = nacional, e = estadual (SP), m = municipal (cidade de São Paulo), f = ponto facultativo (2026: nov/dez; 2027: ano inteiro)
   "2026-11-02": { n: "Finados", t: "n" },
   "2026-11-15": { n: "Proclamação da República", t: "n" },
   "2026-11-20": { n: "Consciência Negra", t: "n" },
   "2026-12-25": { n: "Natal", t: "n" },
   "2027-01-01": { n: "Confraternização Universal", t: "n" },
+  "2027-01-25": { n: "Aniversário de São Paulo", t: "m" },
   "2027-02-08": { n: "Carnaval (segunda)", t: "f" },
   "2027-02-09": { n: "Carnaval (terça)", t: "f" },
   "2027-02-10": { n: "Quarta-feira de Cinzas (até 14h)", t: "f" },
