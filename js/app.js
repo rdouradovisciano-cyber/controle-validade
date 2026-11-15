@@ -2289,33 +2289,19 @@ function visAbrir() {
   const v0 = visCfg(), admin = PERFIL === "Admin", loc = !!store.get(VK, null);
   let v = JSON.parse(JSON.stringify(v0));
   const bg = document.createElement("div"); bg.className = "modal"; bg.id = "visModal";
-  const nomes = { v: "Vencido", h: "Vence hoje", a: "Urgente (vermelho)", y: "Atenção (amarelo)", g: "Dentro do prazo (verde)" };
-  const optR = [1, 2, 3, 4, 5, 7], optY = [3, 5, 7, 10, 15, 20, 30, 45, 60], num = (l, sel, cur) => l.concat(l.includes(cur) ? [] : [cur]).sort((x, y) => x - y).map(d => `<option value="${d}" ${d === sel ? "selected" : ""}>${d} dia${d > 1 ? "s" : ""}</option>`).join("");
-  const PRE = { pad: { v: "#8a3a45", h: "#bf4a52", a: "#c7514a", y: "#c9a22f", g: "#4a9a78" }, dal: { v: "#4a2a00", h: "#d55e00", a: "#e69f00", y: "#f0e442", g: "#0072b2" }, sua: { v: "#5b0f6e", h: "#d6336c", a: "#f76707", y: "#fcc419", g: "#2b8a3e" } };
-  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Cores e prazos"><div class="sheethead"><h2>🎨 Cores e prazos</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
+  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Mudar layout"><div class="sheethead"><h2>🎨 Mudar layout</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
     <p class="note">${admin ? "Como Admin, o que você salvar vale para <b>todos os aparelhos</b>." : "O que você salvar vale só <b>neste aparelho</b>."}</p>
-    <label class="nfrow"><span><b>🔴 Vermelho: vence em até</b><small>Ação imediata (de 1 dia até este prazo)</small></span><select id="vsR">${num(optR, v.red, v.red)}</select></label>
-    <label class="nfrow"><span><b>🟡 Amarelo: vence em até</b><small>Atenção (depois do vermelho até este prazo)</small></span><select id="vsY"><option value="" ${v.yel ? "" : "selected"}>Padrão do setor</option>${num(optY, v.yel, v.yel || 7).replace(/<option value="(\d+)" selected>/, (m, d) => v.yel ? m : `<option value="${d}">`)}</select></label>
-    <p class="note" style="margin:2px 0 8px">🟢 Verde: tudo que vence depois do amarelo.</p>
-    <label>Conjuntos de cores</label><div class="vspre"><button type="button" data-p="pad">Padrão</button><button type="button" data-p="dal">Daltonismo</button><button type="button" data-p="sua">Vivas</button></div>
-    <div class="vscores">${Object.keys(nomes).map(k => `<label class="vsc"><span>${nomes[k]}</span><input type="color" data-c="${k}" value="${v.cores[k]}"></label>`).join("")}</div>
-    <label class="nfrow"><span><b>🚨 Sirene e efeitos de urgência</b><small>O item vencido pisca, brilha e vibra ao abrir o app</small></span><input type="checkbox" id="vsFx" ${fxOn() ? "checked" : ""}></label>
     <label class="nfrow"><span><b>Fotos nos produtos</b><small>Mostra a foto do produto nos cartões (Perecíveis e FLV). Sem foto, aparece um quadrado com câmera</small></span><input type="checkbox" id="vsIco" ${iconesOn() ? "checked" : ""}></label>
-    <label>Visualização da lista de Validades</label><div class="vspre" id="vsV"><button type="button" data-v="lista">Lista</button><button type="button" data-v="grade">Grade (fotos grandes)</button></div>
+    <label>Estilo de visualização</label><div class="vspre" id="vsV"><button type="button" data-v="lista">Lista</button><button type="button" data-v="grade">Grade (fotos grandes)</button></div>
     <label>Tamanho da letra da lista</label><div class="vspre" id="vsF"><button type="button" data-f="normal">Normal</button><button type="button" data-f="grande">Grande</button></div>
-    <div class="vsprev" id="vsPrev"></div>
     <div class="toolbar" style="margin-top:12px"><button class="primary big" type="button" id="vsSalva">Salvar</button><button class="secondary" type="button" id="vsPad">${admin ? "Restaurar padrão" : (loc ? "Usar o padrão da loja" : "Restaurar padrão")}</button></div></section>`;
   document.body.appendChild(bg);
-  const q = x => bg.querySelector(x), txt = h => { const n = parseInt(h.slice(1), 16), f = x => { x /= 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }; return (.2126 * f(n >> 16) + .7152 * f((n >> 8) & 255) + .0722 * f(n & 255)) > .4 ? "#1a1405" : "#fff"; };
-  const prev = () => { q("#vsPrev").innerHTML = [["a", `1 a ${v.red} dias`], ["y", `${v.red + 1} a ${v.yel || "…"} dias`], ["g", "depois"]].map(([k, t]) => `<span style="background:${v.cores[k]};color:${txt(v.cores[k])}">${k === "a" ? "🔴" : k === "y" ? "🟡" : "🟢"} ${t}</span>`).join("");
-    bg.querySelectorAll("[data-f]").forEach(b => b.classList.toggle("on", b.dataset.f === v.fonte)); bg.querySelectorAll("[data-c]").forEach(i => { i.value = v.cores[i.dataset.c]; }); };
-  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) bg.remove(); const p = e.target.closest("[data-p]"); if (p) { v.cores = { ...PRE[p.dataset.p] }; prev(); } const f = e.target.closest("[data-f]"); if (f) { v.fonte = f.dataset.f; prev(); } };
-  q("#vsFx").onchange = e => { store.set(FXK, e.target.checked); fxAplica(); sirene(); };
+  const q = x => bg.querySelector(x);
+  const prev = () => { bg.querySelectorAll("[data-f]").forEach(b => b.classList.toggle("on", b.dataset.f === v.fonte)); };
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) bg.remove(); const f = e.target.closest("[data-f]"); if (f) { v.fonte = f.dataset.f; prev(); } };
   const vsVis = () => bg.querySelectorAll("[data-v]").forEach(b => b.classList.toggle("on", b.dataset.v === visaoDe())); vsVis();
   q("#vsV").onclick = e => { const b = e.target.closest("[data-v]"); if (!b) return; store.set(VSK, b.dataset.v); vsVis(); render(); };
   q("#vsIco").onchange = e => { store.set(ICK, e.target.checked); render(); };
-  q("#vsR").onchange = e => { v.red = Number(e.target.value); prev(); }; q("#vsY").onchange = e => { v.yel = e.target.value ? Number(e.target.value) : null; prev(); };
-  bg.querySelectorAll("[data-c]").forEach(i => i.oninput = () => { v.cores[i.dataset.c] = i.value; prev(); });
   q("#vsSalva").onclick = async () => {
     const cfg = visNorm(v);
     if (admin && db) { try { await V.setDoc(V.doc(db, "sh_cfg", "visual"), { ...cfg, em: Date.now() }); localStorage.removeItem(VK); visCloud = cfg; toast("Salvo para todos os aparelhos."); }
