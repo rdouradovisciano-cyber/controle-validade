@@ -255,8 +255,9 @@ function silRecorta(src) { return new Promise(res => { const im = new Image(); i
   res(o.toDataURL("image/png"));
 } catch (e) { res(false); } }; im.src = src; }); }
 const silPend = new Set();
+// só repinta quando a fila de recortes acaba (uma vez), senão a tela pisca a cada foto
 function silPronto(d, forca) { if (!d || (!silOn() && !forca)) return d; if (silCache.has(d)) return silCache.get(d) || d; silCache.set(d, false); silPend.add(d); silFilaN++;
-  silRecorta(d).then(v => { silCache.set(d, v); silPend.delete(d); silFilaN--; try { saudeRepinta && saudeRepinta(); } catch (e) {} clearTimeout(silTm); silTm = setTimeout(() => { try { render(); } catch (e) {} }, 200); }); return d; }
+  silRecorta(d).then(v => { silCache.set(d, v); silPend.delete(d); silFilaN--; if (silFilaN <= 0) { clearTimeout(silTm); silTm = setTimeout(() => { if (silFilaN > 0) return; try { render(); } catch (e) {} try { saudeRepinta && saudeRepinta(); } catch (e) {} }, 350); } });  return d; }
 const icoLado = p => fotoDe(p) || !iconesOn() || !p || p.category !== PER ? "" : `<span class="ico-tile ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`;   // v458: emoji do produto num quadrado do mesmo tamanho da foto
 // v473: a nota vira um balão amarelo no canto da foto do produto (sem foto/quadrado, o ícone continua ao lado do nome)
 const leadNota = p => { const l = fotoLado(p) || icoLado(p); if (!l) return ""; const n = notaDe(p.id); return `<span class="pi-lead">${l}</span>`; };

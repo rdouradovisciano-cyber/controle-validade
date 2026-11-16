@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 541.
+> Última atualização: 11/11/2026 · versão 542.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -138,6 +138,7 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
 - v531: tour do cartão (`js/tour.js` recriado a pedido; só os passos do cartão). Admin liga/desliga em ⋮ › «Tour da equipe» (Firestore sh_cfg/tour {on,id}); cada aparelho Perecíveis vê 1× por id; «Ver o tour do cartão» para o Admin rever.
+- v542: corrige a Saúde piscando sem parar: o recorte repintava a tela a cada foto terminada; agora repinta uma vez só quando a fila de recortes acaba. Sem entrada no popup (correção do v541).
 - v541: Saúde do app ganhou «foto sem recorte» (por setor): lista os produtos cuja foto o recorte da silhueta (v540) não conseguiu; confere todas as fotos em segundo plano (silPronto(d,true)) e repinta sozinha. Botão 📷 Foto para trocar e 🔎 para achar imagem com fundo branco.
 - v540: foto só com o produto (silhueta). `silRecorta` tira o fundo claro ligado às bordas no próprio aparelho (cache em memória `silCache`); só aceita se o fundo é claro/uniforme e sobra 1 bloco de produto, senão mantém a foto quadrada. Classe `.sil` em `.pgt` e `.ico-lado`. Opção em Mudar layout (localStorage validamais-silhueta, padrão ligado). Foto original no Firestore não é alterada.
 - v539: Perecíveis abre com a lista inteira (sem grupos, só a cor por urgência, ordenada por validade). Menu ⋮ › «Agrupar por urgência» / «Mostrar lista inteira» (localStorage validamais-grupos, por aparelho). FLV continua agrupado.
