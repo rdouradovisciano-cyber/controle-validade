@@ -3247,6 +3247,21 @@ if (db) startPresence(); else localStats();
     const antes = products.find(x => x.id === meu); const r = await retirar(meu, true, true); const ainda = products.find(x => x.id === meu);
     if (c.isConnected && ainda && !ainda.retirado && !retLoc[meu]) volta(); };   // cancelou o motivo: o cartão volta
   L.addEventListener("pointerup", fim); L.addEventListener("pointercancel", fim); })();
+// v549: dica única (por aparelho) mostrando o deslizar para retirar, nos Perecíveis
+(function dicaDeslizar() { const K = "validamais-dica-deslizar"; let n = 0;
+  const visto = () => { try { return localStorage.getItem(K) === "1"; } catch (e) { return false; } }, marca = () => { try { localStorage.setItem(K, "1"); } catch (e) {} };
+  if (visto()) return;
+  const tm = setInterval(() => { if (visto() || ++n > 180) { clearInterval(tm); return; }
+    if (document.body.dataset.setor !== "Perecíveis" || (document.body.dataset.tab || "Loja") !== "Loja") return;
+    const sp = $("splash"); if (sp && !sp.classList.contains("hidden") && getComputedStyle(sp).display !== "none") return;
+    if (document.querySelector(".askbg,.modal:not(.hidden),.dica-ov")) return;
+    const c = [...document.querySelectorAll("#list .pitem")].find(e => e.getClientRects().length && !e.classList.contains("saindo")); if (!c) return;
+    clearInterval(tm); marca();
+    const nome = (c.querySelector(".pi-nome") || {}).textContent || "Produto", im = c.querySelector(".ico-img"), ov = document.createElement("div"); ov.className = "dica-ov";
+    ov.innerHTML = `<div class="dica-card" role="dialog" aria-modal="true" aria-label="Dica: deslizar para retirar"><b class="dica-t">Novo: deslize para retirar</b>
+      <div class="dica-demo" aria-hidden="true"><div class="dica-fundo">Retirar</div><div class="dica-row">${im ? `<img src="${esc(im.src)}" alt="">` : '<span class="dica-ph"></span>'}<span>${esc(nome.replace(/NOVO$/, "").trim())}</span></div><i class="dica-dedo"></i></div>
+      <p>Arraste o cartão do produto para o lado e solte para <b>tirar o item da loja</b>.<br>Foi sem querer? Toque em <b>Desfazer</b> logo depois.</p><button type="button" class="primary big dica-ok">Entendi</button></div>`;
+    const fecha = () => ov.remove(); ov.onclick = e => { if (e.target === ov || e.target.closest(".dica-ok")) fecha(); }; document.body.appendChild(ov); try { ov.querySelector(".dica-ok").focus({ preventScroll: true }); } catch (e) {} }, 700); })();
 // ---------- PWA ----------
 if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").then(r => r.update()).catch(console.error));
 

@@ -2223,3 +2223,19 @@ html[data-tema=dark] body[data-setor="Perecíveis"] #list:not([data-visao=grade]
 body[data-setor="Perecíveis"] #list .pitem .pi-main{touch-action:pan-y}
 body[data-setor="Perecíveis"] #list .pitem.swp{transition:none!important;will-change:transform,opacity}
 body[data-setor="Perecíveis"] #list .pitem.swgo{background:linear-gradient(90deg,rgba(229,32,46,.38),rgba(229,32,46,.18))!important}
+/* v549 — dica única do deslizar para retirar */
+.dica-ov{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+.dica-card{width:min(440px,100%);background:#fff;color:#1b1f1c;border-radius:22px;padding:20px 18px 18px;box-shadow:0 12px 40px rgba(0,0,0,.4);margin-bottom:max(12px,env(safe-area-inset-bottom))}
+html[data-tema=dark] .dica-card{background:#171b19;color:#f1efe7}
+.dica-t{display:block;font-size:20px;margin-bottom:12px}
+.dica-card p{margin:14px 0 16px;line-height:1.45;font-size:15px}
+.dica-demo{position:relative;height:78px;border-radius:14px;overflow:hidden;background:#e5202e}
+.dica-fundo{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:#fff;font-weight:800;font-size:16px;letter-spacing:.03em}
+.dica-row{position:absolute;inset:0;display:flex;align-items:center;gap:12px;padding:0 14px;background:#fbf2f2;color:#1b1f1c;font-weight:700;border-left:4px solid #e5202e;animation:dicaSlide 3s ease-in-out infinite}
+html[data-tema=dark] .dica-row{background:#2a1d1f;color:#f1efe7}
+.dica-row img,.dica-ph{width:54px;height:54px;object-fit:contain;flex:none;border-radius:10px}.dica-ph{background:rgba(128,128,128,.25)}
+.dica-row span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dica-dedo{position:absolute;left:64%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:rgba(255,255,255,.85);border:3px solid #2b2b2b;box-shadow:0 2px 8px rgba(0,0,0,.35);animation:dicaDedo 3s ease-in-out infinite}
+@keyframes dicaSlide{0%,12%{transform:translateX(0)}55%,72%{transform:translateX(-78%)}88%,100%{transform:translateX(0)}}
+@keyframes dicaDedo{0%,12%{transform:translateX(0);opacity:0}20%{opacity:1}55%,72%{transform:translateX(-52%);opacity:1}80%,100%{transform:translateX(-52%);opacity:0}}
+@media (prefers-reduced-motion:reduce){.dica-row,.dica-dedo{animation:none}.dica-row{transform:translateX(-30%)}}
