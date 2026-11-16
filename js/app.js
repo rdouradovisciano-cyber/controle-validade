@@ -254,8 +254,9 @@ function silRecorta(src) { return new Promise(res => { const im = new Image(); i
   x.putImageData(d, 0, 0); const pw = x1 - x0 + 1, ph = y1 - y0 + 1, m = 2, o = document.createElement("canvas"); o.width = pw + 2 * m; o.height = ph + 2 * m; o.getContext("2d").drawImage(c, x0, y0, pw, ph, m, m, pw, ph);
   res(o.toDataURL("image/png"));
 } catch (e) { res(false); } }; im.src = src; }); }
-function silPronto(d) { if (!d || !silOn()) return d; if (silCache.has(d)) return silCache.get(d) || d; silCache.set(d, false); silFilaN++;
-  silRecorta(d).then(v => { silCache.set(d, v); silFilaN--; clearTimeout(silTm); silTm = setTimeout(() => { try { render(); } catch (e) {} }, 200); }); return d; }
+const silPend = new Set();
+function silPronto(d, forca) { if (!d || (!silOn() && !forca)) return d; if (silCache.has(d)) return silCache.get(d) || d; silCache.set(d, false); silPend.add(d); silFilaN++;
+  silRecorta(d).then(v => { silCache.set(d, v); silPend.delete(d); silFilaN--; try { saudeRepinta && saudeRepinta(); } catch (e) {} clearTimeout(silTm); silTm = setTimeout(() => { try { render(); } catch (e) {} }, 200); }); return d; }
 const icoLado = p => fotoDe(p) || !iconesOn() || !p || p.category !== PER ? "" : `<span class="ico-tile ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`;   // v458: emoji do produto num quadrado do mesmo tamanho da foto
 // v473: a nota vira um balão amarelo no canto da foto do produto (sem foto/quadrado, o ícone continua ao lado do nome)
 const leadNota = p => { const l = fotoLado(p) || icoLado(p); if (!l) return ""; const n = notaDe(p.id); return `<span class="pi-lead">${l}</span>`; };
@@ -2200,6 +2201,12 @@ function saudeCalc() {
   [PER, "FLV"].forEach(SS => { const nomeSS = SS === PER ? "Perecíveis" : "FLV"; const nomes = new Map(), eanDe = {}, pluDe = {}; rawAllAtivos().forEach(p => { if (setSet(p) !== SS || p.retirado) return; const k = fotoK(p.name); if (!nomes.has(k)) nomes.set(k, p.name); if (p.barcode) (eanDe[k] = eanDe[k] || new Set()).add(String(p.barcode).trim()); if (p.codigo_balanca) pluDe[k] = pluDe[k] || String(p.codigo_balanca).trim(); });
     if (!db || fotosPronto) { const rc = fotoCasar(SS); if (rc.length) sec.push({ t: `${nomeSS}: fotos que dá para recuperar (${rc.length})`, d: "Essas fotos ficaram guardadas num nome antigo. Toque em «Recuperar» para ligá-las aos nomes novos (a foto antiga não é apagada).", n: rc.length,
       it: [`<div class="shrow"><div class="shn2"><b>${rc.length} ${rc.length === 1 ? "foto" : "fotos"}</b><small class="note">${rc.slice(0, 3).map(x => esc(x.de) + " → " + esc(x.nome)).join("<br>")}${rc.length > 3 ? "<br>…" : ""}</small></div><span class="shbts"><button type="button" class="shact pri" data-a="recfoto" data-s="${SS}">Recuperar</button></span></div>`] }); }
+    { const comFoto = [...nomes.entries()].filter(([k]) => fotoCache[k]); let pend = 0; const ruins = [];
+      comFoto.forEach(([k, n]) => { const d = fotoCache[k]; silPronto(d, true); if (silPend.has(d)) pend++; else if (silCache.get(d) === false) ruins.push(n); });
+      ruins.sort((x, y) => x.localeCompare(y, "pt-BR"));
+      if (comFoto.length) sec.push({ t: `${nomeSS}: foto sem recorte (${ruins.length}${pend ? ", conferindo mais " + pend : ""})`, d: "O fundo dessas fotos não deu para tirar sozinho (fundo colorido ou com sombra, produto branco, foto muito cortada). Elas continuam aparecendo quadradas. Para ficarem só com o produto, troque por uma foto com fundo branco liso: toque em «📷 Foto» ou procure uma imagem nova em 🔎.", n: ruins.length, todos: true,
+        it: ruins.map(n => { const k = fotoK(n), eans = eanDe[k] ? [...eanDe[k]] : [], busca = "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent((eans[0] || "") + " " + n + " fundo branco");
+          return `<div class="shrow shfoto"><div class="shn2"><b>${esc(nomeBonito(n))}</b><small class="note">foto quadrada (sem recorte)</small></div><span class="shbts"><a class="shact" href="${esc(busca)}" target="_blank" rel="noopener" aria-label="Procurar imagem com fundo branco">🔎</a><button type="button" class="shact pri" data-foto="${esc(n)}">📷 Foto</button></span></div>`; }) }); }
     const sabe = !db || fotosPronto, nFot = [...nomes.keys()].filter(k => fotoCache[k]).length;
     const sem = sabe ? [...nomes.entries()].filter(([k]) => !fotoCache[k]).map(([, n]) => n).sort((x, y) => x.localeCompare(y, "pt-BR")) : [];
     if (!sabe) sec.push({ t: nomeSS + " sem foto", d: fotosErro ? "Não consegui ler as fotos da nuvem agora. Feche e abra de novo; se continuar, avise." : "Conferindo as fotos na nuvem… a lista aparece sozinha em instantes.", n: 1, it: ["<small class=\"note\">Aguarde um instante…</small>"] });
