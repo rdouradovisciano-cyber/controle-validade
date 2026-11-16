@@ -3231,7 +3231,7 @@ $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden");
 
 if (db) startPresence(); else localStats();
 
-// v547: Perecíveis — deslizar o cartão para o lado tira o item da loja (pergunta o motivo, como no botão Retirar)
+// v547: Perecíveis — deslizar o cartão para o lado tira o item da loja na hora (motivo «Outro»; o toast tem «Desfazer»)
 (function swipeRetirar() { const L = $("list"); if (!L) return; let el = null, id = "", x0 = 0, y0 = 0, dx = 0, on = false, pid = -1, w = 300;
   const livre = e => !e.target.closest("input,textarea,select,button,a,.pi-act,.pi-foto");
   L.addEventListener("pointerdown", e => { if (document.body.dataset.setor !== "Perecíveis" || (e.pointerType === "mouse" && e.button !== 0)) return; const c = e.target.closest(".pitem"); if (!c || c.classList.contains("saindo") || !livre(e)) return;
@@ -3244,7 +3244,7 @@ if (db) startPresence(); else localStats();
     const volta = () => { c.classList.remove("swp", "swgo"); c.style.transform = ""; c.style.opacity = ""; };
     if (!go) { volta(); return; }
     c.style.transform = `translateX(${dx > 0 ? "" : "-"}110%)`; c.style.opacity = "0"; await new Promise(r => setTimeout(r, 160));
-    const antes = products.find(x => x.id === meu); const r = await retirar(meu, true); const ainda = products.find(x => x.id === meu);
+    const antes = products.find(x => x.id === meu); const r = await retirar(meu, true, true); const ainda = products.find(x => x.id === meu);
     if (c.isConnected && ainda && !ainda.retirado && !retLoc[meu]) volta(); };   // cancelou o motivo: o cartão volta
   L.addEventListener("pointerup", fim); L.addEventListener("pointercancel", fim); })();
 // ---------- PWA ----------
