@@ -229,10 +229,37 @@ function pesAgrupa(rows) {
 }
 const pesAb = new Set();   // v465: grupos de Pesáveis abertos (começa vazio: tudo recolhido)
 const gRec = new Set(["v", "h", "a", "y", "ok"]);   // v463: o app SEMPRE abre com os grupos de urgência recolhidos (resumo limpo); toque no título abre/fecha
+// v540: foto só com o produto (silhueta). Tira o fundo claro ligado às bordas da imagem, no próprio aparelho; se não der certeza, mantém a foto quadrada.
+const SILK = "validamais-silhueta", silOn = () => store.get(SILK, true) !== false, silCache = new Map(); let silFilaN = 0, silTm = 0;
+function silRecorta(src) { return new Promise(res => { const im = new Image(); im.onerror = () => res(false); im.onload = () => { try {
+  const W0 = im.naturalWidth, H0 = im.naturalHeight; if (W0 < 24 || H0 < 24) return res(false);
+  const s = Math.min(1, 360 / Math.max(W0, H0)), w = Math.round(W0 * s), h = Math.round(H0 * s), c = document.createElement("canvas"); c.width = w; c.height = h;
+  const x = c.getContext("2d", { willReadFrequently: true }); x.drawImage(im, 0, 0, w, h); const d = x.getImageData(0, 0, w, h), px = d.data, N = w * h;
+  const bord = []; for (let i = 0; i < w; i++) { bord.push(i, (h - 1) * w + i); } for (let j = 0; j < h; j++) { bord.push(j * w, j * w + w - 1); }
+  let r = 0, g = 0, b = 0, tr = 0; bord.forEach(i => { const o = i * 4; r += px[o]; g += px[o + 1]; b += px[o + 2]; if (px[o + 3] < 200) tr++; }); const nb = bord.length; r /= nb; g /= nb; b /= nb;
+  if (tr > nb * .05) return res(false);   // já tem transparência
+  if ((r + g + b) / 3 < 218) return res(false);   // fundo não é claro: não arrisca
+  const dist = o => Math.max(Math.abs(px[o] - r), Math.abs(px[o + 1] - g), Math.abs(px[o + 2] - b));
+  let vz = 0; bord.forEach(i => { if (dist(i * 4) > 30) vz++; }); if (vz > nb * .45) return res(false);   // borda cheia de produto: sem fundo para tirar
+  const bg = new Uint8Array(N), pil = []; bord.forEach(i => { if (!bg[i] && dist(i * 4) <= 24) { bg[i] = 1; pil.push(i); } });
+  while (pil.length) { const i = pil.pop(), xx = i % w, yy = (i / w) | 0; for (const j of [xx > 0 ? i - 1 : -1, xx < w - 1 ? i + 1 : -1, yy > 0 ? i - w : -1, yy < h - 1 ? i + w : -1]) { if (j < 0 || bg[j]) continue; if (dist(j * 4) <= 24) { bg[j] = 1; pil.push(j); } } }
+  let nbg = 0; for (let i = 0; i < N; i++) if (bg[i]) nbg++; const f = nbg / N; if (f < .1 || f > .93) return res(false);
+  // um bloco só de produto (se o recorte virou pedaços soltos, a foto não serve)
+  const vis = new Uint8Array(N); let maior = 0, tot = 0; for (let i = 0; i < N; i++) { if (bg[i] || vis[i]) continue; let n = 0; const st = [i]; vis[i] = 1; while (st.length) { const k = st.pop(); n++; const xx = k % w, yy = (k / w) | 0; for (const j of [xx > 0 ? k - 1 : -1, xx < w - 1 ? k + 1 : -1, yy > 0 ? k - w : -1, yy < h - 1 ? k + w : -1]) { if (j >= 0 && !bg[j] && !vis[j]) { vis[j] = 1; st.push(j); } } } tot += n; if (n > maior) maior = n; }
+  if (maior < tot * .85 || maior < N * .08) return res(false);
+  // bordas suaves: pixel de produto colado no fundo fica meio transparente
+  let x0 = w, y0 = h, x1 = 0, y1 = 0;
+  for (let i = 0; i < N; i++) { const o = i * 4; if (bg[i]) { px[o + 3] = 0; continue; } const xx = i % w, yy = (i / w) | 0; if (xx < x0) x0 = xx; if (xx > x1) x1 = xx; if (yy < y0) y0 = yy; if (yy > y1) y1 = yy;
+    const viz = (xx > 0 && bg[i - 1]) + (xx < w - 1 && bg[i + 1]) + (yy > 0 && bg[i - w]) + (yy < h - 1 && bg[i + w]); if (viz) px[o + 3] = viz > 1 ? 120 : 190; }
+  x.putImageData(d, 0, 0); const pw = x1 - x0 + 1, ph = y1 - y0 + 1, m = 2, o = document.createElement("canvas"); o.width = pw + 2 * m; o.height = ph + 2 * m; o.getContext("2d").drawImage(c, x0, y0, pw, ph, m, m, pw, ph);
+  res(o.toDataURL("image/png"));
+} catch (e) { res(false); } }; im.src = src; }); }
+function silPronto(d) { if (!d || !silOn()) return d; if (silCache.has(d)) return silCache.get(d) || d; silCache.set(d, false); silFilaN++;
+  silRecorta(d).then(v => { silCache.set(d, v); silFilaN--; clearTimeout(silTm); silTm = setTimeout(() => { try { render(); } catch (e) {} }, 200); }); return d; }
 const icoLado = p => fotoDe(p) || !iconesOn() || !p || p.category !== PER ? "" : `<span class="ico-tile ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`;   // v458: emoji do produto num quadrado do mesmo tamanho da foto
 // v473: a nota vira um balão amarelo no canto da foto do produto (sem foto/quadrado, o ícone continua ao lado do nome)
 const leadNota = p => { const l = fotoLado(p) || icoLado(p); if (!l) return ""; const n = notaDe(p.id); return `<span class="pi-lead">${l}</span>`; };
-const fotoLado = p => { const d = fotoDe(p); return d ? `<span class="ico ico-foto ico-lado" data-id="${esc(p.id)}"><img class="ico-img" src="${d}" alt="" decoding="async"></span>` : ""; };   // lista de Validades: foto na lateral
+const fotoLado = p => { const d = fotoDe(p); if (!d) return ""; const s = silPronto(d); return `<span class="ico ico-foto ico-lado${s !== d ? " sil" : ""}" data-id="${esc(p.id)}"><img class="ico-img" src="${s}" alt="" decoding="async"></span>`; };   // lista de Validades: foto na lateral
 let fotoIcTimer = 0, fotoVer = 0, famMemo = { p: null, n: -1, v: -1, m: new Map() };
 // foto para os balões e linhas da Doação (FLV): a do nome exato; senão a de qualquer produto da mesma família (1ª palavra: Banana, Tomate…)
 function famFotos() { if (famMemo.p === products && famMemo.n === products.length && famMemo.v === fotoVer) return famMemo.m;
@@ -507,8 +534,8 @@ function render() {
   const gprev = {}; if (agr && cat && !q && !tierF && !nvF && !retView) rows.forEach(p => { if (p.retirado) return; const k = prioDe(p) || "ok"; if (k === "ok") return; (gprev[k] = gprev[k] || []).push(p); });
   const prevHtml = g => { const l = gprev[g]; if (!l || !l.length) return ""; const fo = iconesOn();
     const base = { v: 72, h: 72, a: 60, y: 48 }[g] || 46;
-    const th = l.slice(0, 4).map((p, i) => { const sz = base - i * 5, dl = daysLeft(p.expiry), tag = dl === null ? "" : dl < 0 ? "venc." : dl === 0 ? "hoje" : dl + "d", d = fo ? fotoVal(fotoK(p.name)) : "";
-      return fo ? `<div class="pgt${d ? "" : " vz"}" data-id="${esc(p.id)}" style="--s:${sz}px">${d ? `<img src="${d}" alt="" decoding="async">` : ico("cam", "ic")}${tag ? `<u>${tag}</u>` : ""}</div>` : ""; }).join("");
+    const th = l.slice(0, 4).map((p, i) => { const sz = base - i * 5, dl = daysLeft(p.expiry), tag = dl === null ? "" : dl < 0 ? "venc." : dl === 0 ? "hoje" : dl + "d", d0 = fo ? fotoVal(fotoK(p.name)) : "", d = d0 ? silPronto(d0) : "", sl = d && d !== d0;
+      return fo ? `<div class="pgt${d ? "" : " vz"}${sl ? " sil" : ""}" data-id="${esc(p.id)}" style="--s:${sz}px">${d ? `<img src="${d}" alt="" decoding="async">` : ico("cam", "ic")}${tag ? `<u>${tag}</u>` : ""}</div>` : ""; }).join("");
     const mais = l.length > 4 ? `<div class="pgm">+${l.length - 4}</div>` : "";
     return `<div class="pgp" aria-hidden="true">${th}${mais}<div class="pgn">${l.slice(0, 4).map(p => esc(nomeBonito(p.name))).join(" · ")}${l.length > 4 ? "…" : ""}</div></div>`; };
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p), lo = lotes[p.id];
@@ -2296,6 +2323,7 @@ function visAbrir() {
   bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Mudar layout"><div class="sheethead"><h2>🎨 Mudar layout</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
     <p class="note">${admin ? "Como Admin, o que você salvar vale para <b>todos os aparelhos</b>." : "O que você salvar vale só <b>neste aparelho</b>."}</p>
     <label class="nfrow"><span><b>Fotos nos produtos</b><small>Mostra a foto do produto nos cartões (Perecíveis e FLV). Sem foto, aparece um quadrado com câmera</small></span><input type="checkbox" id="vsIco" ${iconesOn() ? "checked" : ""}></label>
+    <label class="nfrow"><span><b>Só o produto, sem o quadrado</b><small>Recorta o fundo da foto e deixa só o produto, com sombra. Se o recorte não ficar bom, a foto continua quadrada</small></span><input type="checkbox" id="vsSil" ${silOn() ? "checked" : ""}></label>
     <label>Estilo de visualização</label><div class="vspre" id="vsV"><button type="button" data-v="lista">Lista</button><button type="button" data-v="grade">Grade (fotos grandes)</button></div>
     <label>Tamanho da letra da lista</label><div class="vspre" id="vsF"><button type="button" data-f="normal">Normal</button><button type="button" data-f="grande">Grande</button></div>
     <div class="toolbar" style="margin-top:12px"><button class="primary big" type="button" id="vsSalva">Salvar</button><button class="secondary" type="button" id="vsPad">${admin ? "Restaurar padrão" : (loc ? "Usar o padrão da loja" : "Restaurar padrão")}</button></div></section>`;
@@ -2306,6 +2334,7 @@ function visAbrir() {
   const vsVis = () => bg.querySelectorAll("[data-v]").forEach(b => b.classList.toggle("on", b.dataset.v === visaoDe())); vsVis();
   q("#vsV").onclick = e => { const b = e.target.closest("[data-v]"); if (!b) return; store.set(VSK, b.dataset.v); vsVis(); render(); };
   q("#vsIco").onchange = e => { store.set(ICK, e.target.checked); render(); };
+  q("#vsSil").onchange = e => { store.set(SILK, e.target.checked); render(); };
   q("#vsSalva").onclick = async () => {
     const cfg = visNorm(v);
     if (admin && db) { try { await V.setDoc(V.doc(db, "sh_cfg", "visual"), { ...cfg, em: Date.now() }); localStorage.removeItem(VK); visCloud = cfg; toast("Salvo para todos os aparelhos."); }
