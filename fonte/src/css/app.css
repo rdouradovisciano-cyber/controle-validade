@@ -2200,3 +2200,8 @@ html .pgh[data-g] .pgc{border-color:var(--tc);border-width:3px}
 html .pitem .ico-lado.sil .ico-img{border:0;border-radius:0;object-fit:contain;background:none;filter:drop-shadow(0 3px 2px rgba(0,0,0,.3))}
 html #list[data-visao=grade] .pi-main .ico-lado.sil{background:none;padding:10px 0 0}
 html #list[data-visao=grade] .pi-main .ico-lado.sil .ico-img{object-fit:contain;height:calc(100% - 4px)}
+/* v543 — miniatura na lista «foto sem recorte» e aviso de que deu certo */
+#saudeModal .shimg{width:60px;height:60px;flex:none;object-fit:contain;border-radius:10px;background:#fff;border:1px solid rgba(0,0,0,.12)}
+#saudeModal .shimg.sil{background:repeating-conic-gradient(#e9e6df 0 25%,#fff 0 50%) 0 0/12px 12px}
+#saudeModal .shokrow{background:rgba(63,159,111,.12);border-radius:12px;padding:6px 8px}
+#saudeModal .okt{color:#1d7a4a!important;font-weight:700}

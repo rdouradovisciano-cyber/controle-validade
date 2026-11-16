@@ -255,6 +255,7 @@ function silRecorta(src) { return new Promise(res => { const im = new Image(); i
   res(o.toDataURL("image/png"));
 } catch (e) { res(false); } }; im.src = src; }); }
 const silPend = new Set();
+const silTrocados = new Map();   // nome → recorte pronto, só desta sessão (para mostrar «deu certo» na Saúde)
 // só repinta quando a fila de recortes acaba (uma vez), senão a tela pisca a cada foto
 function silPronto(d, forca) { if (!d || (!silOn() && !forca)) return d; if (silCache.has(d)) return silCache.get(d) || d; silCache.set(d, false); silPend.add(d); silFilaN++;
   silRecorta(d).then(v => { silCache.set(d, v); silPend.delete(d); silFilaN--; if (silFilaN <= 0) { clearTimeout(silTm); silTm = setTimeout(() => { if (silFilaN > 0) return; try { render(); } catch (e) {} try { saudeRepinta && saudeRepinta(); } catch (e) {} }, 350); } });  return d; }
@@ -2205,9 +2206,10 @@ function saudeCalc() {
     { const comFoto = [...nomes.entries()].filter(([k]) => fotoCache[k]); let pend = 0; const ruins = [];
       comFoto.forEach(([k, n]) => { const d = fotoCache[k]; silPronto(d, true); if (silPend.has(d)) pend++; else if (silCache.get(d) === false) ruins.push(n); });
       ruins.sort((x, y) => x.localeCompare(y, "pt-BR"));
+      const certos = [...silTrocados.entries()].filter(([k]) => nomes.has(k) && fotoCache[k] && silCache.get(fotoCache[k])).map(([k, v]) => `<div class="shrow shfoto shokrow"><img class="shimg sil" src="${v}" alt=""><div class="shn2"><b>${esc(nomeBonito(nomes.get(k)))}</b><small class="note okt">✓ Deu certo: agora só com o produto</small></div></div>`);
       if (comFoto.length) sec.push({ t: `${nomeSS}: foto sem recorte (${ruins.length}${pend ? ", conferindo mais " + pend : ""})`, d: "O fundo dessas fotos não deu para tirar sozinho (fundo colorido ou com sombra, produto branco, foto muito cortada). Elas continuam aparecendo quadradas. Para ficarem só com o produto, troque por uma foto com fundo branco liso: toque em «📷 Foto» ou procure uma imagem nova em 🔎.", n: ruins.length, todos: true,
-        it: ruins.map(n => { const k = fotoK(n), eans = eanDe[k] ? [...eanDe[k]] : [], busca = "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent((eans[0] || "") + " " + n + " fundo branco");
-          return `<div class="shrow shfoto"><div class="shn2"><b>${esc(nomeBonito(n))}</b><small class="note">foto quadrada (sem recorte)</small></div><span class="shbts"><a class="shact" href="${esc(busca)}" target="_blank" rel="noopener" aria-label="Procurar imagem com fundo branco">🔎</a><button type="button" class="shact pri" data-foto="${esc(n)}">📷 Foto</button></span></div>`; }) }); }
+        it: certos.concat(ruins.map(n => { const k = fotoK(n), eans = eanDe[k] ? [...eanDe[k]] : [], busca = "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent((eans[0] || "") + " " + n + " fundo branco");
+          return `<div class="shrow shfoto"><img class="shimg" src="${esc(fotoCache[k])}" alt=""><div class="shn2"><b>${esc(nomeBonito(n))}</b><small class="note">foto quadrada (sem recorte)</small></div><span class="shbts"><a class="shact" href="${esc(busca)}" target="_blank" rel="noopener" aria-label="Procurar imagem com fundo branco">🔎</a><button type="button" class="shact pri" data-foto="${esc(n)}">📷 Foto</button></span></div>`; })) }); }
     const sabe = !db || fotosPronto, nFot = [...nomes.keys()].filter(k => fotoCache[k]).length;
     const sem = sabe ? [...nomes.entries()].filter(([k]) => !fotoCache[k]).map(([, n]) => n).sort((x, y) => x.localeCompare(y, "pt-BR")) : [];
     if (!sabe) sec.push({ t: nomeSS + " sem foto", d: fotosErro ? "Não consegui ler as fotos da nuvem agora. Feche e abra de novo; se continuar, avise." : "Conferindo as fotos na nuvem… a lista aparece sozinha em instantes.", n: 1, it: ["<small class=\"note\">Aguarde um instante…</small>"] });
@@ -2298,7 +2300,7 @@ function saudeAbrir() {
     bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Saúde do app"><div class="sheethead"><h2>🩺 Saúde do app</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
     <p class="note">Setor <b>${esc(SETOR)}</b> · ${cadGroups().length} cadastros · ${db ? "Firebase ligado" : "modo local"}${cloud && db ? " · " + esc(cloud) : ""}</p>
     <div class="shsum ${probs ? "aten" : "ok"}">${probs ? "⚠ " + probs + " ponto(s) de atenção" : "✓ Nada para corrigir"}</div>
-    ${sec.map(s => `<div class="shsec"><div class="shh"><span class="shb ${s.n ? "aten" : "ok"}">${s.n ? s.n : "✓"}</span><b>${esc(s.t)}</b></div>${s.n ? `<small class="note">${esc(s.d)}</small><div class="shit">${s.it.slice(0, s.todos ? 500 : 10).map(h => `<div>${h}</div>`).join("")}${!s.todos && s.it.length > 10 ? `<div class="muted">+ ${s.it.length - 10} outros (resolva estes e abra de novo)</div>` : ""}</div>` : ""}</div>`).join("")}
+    ${sec.map(s => `<div class="shsec"><div class="shh"><span class="shb ${s.n ? "aten" : "ok"}">${s.n ? s.n : "✓"}</span><b>${esc(s.t)}</b></div>${s.n || s.it.length ? `<small class="note">${esc(s.d)}</small><div class="shit">${s.it.slice(0, s.todos ? 500 : 10).map(h => `<div>${h}</div>`).join("")}${!s.todos && s.it.length > 10 ? `<div class="muted">+ ${s.it.length - 10} outros (resolva estes e abra de novo)</div>` : ""}</div>` : ""}</div>`).join("")}
     <div class="shsec"><div class="shh"><span class="shb info">ⓘ</span><b>Guardado só neste aparelho</b></div>${loc.length ? `<div class="shit">${loc.map(t => `<div>${esc(t)}</div>`).join("")}</div><small class="note">Outros celulares não veem isso.</small>` : '<small class="note">Nada. Tudo o que importa está na nuvem.</small>'}</div>
     <div class="shsec"><div class="shh"><span class="shb info">ⓘ</span><b>Memória e armazenamento</b></div><div id="shMem">${memHtml || '<small class="note">Calculando…</small>'}</div></div>
     <div class="shsec"><div class="shh"><b>Autoteste da nuvem</b></div><small class="note">Cria um item de teste em cada setor, altera, apaga e diz se o Firebase aceitou. Não deixa nada para trás.</small>
@@ -2310,7 +2312,11 @@ function saudeAbrir() {
     const cp = e.target.closest("[data-copia]"); if (cp) { const v = cp.dataset.copia; const ok = () => toast("Código copiado: " + v), falha = () => { try { const t = document.createElement("textarea"); t.value = v; t.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); ok(); } catch (x) { toast("Código: " + v); } };
       try { navigator.clipboard.writeText(v).then(ok, falha); } catch (x) { falha(); } return; }
     const ft = e.target.closest("[data-foto]"); if (ft) { bg._fotoNome = ft.dataset.foto; let inp = bg.querySelector("#shFotoIn"); if (!inp) { inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.id = "shFotoIn"; inp.hidden = true; bg.appendChild(inp);
-        inp.onchange = async () => { const f = inp.files && inp.files[0], nome = bg._fotoNome; inp.value = ""; if (!f || !nome) return; toast("Salvando a foto…"); const ok = await fotoGravaNome(nome, f); toast(ok ? "Foto salva: " + nomeBonito(nome) : "Não consegui salvar a foto."); fotoIcones(); paint(); }; }
+        inp.onchange = async () => { const f = inp.files && inp.files[0], nome = bg._fotoNome; inp.value = ""; if (!f || !nome) return; toast("Salvando a foto…"); const ok = await fotoGravaNome(nome, f); fotoIcones();
+          if (!ok) { toast("Não consegui salvar a foto."); paint(); return; }
+          const d = fotoCache[fotoK(nome)]; let v = false; try { v = d ? await silRecorta(d) : false; } catch (e) {} if (d) { silCache.set(d, v); silPend.delete(d); }
+          if (v) { silTrocados.set(fotoK(nome), v); toast("✓ Deu certo: «" + nomeBonito(nome) + "» agora só com o produto."); } else { silTrocados.delete(fotoK(nome)); toast("Foto salva, mas ainda não deu para recortar o fundo. Tente uma com fundo branco liso."); }
+          paint(); try { render(); } catch (e) {} }; }
       inp.click(); return; }
     const ac = e.target.closest("[data-a]"); if (ac) { saudeAcao({ ...ac.dataset }, paint); return; }
     const n = e.target.closest("[data-sn]"); if (n) { const nome = n.dataset.sn, set = n.dataset.ss; bg.remove(); if (set && set !== (SETOR === PER ? PER : "FLV")) trocaSetor(set); $("navCadastros").click(); $("cBusca").value = nome; cadPaint(); window.scrollTo(0, 0); return; }
