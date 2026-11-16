@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 544.
+> Última atualização: 11/11/2026 · versão 545.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -138,6 +138,7 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
 - v531: tour do cartão (`js/tour.js` recriado a pedido; só os passos do cartão). Admin liga/desliga em ⋮ › «Tour da equipe» (Firestore sh_cfg/tour {on,id}); cada aparelho Perecíveis vê 1× por id; «Ver o tour do cartão» para o Admin rever.
+- v545: silhueta virou o padrão oficial (opção removida de Mudar layout; silOn() sempre true; foto que não recorta continua quadrada e aparece na Saúde). Recortes ficam no IndexedDB `validamais-sil` (chave = tamanho:hash da foto), carregados antes do 1º render; a splash espera. Enquanto o recorte não está pronto a foto fica escondida (classe `.silw`), sem piscar o quadrado.
 - v544: Saúde › «foto sem recorte» ignora os pesáveis (produtos com código de balança). Sem entrada no popup.
 - v543: Saúde › «foto sem recorte»: mostra a miniatura da foto atual; ao trocar a foto confere o recorte na hora e avisa («Deu certo» ou «ainda não deu»); o produto trocado fica na lista com ✓ verde nesta sessão.
 - v542: corrige a Saúde piscando sem parar: o recorte repintava a tela a cada foto terminada; agora repinta uma vez só quando a fila de recortes acaba. Sem entrada no popup (correção do v541).

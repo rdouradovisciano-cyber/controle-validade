@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-16T17:10:00-03:00",
+  "itens": [
+   "Fotos só com o produto agora são o padrão: o app abre já recortado, sem mostrar o quadrado antes",
+   "A opção do menu Mudar layout foi removida"
+  ]
+ },
+ {
   "t": "2026-11-16T16:40:00-03:00",
   "itens": [
    "Saúde do app: nova lista «foto sem recorte» com os produtos cuja foto não deu para recortar, para você trocar por uma com fundo branco"

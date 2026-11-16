@@ -2205,3 +2205,8 @@ html #list[data-visao=grade] .pi-main .ico-lado.sil .ico-img{object-fit:contain;
 #saudeModal .shimg.sil{background:repeating-conic-gradient(#e9e6df 0 25%,#fff 0 50%) 0 0/12px 12px}
 #saudeModal .shokrow{background:rgba(63,159,111,.12);border-radius:12px;padding:6px 8px}
 #saudeModal .okt{color:#1d7a4a!important;font-weight:700}
+/* v545 — enquanto o recorte não está pronto não mostra o quadrado */
+.pgp .pgt.silw{border-color:transparent;background:none;box-shadow:none}
+.pgp .pgt.silw img{opacity:0}
+html .pitem .ico-lado.silw .ico-img{border-color:transparent;opacity:0}
+html #list[data-visao=grade] .pi-main .ico-lado.silw{background:none}

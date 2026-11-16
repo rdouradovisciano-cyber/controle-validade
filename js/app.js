@@ -230,7 +230,8 @@ function pesAgrupa(rows) {
 const pesAb = new Set();   // v465: grupos de Pesáveis abertos (começa vazio: tudo recolhido)
 const gRec = new Set(["v", "h", "a", "y", "ok"]);   // v463: o app SEMPRE abre com os grupos de urgência recolhidos (resumo limpo); toque no título abre/fecha
 // v540: foto só com o produto (silhueta). Tira o fundo claro ligado às bordas da imagem, no próprio aparelho; se não der certeza, mantém a foto quadrada.
-const SILK = "validamais-silhueta", silOn = () => store.get(SILK, true) !== false, silCache = new Map(); let silFilaN = 0, silTm = 0;
+const SILK = "validamais-silhueta", silOn = () => true,   // v545: recorte é o padrão oficial (opção removida do menu)
+   silCache = new Map(); let silFilaN = 0, silTm = 0;
 function silRecorta(src) { return new Promise(res => { const im = new Image(); im.onerror = () => res(false); im.onload = () => { try {
   const W0 = im.naturalWidth, H0 = im.naturalHeight; if (W0 < 24 || H0 < 24) return res(false);
   const s = Math.min(1, 360 / Math.max(W0, H0)), w = Math.round(W0 * s), h = Math.round(H0 * s), c = document.createElement("canvas"); c.width = w; c.height = h;
@@ -256,13 +257,27 @@ function silRecorta(src) { return new Promise(res => { const im = new Image(); i
 } catch (e) { res(false); } }; im.src = src; }); }
 const silPend = new Set();
 const silTrocados = new Map();   // nome → recorte pronto, só desta sessão (para mostrar «deu certo» na Saúde)
+// v545: recortes guardados no aparelho (IndexedDB), para a foto já abrir só com o produto, sem piscar o quadrado
+const SIL = { db: null, pronto: false, mem: new Map(), chaves: new Map() };
+const silKey = d => { let k = SIL.chaves.get(d); if (k) return k; let h = 5381; for (let i = 0; i < d.length; i += 7) h = ((h << 5) + h + d.charCodeAt(i)) | 0; k = d.length + ":" + h; SIL.chaves.set(d, k); return k; };
+async function silIdbCarrega() {
+  try { SIL.db = await new Promise(ok => { try { const r = indexedDB.open("validamais-sil", 1); r.onupgradeneeded = () => r.result.createObjectStore("s"); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); r.onblocked = () => ok(null); } catch (e) { ok(null); } });
+    if (SIL.db) { const st = SIL.db.transaction("s").objectStore("s"), ks = await idbReq(st.getAllKeys()), vs = await idbReq(st.getAll()); ks.forEach((k, i) => SIL.mem.set(k, vs[i] || false)); }
+  } catch (e) { console.warn("sil-cache", e); }
+  SIL.pronto = true; try { render(); } catch (e) {} }
+setTimeout(silIdbCarrega, 0);   // roda em qualquer modo (nuvem ou local)
+function silGrava(d, v) { try { SIL.mem.set(silKey(d), v); if (SIL.db) SIL.db.transaction("s", "readwrite").objectStore("s").put(v || 0, silKey(d)); } catch (e) {} }
+// true enquanto o recorte desta foto ainda não está pronto: a tela esconde a foto (sem quadrado) até ficar pronta
+const silEspera = d => !!d && (!SIL.pronto || silPend.has(d));
 // só repinta quando a fila de recortes acaba (uma vez), senão a tela pisca a cada foto
-function silPronto(d, forca) { if (!d || (!silOn() && !forca)) return d; if (silCache.has(d)) return silCache.get(d) || d; silCache.set(d, false); silPend.add(d); silFilaN++;
-  silRecorta(d).then(v => { silCache.set(d, v); silPend.delete(d); silFilaN--; if (silFilaN <= 0) { clearTimeout(silTm); silTm = setTimeout(() => { if (silFilaN > 0) return; try { render(); } catch (e) {} try { saudeRepinta && saudeRepinta(); } catch (e) {} }, 350); } });  return d; }
+function silPronto(d, forca) { if (!d) return d; if (silCache.has(d)) return silCache.get(d) || d; if (!SIL.pronto) return d;
+  const k = silKey(d); if (SIL.mem.has(k) && !forca) { const v = SIL.mem.get(k); silCache.set(d, v); return v || d; }
+  silCache.set(d, false); silPend.add(d); silFilaN++;
+  silRecorta(d).then(v => { silCache.set(d, v); silGrava(d, v); silPend.delete(d); silFilaN--; if (silFilaN <= 0) { clearTimeout(silTm); silTm = setTimeout(() => { if (silFilaN > 0) return; try { render(); } catch (e) {} try { saudeRepinta && saudeRepinta(); } catch (e) {} }, 350); } }); return d; }
 const icoLado = p => fotoDe(p) || !iconesOn() || !p || p.category !== PER ? "" : `<span class="ico-tile ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`;   // v458: emoji do produto num quadrado do mesmo tamanho da foto
 // v473: a nota vira um balão amarelo no canto da foto do produto (sem foto/quadrado, o ícone continua ao lado do nome)
 const leadNota = p => { const l = fotoLado(p) || icoLado(p); if (!l) return ""; const n = notaDe(p.id); return `<span class="pi-lead">${l}</span>`; };
-const fotoLado = p => { const d = fotoDe(p); if (!d) return ""; const s = silPronto(d); return `<span class="ico ico-foto ico-lado${s !== d ? " sil" : ""}" data-id="${esc(p.id)}"><img class="ico-img" src="${s}" alt="" decoding="async"></span>`; };   // lista de Validades: foto na lateral
+const fotoLado = p => { const d = fotoDe(p); if (!d) return ""; const s = silPronto(d); return `<span class="ico ico-foto ico-lado${s !== d ? " sil" : ""}${s === d && silEspera(d) ? " silw" : ""}" data-id="${esc(p.id)}"><img class="ico-img" src="${s}" alt="" decoding="async"></span>`; };   // lista de Validades: foto na lateral
 let fotoIcTimer = 0, fotoVer = 0, famMemo = { p: null, n: -1, v: -1, m: new Map() };
 // foto para os balões e linhas da Doação (FLV): a do nome exato; senão a de qualquer produto da mesma família (1ª palavra: Banana, Tomate…)
 function famFotos() { if (famMemo.p === products && famMemo.n === products.length && famMemo.v === fotoVer) return famMemo.m;
@@ -537,8 +552,8 @@ function render() {
   const gprev = {}; if (agr && cat && !q && !tierF && !nvF && !retView) rows.forEach(p => { if (p.retirado) return; const k = prioDe(p) || "ok"; if (k === "ok") return; (gprev[k] = gprev[k] || []).push(p); });
   const prevHtml = g => { const l = gprev[g]; if (!l || !l.length) return ""; const fo = iconesOn();
     const base = { v: 72, h: 72, a: 60, y: 48 }[g] || 46;
-    const th = l.slice(0, 4).map((p, i) => { const sz = base - i * 5, dl = daysLeft(p.expiry), tag = dl === null ? "" : dl < 0 ? "venc." : dl === 0 ? "hoje" : dl + "d", d0 = fo ? fotoVal(fotoK(p.name)) : "", d = d0 ? silPronto(d0) : "", sl = d && d !== d0;
-      return fo ? `<div class="pgt${d ? "" : " vz"}${sl ? " sil" : ""}" data-id="${esc(p.id)}" style="--s:${sz}px">${d ? `<img src="${d}" alt="" decoding="async">` : ico("cam", "ic")}${tag ? `<u>${tag}</u>` : ""}</div>` : ""; }).join("");
+    const th = l.slice(0, 4).map((p, i) => { const sz = base - i * 5, dl = daysLeft(p.expiry), tag = dl === null ? "" : dl < 0 ? "venc." : dl === 0 ? "hoje" : dl + "d", d0 = fo ? fotoVal(fotoK(p.name)) : "", d = d0 ? silPronto(d0) : "", sl = d && d !== d0, sw = d0 && d === d0 && silEspera(d0);
+      return fo ? `<div class="pgt${d ? "" : " vz"}${sl ? " sil" : ""}${sw ? " silw" : ""}" data-id="${esc(p.id)}" style="--s:${sz}px">${d ? `<img src="${d}" alt="" decoding="async">` : ico("cam", "ic")}${tag ? `<u>${tag}</u>` : ""}</div>` : ""; }).join("");
     const mais = l.length > 4 ? `<div class="pgm">+${l.length - 4}</div>` : "";
     return `<div class="pgp" aria-hidden="true">${th}${mais}<div class="pgn">${l.slice(0, 4).map(p => esc(nomeBonito(p.name))).join(" · ")}${l.length > 4 ? "…" : ""}</div></div>`; };
   $("list").innerHTML = rows.length ? rows.map(p => { const dl = daysLeft(p.expiry), cls = dl === null ? "none" : dl <= 0 ? "expired" : status(p), lo = lotes[p.id];
@@ -1139,7 +1154,7 @@ if (cloud && V.initializeApp) {
 // v519: tela de abertura: só some quando a lista e as fotos estiverem prontas (no máximo ~5 s)
 (function splashAbertura() { const sp = document.getElementById("splash"); if (!sp) return; const t0 = Date.now(); let fechado = false;
   const fim = () => { if (fechado) return; fechado = true; clearInterval(tm); sp.classList.add("sai"); setTimeout(() => sp.remove(), 400); };
-  const tm = setInterval(() => { const ms = Date.now() - t0, fotosOk = !db || fotosPronto || FIDB.n > 0; if ((!carregando && fotosOk && ms > 500) || ms > 5000) fim(); }, 100);
+  const tm = setInterval(() => { const ms = Date.now() - t0, fotosOk = SIL.pronto && (!db || fotosPronto || FIDB.n > 0); if ((!carregando && fotosOk && ms > 500) || ms > 5000) fim(); }, 100);
   sp.onclick = fim; })();
 
 // ---------- aparelho, contadores (visitas/online) e histórico de leituras ----------
@@ -2338,7 +2353,6 @@ function visAbrir() {
   bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Mudar layout"><div class="sheethead"><h2>🎨 Mudar layout</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
     <p class="note">${admin ? "Como Admin, o que você salvar vale para <b>todos os aparelhos</b>." : "O que você salvar vale só <b>neste aparelho</b>."}</p>
     <label class="nfrow"><span><b>Fotos nos produtos</b><small>Mostra a foto do produto nos cartões (Perecíveis e FLV). Sem foto, aparece um quadrado com câmera</small></span><input type="checkbox" id="vsIco" ${iconesOn() ? "checked" : ""}></label>
-    <label class="nfrow"><span><b>Só o produto, sem o quadrado</b><small>Recorta o fundo da foto e deixa só o produto, com sombra. Se o recorte não ficar bom, a foto continua quadrada</small></span><input type="checkbox" id="vsSil" ${silOn() ? "checked" : ""}></label>
     <label>Estilo de visualização</label><div class="vspre" id="vsV"><button type="button" data-v="lista">Lista</button><button type="button" data-v="grade">Grade (fotos grandes)</button></div>
     <label>Tamanho da letra da lista</label><div class="vspre" id="vsF"><button type="button" data-f="normal">Normal</button><button type="button" data-f="grande">Grande</button></div>
     <div class="toolbar" style="margin-top:12px"><button class="primary big" type="button" id="vsSalva">Salvar</button><button class="secondary" type="button" id="vsPad">${admin ? "Restaurar padrão" : (loc ? "Usar o padrão da loja" : "Restaurar padrão")}</button></div></section>`;
@@ -2349,7 +2363,6 @@ function visAbrir() {
   const vsVis = () => bg.querySelectorAll("[data-v]").forEach(b => b.classList.toggle("on", b.dataset.v === visaoDe())); vsVis();
   q("#vsV").onclick = e => { const b = e.target.closest("[data-v]"); if (!b) return; store.set(VSK, b.dataset.v); vsVis(); render(); };
   q("#vsIco").onchange = e => { store.set(ICK, e.target.checked); render(); };
-  q("#vsSil").onchange = e => { store.set(SILK, e.target.checked); render(); };
   q("#vsSalva").onclick = async () => {
     const cfg = visNorm(v);
     if (admin && db) { try { await V.setDoc(V.doc(db, "sh_cfg", "visual"), { ...cfg, em: Date.now() }); localStorage.removeItem(VK); visCloud = cfg; toast("Salvo para todos os aparelhos."); }
