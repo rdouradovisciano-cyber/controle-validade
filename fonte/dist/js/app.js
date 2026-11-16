@@ -3231,6 +3231,22 @@ $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden");
 
 if (db) startPresence(); else localStats();
 
+// v547: Perecíveis — deslizar o cartão para o lado tira o item da loja (pergunta o motivo, como no botão Retirar)
+(function swipeRetirar() { const L = $("list"); if (!L) return; let el = null, id = "", x0 = 0, y0 = 0, dx = 0, on = false, pid = -1, w = 300;
+  const livre = e => !e.target.closest("input,textarea,select,button,a,.pi-act,.pi-foto");
+  L.addEventListener("pointerdown", e => { if (document.body.dataset.setor !== "Perecíveis" || (e.pointerType === "mouse" && e.button !== 0)) return; const c = e.target.closest(".pitem"); if (!c || c.classList.contains("saindo") || !livre(e)) return;
+    const p = products.find(x => x.id === c.dataset.id); if (!p || p.retirado || retLoc[p.id]) return; el = c; id = p.id; x0 = e.clientX; y0 = e.clientY; dx = 0; on = false; pid = e.pointerId; w = c.getBoundingClientRect().width || 300; });
+  L.addEventListener("pointermove", e => { if (!el || e.pointerId !== pid) return; const mx = e.clientX - x0, my = e.clientY - y0;
+    if (!on) { if (Math.abs(my) > 12 && Math.abs(my) > Math.abs(mx)) { el = null; return; } if (Math.abs(mx) < 12 || Math.abs(mx) < Math.abs(my) * 1.4) return; on = true; el.classList.add("swp"); try { L.setPointerCapture(pid); } catch (x) {} }
+    dx = mx; el.style.transform = `translateX(${dx}px)`; el.style.opacity = String(Math.max(.35, 1 - Math.abs(dx) / (w * 1.1))); const go = Math.abs(dx) > Math.min(130, w * .38); if (go !== el.classList.contains("swgo")) { el.classList.toggle("swgo", go); if (go) try { navigator.vibrate && navigator.vibrate(12); } catch (x) {} } });
+  const fim = async e => { if (!el || (e && e.pointerId !== pid)) return; const c = el, go = on && Math.abs(dx) > Math.min(130, w * .38) && e && e.type === "pointerup", meu = id; el = null;
+    if (on) { const calar = ev => { ev.stopPropagation(); ev.preventDefault(); }; L.addEventListener("click", calar, { capture: true, once: true }); setTimeout(() => L.removeEventListener("click", calar, true), 400); try { L.releasePointerCapture(pid); } catch (x) {} }
+    const volta = () => { c.classList.remove("swp", "swgo"); c.style.transform = ""; c.style.opacity = ""; };
+    if (!go) { volta(); return; }
+    c.style.transform = `translateX(${dx > 0 ? "" : "-"}110%)`; c.style.opacity = "0"; await new Promise(r => setTimeout(r, 160));
+    const antes = products.find(x => x.id === meu); const r = await retirar(meu, true); const ainda = products.find(x => x.id === meu);
+    if (c.isConnected && ainda && !ainda.retirado && !retLoc[meu]) volta(); };   // cancelou o motivo: o cartão volta
+  L.addEventListener("pointerup", fim); L.addEventListener("pointercancel", fim); })();
 // ---------- PWA ----------
 if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").then(r => r.update()).catch(console.error));
 

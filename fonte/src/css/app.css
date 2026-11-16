@@ -2218,3 +2218,8 @@ body[data-setor="Perecíveis"] #list:not([data-visao=grade]) .pitem .pi-main{pad
 body[data-setor="Perecíveis"] #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:78px;height:78px}
 body[data-setor="Perecíveis"] #list:not([data-visao=grade]) .pitem .ico-lado.sil{width:78px;height:78px}
 html[data-tema=dark] body[data-setor="Perecíveis"] #list:not([data-visao=grade]) .pitem{background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 16%,transparent),transparent 65%)}
+/* v547 — sem caixa de nota/atalhos no cartão aberto; deslizar para retirar */
+.pi-act .pi-nota,.pi-act .nt-fav{display:none!important}
+body[data-setor="Perecíveis"] #list .pitem .pi-main{touch-action:pan-y}
+body[data-setor="Perecíveis"] #list .pitem.swp{transition:none!important;will-change:transform,opacity}
+body[data-setor="Perecíveis"] #list .pitem.swgo{background:linear-gradient(90deg,rgba(229,32,46,.38),rgba(229,32,46,.18))!important}
