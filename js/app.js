@@ -827,7 +827,7 @@ function retOverlay() { products.forEach(p => { if (p.retirado == null && retLoc
 // efeito ao retirar: o cartão desliza para fora e a lista fecha o espaço (some em ~0,4 s)
 function efeitoSai(id) {
   const el = [...document.querySelectorAll("#list .pitem")].find(x => x.dataset.id === id);
-  if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return Promise.resolve();
+  if (!el || el.classList.contains("tvoff") || matchMedia("(prefers-reduced-motion: reduce)").matches) return Promise.resolve();
   try {   // v502: a foto se solta do card, gira e voa para fora da tela
     const im = el.querySelector(".ico-lado .ico-img, .pi-lead .ico-img"), r = im && im.getBoundingClientRect();
     if (im && r.width && el.animate) {
@@ -3231,6 +3231,19 @@ $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden");
 
 if (db) startPresence(); else localStats();
 
+// v552: efeito «TV desligando» ao retirar deslizando: chiado, piscada, vira uma linha branca, vira um ponto e some; depois a lista fecha o espaço
+function efeitoTV(el) { return new Promise(res => {
+  if (!el || !el.animate || matchMedia("(prefers-reduced-motion: reduce)").matches) return res();
+  const r = el.getBoundingClientRect(), cv = document.createElement("canvas"); cv.className = "crt-noise"; cv.width = Math.max(40, Math.round(r.width / 4)); cv.height = Math.max(20, Math.round(r.height / 4));
+  el.classList.add("tvoff"); el.appendChild(cv); const g = cv.getContext("2d"), im = g.createImageData(cv.width, cv.height);
+  const ruido = () => { const d = im.data; for (let i = 0; i < d.length; i += 4) { const v = (Math.random() * 255) | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; } g.putImageData(im, 0, 0); }; ruido(); const iv = setInterval(ruido, 40);
+  try { navigator.vibrate && navigator.vibrate([10, 25, 10]); } catch (e) {}
+  cv.animate([{ opacity: 0 }, { opacity: .8, offset: .25 }, { opacity: .3, offset: .5 }, { opacity: .9, offset: .75 }, { opacity: 0 }], { duration: 230, fill: "forwards" });
+  el.animate([{ filter: "brightness(1)" }, { filter: "brightness(2.2) contrast(1.4)", offset: .3 }, { filter: "brightness(.35)", offset: .55 }, { filter: "brightness(1.8)", offset: .8 }, { filter: "brightness(1)" }], { duration: 230 });
+  setTimeout(() => { clearInterval(iv); cv.remove();
+    const h = el.offsetHeight; el.style.maxHeight = h + "px";
+    const linha = el.animate([{ transform: "scale(1,1)", filter: "brightness(1)", opacity: 1 }, { transform: "scale(1,.02)", filter: "brightness(5)", opacity: 1, offset: .6 }, { transform: "scale(.03,.02)", filter: "brightness(8)", opacity: 1, offset: .88 }, { transform: "scale(0,0)", filter: "brightness(8)", opacity: 0 }], { duration: 330, easing: "cubic-bezier(.5,0,.8,.4)", fill: "forwards" });
+    linha.onfinish = () => { el.style.transition = "max-height .2s ease, margin .2s ease, border-width .2s"; void el.offsetHeight; el.style.maxHeight = "0px"; el.style.marginTop = el.style.marginBottom = "0px"; setTimeout(res, 210); }; }, 235); }); }
 // v551: Perecíveis — deslizar o cartão só para a DIREITA tira o item da loja (soltando depois de passar do ponto; «Desfazer» no aviso).
 // Para a esquerda não faz nada aqui: é o gesto que troca de aba, e na primeira aba o deslize para a direita nunca troca de aba.
 (function swipeRetirar() { const L = $("list"); if (!L) return; let el = null, id = "", x0 = 0, y0 = 0, dx = 0, on = false, pid = -1, w = 300;
@@ -3245,8 +3258,9 @@ if (db) startPresence(); else localStats();
   const fim = async e => { if (!el || (e && e.pointerId !== pid)) return; const c = el, meu = id, go = on && e && e.type === "pointerup" && dx > lim(); el = null;
     if (on) { const calar = ev => { ev.stopPropagation(); ev.preventDefault(); }; L.addEventListener("click", calar, { capture: true, once: true }); setTimeout(() => L.removeEventListener("click", calar, true), 400); try { L.releasePointerCapture(pid); } catch (x) {} }
     if (!go) { volta(c); return; }
-    const m = mainDe(c); if (m) { m.style.transition = "transform .16s ease, opacity .16s"; m.style.transform = "translateX(115%)"; m.style.opacity = "0"; } await new Promise(r => setTimeout(r, 170));
-    await retirar(meu, true, true); const ainda = products.find(x => x.id === meu); if (c.isConnected && ainda && !ainda.retirado && !retLoc[meu]) { if (m) { m.style.transition = ""; m.style.opacity = ""; } volta(c); } };
+    const m = mainDe(c); if (m) { m.style.transition = "none"; m.style.transform = ""; } c.classList.remove("swp", "swgo"); { const b = c.querySelector(".sw-ret"); if (b) b.remove(); }
+    await efeitoTV(c);
+    await retirar(meu, true, true); const ainda = products.find(x => x.id === meu); if (c.isConnected && ainda && !ainda.retirado && !retLoc[meu]) { c.classList.remove("tvoff"); c.style.cssText = ""; if (m) { m.style.transition = ""; m.style.opacity = ""; } volta(c); } };
   L.addEventListener("pointerup", fim); L.addEventListener("pointercancel", fim); })();
 // v549: dica única (por aparelho) mostrando o deslizar para retirar, nos Perecíveis
 (function dicaDeslizar() { const K = "validamais-dica-deslizar"; let n = 0;
