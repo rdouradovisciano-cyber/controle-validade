@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-17T06:50:00-03:00",
+  "itens": [
+   "Pesáveis: grupos voltam sem fotos (as fotos ficam só nos mais consultados)",
+   "Pesáveis: novo botão «Não é pesável» em cada item para tirar da aba o que não pertence"
+  ]
+ },
+ {
   "t": "2026-11-16T23:10:00-03:00",
   "itens": [
    "Pesáveis: os itens mais consultados ficam fixos no alto, com PLU e código interno à vista",

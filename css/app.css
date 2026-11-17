@@ -2260,3 +2260,5 @@ body[data-setor="Perecíveis"] #list .pitem.swp{-webkit-user-select:none;user-se
 .ico.ico-foto.sil .ico-img{border:0;border-radius:0;object-fit:contain;background:none;filter:drop-shadow(0 3px 2px rgba(0,0,0,.3))}
 .ico.ico-foto.silw .ico-img{opacity:0}
 .peslista .pgh.rec .pgp{display:flex}
+/* v554 */
+.peslista .pesb[data-ptira]{flex:0 0 auto}

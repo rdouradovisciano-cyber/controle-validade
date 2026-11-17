@@ -2953,7 +2953,7 @@ $("eScan").onclick = () => openScan("etiqueta");
 
 // ---------- aba Pesáveis (Perecíveis): consulta pelo nome, com o PLU e o código interno à vista ----------
 function pesaveis() {   // inclui quem só tem código interno, porque alguns produtos são consultados por ele
-  return products.filter(p => !p.retirado && p.category === PER && (p.codigo_balanca || p.codigo_doacao || (/^\d+$/.test(String(p.barcode || "")) && String(p.barcode).length < 8)));
+  return products.filter(p => !p.retirado && !p.nao_pesavel && p.category === PER && (p.codigo_balanca || p.codigo_doacao || (/^\d+$/.test(String(p.barcode || "")) && String(p.barcode).length < 8)));
 }
 // busca inteligente: ignora acento e maiúscula, aceita várias palavras em qualquer ordem, início de palavra, trecho do PLU/código interno/EAN (começo, fim ou meio), pequenos erros de digitação e as abreviações do cadastro (QJ → queijo, MUSS → mussarela, PC → peça…)
 function pesBusca(all, qraw) {
@@ -3017,14 +3017,14 @@ function renderPesaveis() {
     const bc = String(p.barcode || ""), esq = plu ? `<span class="pesc plu"><i>PLU</i><b>${pluH(plu)}</b></span>` : bc ? `<span class="pesc cod"><i>CÓD</i><b>${esc(bc)}</b></span>` : `<span class="pesc plu vz"><i>PLU</i><b>—</b></span>`;
     const cods = esq + `<span class="pesc itn${itn ? "" : " vz"}"><i>INTERNO</i><b>${itn ? esc(itn) : "—"}</b></span>`;
     const etq = !!labelCode(p).code, lead = icoHtml(p);
-    return `<div class="pesrow${pesOpen === p.id ? " open" : ""}" data-pes="${esc(p.id)}"><div class="pes-main">${lead ? `<span class="pes-lead">${lead}</span>` : ""}<div class="pesn"><div class="pesl"><b class="pesnome">${pesHl(p.name, toks)}</b></div><span class="pescods">${cods}</span></div></div><div class="pesact">${etq ? `<button type="button" class="pesb primary" data-etq="${esc(p.id)}">${ico("etq")}Lançar etiqueta</button>` : ""}<button type="button" class="pesb secondary" data-pedit="${esc(p.id)}">${ico("lapis")}Editar</button></div></div>`;
+    return `<div class="pesrow${pesOpen === p.id ? " open" : ""}" data-pes="${esc(p.id)}"><div class="pes-main">${lead ? `<span class="pes-lead">${lead}</span>` : ""}<div class="pesn"><div class="pesl"><b class="pesnome">${pesHl(p.name, toks)}</b></div><span class="pescods">${cods}</span></div></div><div class="pesact">${etq ? `<button type="button" class="pesb primary" data-etq="${esc(p.id)}">${ico("etq")}Lançar etiqueta</button>` : ""}<button type="button" class="pesb secondary" data-pedit="${esc(p.id)}">${ico("lapis")}Editar</button><button type="button" class="pesb secondary" data-ptira="${esc(p.id)}">Não é pesável</button></div></div>`;
   };
   if (!rows.length) box.innerHTML = `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
   else if (q) box.innerHTML = rows.map(linha).join("");   // buscando: lista direta, sem grupos
   else {   // v465: agrupa pela 1ª palavra do nome (BACON, QUEIJO…); grupos de 1 item vão para «Outros»; abre sempre recolhido
     const gs = pesAgrupa(rows); pesUsoOuve(); const top = pesTop(todos, 6);
     const topo = top.length ? `<div class="pgtop" role="heading" aria-level="2"><span>🔥 Mais consultados</span><i>${top.length}</i></div>` + top.map(linha).join("") : "";
-    box.innerHTML = topo + gs.map(([w, l]) => { const ab = pesAb.has(w); return `<div class="pgh gp${ab ? "" : " rec"}" data-g="${esc(w)}" role="button" tabindex="0" aria-expanded="${ab}"><span>${esc(w)}</span><i>${l.length}</i><em class="pgc" aria-hidden="true"></em>${ab ? "" : pesPrev(l)}</div>` + (ab ? l.map(linha).join("") : ""); }).join("");
+    box.innerHTML = topo + gs.map(([w, l]) => { const ab = pesAb.has(w); return `<div class="pgh gp${ab ? "" : " rec"}" data-g="${esc(w)}" role="button" tabindex="0" aria-expanded="${ab}"><span>${esc(w)}</span><i>${l.length}</i><em class="pgc" aria-hidden="true"></em></div>` + (ab ? l.map(linha).join("") : ""); }).join("");
   }
 }
 // ----- buscas dos Pesáveis: histórico de cada usuário («na conta», vale em qualquer aparelho) + os mais pesquisados -----
@@ -3095,6 +3095,9 @@ $("pesLista").onclick = e => {
   const gh = e.target.closest(".pgh[data-g]"); if (gh) { const w = gh.dataset.g; pesAb.has(w) ? pesAb.delete(w) : pesAb.add(w); const y = window.scrollY; renderPesaveis(); window.scrollTo(0, y); return; }
   
   const b = e.target.closest("[data-etq]"); if (b) { const p = products.find(x => x.id === b.dataset.etq); if (p) labelPick(p); return; }
+  const tr = e.target.closest("[data-ptira]"); if (tr) { const q = products.find(x => x.id === tr.dataset.ptira); if (!q) return;
+    askConfirm({ title: "Tirar dos Pesáveis?", text: `${nomeBonito(q.name)} deixa de aparecer nesta aba. Continua nos Perecíveis.`, ok: "Tirar" }).then(r => { if (!r) return;
+      if (db) V.updateDoc(V.doc(db, "products", q.id), { nao_pesavel: true, updatedAt: V.serverTimestamp() }).catch(err => console.error(err)); else { q.nao_pesavel = true; store.set(LK, products); render(); } toast("Tirado dos Pesáveis"); }); return; }
   const ed = e.target.closest("[data-pedit]"); if (ed) { edit(ed.dataset.pedit); return; }
   const r = e.target.closest("[data-pes]"); if (r) { if (pesOpen !== r.dataset.pes) { pesHRegistra($("pesBusca").value); pesUsoSoma(r.dataset.pes); } pesOpen = pesOpen === r.dataset.pes ? "" : r.dataset.pes; document.querySelectorAll("#pesLista .pesrow").forEach(x => x.classList.toggle("open", x.dataset.pes === pesOpen)); }
 };

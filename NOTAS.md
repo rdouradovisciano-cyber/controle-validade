@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 553.
+> Última atualização: 11/11/2026 · versão 554.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -138,6 +138,7 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
 - v531: tour do cartão (`js/tour.js` recriado a pedido; só os passos do cartão). Admin liga/desliga em ⋮ › «Tour da equipe» (Firestore sh_cfg/tour {on,id}); cada aparelho Perecíveis vê 1× por id; «Ver o tour do cartão» para o Admin rever.
+- v554: Pesáveis: fotos dos grupos removidas; botão «Não é pesável» em cada item (flag nao_pesavel) tira o produto da aba.
 - v553: Pesáveis: «🔥 Mais consultados» fixo no alto (6 itens; contagem de aberturas por item em sh_cfg/pes-uso + local; na largada completa com o 1º resultado das buscas mais feitas); grupos fechados mostram fotinhas (silhueta); fotos das linhas também recortadas.
 - v552: efeito «TV desligando» (efeitoTV) ao retirar deslizando: chiado + piscada, vira linha branca, ponto e some, lista fecha o espaço (~0,8s). Só no deslizar; o botão Retirar mantém a foto voando (efeitoSai ignora .tvoff). Respeita prefers-reduced-motion. Sem som.
 - v551: deslizar só para a DIREITA retira o item (solto depois de ~42% da largura/150px; aviso com Desfazer). Não há mais botão Retirar revelado. Esquerda volta a trocar de aba (nav.js não bloqueia mais #list .pitem); na 1ª aba a direita nunca troca de aba. Dica atualizada.
