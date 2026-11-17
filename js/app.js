@@ -1217,10 +1217,30 @@ function pintaSetor() {   // botões do setor (agora dentro do menu ⋮) conform
   [["mnSetor", "mnSetorT", outros[0]], ["mnSetor2", "mnSetor2T", outros[1]]].forEach(([b, t, alvo]) => { if ($(b)) { $(t).textContent = "Ir para " + nome(alvo); $(b).onclick = () => { trocaSetor(alvo); if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } }; } }); }
 function hojeTop() {   // data de hoje no topo, simples: «Terça-feira, 10 de novembro»
   const el = $("hojeTop"); if (!el) return; const d = new Date();
-  const sem = d.toLocaleDateString("pt-BR", { weekday: "long" }), dm = d.getDate() + " de " + d.toLocaleDateString("pt-BR", { month: "long" }), txt = sem.charAt(0).toUpperCase() + sem.slice(1) + ", " + dm;
-  if (el.dataset.k === txt) return; el.dataset.k = txt; el.className = "hojeTop ht hte"; el.setAttribute("datetime", d.toISOString().slice(0, 10));
-  el.innerHTML = `<small>${esc(sem.toUpperCase())}</small><b>${esc(dm)}</b><u></u>`; el.title = txt + " de " + d.getFullYear();
+  const sem = d.toLocaleDateString("pt-BR", { weekday: "long" }), txt = sem.charAt(0).toUpperCase() + sem.slice(1) + ", " + d.getDate() + " de " + d.toLocaleDateString("pt-BR", { month: "long" }), dd = String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0");
+  if (el.dataset.k === dd) return; el.dataset.k = dd; el.className = "hojeTop ht htm"; el.setAttribute("datetime", d.toISOString().slice(0, 10)); el.setAttribute("role", "button"); el.tabIndex = 0;
+  el.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><b>${dd}</b>`; el.title = txt + " de " + d.getFullYear() + " — toque para abrir o calendário"; el.setAttribute("aria-label", txt + ". Abrir calendário");
 }
+function calAbrir() {
+  if ($("calModal")) return;
+  const hj = new Date(); hj.setHours(0, 0, 0, 0); let mes = new Date(hj.getFullYear(), hj.getMonth(), 1), sel = iso(hj);
+  const bg = document.createElement("div"); bg.className = "modal"; bg.id = "calModal";
+  bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Calendário"><div class="sheethead"><h2>📅 Calendário</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div><div id="calC"></div><div id="calL" class="call"></div></section>`;
+  document.body.appendChild(bg);
+  const desenha = () => {
+    const cat = $("categoryFilter") ? $("categoryFilter").value : "", por = {};
+    products.filter(p => !p.retirado && p.expiry && (!cat || p.category === cat)).forEach(p => { (por[p.expiry] || (por[p.expiry] = [])).push(p); });
+    const ano = mes.getFullYear(), m = mes.getMonth(), n = new Date(ano, m + 1, 0).getDate(), ini = mes.getDay(), nome = mes.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+    let c = `<div class="calh"><button type="button" data-m="-1" aria-label="Mês anterior">‹</button><b>${esc(nome.charAt(0).toUpperCase() + nome.slice(1))}</b><button type="button" data-m="1" aria-label="Próximo mês">›</button></div><div class="calg">` + ["D", "S", "T", "Q", "Q", "S", "S"].map(x => `<s>${x}</s>`).join("") + "<i></i>".repeat(ini);
+    for (let dia = 1; dia <= n; dia++) { const k = iso(new Date(ano, m, dia)), q = (por[k] || []).length, cls = (k === iso(hj) ? " hj" : "") + (q ? (k < iso(hj) ? " ven" : " tem") : "") + (k === sel ? " sel" : ""); c += `<button type="button" class="cald${cls}" data-d="${k}">${dia}${q ? `<em>${q}</em>` : ""}</button>`; }
+    $("calC").innerHTML = c + "</div>";
+    const l = por[sel] || [], dt = new Date(sel + "T00:00:00");
+    $("calL").innerHTML = `<h3>${esc(dt.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" }))}</h3>` + (l.length ? l.map(p => `<div class="calp"><b>${esc(nomeBonito(p.name))}</b><small>Qtd ${esc(p.quantity)}</small></div>`).join("") : '<p class="note">Nenhum produto vence neste dia.</p>');
+  };
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) { bg.remove(); return; } const mm = e.target.closest("[data-m]"); if (mm) { mes = new Date(mes.getFullYear(), mes.getMonth() + Number(mm.dataset.m), 1); desenha(); return; } const dd = e.target.closest("[data-d]"); if (dd) { sel = dd.dataset.d; desenha(); } };
+  desenha();
+}
+$("hojeTop").onclick = calAbrir; $("hojeTop").onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); calAbrir(); } };
 hojeTop(); setInterval(hojeTop, 60000);
 function rotulosSetor() {   // Perecíveis: «código de doação» vira «código interno»
   [["label[for=cDoacao]", "Código interno", "Código de doação"], ["label[for=cDon]", "Código interno", "Código de doação"]].forEach(([q, per, flv]) => { const e = document.querySelector(q); if (!e) return; const t = SETOR === PER ? per : flv; const n = [...e.childNodes].find(c => c.nodeType === 3); if (n) n.textContent = t; else e.textContent = t; }); }

@@ -2262,16 +2262,26 @@ body[data-setor="Perecíveis"] #list .pitem.swp{-webkit-user-select:none;user-se
 .peslista .pgh.rec .pgp{display:flex}
 /* v554 */
 .peslista .pesb[data-ptira]{flex:0 0 auto}
-/* v558 — data do topo: centralizada, dourada */
-.hojeTop.hte{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.1;overflow:visible}
-.hojeTop.hte small{font-size:10.5px;font-weight:800;letter-spacing:.28em;color:#c9b568;padding-left:.28em}
-.hojeTop.hte b{font-size:21px;font-weight:900;letter-spacing:0;background:linear-gradient(90deg,#f6dc82,#e0a82c);-webkit-background-clip:text;background-clip:text;color:transparent;margin-top:2px;white-space:nowrap}
-.hojeTop.hte u{display:block;height:2px;width:46px;margin-top:5px;border-radius:2px;background:linear-gradient(90deg,transparent,#e6c34c,transparent)}
-body.hs .hojeTop.hte b{font-size:18px}
-html[data-tema="light"] .hojeTop.hte small{color:#fff3c4}
-html[data-tema="light"] .hojeTop.hte b{background:none;color:#fff;-webkit-text-fill-color:#fff}
 /* v559 — só para o Admin: «● N online» ao lado da data, no cabeçalho */
 body.adm-on header h1{display:flex;align-items:center;justify-content:center;gap:8px}
 body.adm-on #onChip{display:inline-flex!important;flex:none;align-items:center;margin:0!important;padding:4px 9px!important;font-size:11.5px;font-weight:800;color:#8fdca4;background:rgba(80,200,120,.14);border:1px solid rgba(80,200,120,.35);cursor:pointer}
 body.adm-on #onChip:not(.on){color:#9aa;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)}
 body.adm-on #rodOn{display:none}
+/* v560 — data do topo: ícone + 17/11, abre o calendário */
+.hojeTop.htm{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;margin:0 auto;-webkit-tap-highlight-color:transparent}
+.hojeTop.htm svg{width:20px;height:20px;stroke:#f3d36b;fill:none;stroke-width:2;flex:none}
+.hojeTop.htm b{font-size:24px;font-weight:900;letter-spacing:0;background:linear-gradient(90deg,#f6dc82,#e0a82c);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hojeTop.htm:active{transform:scale(.96)}
+html[data-tema="light"] .hojeTop.htm b{background:none;color:#fff;-webkit-text-fill-color:#fff}
+html[data-tema="light"] .hojeTop.htm svg{stroke:#fff}
+.calh{display:flex;align-items:center;justify-content:space-between;margin:4px 0 8px;font-size:17px;color:#f3d36b}
+.calh button{width:42px;height:42px;border-radius:12px;font-size:24px;font-weight:900;background:#242830;color:#f3d36b;border:0}
+.calg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}
+.calg s{text-decoration:none;color:#8d8a78;font-size:12px;font-weight:800;padding:4px 0}
+.cald{position:relative;min-height:44px;min-width:0;padding:0;border-radius:12px;border:0;background:transparent;color:#d8d4bd;font-size:15px;font-weight:800}
+.cald.tem{color:#ff8a7a}.cald.ven{color:#ff5c5c;text-decoration:line-through}
+.cald em{position:absolute;right:3px;top:2px;font-style:normal;font-size:9px;font-weight:900;color:#f3d36b}
+.cald.hj{background:linear-gradient(160deg,#f6dc82,#d9a21e);color:#1a1400}.cald.hj em{color:#1a1400}
+.cald.sel:not(.hj){outline:2px solid #f3d36b;outline-offset:-2px}
+.call{margin-top:12px}.call h3{margin:0 0 6px;font-size:14px;color:#f3d36b}.call h3::first-letter{text-transform:uppercase}
+.calp{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;margin-bottom:5px;border-radius:12px;background:rgba(255,255,255,.06)}.calp small{color:#bbb;white-space:nowrap}

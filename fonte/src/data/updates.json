@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-17T08:20:00-03:00",
+  "itens": [
+   "Topo: data no formato dos cartões (17/11), em dourado",
+   "Toque na data para abrir o calendário com os vencimentos do mês"
+  ]
+ },
+ {
   "t": "2026-11-17T08:00:00-03:00",
   "itens": [
    "Admin: quem está online agora aparece no cabeçalho, ao lado da data"
