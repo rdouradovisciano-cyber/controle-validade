@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-17T07:30:00-03:00",
+  "itens": [
+   "Atividade dos usuários: abre bem mais rápido",
+   "Limpar histórico: some na hora e a limpeza termina em segundo plano"
+  ]
+ },
+ {
   "t": "2026-11-17T07:05:00-03:00",
   "itens": [
    "Pesáveis: o botão «Não é pesável» agora funciona e vale para toda a equipe"

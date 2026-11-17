@@ -2695,7 +2695,7 @@ function atvAbrir() {
   bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Atividade dos usuários"><div class="sheethead"><h2>🕘 Atividade dos usuários</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
     <div class="atvf" id="atvF"></div><div id="atvSum" class="atvsum"></div><div id="atvL" class="atvl"><p class="note">Carregando…</p></div><button type="button" class="secondary atvlimpa" id="atvLimpa">🗑️ Limpar histórico</button></section>`;
   document.body.appendChild(bg);
-  let dados = [], buscas = [], refs = [], filtro = "", pessoa = "", corte = store.get("validamais-atv-corte", null) || { t: 0, manter: false };
+  let atvT = 0, atvPrim = false, dados = [], buscas = [], refs = [], filtro = "", pessoa = "", corte = store.get("validamais-atv-corte", null) || { t: 0, manter: false };
   const hm = t => new Date(t).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), dia = t => { const d = new Date(t), h = new Date(); h.setHours(0, 0, 0, 0); const ontem = new Date(h - 864e5); return d >= h ? "Hoje" : d >= ontem ? "Ontem" : d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" }); };
   const mantem = r => r.a === "erro" || (r.a === "retirou" && r.motivo);   // erros e retiradas com motivo
   const escondido = r => r.t <= corte.t && !(corte.manter && mantem(r));
@@ -2707,9 +2707,9 @@ function atvAbrir() {
     const res = {}; dados.filter(r => r.t >= hj).forEach(r => { const o = res[r.quem] || (res[r.quem] = { ent: 0, n: 0, ult: 0 }); if (r.a === "entrou") { if (!o.ent || r.t < o.ent) o.ent = r.t; } else o.n++; o.ult = Math.max(o.ult, r.t); });
     bg.querySelector("#atvSum").innerHTML = Object.keys(res).length ? "<b>Hoje</b>" + Object.entries(res).sort((x, y) => y[1].ult - x[1].ult).filter(([n]) => !pessoa || n === pessoa).map(([n, o]) => `<div><span>${esc(semAdmin(n))}</span><small>${o.ent ? hm(o.ent) + " – " : "até "}${hm(o.ult)}${o.n ? " · " + o.n + (o.n === 1 ? " ação" : " ações") : ""}</small></div>`).join("") : "";
     let ult = "";
-    const gp = {}, l2 = [];   // várias "entrou no app" da mesma pessoa no mesmo dia viram uma linha só
+    const gp = {}, l2 = [];   // máx. 150 linhas desenhadas; várias "entrou no app" da mesma pessoa no mesmo dia viram uma linha só
     l.forEach(r => { if (r.a !== "entrou") { l2.push(r); return; } const k = r.quem + "|" + dia(r.t), g = gp[k]; if (g) { g.n++; g.prim = Math.min(g.prim, r.t); } else { const c = { ...r, n: 1, prim: r.t }; gp[k] = c; l2.push(c); } });
-    bg.querySelector("#atvL").innerHTML = l2.length ? l2.map(r => { const d = dia(r.t), h = d !== ult ? `<div class="atvd">${esc(d)}</div>` : ""; ult = d;
+    bg.querySelector("#atvL").innerHTML = l2.length ? l2.slice(0, 150).map(r => { const d = dia(r.t), h = d !== ult ? `<div class="atvd">${esc(d)}</div>` : ""; ult = d;
       return h + `<div class="atvr a-${esc(r.a)}${r.a === "entrou" ? " ent" : ""}"><time>${hm(r.t)}</time><div><b>${esc(semAdmin(r.quem))}</b> ${ATV_ICO[r.a] || "•"} ${esc(ATV_VERBO[r.a] || r.a)}${r.n > 1 ? ` <small>${r.n}× no dia · 1ª às ${hm(r.prim)}</small>` : ""}${r.a === "erro" ? `<span class="atverr"><b>${esc(r.cat || "")}</b> ${esc(r.txt || "")}<small>${esc(r.ctx || "")}</small></span>` : `<div class="atvbox">${atvItem(r)}</div>`}</div></div>`; }).join("") : '<p class="note">Nenhuma ação registrada.</p>';
   };
   const fecha = () => { try { atvUn && atvUn(); } catch (e) {} atvUn = null; bg.remove(); };
@@ -2721,12 +2721,12 @@ function atvAbrir() {
     const tudo = window.vmMotivo === "Tudo, até erros", agora = Date.now(); let falhou = 0, n = 0;
     if (!db) { const l = store.get(ATK, []); const rest = tudo ? [] : l.filter(mantem); store.set(ATK, rest); dados = rest; desenha(); return toast("Histórico limpo."); }
     const alvo = dados.filter(r => r._ref && (tudo || !mantem(r)));
-    await Promise.all(alvo.map(r => V.deleteDoc(r._ref).then(() => { n++; }).catch(e => { falhou++; console.warn("limpar", e && e.code); })));
-    if (falhou) { corte = { t: agora, manter: !tudo }; store.set("validamais-atv-corte", corte); try { await V.setDoc(V.doc(db, "sh_cfg", "atividade"), { t: agora, manter: !tudo }); } catch (e) { console.warn(e); } dados = dados.filter(r => !escondido(r)); desenha(); toast("Histórico limpo (escondido: as regras do Firebase não deixam apagar de vez)."); }
-    else toast(n ? "Histórico apagado." : "Nada para limpar.");
+    corte = { t: agora, manter: !tudo }; store.set("validamais-atv-corte", corte); dados = dados.filter(r => !escondido(r)); desenha(); toast("Histórico limpo.");   // some na hora; apagar de verdade acontece depois, em segundo plano
+    V.setDoc(V.doc(db, "sh_cfg", "atividade"), { t: agora, manter: !tudo }).catch(e => console.warn(e));
+    (async () => { for (let i = 0; i < alvo.length; i += 25) await Promise.all(alvo.slice(i, i + 25).map(r => V.deleteDoc(r._ref).catch(e => { console.warn("limpar", e && e.code); }))); })();
   };
-  if (db) { try { atvUn = V.onSnapshot(V.query(V.collection(db, "acessos"), V.orderBy("t", "desc"), V.limit(400)), sn => { try { const corte60 = Date.now() - 60 * 864e5; sn.docs.filter(d => { const x = d.data() || {}; return x.tipo === "atv" && Number(x.t) < corte60; }).slice(0, 100).forEach(d => V.deleteDoc(d.ref).catch(() => {})); } catch (e) {}
-    refs = sn.docs.filter(d => (d.data() || {}).tipo === "atv" && d.data().t); dados = refs.map(d => ({ ...d.data(), _ref: d.ref })).filter(r => !escondido(r)); desenha(); }, e => { console.warn(e); bg.querySelector("#atvL").innerHTML = '<p class="note">Não consegui ler o histórico na nuvem (confira se as regras permitem ler «acessos»).</p>'; }); } catch (e) { console.warn(e); } }
+  if (db) { try { atvUn = V.onSnapshot(V.query(V.collection(db, "acessos"), V.orderBy("t", "desc"), V.limit(250)), sn => { try { const corte60 = Date.now() - 60 * 864e5; sn.docs.filter(d => { const x = d.data() || {}; return x.tipo === "atv" && Number(x.t) < corte60; }).slice(0, 20).forEach(d => V.deleteDoc(d.ref).catch(() => {})); } catch (e) {}
+    refs = sn.docs.filter(d => (d.data() || {}).tipo === "atv" && d.data().t); dados = refs.map(d => ({ ...d.data(), _ref: d.ref })).filter(r => !escondido(r)); clearTimeout(atvT); atvT = setTimeout(desenha, dados.length > 0 && !atvPrim ? 0 : 200); atvPrim = true; }, e => { console.warn(e); bg.querySelector("#atvL").innerHTML = '<p class="note">Não consegui ler o histórico na nuvem (confira se as regras permitem ler «acessos»).</p>'; }); } catch (e) { console.warn(e); } }
   else { dados = store.get(ATK, []); desenha(); }
 }
 $("mnAtv").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } atvAbrir(); };
