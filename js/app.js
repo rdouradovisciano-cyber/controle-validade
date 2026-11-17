@@ -2953,7 +2953,7 @@ $("eScan").onclick = () => openScan("etiqueta");
 
 // ---------- aba Pesáveis (Perecíveis): consulta pelo nome, com o PLU e o código interno à vista ----------
 function pesaveis() {   // inclui quem só tem código interno, porque alguns produtos são consultados por ele
-  return products.filter(p => !p.retirado && !p.nao_pesavel && p.category === PER && (p.codigo_balanca || p.codigo_doacao || (/^\d+$/.test(String(p.barcode || "")) && String(p.barcode).length < 8)));
+  return products.filter(p => !p.retirado && !pesForaTem(p.id) && p.category === PER && (p.codigo_balanca || p.codigo_doacao || (/^\d+$/.test(String(p.barcode || "")) && String(p.barcode).length < 8)));
 }
 // busca inteligente: ignora acento e maiúscula, aceita várias palavras em qualquer ordem, início de palavra, trecho do PLU/código interno/EAN (começo, fim ou meio), pequenos erros de digitação e as abreviações do cadastro (QJ → queijo, MUSS → mussarela, PC → peça…)
 function pesBusca(all, qraw) {
@@ -2990,8 +2990,14 @@ function pesHl(name, toks) {   // destaca no nome o que foi digitado — inclusi
 }
 // v553: «Mais consultados» no alto dos Pesáveis: conta quantas vezes cada pesável foi aberto (todos os usuários, sh_cfg/pes-uso) e mostra os 6 primeiros
 var PUK = "validamais-pes-uso", pesUsoLoc, pesUsoGlob, pesUsoOuvindo, pesUsoUlt;
+var pesFora;
+function pesForaTem(id) { if (!pesFora) pesFora = store.get("validamais-pes-fora", {}) || {}; return !!pesFora[id]; }
+function pesForaOuve() { if (!db) return;
+  try { V.onSnapshot(V.doc(db, "sh_cfg", "pes-fora"), sn => { const i = (sn.exists() && sn.data().i) || {}; pesFora = Object.assign({}, i); store.set("validamais-pes-fora", pesFora); try { renderPesaveis(); } catch (e) {} }, e => console.warn("pes-fora", e)); } catch (e) { console.warn(e); } }
+function pesForaSoma(id) { pesForaTem(id); pesFora[id] = true; store.set("validamais-pes-fora", pesFora);
+  if (db) try { V.setDoc(V.doc(db, "sh_cfg", "pes-fora"), { i: { [id]: true } }, { merge: true }).catch(e => { console.warn("pes-fora", e); toast("Não consegui salvar para a equipe"); }); } catch (e) {} }
 function pesUsoIni() { if (pesUsoLoc) return; pesUsoLoc = store.get("validamais-pes-uso", {}) || {}; pesUsoGlob = {}; pesUsoOuvindo = false; pesUsoUlt = {}; }
-function pesUsoOuve() { pesUsoIni(); if (!db || pesUsoOuvindo) return; pesUsoOuvindo = true;
+function pesUsoOuve() { pesUsoIni(); if (!db || pesUsoOuvindo) return; pesUsoOuvindo = true; pesForaOuve();
   try { V.onSnapshot(V.doc(db, "sh_cfg", "pes-uso"), sn => { const i = (sn.exists() && sn.data().i) || {}; pesUsoGlob = {}; Object.keys(i).forEach(k => { pesUsoGlob[k] = (i[k] && i[k].n) || 0; }); if ($("pesLista") && !(($("pesBusca") || {}).value || "").trim() && document.body.dataset.tab === "Pesaveis") { try { renderPesaveis(); } catch (e) {} } }, e => console.warn("pes-uso", e)); } catch (e) { console.warn(e); } }
 function pesUsoSoma(id) { pesUsoIni(); if (!id || Date.now() - (pesUsoUlt[id] || 0) < 30000) return; pesUsoUlt[id] = Date.now(); pesUsoLoc[id] = (pesUsoLoc[id] || 0) + 1; store.set("validamais-pes-uso", pesUsoLoc);
   if (db) try { V.setDoc(V.doc(db, "sh_cfg", "pes-uso"), { i: { [id]: { n: V.increment(1) } } }, { merge: true }).catch(e => console.warn("pes-uso", e)); } catch (e) {} }
@@ -3097,7 +3103,7 @@ $("pesLista").onclick = e => {
   const b = e.target.closest("[data-etq]"); if (b) { const p = products.find(x => x.id === b.dataset.etq); if (p) labelPick(p); return; }
   const tr = e.target.closest("[data-ptira]"); if (tr) { const q = products.find(x => x.id === tr.dataset.ptira); if (!q) return;
     askConfirm({ title: "Tirar dos Pesáveis?", text: `${nomeBonito(q.name)} deixa de aparecer nesta aba. Continua nos Perecíveis.`, ok: "Tirar" }).then(r => { if (!r) return;
-      if (db) V.updateDoc(V.doc(db, "products", q.id), { nao_pesavel: true, updatedAt: V.serverTimestamp() }).catch(err => console.error(err)); else { q.nao_pesavel = true; store.set(LK, products); render(); } toast("Tirado dos Pesáveis"); }); return; }
+      pesForaSoma(q.id); renderPesaveis(); toast("Tirado dos Pesáveis"); }); return; }
   const ed = e.target.closest("[data-pedit]"); if (ed) { edit(ed.dataset.pedit); return; }
   const r = e.target.closest("[data-pes]"); if (r) { if (pesOpen !== r.dataset.pes) { pesHRegistra($("pesBusca").value); pesUsoSoma(r.dataset.pes); } pesOpen = pesOpen === r.dataset.pes ? "" : r.dataset.pes; document.querySelectorAll("#pesLista .pesrow").forEach(x => x.classList.toggle("open", x.dataset.pes === pesOpen)); }
 };
