@@ -2293,3 +2293,6 @@ header h1{display:flex;align-items:center;justify-content:flex-start;gap:8px}
 body.adm-on header h1{justify-content:flex-start}
 body.hs .hojeTop.htm{height:30px}
 html[data-tema="light"] .hojeTop.htm{background:rgba(0,0,0,.18);border-color:rgba(255,255,255,.5)}
+/* v562 — só Admin: versão no cabeçalho */
+.vertop{display:none}
+body.adm-on .vertop{display:inline-flex;align-items:center;flex:none;height:22px;padding:0 8px;border-radius:99px;font-size:11px;font-weight:800;color:#c9b568;background:rgba(230,195,76,.1);border:1px solid rgba(230,195,76,.3)}

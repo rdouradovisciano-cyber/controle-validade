@@ -3334,7 +3334,7 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
 const APP_VERSION = window.APP_VERSION;   // definido em js/version.js, gerado por tools/build.mjs
 window.vmVersion = APP_VERSION;
-$("appVer").textContent = "v" + APP_VERSION.split("-").pop();
+$("appVer").textContent = "v" + APP_VERSION.split("-").pop(); $("verTop").textContent = $("appVer").textContent;
 $("rodVer").textContent = "VERSÃO " + APP_VERSION;
 $("rodOn").onclick = () => $("onChip").click();
 // ---------- backup (arquivo .json) + lembrete semanal ----------
