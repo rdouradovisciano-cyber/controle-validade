@@ -2285,3 +2285,11 @@ html[data-tema="light"] .hojeTop.htm svg{stroke:#fff}
 .cald.sel:not(.hj){outline:2px solid #f3d36b;outline-offset:-2px}
 .call{margin-top:12px}.call h3{margin:0 0 6px;font-size:14px;color:#f3d36b}.call h3::first-letter{text-transform:uppercase}
 .calp{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;margin-bottom:5px;border-radius:12px;background:rgba(255,255,255,.06)}.calp small{color:#bbb;white-space:nowrap}
+/* v561 — data encostada à esquerda, mesma altura do ícone */
+header h1{display:flex;align-items:center;justify-content:flex-start;gap:8px}
+.hojeTop.htm{margin:0;height:34px;box-sizing:border-box;padding:0 11px 0 9px;gap:6px;border-radius:10px;background:#15120a;border:1px solid rgba(230,195,76,.55);flex:none}
+.hojeTop.htm svg{width:16px;height:16px}
+.hojeTop.htm b{font-size:17px;line-height:1}
+body.adm-on header h1{justify-content:flex-start}
+body.hs .hojeTop.htm{height:30px}
+html[data-tema="light"] .hojeTop.htm{background:rgba(0,0,0,.18);border-color:rgba(255,255,255,.5)}
