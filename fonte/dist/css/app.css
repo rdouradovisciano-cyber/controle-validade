@@ -2262,3 +2262,11 @@ body[data-setor="Perecíveis"] #list .pitem.swp{-webkit-user-select:none;user-se
 .peslista .pgh.rec .pgp{display:flex}
 /* v554 */
 .peslista .pesb[data-ptira]{flex:0 0 auto}
+/* v558 — data do topo: centralizada, dourada */
+.hojeTop.hte{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.1;overflow:visible}
+.hojeTop.hte small{font-size:10.5px;font-weight:800;letter-spacing:.28em;color:#c9b568;padding-left:.28em}
+.hojeTop.hte b{font-size:21px;font-weight:900;letter-spacing:0;background:linear-gradient(90deg,#f6dc82,#e0a82c);-webkit-background-clip:text;background-clip:text;color:transparent;margin-top:2px;white-space:nowrap}
+.hojeTop.hte u{display:block;height:2px;width:46px;margin-top:5px;border-radius:2px;background:linear-gradient(90deg,transparent,#e6c34c,transparent)}
+body.hs .hojeTop.hte b{font-size:18px}
+html[data-tema="light"] .hojeTop.hte small{color:#fff3c4}
+html[data-tema="light"] .hojeTop.hte b{background:none;color:#fff;-webkit-text-fill-color:#fff}

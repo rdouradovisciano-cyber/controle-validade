@@ -1217,9 +1217,9 @@ function pintaSetor() {   // botões do setor (agora dentro do menu ⋮) conform
   [["mnSetor", "mnSetorT", outros[0]], ["mnSetor2", "mnSetor2T", outros[1]]].forEach(([b, t, alvo]) => { if ($(b)) { $(t).textContent = "Ir para " + nome(alvo); $(b).onclick = () => { trocaSetor(alvo); if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } }; } }); }
 function hojeTop() {   // data de hoje no topo, simples: «Terça-feira, 10 de novembro»
   const el = $("hojeTop"); if (!el) return; const d = new Date();
-  const sem = d.toLocaleDateString("pt-BR", { weekday: "long" }), txt = sem.charAt(0).toUpperCase() + sem.slice(1) + ", " + d.getDate() + " de " + d.toLocaleDateString("pt-BR", { month: "long" });
-  if (el.textContent === txt) return; el.className = "hojeTop ht"; el.textContent = txt; el.setAttribute("datetime", d.toISOString().slice(0, 10));
-  el.title = txt + " de " + d.getFullYear();
+  const sem = d.toLocaleDateString("pt-BR", { weekday: "long" }), dm = d.getDate() + " de " + d.toLocaleDateString("pt-BR", { month: "long" }), txt = sem.charAt(0).toUpperCase() + sem.slice(1) + ", " + dm;
+  if (el.dataset.k === txt) return; el.dataset.k = txt; el.className = "hojeTop ht hte"; el.setAttribute("datetime", d.toISOString().slice(0, 10));
+  el.innerHTML = `<small>${esc(sem.toUpperCase())}</small><b>${esc(dm)}</b><u></u>`; el.title = txt + " de " + d.getFullYear();
 }
 hojeTop(); setInterval(hojeTop, 60000);
 function rotulosSetor() {   // Perecíveis: «código de doação» vira «código interno»
