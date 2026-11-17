@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-17T08:00:00-03:00",
+  "itens": [
+   "Admin: quem está online agora aparece no cabeçalho, ao lado da data"
+  ]
+ },
+ {
   "t": "2026-11-17T07:50:00-03:00",
   "itens": [
    "Topo: nova data centralizada, em dourado"

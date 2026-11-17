@@ -1180,7 +1180,7 @@ async function pollStats() {          // contagem agregada: 1 leitura por consul
     $("nOnline").textContent = on.data().n; $("nVisitas").textContent = all.data().v || 0; $("dotO").classList.toggle("on", on.data().n > 0); chipOnline(on.data().n);
   } catch (e) { console.warn(e); }
 }
-function chipOnline(n) { const c = $("onChip"); c.classList.remove("hidden"); c.textContent = "● " + n + " online"; c.classList.toggle("on", n > 0); }
+function chipOnline(n) { const c = $("onChip"); c.classList.remove("hidden"); c.textContent = "● " + n + " online"; c.classList.toggle("on", n > 0); document.body.classList.toggle("adm-on", PERFIL === "Admin"); }
 $("onChip").onclick = () => {
   if (!db) return toast("Modo local: só este aparelho está em uso.");
   if (PERFIL !== "Admin") return toast(($("nOnline").textContent || "–") + " online agora");   // v498: só o Admin vê os nomes de quem está online
