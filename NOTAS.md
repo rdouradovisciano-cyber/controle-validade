@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 550.
+> Última atualização: 11/11/2026 · versão 551.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -138,6 +138,7 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
 - v531: tour do cartão (`js/tour.js` recriado a pedido; só os passos do cartão). Admin liga/desliga em ⋮ › «Tour da equipe» (Firestore sh_cfg/tour {on,id}); cada aparelho Perecíveis vê 1× por id; «Ver o tour do cartão» para o Admin rever.
+- v551: deslizar só para a DIREITA retira o item (solto depois de ~42% da largura/150px; aviso com Desfazer). Não há mais botão Retirar revelado. Esquerda volta a trocar de aba (nav.js não bloqueia mais #list .pitem); na 1ª aba a direita nunca troca de aba. Dica atualizada.
 - v550: o deslizar (Perecíveis) agora só MOSTRA o botão «Retirar» (96px, fecha sozinho em 6s ou ao tocar fora/rolar); só o toque no botão retira (direto, toast com Desfazer). Pedido do usuário: evitar retirada sem querer. Dica da v549 atualizada.
 - v549: dica única do deslizar para retirar (`dicaDeslizar` no fim do app.js, flag localStorage validamais-dica-deslizar, só Perecíveis/aba Loja). Foi pedida pelo usuário (não é o tour antigo); não recriar o tour geral sem pedido.
 - v548: o deslizar retira direto, sem perguntar o motivo (registra «Outro»; toast com «Desfazer»). O botão Retirar continua perguntando.
