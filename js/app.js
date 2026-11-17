@@ -3231,22 +3231,26 @@ $("lmUni").onclick = () => { const i = lmI; $("lModal").classList.add("hidden");
 
 if (db) startPresence(); else localStats();
 
-// v547: Perecíveis — deslizar o cartão para o lado tira o item da loja na hora (motivo «Outro»; o toast tem «Desfazer»)
-(function swipeRetirar() { const L = $("list"); if (!L) return; let el = null, id = "", x0 = 0, y0 = 0, dx = 0, on = false, pid = -1, w = 300;
+// v550: Perecíveis — deslizar o cartão para a esquerda só MOSTRA o botão vermelho «Retirar»; nada sai sem um toque nele (soltou sem tocar, fecha sozinho)
+(function swipeRetirar() { const L = $("list"); if (!L) return; let el = null, id = "", x0 = 0, y0 = 0, dx = 0, on = false, pid = -1, aberto = null, tFecha = 0; const LARG = 96;
   const livre = e => !e.target.closest("input,textarea,select,button,a,.pi-act,.pi-foto");
-  L.addEventListener("pointerdown", e => { if (document.body.dataset.setor !== "Perecíveis" || (e.pointerType === "mouse" && e.button !== 0)) return; const c = e.target.closest(".pitem"); if (!c || c.classList.contains("saindo") || !livre(e)) return;
-    const p = products.find(x => x.id === c.dataset.id); if (!p || p.retirado || retLoc[p.id]) return; el = c; id = p.id; x0 = e.clientX; y0 = e.clientY; dx = 0; on = false; pid = e.pointerId; w = c.getBoundingClientRect().width || 300; });
-  L.addEventListener("pointermove", e => { if (!el || e.pointerId !== pid) return; const mx = e.clientX - x0, my = e.clientY - y0;
-    if (!on) { if (Math.abs(my) > 12 && Math.abs(my) > Math.abs(mx)) { el = null; return; } if (Math.abs(mx) < 12 || Math.abs(mx) < Math.abs(my) * 1.4) return; on = true; el.classList.add("swp"); try { L.setPointerCapture(pid); } catch (x) {} }
-    dx = mx; el.style.transform = `translateX(${dx}px)`; el.style.opacity = String(Math.max(.35, 1 - Math.abs(dx) / (w * 1.1))); const go = Math.abs(dx) > Math.min(130, w * .38); if (go !== el.classList.contains("swgo")) { el.classList.toggle("swgo", go); if (go) try { navigator.vibrate && navigator.vibrate(12); } catch (x) {} } });
-  const fim = async e => { if (!el || (e && e.pointerId !== pid)) return; const c = el, go = on && Math.abs(dx) > Math.min(130, w * .38) && e && e.type === "pointerup", meu = id; el = null;
-    if (on) { const calar = ev => { ev.stopPropagation(); ev.preventDefault(); }; L.addEventListener("click", calar, { capture: true, once: true }); setTimeout(() => L.removeEventListener("click", calar, true), 400); try { L.releasePointerCapture(pid); } catch (x) {} }
-    const volta = () => { c.classList.remove("swp", "swgo"); c.style.transform = ""; c.style.opacity = ""; };
-    if (!go) { volta(); return; }
-    c.style.transform = `translateX(${dx > 0 ? "" : "-"}110%)`; c.style.opacity = "0"; await new Promise(r => setTimeout(r, 160));
-    const antes = products.find(x => x.id === meu); const r = await retirar(meu, true, true); const ainda = products.find(x => x.id === meu);
-    if (c.isConnected && ainda && !ainda.retirado && !retLoc[meu]) volta(); };   // cancelou o motivo: o cartão volta
-  L.addEventListener("pointerup", fim); L.addEventListener("pointercancel", fim); })();
+  const mainDe = c => c.querySelector(".pi-main");
+  const fecha = c => { c = c || aberto; if (!c) return; clearTimeout(tFecha); const m = mainDe(c); if (m) m.style.transform = ""; c.classList.remove("swp", "swopen"); const b = c.querySelector(".sw-ret"); if (b) setTimeout(() => { if (!c.classList.contains("swopen") && !c.classList.contains("swp")) b.remove(); }, 220); if (aberto === c) aberto = null; };
+  const abre = c => { if (aberto && aberto !== c) fecha(aberto); aberto = c; c.classList.remove("swp"); c.classList.add("swopen"); const m = mainDe(c); if (m) m.style.transform = `translateX(-${LARG}px)`; clearTimeout(tFecha); tFecha = setTimeout(() => fecha(c), 6000); };
+  L.addEventListener("pointerdown", e => { const c = e.target.closest(".pitem"); if (aberto && c !== aberto && !e.target.closest(".sw-ret")) fecha(aberto);
+    if (document.body.dataset.setor !== "Perecíveis" || (e.pointerType === "mouse" && e.button !== 0)) return; if (!c || c.classList.contains("saindo") || !livre(e)) return;
+    const p = products.find(x => x.id === c.dataset.id); if (!p || p.retirado || retLoc[p.id]) return; el = c; id = p.id; x0 = e.clientX; y0 = e.clientY; dx = 0; on = false; pid = e.pointerId; });
+  L.addEventListener("pointermove", e => { if (!el || e.pointerId !== pid) return; const base = el.classList.contains("swopen") ? -LARG : 0, mx = e.clientX - x0, my = e.clientY - y0;
+    if (!on) { if (Math.abs(my) > 12 && Math.abs(my) > Math.abs(mx)) { el = null; return; } if (Math.abs(mx) < 12 || Math.abs(mx) < Math.abs(my) * 1.4) return; on = true; el.classList.add("swp"); clearTimeout(tFecha); try { L.setPointerCapture(pid); } catch (x) {}
+      if (!el.querySelector(".sw-ret")) { const b = document.createElement("button"); b.type = "button"; b.className = "sw-ret"; b.dataset.swret = id; b.textContent = "Retirar"; el.appendChild(b); } }
+    dx = Math.max(-LARG * 1.25, Math.min(0, base + mx)); const m = mainDe(el); if (m) m.style.transform = `translateX(${dx}px)`; });
+  const fim = e => { if (!el || (e && e.pointerId !== pid)) return; const c = el; el = null;
+    if (on) { const calar = ev => { if (ev.target.closest && ev.target.closest(".sw-ret")) return; ev.stopPropagation(); ev.preventDefault(); }; L.addEventListener("click", calar, { capture: true, once: true }); setTimeout(() => L.removeEventListener("click", calar, true), 400); try { L.releasePointerCapture(pid); } catch (x) {}
+      if (e && e.type === "pointerup" && dx < -LARG * .45) abre(c); else fecha(c); } };
+  L.addEventListener("pointerup", fim); L.addEventListener("pointercancel", fim);
+  L.addEventListener("click", e => { const b = e.target.closest(".sw-ret"); if (b) { e.stopPropagation(); e.preventDefault(); const c = b.closest(".pitem"); retirar(b.dataset.swret, true, true); setTimeout(() => { if (c && c.isConnected) fecha(c); }, 600); return; }
+    if (aberto && e.target.closest(".pitem") === aberto) { e.stopPropagation(); e.preventDefault(); fecha(aberto); } }, true);
+  addEventListener("scroll", () => { if (aberto) fecha(aberto); }, { passive: true }); })();
 // v549: dica única (por aparelho) mostrando o deslizar para retirar, nos Perecíveis
 (function dicaDeslizar() { const K = "validamais-dica-deslizar"; let n = 0;
   const visto = () => { try { return localStorage.getItem(K) === "1"; } catch (e) { return false; } }, marca = () => { try { localStorage.setItem(K, "1"); } catch (e) {} };
@@ -3260,7 +3264,7 @@ if (db) startPresence(); else localStats();
     const nome = (c.querySelector(".pi-nome") || {}).textContent || "Produto", im = c.querySelector(".ico-img"), ov = document.createElement("div"); ov.className = "dica-ov";
     ov.innerHTML = `<div class="dica-card" role="dialog" aria-modal="true" aria-label="Dica: deslizar para retirar"><b class="dica-t">Novo: deslize para retirar</b>
       <div class="dica-demo" aria-hidden="true"><div class="dica-fundo">Retirar</div><div class="dica-row">${im ? `<img src="${esc(im.src)}" alt="">` : '<span class="dica-ph"></span>'}<span>${esc(nome.replace(/NOVO$/, "").trim())}</span></div><i class="dica-dedo"></i></div>
-      <p>Arraste o cartão do produto para o lado e solte para <b>tirar o item da loja</b>.<br>Foi sem querer? Toque em <b>Desfazer</b> logo depois.</p><button type="button" class="primary big dica-ok">Entendi</button></div>`;
+      <p>Arraste o cartão do produto para a esquerda: aparece o botão vermelho <b>Retirar</b>. Toque nele para <b>tirar o item da loja</b>.<br>Foi sem querer? Toque em <b>Desfazer</b> logo depois.</p><button type="button" class="primary big dica-ok">Entendi</button></div>`;
     const fecha = () => ov.remove(); ov.onclick = e => { if (e.target === ov || e.target.closest(".dica-ok")) fecha(); }; document.body.appendChild(ov); try { ov.querySelector(".dica-ok").focus({ preventScroll: true }); } catch (e) {} }, 700); })();
 // ---------- PWA ----------
 if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").then(r => r.update()).catch(console.error));
