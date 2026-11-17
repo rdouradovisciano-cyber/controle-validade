@@ -2698,7 +2698,7 @@ function atvAbrir() {
   let atvT = 0, atvPrim = false, dados = [], buscas = [], refs = [], filtro = "", pessoa = "", corte = store.get("validamais-atv-corte", null) || { t: 0, manter: false };
   const hm = t => new Date(t).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), dia = t => { const d = new Date(t), h = new Date(); h.setHours(0, 0, 0, 0); const ontem = new Date(h - 864e5); return d >= h ? "Hoje" : d >= ontem ? "Ontem" : d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" }); };
   const mantem = r => r.a === "erro" || (r.a === "retirou" && r.motivo);   // erros e retiradas com motivo
-  const escondido = r => r.t <= corte.t && !(corte.manter && mantem(r));
+  const escondido = r => (r.t <= corte.t && !(corte.manter && mantem(r))) || (() => { const c = (corte.p || {})[r.quem]; return !!c && r.t <= c.t && !(c.manter && mantem(r)); })();
   const desenha = () => {
     const nomes = [...new Set(dados.filter(r => r.a !== "erro").map(r => r.quem))].sort((a, b) => a.localeCompare(b, "pt-BR"));
     bg.querySelector("#atvF").innerHTML = `<label class="atvp"><select id="atvPes" aria-label="Pessoa"><option value="">Todas as pessoas</option>${nomes.map(n => `<option value="${esc(n)}"${n === pessoa ? " selected" : ""}>${esc(semAdmin(n))}</option>`).join("")}</select></label><button type="button" class="atvmais${filtro === "@tudo" ? " on" : ""}" data-n="${filtro === "@tudo" ? "" : "@tudo"}" aria-pressed="${filtro === "@tudo"}">Entradas e telas</button>`;   // v493: básico — só ações; entradas e telas ficam atrás deste botão
@@ -2715,14 +2715,15 @@ function atvAbrir() {
   const fecha = () => { try { atvUn && atvUn(); } catch (e) {} atvUn = null; bg.remove(); };
   bg.onclick = e => { if (e.target === bg || e.target.closest("[data-x]")) fecha(); const b = e.target.closest("[data-n]"); if (b) { filtro = b.dataset.n; desenha(); } };
   bg.onchange = e => { if (e.target.id === "atvPes") { pessoa = e.target.value; desenha(); } };
-  if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "atividade"), sn => { if (sn.exists() && sn.data().t) { const c = { t: Number(sn.data().t) || 0, manter: !!sn.data().manter }; if (c.t > corte.t) { corte = c; store.set("validamais-atv-corte", c); dados = dados.filter(r => !escondido(r)); desenha(); } } }, () => {}); } catch (e) { console.warn(e); } }
+  if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "atividade"), sn => { if (sn.exists()) { const d = sn.data() || {}, c = { t: Math.max(Number(d.t) || 0, corte.t), manter: (Number(d.t) || 0) >= corte.t ? !!d.manter : corte.manter, p: Object.assign({}, corte.p || {}) }; Object.keys(d.p || {}).forEach(n => { const x = d.p[n]; if (x && Number(x.t) > ((c.p[n] || {}).t || 0)) c.p[n] = { t: Number(x.t), manter: !!x.manter }; }); corte = c; store.set("validamais-atv-corte", c); dados = dados.filter(r => !escondido(r)); desenha(); } }, () => {}); } catch (e) { console.warn(e); } }
   q0("#atvLimpa").onclick = async () => {
-    const ok = await askConfirm({ icon: "🗑️", title: "Limpar histórico", subtitle: "O que apagar?", motivos: ["Só entradas e ações", "Tudo, até erros"], motivo: "Só entradas e ações", ok: "Limpar", cancel: "Cancelar" }); if (ok !== true) return;
+    const ok = await askConfirm({ icon: "🗑️", title: pessoa ? "Limpar histórico de " + semAdmin(pessoa) : "Limpar histórico", subtitle: "O que apagar?", motivos: ["Só entradas e ações", "Tudo, até erros"], motivo: "Só entradas e ações", ok: "Limpar", cancel: "Cancelar" }); if (ok !== true) return;
     const tudo = window.vmMotivo === "Tudo, até erros", agora = Date.now(); let falhou = 0, n = 0;
-    if (!db) { const l = store.get(ATK, []); const rest = tudo ? [] : l.filter(mantem); store.set(ATK, rest); dados = rest; desenha(); return toast("Histórico limpo."); }
-    const alvo = dados.filter(r => r._ref && (tudo || !mantem(r)));
-    corte = { t: agora, manter: !tudo }; store.set("validamais-atv-corte", corte); dados = dados.filter(r => !escondido(r)); desenha(); toast("Histórico limpo.");   // some na hora; apagar de verdade acontece depois, em segundo plano
-    V.setDoc(V.doc(db, "sh_cfg", "atividade"), { t: agora, manter: !tudo }).catch(e => console.warn(e));
+    if (!db) { const l = store.get(ATK, []); const rest = l.filter(r => (pessoa && r.quem !== pessoa) || (!tudo && mantem(r))); store.set(ATK, rest); dados = rest; desenha(); return toast("Histórico limpo."); }
+    const alvo = dados.filter(r => r._ref && (!pessoa || r.quem === pessoa) && (tudo || !mantem(r)));
+    if (pessoa) { corte = { ...corte, p: { ...(corte.p || {}), [pessoa]: { t: agora, manter: !tudo } } }; V.setDoc(V.doc(db, "sh_cfg", "atividade"), { p: { [pessoa]: { t: agora, manter: !tudo } } }, { merge: true }).catch(e => console.warn(e)); }
+    else { corte = { t: agora, manter: !tudo, p: {} }; V.setDoc(V.doc(db, "sh_cfg", "atividade"), { t: agora, manter: !tudo, p: {} }).catch(e => console.warn(e)); }
+    store.set("validamais-atv-corte", corte); dados = dados.filter(r => !escondido(r)); desenha(); toast(pessoa ? "Histórico de " + semAdmin(pessoa) + " limpo." : "Histórico limpo.");   // some na hora; apagar de verdade acontece depois, em segundo plano
     (async () => { for (let i = 0; i < alvo.length; i += 25) await Promise.all(alvo.slice(i, i + 25).map(r => V.deleteDoc(r._ref).catch(e => { console.warn("limpar", e && e.code); }))); })();
   };
   if (db) { try { atvUn = V.onSnapshot(V.query(V.collection(db, "acessos"), V.orderBy("t", "desc"), V.limit(250)), sn => { try { const corte60 = Date.now() - 60 * 864e5; sn.docs.filter(d => { const x = d.data() || {}; return x.tipo === "atv" && Number(x.t) < corte60; }).slice(0, 20).forEach(d => V.deleteDoc(d.ref).catch(() => {})); } catch (e) {}
