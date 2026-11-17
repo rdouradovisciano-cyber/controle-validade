@@ -2252,3 +2252,11 @@ body[data-setor="Perecíveis"] #list .pitem.swp{-webkit-user-select:none;user-se
 /* v552 — efeito TV desligando */
 .pitem.tvoff{position:relative;transform-origin:center;overflow:hidden;pointer-events:none}
 .crt-noise{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;mix-blend-mode:hard-light;opacity:0;pointer-events:none;z-index:6}
+/* v553 — Pesáveis: «Mais consultados» no alto e fotos nos grupos */
+.peslista .pgtop{display:flex;align-items:center;gap:10px;margin:6px 2px 4px;padding:10px 14px;border-radius:14px;font-weight:900;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:#2a1500;background:linear-gradient(135deg,#ffb84d,#ff8a00);box-shadow:0 3px 12px rgba(255,138,0,.35)}
+.peslista .pgtop i{font-style:normal;background:#2a1500;color:#ffd699;border-radius:99px;padding:1px 10px;font-size:12px}
+.peslista .pgtop ~ .pesrow:not(.pgh ~ .pesrow){border-left:4px solid #ff8a00}
+.ico.ico-foto.sil{background:none}
+.ico.ico-foto.sil .ico-img{border:0;border-radius:0;object-fit:contain;background:none;filter:drop-shadow(0 3px 2px rgba(0,0,0,.3))}
+.ico.ico-foto.silw .ico-img{opacity:0}
+.peslista .pgh.rec .pgp{display:flex}

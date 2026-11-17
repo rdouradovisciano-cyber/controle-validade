@@ -204,7 +204,8 @@ const fotoVal = k => { const d = fotoCache[k]; if (d) return d; try { const b = 
 const fotoDe = p => p && iconesOn() ? (fotoVal(fotoK(p.name)) || "") : "";
 const icoVazio = () => `<span class="ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`;   // v471
 const icoHtml = p => { const d = fotoDe(p), e = iconeDe(p); if (!d && !e) return iconesOn() && p && p.category === PER ? icoVazio() : "";   // inline (Pesáveis): miniatura ou emoji
-  return `<span class="ico${d ? " ico-foto" : ""}" data-id="${esc(p.id)}">${d ? `<img class="ico-img" src="${d}" alt="" decoding="async">` : e}</span>`; };
+  const s = d ? silPronto(d) : "", sl = d && s !== d, sw = d && s === d && silEspera(d);
+  return `<span class="ico${d ? " ico-foto" : ""}${sl ? " sil" : ""}${sw ? " silw" : ""}" data-id="${esc(p.id)}">${d ? `<img class="ico-img" src="${s}" alt="" decoding="async">` : e}</span>`; };
 const icoEmoji = p => fotoDe(p) ? "" : (iconeDe(p) ? `<span class="ico" data-id="${esc(p.id)}">${iconeDe(p)}</span>` : "");   // lista de Validades: emoji só quando não há foto
 const VSK = "validamais-visao", visaoDe = () => store.get(VSK, "lista") === "grade" ? "grade" : "lista";   // v460: Validades em lista ou grade (Configurações → Cores e prazos)
 // v466: nome do grupo = 1ª palavra, sem pontuação; Q, Q.J, QJ, QJO, QJEO e QUEIJOS entram todos em QUEIJO (e as abreviações do cadastro, como MUSS → MUSSARELA)
@@ -2987,6 +2988,24 @@ function pesHl(name, toks) {   // destaca no nome o que foi digitado — inclusi
   });
   let out = "", open = false; for (let i = 0; i < name.length; i++) { if (mk[i] && !open) { out += "<mark>"; open = true; } if (!mk[i] && open) { out += "</mark>"; open = false; } out += esc(name[i]); } return out + (open ? "</mark>" : "");
 }
+// v553: «Mais consultados» no alto dos Pesáveis: conta quantas vezes cada pesável foi aberto (todos os usuários, sh_cfg/pes-uso) e mostra os 6 primeiros
+var PUK = "validamais-pes-uso", pesUsoLoc, pesUsoGlob, pesUsoOuvindo, pesUsoUlt;
+function pesUsoIni() { if (pesUsoLoc) return; pesUsoLoc = store.get("validamais-pes-uso", {}) || {}; pesUsoGlob = {}; pesUsoOuvindo = false; pesUsoUlt = {}; }
+function pesUsoOuve() { pesUsoIni(); if (!db || pesUsoOuvindo) return; pesUsoOuvindo = true;
+  try { V.onSnapshot(V.doc(db, "sh_cfg", "pes-uso"), sn => { const i = (sn.exists() && sn.data().i) || {}; pesUsoGlob = {}; Object.keys(i).forEach(k => { pesUsoGlob[k] = (i[k] && i[k].n) || 0; }); if ($("pesLista") && !(($("pesBusca") || {}).value || "").trim() && document.body.dataset.tab === "Pesaveis") { try { renderPesaveis(); } catch (e) {} } }, e => console.warn("pes-uso", e)); } catch (e) { console.warn(e); } }
+function pesUsoSoma(id) { pesUsoIni(); if (!id || Date.now() - (pesUsoUlt[id] || 0) < 30000) return; pesUsoUlt[id] = Date.now(); pesUsoLoc[id] = (pesUsoLoc[id] || 0) + 1; store.set("validamais-pes-uso", pesUsoLoc);
+  if (db) try { V.setDoc(V.doc(db, "sh_cfg", "pes-uso"), { i: { [id]: { n: V.increment(1) } } }, { merge: true }).catch(e => console.warn("pes-uso", e)); } catch (e) {} }
+function pesTop(todos, n) { pesUsoIni(); const sc = []; todos.forEach(p => { const v = Math.max(pesUsoGlob[p.id] || 0, pesUsoLoc[p.id] || 0); if (v > 0) sc.push([p.id, v]); });
+  const ids = sc.sort((a, b) => b[1] - a[1]).map(x => x[0]).slice(0, n), tem = new Set(ids);
+  if (ids.length < n) { try {
+    try { pesHCarrega(); pesGlobOuve(); } catch (e) {}
+    const termos = (db && pesGlob.length ? pesGlob.map(x => x[0]) : [...pesHist].sort((a, b) => b[1] - a[1]).map(x => x[0])).concat(PES_SUG0);
+    for (const tm of termos) { if (ids.length >= n) break; const r = pesBusca(todos, tm).rows[0]; if (r && !tem.has(r.id)) { ids.push(r.id); tem.add(r.id); } }
+    } catch (e) {} }
+  const m = new Map(todos.map(p => [p.id, p])); return ids.map(i => m.get(i)).filter(Boolean); }
+function pesPrev(l) { if (!iconesOn()) return ""; const com = l.filter(p => fotoDe(p)).slice(0, 5); if (!com.length) return "";
+  const th = com.map((p, i) => { const d0 = fotoDe(p), d = silPronto(d0), sl = d !== d0, sw = !sl && silEspera(d0); return `<div class="pgt${sl ? " sil" : ""}${sw ? " silw" : ""}" style="--s:${56 - i * 4}px"><img src="${d}" alt="" decoding="async"></div>`; }).join("");
+  return `<div class="pgp" aria-hidden="true">${th}${l.length > com.length ? `<div class="pgm">+${l.length - com.length}</div>` : ""}</div>`; }
 function renderPesaveis() {
   const box = $("pesLista"); if (!box) return;
   const inp = $("pesBusca"), termo = (inp || {}).value || "", q = norm(termo).trim();
@@ -3003,8 +3022,9 @@ function renderPesaveis() {
   if (!rows.length) box.innerHTML = `<div class="pesvazio"><b>${q ? "Nada encontrado." : "Nenhum pesável por aqui."}</b>${q ? "Tente outro nome ou código." : "Cadastre em Perecíveis um produto com código de balança ou código interno curto para ele aparecer aqui."}</div>`;
   else if (q) box.innerHTML = rows.map(linha).join("");   // buscando: lista direta, sem grupos
   else {   // v465: agrupa pela 1ª palavra do nome (BACON, QUEIJO…); grupos de 1 item vão para «Outros»; abre sempre recolhido
-    const gs = pesAgrupa(rows);
-    box.innerHTML = gs.map(([w, l]) => { const ab = pesAb.has(w); return `<div class="pgh gp${ab ? "" : " rec"}" data-g="${esc(w)}" role="button" tabindex="0" aria-expanded="${ab}"><span>${esc(w)}</span><i>${l.length}</i><em class="pgc" aria-hidden="true"></em></div>` + (ab ? l.map(linha).join("") : ""); }).join("");
+    const gs = pesAgrupa(rows); pesUsoOuve(); const top = pesTop(todos, 6);
+    const topo = top.length ? `<div class="pgtop" role="heading" aria-level="2"><span>🔥 Mais consultados</span><i>${top.length}</i></div>` + top.map(linha).join("") : "";
+    box.innerHTML = topo + gs.map(([w, l]) => { const ab = pesAb.has(w); return `<div class="pgh gp${ab ? "" : " rec"}" data-g="${esc(w)}" role="button" tabindex="0" aria-expanded="${ab}"><span>${esc(w)}</span><i>${l.length}</i><em class="pgc" aria-hidden="true"></em>${ab ? "" : pesPrev(l)}</div>` + (ab ? l.map(linha).join("") : ""); }).join("");
   }
 }
 // ----- buscas dos Pesáveis: histórico de cada usuário («na conta», vale em qualquer aparelho) + os mais pesquisados -----
@@ -3076,7 +3096,7 @@ $("pesLista").onclick = e => {
   
   const b = e.target.closest("[data-etq]"); if (b) { const p = products.find(x => x.id === b.dataset.etq); if (p) labelPick(p); return; }
   const ed = e.target.closest("[data-pedit]"); if (ed) { edit(ed.dataset.pedit); return; }
-  const r = e.target.closest("[data-pes]"); if (r) { if (pesOpen !== r.dataset.pes) pesHRegistra($("pesBusca").value); pesOpen = pesOpen === r.dataset.pes ? "" : r.dataset.pes; document.querySelectorAll("#pesLista .pesrow").forEach(x => x.classList.toggle("open", x.dataset.pes === pesOpen)); }
+  const r = e.target.closest("[data-pes]"); if (r) { if (pesOpen !== r.dataset.pes) { pesHRegistra($("pesBusca").value); pesUsoSoma(r.dataset.pes); } pesOpen = pesOpen === r.dataset.pes ? "" : r.dataset.pes; document.querySelectorAll("#pesLista .pesrow").forEach(x => x.classList.toggle("open", x.dataset.pes === pesOpen)); }
 };
 $("pesBipar").onclick = () => openScan("etiqueta");
 $("pesNovo").onclick = () => openForm();
