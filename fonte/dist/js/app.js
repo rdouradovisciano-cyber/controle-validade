@@ -796,6 +796,16 @@ async function save(next) {
       if (r !== "alt") return;
     }
   }
+  {   // v563: código (EAN / PLU / doação) que já é de outro produto: evita cadastro duplicado
+    const orig = id ? (products.find(x => x.id === id) || {}) : {};
+    for (const [f, nomeCod] of [["barcode", "EAN"], ["codigo_balanca", "PLU"], ["codigo_doacao", "Código de doação"]]) {
+      const v = String(data[f] || "").trim(); if (v.length < 4 || (f === "barcode" && isScale(v)) || (id && orig[f] === v && norm(orig.name || "") === norm(data.name))) continue;
+      const dono = rawAllAtivos().find(x => x.id !== id && String(x[f] || "").trim() === v && norm(x.name || "") !== norm(data.name || "") && setSet(x) === setSet(data)); if (!dono) continue;
+      const r = await askConfirm({ icon: "🔁", title: "Este código já existe", text: `${nomeCod} ${v} é de «${dono.name}»`, sub: `Provavelmente é o mesmo produto. «Usar ${nomeBonito(dono.name)}» lança com o nome que já existe (sem duplicar). «Manter os dois» cria um cadastro separado.`, ok: "Usar o existente", alt: "Manter os dois", cancel: "Corrigir" });
+      if (r === true) { data.name = String(dono.name).slice(0, 120); $("name").value = data.name; if (!data.barcode && dono.barcode) { data.barcode = dono.barcode; } if (!data.codigo_balanca && dono.codigo_balanca) data.codigo_balanca = dono.codigo_balanca; if (!data.codigo_doacao && dono.codigo_doacao) data.codigo_doacao = dono.codigo_doacao; break; }
+      if (r !== "alt") return;
+    }
+  }
   const antes = id ? ((products.find(x => x.id === id) || {}).name || "") : "";
   if (id && antes && fotoK(antes) !== fotoK(data.name)) fotoMove(antes, data.name);
   if (!id || norm(antes) !== norm(data.name)) {

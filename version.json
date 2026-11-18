@@ -1,1 +1,1 @@
-{"versao":"2026.11.17-562","nota":"• Admin: número da versão no cabeçalho"}
+{"versao":"2026.11.18-563","nota":"• Ao salvar um produto com código que já é de outro, o app avisa e oferece usar o cadastro existente (evita duplicado)"}
