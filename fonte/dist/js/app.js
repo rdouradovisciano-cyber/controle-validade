@@ -1461,7 +1461,7 @@ function pkTag(n) { const s = String(n || ""), m = s.match(/(\d+(?:[.,]\d+)?)\s*
   if (m) return `<span class="pk">📦 ${m[1].replace(".", ",")}${m[2].toLowerCase()}</span>`;
   return /\b(pacote|pct|bandeja|saco|caixa|embalad[oa]s?|unid(ade)?s?)\b/i.test(s) ? '<span class="pk">📦</span>' : ""; }
 function balIcoTop(w) { if (balFoto(w)) return balIco(w); return norm(String(w || "")) === "tomate" ? `<span class="bi">🍅</span>` : balIco(w); }   // balão Tomate: ícone de tomate
-function balIco(w, fb, soft) { const ph = balFoto(w) || (fb ? balFoto(fb) : ""); if (ph) return `<span class="bi bf"><img class="bi-img" src="${ph}" alt="" decoding="async"></span>`;
+function balIco(w, fb, soft) { const ph = balFoto(w) || (fb ? balFoto(fb) : ""); if (ph) { const s = silPronto(ph), sl = s !== ph, sw = !sl && silEspera(ph); return `<span class="bi bf${sl ? " sil" : ""}${sw ? " silw" : ""}"><img class="bi-img" src="${s}" alt="" decoding="async"></span>`; }
   const n = norm(String(w || "")); for (const [re, e] of BICO) if (re.test(n)) return `<span class="bi">${e}</span>`;
   if (fb) return balIco(fb);
   if (soft) return "";
@@ -2911,7 +2911,8 @@ function etqFixEan() {
 function etqFoto(l) {   // v501: no FLV cada etiqueta da lista mostra a foto do produto (foto exata ou da mesma família)
   if (SETOR !== "FLV" || !iconesOn()) return "";
   const d = balFoto(l.nome);
-  return `<span class="elead">${d ? `<img class="ico-img" src="${d}" alt="" decoding="async">` : icoVazio()}</span>`; }
+  const s = d ? silPronto(d) : "", sl = d && s !== d, sw = d && !sl && silEspera(d);
+  return `<span class="elead${sl ? " sil" : ""}${sw ? " silw" : ""}">${d ? `<img class="ico-img" src="${s}" alt="" decoding="async">` : icoVazio()}</span>`; }
 function renderLabels() {
   etqFixEan();
   $("eLimpa").classList.toggle("hidden", labels.length <= 5); { const n = labels.filter(l => l.ok).length; $("eMarc").textContent = labels.length ? `✓ ${n} de ${labels.length} já colocadas para impressão` : ""; } $("eSumP").textContent = labels.length; $("eSumQ").textContent = labels.reduce((s, l) => s + (Number(l.qtd) || 0), 0);
