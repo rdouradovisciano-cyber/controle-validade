@@ -2296,3 +2296,8 @@ html[data-tema="light"] .hojeTop.htm{background:rgba(0,0,0,.18);border-color:rgb
 /* v562 — só Admin: versão no cabeçalho */
 .vertop{display:none}
 body.adm-on .vertop{display:inline-flex;align-items:center;flex:none;height:22px;padding:0 8px;border-radius:99px;font-size:11px;font-weight:800;color:#c9b568;background:rgba(230,195,76,.1);border:1px solid rgba(230,195,76,.3)}
+/* v564 — lotes tocáveis */
+.lotesbox button.lt{width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;grid-template-columns:auto 1fr auto auto}
+.lotesbox button.lt .lt-go{margin-left:8px;font-style:normal;font-size:22px;font-weight:900;opacity:.55}
+.lotesbox button.lt:active{transform:scale(.98)}
+.lotesbox button.lt span{font-size:12.5px;line-height:1.2}.lotesbox button.lt .lt-go{margin-left:0}

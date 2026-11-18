@@ -912,9 +912,12 @@ function loteLista(id) {   // toque no selo "1/3": lista todos os lotes deste pr
   const p0 = products.find(x => String(x.id) === String(id)); if (!p0) return;
   const ls = lotesDe(p0), bg = document.createElement("div"); bg.className = "askbg";
   const linha = (p, i) => { const d = daysLeft(p.expiry), cor = d === null ? "ok" : d < 0 ? "v" : d <= 3 ? "a" : d <= 7 ? "y" : "ok";
-    return `<div class="lt ${cor}${p.id === p0.id ? " me" : ""}"><b>Lote ${i + 1}/${ls.length}</b><span>${p.expiry ? "vence " + fmtCurto(p.expiry) : "sem validade"}${d === null ? "" : d < 0 ? " · vencido" : d === 0 ? " · hoje" : " · " + d + (d === 1 ? " dia" : " dias")}</span><em>${esc(p.quantity)} un.</em></div>`; };
+    return `<button type="button" class="lt ${cor}${p.id === p0.id ? " me" : ""}" data-lt="${esc(p.id)}" aria-label="Abrir lote ${i + 1}"><b>Lote ${i + 1}/${ls.length}</b><span>${p.expiry ? "vence " + fmtCurto(p.expiry) : "sem validade"}${d === null ? "" : d < 0 ? " · vencido" : d === 0 ? " · hoje" : " · " + d + (d === 1 ? " dia" : " dias")}</span><em>${esc(p.quantity)} un.</em><i class="lt-go" aria-hidden="true">›</i></button>`; };
   bg.innerHTML = `<div class="ask lotesbox" role="dialog" aria-modal="true"><h3>${esc(p0.name)}</h3><p class="asub">${ls.length} ${ls.length === 1 ? "lote" : "lotes"} na loja</p><div class="ltl">${ls.map(linha).join("")}</div><div class="arow"><button type="button" class="ok" data-a="1">Fechar</button></div></div>`;
-  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-a]")) bg.remove(); };
+  bg.onclick = e => { if (e.target === bg || e.target.closest("[data-a]")) { bg.remove(); return; }
+    const l = e.target.closest("[data-lt]"); if (!l) return; bg.remove();   // toque no lote: fecha e abre o cartão daquele lote (retirar, editar, nota…)
+    if (curTab !== "Loja") { try { document.getElementById("tbLoja").click(); } catch (x) {} }
+    openId = l.dataset.lt; render(); requestAnimationFrame(() => { const it = $("list").querySelector('.pitem[data-id="' + CSS.escape(openId) + '"]'); if (it) it.scrollIntoView({ block: "center", behavior: "smooth" }); }); };
   document.body.appendChild(bg);
 }
 function lotesDe(k) {   // validades que já estão na loja deste produto (o que vence primeiro é o Lote 1)
