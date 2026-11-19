@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-18T22:30:00-03:00",
+  "itens": [
+   "Cabeçalho fixo no tamanho compacto: não muda mais ao rolar a lista",
+   "Perecíveis: aba Etiquetas removida"
+  ]
+ },
+ {
   "t": "2026-11-18T22:15:00-03:00",
   "itens": [
    "Estilo vidro: cartões mais translúcidos e foto maior",

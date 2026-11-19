@@ -28,7 +28,5 @@ var mb=g("moreBtn");if(mb)mb.addEventListener("click",lab);
 lab();setTimeout(lab,500);
 })();
 
-/* cabeçalho que encolhe ao rolar (volta ao subir); histerese para não ficar piscando */
-(function(){var on=false,tk=false;function f(){tk=false;var y=window.scrollY||document.documentElement.scrollTop||0;
-if(!on&&y>48){on=true;document.body.classList.add("hs")}else if(on&&y<12){on=false;document.body.classList.remove("hs")}}
-window.addEventListener("scroll",function(){if(!tk){tk=true;requestAnimationFrame(f)}},{passive:true})})();
+/* v569: cabeçalho sempre no tamanho compacto (não muda ao rolar) */
+document.body.classList.add("hs");

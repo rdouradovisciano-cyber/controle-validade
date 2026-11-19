@@ -2346,3 +2346,6 @@ body.vidro #list:not([data-visao=grade]) .pitem .pi-nome{white-space:normal;disp
 body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{flex:1}
 body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{padding-left:8px}
 body.vidro #list:not([data-visao=grade]) .pitem .pi-lead:has(.ico-vazio){margin-right:0}
+/* v569 — cabeçalho fixo compacto; Perecíveis sem a aba Etiquetas */
+body[data-setor="Perecíveis"] #tbEtiquetas{display:none!important}
+body.hs header{height:42px}
