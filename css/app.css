@@ -2349,3 +2349,10 @@ body.vidro #list:not([data-visao=grade]) .pitem .pi-lead:has(.ico-vazio){margin-
 /* v569 — cabeçalho fixo compacto; Perecíveis sem a aba Etiquetas */
 body[data-setor="Perecíveis"] #tbEtiquetas{display:none!important}
 body.hs header{height:42px}
+/* v570 — correções do estilo vidro */
+body.vidro #list:not([data-visao=grade]) .pitem .pi-lead:has(.ico-lado:not(.sil)){margin-top:0;margin-right:0;align-self:center}
+body.vidro #list:not([data-visao=grade]) .pitem .ico-lado:not(.sil) .ico-img{width:84px;height:84px}
+body.vidro:not(.hs) .x{}
+body.hs #moreBtn{height:34px;min-width:36px;align-self:center}
+html:not([data-tema=dark]) body.vidro{background:linear-gradient(160deg,#ece4ff 0%,#fde9d4 55%,#e2f4ea 100%) fixed!important}
+html:not([data-tema=dark]) body.vidro #list:not([data-visao=grade]) .pitem{background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.38))!important;border-color:rgba(255,255,255,.9)!important;box-shadow:inset 4px 0 0 var(--tc,#3f9f6f),0 10px 26px rgba(80,60,140,.16)!important}
