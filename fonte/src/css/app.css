@@ -2387,3 +2387,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulati
 .pi-lead.promo::before{content:"";position:absolute;left:50%;top:50%;width:136%;aspect-ratio:1;transform:translate(-50%,-50%);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50.0,2.0 57.4,12.7 68.4,5.7 71.1,18.4 83.9,16.1 81.6,28.9 94.3,31.6 87.3,42.6 98.0,50.0 87.3,57.4 94.3,68.4 81.6,71.1 83.9,83.9 71.1,81.6 68.4,94.3 57.4,87.3 50.0,98.0 42.6,87.3 31.6,94.3 28.9,81.6 16.1,83.9 18.4,71.1 5.7,68.4 12.7,57.4 2.0,50.0 12.7,42.6 5.7,31.6 18.4,28.9 16.1,16.1 28.9,18.4 31.6,5.7 42.6,12.7' fill='%23ffe600' stroke='%23e11d24' stroke-width='3' stroke-linejoin='miter'/%3E%3C/svg%3E") center/contain no-repeat;z-index:0;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
 .pi-lead.promo>*{position:relative;z-index:1}
 .pi-lead.promo::after{content:"PROMOÇÃO";position:absolute;left:50%;top:-22px;transform:translateX(-50%);z-index:2;background:#e11d24;color:#fff;font:900 11px/1 system-ui,sans-serif;letter-spacing:.5px;padding:4px 9px;border-radius:99px;box-shadow:0 2px 4px rgba(0,0,0,.3);white-space:nowrap;pointer-events:none}
+/* v580 — lote mais forte e legível (era apagado no vidro) */
+.pi-sub2>.pi-lotes,body.vidro .pi-sub2>.pi-lotes{background:#f2c200;color:#2a1f00;font-weight:900;padding:3px 9px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+html[data-tema=light] .pi-sub2>.pi-lotes,body.vidro .pi-sub2>.pi-lotes{background:#f2c200;color:#2a1f00}
+.pi-lotes b{font-size:1.05em}
+.plb i{opacity:.35}.plb i.on{opacity:1}
