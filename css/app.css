@@ -2364,3 +2364,10 @@ body.vidro #list:not([data-visao=grade]) .pitem .pi-main{padding:14px 8px 14px 1
 body.vidro #list:not([data-visao=grade]) .pitem .pi-lead,body.vidro #list:not([data-visao=grade]) .pitem .pi-lead:has(.ico-lado:not(.sil)){margin:0;align-self:center}
 body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:92px;height:92px}
 body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{padding-left:6px}
+/* v574 — estilo vidro, opção B: «palco» (brilho na cor do prazo atrás da foto), sem barra nem linha */
+body.vidro #list:not([data-visao=grade]) .pitem::before{display:none!important}
+body.vidro #list:not([data-visao=grade]) .pitem,html:not([data-tema=dark]) body.vidro #list:not([data-visao=grade]) .pitem{border-bottom:0!important}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-main{padding:12px 8px 12px 6px}
+body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil{width:112px;height:112px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--tc,#3f9f6f) 50%,transparent) 0%,color-mix(in srgb,var(--tc,#3f9f6f) 16%,transparent) 60%,transparent 72%)!important}
+body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:86px;height:86px}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{padding-left:2px}
