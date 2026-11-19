@@ -271,10 +271,12 @@ function silGrava(d, v) { try { SIL.mem.set(silKey(d), v); if (SIL.db) SIL.db.tr
 // true enquanto o recorte desta foto ainda não está pronto: a tela esconde a foto (sem quadrado) até ficar pronta
 const silEspera = d => !!d && (!SIL.pronto || silPend.has(d));
 // só repinta quando a fila de recortes acaba (uma vez), senão a tela pisca a cada foto
+// v566: telas que não repintam sozinhas (escolha «Cebola — qual?», janelas): troca no lugar as fotos que estavam esperando o recorte
+function silPatch() { document.querySelectorAll(".silw").forEach(el => { const im = el.querySelector("img"); if (!im) return; const d = im.getAttribute("src"); if (!d || silPend.has(d)) return; const v = silCache.get(d); el.classList.remove("silw"); if (v) { im.src = v; el.classList.add("sil"); } }); }
 function silPronto(d, forca) { if (!d) return d; if (silCache.has(d)) return silCache.get(d) || d; if (!SIL.pronto) return d;
   const k = silKey(d); if (SIL.mem.has(k) && !forca) { const v = SIL.mem.get(k); silCache.set(d, v); return v || d; }
   silCache.set(d, false); silPend.add(d); silFilaN++;
-  silRecorta(d).then(v => { silCache.set(d, v); silGrava(d, v); silPend.delete(d); silFilaN--; if (silFilaN <= 0) { clearTimeout(silTm); silTm = setTimeout(() => { if (silFilaN > 0) return; try { render(); } catch (e) {} try { saudeRepinta && saudeRepinta(); } catch (e) {} }, 350); } }); return d; }
+  silRecorta(d).then(v => { silCache.set(d, v); silGrava(d, v); silPend.delete(d); silFilaN--; if (silFilaN <= 0) { clearTimeout(silTm); silTm = setTimeout(() => { if (silFilaN > 0) return; try { render(); } catch (e) {} try { silPatch(); } catch (e) {} try { saudeRepinta && saudeRepinta(); } catch (e) {} }, 350); } }); return d; }
 const icoLado = p => fotoDe(p) || !iconesOn() || !p || p.category !== PER ? "" : `<span class="ico-tile ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`;   // v458: emoji do produto num quadrado do mesmo tamanho da foto
 // v473: a nota vira um balão amarelo no canto da foto do produto (sem foto/quadrado, o ícone continua ao lado do nome)
 const leadNota = p => { const l = fotoLado(p) || icoLado(p); if (!l) return ""; const n = notaDe(p.id); return `<span class="pi-lead">${l}</span>`; };
