@@ -2392,3 +2392,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulati
 html[data-tema=light] .pi-sub2>.pi-lotes,body.vidro .pi-sub2>.pi-lotes{background:#f2c200;color:#2a1f00}
 .pi-lotes b{font-size:1.05em}
 .plb i{opacity:.35}.plb i.on{opacity:1}
+/* v581 — só a foto: maior, nítida e com sombra (como na v568); layout da lista inalterado */
+html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil,html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:100px;height:100px}
+html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil{margin:-6px 0}
+html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{object-fit:contain;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45));image-rendering:auto}
