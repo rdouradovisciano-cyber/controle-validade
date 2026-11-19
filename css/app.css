@@ -2371,3 +2371,13 @@ body.vidro #list:not([data-visao=grade]) .pitem .pi-main{padding:12px 8px 12px 6
 body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil{width:112px;height:112px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--tc,#3f9f6f) 50%,transparent) 0%,color-mix(in srgb,var(--tc,#3f9f6f) 16%,transparent) 60%,transparent 72%)!important}
 body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:86px;height:86px}
 body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{padding-left:2px}
+/* v575 — estilo vidro, opção D: faixa suave na cor do prazo, cantos retos, foto dentro da linha (substitui o brilho da B) */
+body.vidro #list:not([data-visao=grade]) .pitem,html:not([data-tema=dark]) body.vidro #list:not([data-visao=grade]) .pitem{margin:0 0 8px!important;border-radius:8px!important;background:linear-gradient(90deg,color-mix(in srgb,var(--tc,#3f9f6f) 32%,transparent),color-mix(in srgb,var(--tc,#3f9f6f) 7%,transparent) 72%,transparent)!important}
+body.vidro #list:not([data-visao=grade]) .pitem.open{background:linear-gradient(90deg,color-mix(in srgb,var(--tc,#3f9f6f) 42%,transparent),color-mix(in srgb,var(--tc,#3f9f6f) 12%,transparent) 78%,transparent)!important}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-main{padding:10px 8px 10px 8px}
+body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil{width:92px;height:92px;background:none!important;border-radius:0;display:block}
+body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:92px;height:92px}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-badge{background:#15130e;color:#fff}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-badge b,body.vidro #list:not([data-visao=grade]) .pitem .pi-badge span{color:#fff}
+html[data-tema=dark] body.vidro #list:not([data-visao=grade]) .pitem .pi-badge{background:rgba(255,255,255,.92)}
+html[data-tema=dark] body.vidro #list:not([data-visao=grade]) .pitem .pi-badge b,html[data-tema=dark] body.vidro #list:not([data-visao=grade]) .pitem .pi-badge span{color:#15130e}
