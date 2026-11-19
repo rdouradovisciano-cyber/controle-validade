@@ -2384,7 +2384,7 @@ html[data-tema=dark] body.vidro #list:not([data-visao=grade]) .pitem .pi-badge b
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
 @supports (-webkit-touch-callout:none){input,select,textarea,.pi-nota input,input[type=search]{font-size:16px!important}}
 /* v578 — "Já na promoção": explosão amarela atrás da foto, para todos (a nota já sincroniza) */
-.pi-lead.promo::before{content:"";position:absolute;left:50%;top:50%;width:118%;aspect-ratio:1;transform:translate(-50%,-50%);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50.0,2.0 57.4,12.7 68.4,5.7 71.1,18.4 83.9,16.1 81.6,28.9 94.3,31.6 87.3,42.6 98.0,50.0 87.3,57.4 94.3,68.4 81.6,71.1 83.9,83.9 71.1,81.6 68.4,94.3 57.4,87.3 50.0,98.0 42.6,87.3 31.6,94.3 28.9,81.6 16.1,83.9 18.4,71.1 5.7,68.4 12.7,57.4 2.0,50.0 12.7,42.6 5.7,31.6 18.4,28.9 16.1,16.1 28.9,18.4 31.6,5.7 42.6,12.7' fill='%23ffe600' stroke='%23e11d24' stroke-width='3' stroke-linejoin='miter'/%3E%3C/svg%3E") center/contain no-repeat;z-index:0;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.pi-lead.promo::before{content:"";position:absolute;left:50%;top:50%;width:136%;aspect-ratio:1;transform:translate(-50%,-50%);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50.0,2.0 57.4,12.7 68.4,5.7 71.1,18.4 83.9,16.1 81.6,28.9 94.3,31.6 87.3,42.6 98.0,50.0 87.3,57.4 94.3,68.4 81.6,71.1 83.9,83.9 71.1,81.6 68.4,94.3 57.4,87.3 50.0,98.0 42.6,87.3 31.6,94.3 28.9,81.6 16.1,83.9 18.4,71.1 5.7,68.4 12.7,57.4 2.0,50.0 12.7,42.6 5.7,31.6 18.4,28.9 16.1,16.1 28.9,18.4 31.6,5.7 42.6,12.7' fill='%23ffe600' stroke='%23e11d24' stroke-width='3' stroke-linejoin='miter'/%3E%3C/svg%3E") center/contain no-repeat;z-index:0;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
 .pi-lead.promo>*{position:relative;z-index:1}
 .pi-lead.promo::after{content:"PROMOÇÃO";position:absolute;left:50%;top:-22px;transform:translateX(-50%);z-index:2;background:#e11d24;color:#fff;font:900 11px/1 system-ui,sans-serif;letter-spacing:.5px;padding:4px 9px;border-radius:99px;box-shadow:0 2px 4px rgba(0,0,0,.3);white-space:nowrap;pointer-events:none}
 /* v580 — lote mais forte e legível (era apagado no vidro) */
@@ -2392,28 +2392,3 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulati
 html[data-tema=light] .pi-sub2>.pi-lotes,body.vidro .pi-sub2>.pi-lotes{background:#f2c200;color:#2a1f00}
 .pi-lotes b{font-size:1.05em}
 .plb i{opacity:.35}.plb i.on{opacity:1}
-/* v581 — volta a estrutura da lista/foto da v568 (foto grande saltando acima do cartão) */
-html:root body.vidro #list:not([data-visao=grade]) .pitem{margin:34px 2px 0!important;border:1px solid rgba(160,160,170,.28)!important;border-radius:22px!important;background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.04))!important;box-shadow:inset 4px 0 0 var(--tc,#3f9f6f),inset 0 1px 0 rgba(255,255,255,.22),0 10px 22px rgba(0,0,0,.22)!important;overflow-y:visible!important;overflow-x:clip}
-html:root body.vidro #list:not([data-visao=grade]) .pitem::before{display:none!important}
-html:root body.vidro #list:not([data-visao=grade]) .pitem.open{background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.07))!important}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-main{padding:12px 12px 12px 14px;gap:10px;position:relative}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-lead{margin-top:-30px;align-self:flex-start;position:relative;z-index:2}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:84px;height:84px}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{filter:drop-shadow(0 9px 7px rgba(0,0,0,.5))}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{padding-right:6px;min-width:0}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-badge{align-self:flex-start;display:inline-flex;align-items:baseline;gap:4px;padding:4px 11px;border-radius:99px;background:var(--tc,#3f9f6f);color:#111;min-width:0;height:auto;width:auto;box-shadow:none;border:0;margin-top:-2px}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-badge b{font-size:12px;font-weight:900;line-height:1.2;letter-spacing:0;color:#111}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-badge span{font-size:11px;font-weight:800;color:#111;line-height:1.2}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-lead:has(.ico-vazio){margin-top:0;align-self:center}
-html:root body.vidro #list:not([data-visao=grade]) .pitem{margin:50px 2px 0!important;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.03))!important;-webkit-backdrop-filter:blur(14px) saturate(150%);backdrop-filter:blur(14px) saturate(150%);border-color:rgba(255,255,255,.22)!important}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-main{padding:14px 12px 14px 12px;min-height:84px}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-lead{margin-top:-52px;margin-bottom:-6px}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:116px;height:116px}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{filter:drop-shadow(0 12px 9px rgba(0,0,0,.55))}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-nome{font-size:16px}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:104px;height:104px}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-lead{margin-right:-16px;margin-top:-46px}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-nome{white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-overflow:clip;font-size:15.5px}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{flex:1}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{padding-left:8px}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-lead:has(.ico-vazio){margin-right:0}

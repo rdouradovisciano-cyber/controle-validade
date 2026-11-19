@@ -138,7 +138,6 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
 - v531: tour do cartão (`js/tour.js` recriado a pedido; só os passos do cartão). Admin liga/desliga em ⋮ › «Tour da equipe» (Firestore sh_cfg/tour {on,id}); cada aparelho Perecíveis vê 1× por id; «Ver o tour do cartão» para o Admin rever.
-- v581: lista vidro volta à estrutura da v568: cartão arredondado e foto grande saltando acima dele (mantidos recorte, selo PROMOÇÃO e lote novo).
 - v580: chip de lote (1/3) mais forte: fundo amarelo sólido e texto escuro.
 - v579: promoção: explosão simétrica (estrela redonda), sem o balão "Já na promoção"; selo vermelho PROMOÇÃO acima da foto.
 - v578: nota "Já na promoção" desenha uma explosão amarela com contorno vermelho atrás da foto do produto na lista; a nota já sincroniza, então todos veem.
