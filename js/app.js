@@ -255,7 +255,11 @@ function silRecorta(src) { return new Promise(res => { const im = new Image(); i
       for (let y = 0; y < h; y++) { cs[0] = 0; for (let x = 0; x < w; x++) cs[x + 1] = cs[x] + S[y * w + x]; for (let x = 0; x < w; x++) { const x0 = Math.max(0, x - r), x1 = Math.min(w - 1, x + r), c = cs[x1 + 1] - cs[x0]; A[y * w + x] = dil ? (c > 0 ? 1 : 0) : (c === x1 - x0 + 1 ? 1 : 0); } }
       for (let x = 0; x < w; x++) { cs[0] = 0; for (let y = 0; y < h; y++) cs[y + 1] = cs[y] + A[y * w + x]; for (let y = 0; y < h; y++) { const y0 = Math.max(0, y - r), y1 = Math.min(h - 1, y + r), c = cs[y1 + 1] - cs[y0]; B[y * w + x] = dil ? (c > 0 ? 1 : 0) : (c === y1 - y0 + 1 ? 1 : 0); } }
       return B; };
-    const C = morf(morf(P, true), false); for (let i = 0; i < N; i++) if (bg[i] && C[i]) bg[i] = 0; }
+    const C = morf(morf(P, true), false), Hh = new Uint8Array(N);
+    // v572: só devolve o que fica «cercado» de produto (produto à esquerda, à direita, acima e abaixo: pelo menos 3 dos 4 lados); cantos de fora não voltam, sem blocos brancos
+    for (let y = 0; y < h; y++) { let s = 0; for (let x = 0; x < w; x++) { const i = y * w + x; if (!bg[i]) s = 1; else if (s) Hh[i]++; } s = 0; for (let x = w - 1; x >= 0; x--) { const i = y * w + x; if (!bg[i]) s = 1; else if (s) Hh[i]++; } }
+    for (let x = 0; x < w; x++) { let s = 0; for (let y = 0; y < h; y++) { const i = y * w + x; if (!bg[i]) s = 1; else if (s) Hh[i]++; } s = 0; for (let y = h - 1; y >= 0; y--) { const i = y * w + x; if (!bg[i]) s = 1; else if (s) Hh[i]++; } }
+    for (let i = 0; i < N; i++) if (bg[i] && C[i] && Hh[i] >= 3) bg[i] = 0; }
   // bordas suaves: pixel de produto colado no fundo fica meio transparente
   let x0 = w, y0 = h, x1 = 0, y1 = 0;
   for (let i = 0; i < N; i++) { const o = i * 4; if (bg[i]) { px[o + 3] = 0; continue; } const xx = i % w, yy = (i / w) | 0; if (xx < x0) x0 = xx; if (xx > x1) x1 = xx; if (yy < y0) y0 = yy; if (yy > y1) y1 = yy;
@@ -267,7 +271,7 @@ const silPend = new Set();
 const silTrocados = new Map();   // nome → recorte pronto, só desta sessão (para mostrar «deu certo» na Saúde)
 // v545: recortes guardados no aparelho (IndexedDB), para a foto já abrir só com o produto, sem piscar o quadrado
 const SIL = { db: null, pronto: false, mem: new Map(), chaves: new Map() };
-const silKey = d => { let k = SIL.chaves.get(d); if (k) return k; let h = 5381; for (let i = 0; i < d.length; i += 7) h = ((h << 5) + h + d.charCodeAt(i)) | 0; k = "3:" + d.length + ":" + h; SIL.chaves.set(d, k); return k; };
+const silKey = d => { let k = SIL.chaves.get(d); if (k) return k; let h = 5381; for (let i = 0; i < d.length; i += 7) h = ((h << 5) + h + d.charCodeAt(i)) | 0; k = "4:" + d.length + ":" + h; SIL.chaves.set(d, k); return k; };
 async function silIdbCarrega() {
   try { SIL.db = await new Promise(ok => { try { const r = indexedDB.open("validamais-sil", 1); r.onupgradeneeded = () => r.result.createObjectStore("s"); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); r.onblocked = () => ok(null); } catch (e) { ok(null); } });
     if (SIL.db) { const st = SIL.db.transaction("s").objectStore("s"), ks = await idbReq(st.getAllKeys()), vs = await idbReq(st.getAll()); ks.forEach((k, i) => SIL.mem.set(k, vs[i] || false)); }
