@@ -2383,3 +2383,6 @@ html[data-tema=dark] body.vidro #list:not([data-visao=grade]) .pitem .pi-badge b
 /* v577 — iPhone: sem zoom ao tocar nos campos nem no toque duplo */
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
 @supports (-webkit-touch-callout:none){input,select,textarea,.pi-nota input,input[type=search]{font-size:16px!important}}
+/* v578 — "Já na promoção": explosão amarela atrás da foto, para todos (a nota já sincroniza) */
+.pi-lead.promo::before{content:"";position:absolute;left:50%;top:50%;width:136%;aspect-ratio:1;transform:translate(-50%,-50%);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50.0,2.0 60.6,15.6 66.4,4.9 74.0,23.2 88.2,20.9 80.9,31.6 97.6,43.8 86.0,48.6 97.2,58.6 80.8,68.7 89.9,76.6 72.0,78.5 68.1,94.5 61.5,84.1 46.6,97.9 41.8,85.1 32.6,94.7 24.9,75.8 14.1,81.9 18.0,66.5 2.4,56.4 14.2,53.3 3.6,37.8 18.4,32.8 9.7,23.9 29.9,20.1 28.7,7.0 39.7,15.5' fill='%23ffe600' stroke='%23e11d24' stroke-width='3' stroke-linejoin='miter'/%3E%3C/svg%3E") center/contain no-repeat;z-index:0;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.pi-lead.promo>*{position:relative;z-index:1}

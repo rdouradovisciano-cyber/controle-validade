@@ -290,7 +290,7 @@ function silPronto(d, forca) { if (!d) return d; if (silCache.has(d)) return sil
   silRecorta(d).then(v => { silCache.set(d, v); silGrava(d, v); silPend.delete(d); silFilaN--; if (silFilaN <= 0) { clearTimeout(silTm); silTm = setTimeout(() => { if (silFilaN > 0) return; try { render(); } catch (e) {} try { silPatch(); } catch (e) {} try { saudeRepinta && saudeRepinta(); } catch (e) {} }, 350); } }); return d; }
 const icoLado = p => fotoDe(p) || !iconesOn() || !p || p.category !== PER ? "" : `<span class="ico-tile ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`;   // v458: emoji do produto num quadrado do mesmo tamanho da foto
 // v473: a nota vira um balão amarelo no canto da foto do produto (sem foto/quadrado, o ícone continua ao lado do nome)
-const leadNota = p => { const l = fotoLado(p) || icoLado(p); if (!l) return ""; const n = notaDe(p.id); return `<span class="pi-lead">${l}</span>`; };
+const leadNota = p => { const l = fotoLado(p) || icoLado(p); if (!l) return ""; const n = notaDe(p.id), pm = n && /ja na promocao/.test(norm(n.t)); return `<span class="pi-lead${pm ? " promo" : ""}">${l}</span>`; };
 const fotoLado = p => { const d = fotoDe(p); if (!d) return ""; const s = silPronto(d); return `<span class="ico ico-foto ico-lado${s !== d ? " sil" : ""}${s === d && silEspera(d) ? " silw" : ""}" data-id="${esc(p.id)}"><img class="ico-img" src="${s}" alt="" decoding="async"></span>`; };   // lista de Validades: foto na lateral
 let fotoIcTimer = 0, fotoVer = 0, famMemo = { p: null, n: -1, v: -1, m: new Map() };
 // foto para os balões e linhas da Doação (FLV): a do nome exato; senão a de qualquer produto da mesma família (1ª palavra: Banana, Tomate…)
