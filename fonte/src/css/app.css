@@ -2356,3 +2356,11 @@ body.vidro:not(.hs) .x{}
 body.hs #moreBtn{height:34px;min-width:36px;align-self:center}
 html:not([data-tema=dark]) body.vidro{background:linear-gradient(160deg,#ece4ff 0%,#fde9d4 55%,#e2f4ea 100%) fixed!important}
 html:not([data-tema=dark]) body.vidro #list:not([data-visao=grade]) .pitem{background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.38))!important;border-color:rgba(255,255,255,.9)!important;box-shadow:inset 4px 0 0 var(--tc,#3f9f6f),0 10px 26px rgba(80,60,140,.16)!important}
+/* v573 — estilo vidro, opção A: sem moldura (barra de cor na lateral + linha fina), foto maior dentro da linha */
+body.vidro #list:not([data-visao=grade]) .pitem,html:not([data-tema=dark]) body.vidro #list:not([data-visao=grade]) .pitem{margin:0!important;border:0!important;border-bottom:1px solid rgba(128,128,128,.28)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none;overflow:visible}
+body.vidro #list:not([data-visao=grade]) .pitem::before{display:block!important;content:"";position:absolute;left:0;top:14px;bottom:14px;right:auto;width:4px;height:auto;border-radius:4px;background:var(--tc,#3f9f6f)}
+body.vidro #list:not([data-visao=grade]) .pitem.open{background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 16%,transparent),transparent 80%)!important}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-main{padding:14px 8px 14px 16px;min-height:0}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-lead,body.vidro #list:not([data-visao=grade]) .pitem .pi-lead:has(.ico-lado:not(.sil)){margin:0;align-self:center}
+body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:92px;height:92px}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{padding-left:6px}
