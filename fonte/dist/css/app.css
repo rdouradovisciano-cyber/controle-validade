@@ -2380,3 +2380,6 @@ body.vidro #list:not([data-visao=grade]) .pitem .pi-badge{background:#15130e;col
 body.vidro #list:not([data-visao=grade]) .pitem .pi-badge b,body.vidro #list:not([data-visao=grade]) .pitem .pi-badge span{color:#fff}
 html[data-tema=dark] body.vidro #list:not([data-visao=grade]) .pitem .pi-badge{background:rgba(255,255,255,.92)}
 html[data-tema=dark] body.vidro #list:not([data-visao=grade]) .pitem .pi-badge b,html[data-tema=dark] body.vidro #list:not([data-visao=grade]) .pitem .pi-badge span{color:#15130e}
+/* v577 — iPhone: sem zoom ao tocar nos campos nem no toque duplo */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
+@supports (-webkit-touch-callout:none){input,select,textarea,.pi-nota input,input[type=search]{font-size:16px!important}}

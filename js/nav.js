@@ -7,3 +7,6 @@ document.addEventListener("touchstart",function(e){if(e.touches.length!==1){ok=f
 document.addEventListener("touchend",function(e){if(!ok)return;ok=false;var t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;
 if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*2)return;var T=document.body.dataset.setor==="Perecíveis"?["Loja","Pesaveis"]:["Doacao","Etiquetas","Loja"];var cur=T.indexOf(document.body.dataset.tab||"Loja");if(cur<0)return;var n=cur+(dx<0?1:-1);
 if(n<0||n>=T.length)return;var el=g("tb"+T[n]);if(!el)return;el.click();window.scrollTo(0,0)},{passive:true});})();
+
+/* v577: iPhone — impede o zoom por gesto (pinça) fora do visualizador de foto, que usa o próprio zoom */
+document.addEventListener("gesturestart",function(e){if(!(e.target&&e.target.closest&&e.target.closest(".fzv")))e.preventDefault()});
