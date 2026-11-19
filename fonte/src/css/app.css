@@ -2321,3 +2321,28 @@ body.vidro #list:not([data-visao=grade]) .pitem .pi-badge{align-self:flex-start;
 body.vidro #list:not([data-visao=grade]) .pitem .pi-badge b{font-size:12px;font-weight:900;line-height:1.2;letter-spacing:0;color:#111}
 body.vidro #list:not([data-visao=grade]) .pitem .pi-badge span{font-size:11px;font-weight:800;color:#111;line-height:1.2}
 body.vidro #list:not([data-visao=grade]) .pitem .pi-lead:has(.ico-vazio){margin-top:0;align-self:center}
+/* v568 — vidro mais translúcido, foto maior e cabeçalho maior */
+html[data-tema=dark] body.vidro{background:radial-gradient(120% 55% at 12% 0%,#3a2f63 0%,#17132e 42%,#0a0912 100%) fixed!important}
+body.vidro #list:not([data-visao=grade]) .pitem{margin:50px 2px 0!important;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.03))!important;-webkit-backdrop-filter:blur(14px) saturate(150%);backdrop-filter:blur(14px) saturate(150%);border-color:rgba(255,255,255,.22)!important}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-main{padding:14px 12px 14px 12px;min-height:84px}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-lead{margin-top:-52px;margin-bottom:-6px}
+body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:116px;height:116px}
+body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{filter:drop-shadow(0 12px 9px rgba(0,0,0,.55))}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-nome{font-size:16px}
+body.vidro .panel:has(> #list),body.vidro #list{background:transparent}
+body.vidro:not(.hs) header{height:78px}
+body.vidro:not(.hs) h1::before{width:48px!important;height:48px!important;border-radius:13px}
+body.vidro:not(.hs) .hojeTop.htm{height:46px;padding:0 14px 0 12px;border-radius:13px;gap:8px}
+body.vidro:not(.hs) .hojeTop.htm svg{width:20px;height:20px}
+body.vidro:not(.hs) .hojeTop.htm b{font-size:23px}
+body.vidro:not(.hs) #onChip{font-size:13px!important;padding:6px 11px!important}
+body.vidro:not(.hs) .vertop{height:28px;font-size:12.5px;padding:0 10px}
+body.vidro:not(.hs) .tabbar button{min-height:56px;font-size:15px;border-radius:15px}
+body.vidro:not(.hs) .tabbar button .ic{width:22px;height:22px}
+html[data-tema=dark] body.vidro .top{background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.03))!important;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.14)}
+body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:104px;height:104px}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-lead{margin-right:-16px;margin-top:-46px}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-nome{white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-overflow:clip;font-size:15.5px}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{flex:1}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{padding-left:8px}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-lead:has(.ico-vazio){margin-right:0}
