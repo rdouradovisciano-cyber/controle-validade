@@ -2308,3 +2308,16 @@ body.adm-on .vertop{display:inline-flex;align-items:center;flex:none;height:22px
 .crw .elead.sil{border:0;background:none;overflow:visible}
 .crw .elead.sil .ico-img{object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.3))}
 .crw .elead.silw .ico-img{opacity:0}
+/* v567 — estilo «vidro»: cartões translúcidos, foto saltando para fora, prazo em etiqueta (liga/desliga em Mudar layout) */
+body.vidro #list:not([data-visao=grade]) .pitem{margin:34px 2px 0!important;border:1px solid rgba(160,160,170,.28)!important;border-radius:22px!important;background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.04))!important;box-shadow:inset 4px 0 0 var(--tc,#3f9f6f),inset 0 1px 0 rgba(255,255,255,.22),0 10px 22px rgba(0,0,0,.22)!important;overflow-y:visible!important;overflow-x:clip}
+body.vidro #list:not([data-visao=grade]) .pitem::before{display:none!important}
+body.vidro #list:not([data-visao=grade]) .pitem.open{background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.07))!important}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-main{padding:12px 12px 12px 14px;gap:10px;position:relative}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-lead{margin-top:-30px;align-self:flex-start;position:relative;z-index:2}
+body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:84px;height:84px}
+body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{filter:drop-shadow(0 9px 7px rgba(0,0,0,.5))}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{padding-right:6px;min-width:0}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-badge{align-self:flex-start;display:inline-flex;align-items:baseline;gap:4px;padding:4px 11px;border-radius:99px;background:var(--tc,#3f9f6f);color:#111;min-width:0;height:auto;width:auto;box-shadow:none;border:0;margin-top:-2px}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-badge b{font-size:12px;font-weight:900;line-height:1.2;letter-spacing:0;color:#111}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-badge span{font-size:11px;font-weight:800;color:#111;line-height:1.2}
+body.vidro #list:not([data-visao=grade]) .pitem .pi-lead:has(.ico-vazio){margin-top:0;align-self:center}

@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 566.
+> Última atualização: 11/11/2026 · versão 567.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -138,6 +138,7 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v480: nota vira post-it amarelo inclinado (`.pi-bubble` restilizado, mesmo markup), colado sobre a foto.
 - v481: tour de boas-vindas — REMOVIDO na v482 a pedido do usuário (não recriar sem ele pedir).
 - v531: tour do cartão (`js/tour.js` recriado a pedido; só os passos do cartão). Admin liga/desliga em ⋮ › «Tour da equipe» (Firestore sh_cfg/tour {on,id}); cada aparelho Perecíveis vê 1× por id; «Ver o tour do cartão» para o Admin rever.
+- v567: estilo «vidro» na lista (cartões translúcidos, foto saltando, prazo em etiqueta); liga/desliga em Mudar layout (validamais-vidro, padrão ligado). Voltar de versão: git revert deste commit (v567).
 - v566: corrige círculos vazios na escolha «Cebola — qual?» (Doação FLV): fotos esperando recorte agora aparecem quando o recorte termina (silPatch).
 - v565: FLV: fotos dos balões, da Doação e das Etiquetas em silhueta, sem o quadrado (mesmo recorte dos Perecíveis).
 - v564: lista de lotes (toque no selo 1/2): cada lote é tocável e abre o cartão daquele lote com as ações.

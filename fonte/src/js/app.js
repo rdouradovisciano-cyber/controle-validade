@@ -2382,6 +2382,10 @@ function saudeAbrir() {
 // nuvem: padrão da loja (só o Admin grava); cada aparelho pode ter o seu (fica local)
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "nomes_ok"), sn => { if (sn.exists() && Array.isArray(sn.data().l)) { nomesOk = new Set(sn.data().l); store.set(NOK_K, [...nomesOk]); try { saudeRepinta && saudeRepinta(); } catch (e) {} } }, e => console.warn("nomes_ok", e)); } catch (e) { console.warn(e); } }
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "visual"), sn => { visCloud = sn.exists() && sn.data().cores ? sn.data() : null; visAplica(); render(); }, e => console.warn("visual", e)); } catch (e) { console.warn(e); } }
+// v567: estilo «vidro» (cartões translúcidos, foto saltando); cada aparelho pode desligar em Mudar layout
+function vidroOn() { return store.get("validamais-vidro", 1) !== 0; }
+function vidroAplica() { document.body.classList.toggle("vidro", vidroOn()); }
+vidroAplica();
 function visAbrir() {
   const v0 = visCfg(), admin = PERFIL === "Admin", loc = !!store.get(VK, null);
   let v = JSON.parse(JSON.stringify(v0));
@@ -2389,6 +2393,7 @@ function visAbrir() {
   bg.innerHTML = `<section class="sheet" role="dialog" aria-modal="true" aria-label="Mudar layout"><div class="sheethead"><h2>🎨 Mudar layout</h2><button type="button" class="secondary" data-x aria-label="Fechar">✕</button></div>
     <p class="note">${admin ? "Como Admin, o que você salvar vale para <b>todos os aparelhos</b>." : "O que você salvar vale só <b>neste aparelho</b>."}</p>
     <label class="nfrow"><span><b>Fotos nos produtos</b><small>Mostra a foto do produto nos cartões (Perecíveis e FLV). Sem foto, aparece um quadrado com câmera</small></span><input type="checkbox" id="vsIco" ${iconesOn() ? "checked" : ""}></label>
+    <label class="nfrow"><span><b>Estilo vidro</b><small>Cartões translúcidos com a foto saltando para fora. Desligue para voltar ao estilo anterior</small></span><input type="checkbox" id="vsVidro" ${vidroOn() ? "checked" : ""}></label>
     <label>Estilo de visualização</label><div class="vspre" id="vsV"><button type="button" data-v="lista">Lista</button><button type="button" data-v="grade">Grade (fotos grandes)</button></div>
     <label>Tamanho da letra da lista</label><div class="vspre" id="vsF"><button type="button" data-f="normal">Normal</button><button type="button" data-f="grande">Grande</button></div>
     <div class="toolbar" style="margin-top:12px"><button class="primary big" type="button" id="vsSalva">Salvar</button><button class="secondary" type="button" id="vsPad">${admin ? "Restaurar padrão" : (loc ? "Usar o padrão da loja" : "Restaurar padrão")}</button></div></section>`;
@@ -2399,6 +2404,7 @@ function visAbrir() {
   const vsVis = () => bg.querySelectorAll("[data-v]").forEach(b => b.classList.toggle("on", b.dataset.v === visaoDe())); vsVis();
   q("#vsV").onclick = e => { const b = e.target.closest("[data-v]"); if (!b) return; store.set(VSK, b.dataset.v); vsVis(); render(); };
   q("#vsIco").onchange = e => { store.set(ICK, e.target.checked); render(); };
+  q("#vsVidro").onchange = e => { store.set("validamais-vidro", e.target.checked ? 1 : 0); vidroAplica(); };
   q("#vsSalva").onclick = async () => {
     const cfg = visNorm(v);
     if (admin && db) { try { await V.setDoc(V.doc(db, "sh_cfg", "visual"), { ...cfg, em: Date.now() }); localStorage.removeItem(VK); visCloud = cfg; toast("Salvo para todos os aparelhos."); }
