@@ -143,6 +143,7 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v579: promoção: explosão simétrica (estrela redonda), sem o balão "Já na promoção"; selo vermelho PROMOÇÃO acima da foto.
 - v578: nota "Já na promoção" desenha uma explosão amarela com contorno vermelho atrás da foto do produto na lista; a nota já sincroniza, então todos veem.
 - v577: iPhone com zoom: campos com <16px (busca 15, nota 15, select 14) faziam o Safari dar zoom ao focar; agora 16px no iOS, viewport com maximum-scale=1, touch-action manipulation no html e gesturestart bloqueado (exceto visualizador de foto).
+- v587: «Cadastrar pesável» agora salva de verdade sem validade (a v585 só tirou o asterisco; o salvar ainda recusava).
 - v586: novo lote sem bipar: botão «＋ Novo lote» na lista de lotes e «＋ Novo lote deste produto» no cartão aberto; abre o cadastro do lote já com o produto.
 - v585: «Cadastrar pesável» (aba Pesáveis) não exige mais a data de validade.
 - v584: página não pode rolar para os lados (lista fugia para a direita no Android): overflow-x clip no html/body e volta para x=0 se escapar.
