@@ -235,3 +235,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v484: KÓRIN com foto na contagem (`kFotoN(nome)`: `.krow` e sugestões `.kpk`; segurar amplia via `fotoSegurar` em `#kLista`; repinta em `fotoIcones` com `SETOR === KOR`). Vendeu (tabela `.kvr`) ficou sem foto.
 - v483: menu ⋮ sem «Cadastro manual» e sem «Perfil deste aparelho»; trocar perfil = 10 toques seguidos (≤2 s entre eles) em `#appVer` (rodapé) → `perfilEscolher(true)`.
 - v482: tour removido (tour.js, item de menu e CSS).
+- v588: `silRecorta` descasca até 3 px de branco colado no fundo e recusa o recorte (→ `false`, lista «foto sem recorte» da Saúde do app) se sobrar branco nos cantos do contorno ou na borda (>50%). `silKey` prefixo «5:» (recalcula o cache).

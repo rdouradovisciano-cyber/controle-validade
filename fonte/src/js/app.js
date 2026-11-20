@@ -260,6 +260,14 @@ function silRecorta(src) { return new Promise(res => { const im = new Image(); i
     for (let y = 0; y < h; y++) { let s = 0; for (let x = 0; x < w; x++) { const i = y * w + x; if (!bg[i]) s = 1; else if (s) Hh[i]++; } s = 0; for (let x = w - 1; x >= 0; x--) { const i = y * w + x; if (!bg[i]) s = 1; else if (s) Hh[i]++; } }
     for (let x = 0; x < w; x++) { let s = 0; for (let y = 0; y < h; y++) { const i = y * w + x; if (!bg[i]) s = 1; else if (s) Hh[i]++; } s = 0; for (let y = h - 1; y >= 0; y--) { const i = y * w + x; if (!bg[i]) s = 1; else if (s) Hh[i]++; } }
     for (let i = 0; i < N; i++) if (bg[i] && C[i] && Hh[i] >= 3) bg[i] = 0; }
+  // v588: quadradinhos brancos. 1) descasca o branco que ficou colado no fundo (até 3 px); 2) confere se sobrou bloco branco no contorno: se sobrou, o recorte é recusado (a foto vai para a Saúde do app para ser trocada)
+  { const nw = o => dist(o) <= 42;
+    for (let it = 0; it < 3; it++) { const rm = []; for (let i = 0; i < N; i++) { if (bg[i] || !nw(i * 4)) continue; const xx = i % w, yy = (i / w) | 0; if ((xx > 0 && bg[i - 1]) || (xx < w - 1 && bg[i + 1]) || (yy > 0 && bg[i - w]) || (yy < h - 1 && bg[i + w])) rm.push(i); } if (!rm.length) break; rm.forEach(i => { bg[i] = 1; }); }
+    let bx0 = w, by0 = h, bx1 = 0, by1 = 0; for (let i = 0; i < N; i++) if (!bg[i]) { const xx = i % w, yy = (i / w) | 0; if (xx < bx0) bx0 = xx; if (xx > bx1) bx1 = xx; if (yy < by0) by0 = yy; if (yy > by1) by1 = yy; }
+    const bw = bx1 - bx0 + 1, bh = by1 - by0 + 1, q = Math.max(6, Math.round(Math.min(bw, bh) * .16));
+    for (const [cx, cy] of [[bx0, by0], [bx1 - q + 1, by0], [bx0, by1 - q + 1], [bx1 - q + 1, by1 - q + 1]]) { let op = 0, br = 0; for (let yy = cy; yy < cy + q; yy++) for (let xx = cx; xx < cx + q; xx++) { const i = yy * w + xx; if (i < 0 || i >= N || bg[i]) continue; op++; if (nw(i * 4)) br++; } if (op > q * q * .55 && br > op * .6) return res(false); }   // canto cheio de branco = quadradinho
+    let rim = 0, per = 0; for (let i = 0; i < N; i++) { if (bg[i]) continue; const xx = i % w, yy = (i / w) | 0; let perto = false; for (let k = 1; k <= 4 && !perto; k++) { if ((xx - k >= 0 && bg[i - k]) || (xx + k < w && bg[i + k]) || (yy - k >= 0 && bg[i - k * w]) || (yy + k < h && bg[i + k * w])) perto = true; } if (!perto) continue; per++; if (nw(i * 4)) rim++; }
+    if (per > 20 && rim > per * .5) return res(false); }
   // bordas suaves: pixel de produto colado no fundo fica meio transparente
   let x0 = w, y0 = h, x1 = 0, y1 = 0;
   for (let i = 0; i < N; i++) { const o = i * 4; if (bg[i]) { px[o + 3] = 0; continue; } const xx = i % w, yy = (i / w) | 0; if (xx < x0) x0 = xx; if (xx > x1) x1 = xx; if (yy < y0) y0 = yy; if (yy > y1) y1 = yy;
@@ -271,7 +279,7 @@ const silPend = new Set();
 const silTrocados = new Map();   // nome → recorte pronto, só desta sessão (para mostrar «deu certo» na Saúde)
 // v545: recortes guardados no aparelho (IndexedDB), para a foto já abrir só com o produto, sem piscar o quadrado
 const SIL = { db: null, pronto: false, mem: new Map(), chaves: new Map() };
-const silKey = d => { let k = SIL.chaves.get(d); if (k) return k; let h = 5381; for (let i = 0; i < d.length; i += 7) h = ((h << 5) + h + d.charCodeAt(i)) | 0; k = "4:" + d.length + ":" + h; SIL.chaves.set(d, k); return k; };
+const silKey = d => { let k = SIL.chaves.get(d); if (k) return k; let h = 5381; for (let i = 0; i < d.length; i += 7) h = ((h << 5) + h + d.charCodeAt(i)) | 0; k = "5:" + d.length + ":" + h; SIL.chaves.set(d, k); return k; };
 async function silIdbCarrega() {
   try { SIL.db = await new Promise(ok => { try { const r = indexedDB.open("validamais-sil", 1); r.onupgradeneeded = () => r.result.createObjectStore("s"); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); r.onblocked = () => ok(null); } catch (e) { ok(null); } });
     if (SIL.db) { const st = SIL.db.transaction("s").objectStore("s"), ks = await idbReq(st.getAllKeys()), vs = await idbReq(st.getAll()); ks.forEach((k, i) => SIL.mem.set(k, vs[i] || false)); }
@@ -2277,7 +2285,7 @@ function saudeCalc() {
       comFoto.forEach(([k, n]) => { const d = fotoCache[k]; silPronto(d, true); if (silPend.has(d)) pend++; else if (silCache.get(d) === false) ruins.push(n); });
       ruins.sort((x, y) => x.localeCompare(y, "pt-BR"));
       const certos = [...silTrocados.entries()].filter(([k]) => nomes.has(k) && fotoCache[k] && silCache.get(fotoCache[k])).map(([k, v]) => `<div class="shrow shfoto shokrow"><img class="shimg sil" src="${v}" alt=""><div class="shn2"><b>${esc(nomeBonito(nomes.get(k)))}</b><small class="note okt">✓ Deu certo: agora só com o produto</small></div></div>`);
-      if (comFoto.length) sec.push({ t: `${nomeSS}: foto sem recorte (${ruins.length}${pend ? ", conferindo mais " + pend : ""})`, d: "O fundo dessas fotos não deu para tirar sozinho (fundo colorido ou com sombra, produto branco, foto muito cortada). Elas continuam aparecendo quadradas. Para ficarem só com o produto, troque por uma foto com fundo branco liso: toque em «📷 Foto» ou procure uma imagem nova em 🔎.", n: ruins.length, todos: true,
+      if (comFoto.length) sec.push({ t: `${nomeSS}: foto sem recorte (${ruins.length}${pend ? ", conferindo mais " + pend : ""})`, d: "O recorte dessas fotos não ficou limpo (sobra fundo branco, fundo colorido ou com sombra, produto branco, foto muito cortada). Elas continuam aparecendo quadradas. Para ficarem só com o produto, troque por uma foto com fundo branco liso: toque em «📷 Foto» ou procure uma imagem nova em 🔎.", n: ruins.length, todos: true,
         it: certos.concat(ruins.map(n => { const k = fotoK(n), eans = eanDe[k] ? [...eanDe[k]] : [], busca = "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent((eans[0] || "") + " " + n + " fundo branco");
           return `<div class="shrow shfoto"><img class="shimg" src="${esc(fotoCache[k])}" alt=""><div class="shn2"><b>${esc(nomeBonito(n))}</b><small class="note">foto quadrada (sem recorte)</small></div><span class="shbts"><a class="shact" href="${esc(busca)}" target="_blank" rel="noopener" aria-label="Procurar imagem com fundo branco">🔎</a><button type="button" class="shact pri" data-foto="${esc(n)}">📷 Foto</button></span></div>`; })) }); }
     const sabe = !db || fotosPronto, nFot = [...nomes.keys()].filter(k => fotoCache[k]).length;
