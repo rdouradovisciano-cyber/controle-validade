@@ -262,6 +262,7 @@ function silRecorta(src) { return new Promise(res => { const im = new Image(); i
     for (let i = 0; i < N; i++) if (bg[i] && C[i] && Hh[i] >= 3) bg[i] = 0; }
   // v588: quadradinhos brancos. 1) descasca o branco que ficou colado no fundo (até 3 px); 2) confere se sobrou bloco branco no contorno: se sobrou, o recorte é recusado (a foto vai para a Saúde do app para ser trocada)
   { const nw = o => dist(o) <= 42;
+    { let kp = 0, kw = 0; for (let i = 0; i < N; i++) { if (bg[i]) continue; kp++; if (nw(i * 4)) kw++; } if (kp && kw > kp * .5) return res(false); }   // produto quase todo branco (garrafa branca): o fundo se mistura e o recorte come pedaços do produto
     for (let it = 0; it < 3; it++) { const rm = []; for (let i = 0; i < N; i++) { if (bg[i] || !nw(i * 4)) continue; const xx = i % w, yy = (i / w) | 0; if ((xx > 0 && bg[i - 1]) || (xx < w - 1 && bg[i + 1]) || (yy > 0 && bg[i - w]) || (yy < h - 1 && bg[i + w])) rm.push(i); } if (!rm.length) break; rm.forEach(i => { bg[i] = 1; }); }
     let bx0 = w, by0 = h, bx1 = 0, by1 = 0; for (let i = 0; i < N; i++) if (!bg[i]) { const xx = i % w, yy = (i / w) | 0; if (xx < bx0) bx0 = xx; if (xx > bx1) bx1 = xx; if (yy < by0) by0 = yy; if (yy > by1) by1 = yy; }
     const bw = bx1 - bx0 + 1, bh = by1 - by0 + 1, q = Math.max(6, Math.round(Math.min(bw, bh) * .16));
@@ -279,7 +280,7 @@ const silPend = new Set();
 const silTrocados = new Map();   // nome → recorte pronto, só desta sessão (para mostrar «deu certo» na Saúde)
 // v545: recortes guardados no aparelho (IndexedDB), para a foto já abrir só com o produto, sem piscar o quadrado
 const SIL = { db: null, pronto: false, mem: new Map(), chaves: new Map() };
-const silKey = d => { let k = SIL.chaves.get(d); if (k) return k; let h = 5381; for (let i = 0; i < d.length; i += 7) h = ((h << 5) + h + d.charCodeAt(i)) | 0; k = "5:" + d.length + ":" + h; SIL.chaves.set(d, k); return k; };
+const silKey = d => { let k = SIL.chaves.get(d); if (k) return k; let h = 5381; for (let i = 0; i < d.length; i += 7) h = ((h << 5) + h + d.charCodeAt(i)) | 0; k = "6:" + d.length + ":" + h; SIL.chaves.set(d, k); return k; };
 async function silIdbCarrega() {
   try { SIL.db = await new Promise(ok => { try { const r = indexedDB.open("validamais-sil", 1); r.onupgradeneeded = () => r.result.createObjectStore("s"); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); r.onblocked = () => ok(null); } catch (e) { ok(null); } });
     if (SIL.db) { const st = SIL.db.transaction("s").objectStore("s"), ks = await idbReq(st.getAllKeys()), vs = await idbReq(st.getAll()); ks.forEach((k, i) => SIL.mem.set(k, vs[i] || false)); }
