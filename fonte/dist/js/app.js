@@ -654,14 +654,15 @@ function fnVis() {   // só para produto novo que ainda não tem foto cadastrada
   const el = $("fotoNovo"); if (!el) return; const nome = $("name").value.trim(), ja = nome && fotoCache[fotoK(nome)];
   el.classList.toggle("hidden", !(!$("docId").value && !ja)); }
 function fnLimpa() { fnFile = null; fnPaint(); fnVis(); }
-function resetForm() { formBip = false; { const fe = $("fotoEd"); if (fe) fe.classList.add("hidden"); } fnFile = null; fnPaint();
+var semValObrig = false;   // v585: «Cadastrar pesável» não exige validade
+function resetForm() { semValObrig = false; formBip = false; { const fe = $("fotoEd"); if (fe) fe.classList.add("hidden"); } fnFile = null; fnPaint();
   $("productForm").reset(); $("docId").value = ""; $("quantity").value = 1;
   $("category").value = CATSET; $("saveNext").classList.remove("hidden"); toggleCodes();
   $("productForm").classList.remove("lote"); $("loteInfo").classList.add("hidden"); $("loteEdit").classList.add("hidden");
 }
 function toggleCodes() {
   fnVis();
-  const flv = $("category").value === "FLV"; $("expiry").required = !flv; $("expLabel").textContent = flv ? "Data de validade (opcional)" : "Data de validade *"; $("semCodigo").classList.toggle("hidden", !!$("barcode").value.trim() && !["FLV", "Padaria"].includes($("category").value)); }
+  const flv = $("category").value === "FLV" || semValObrig; $("expiry").required = !flv; $("expLabel").textContent = flv ? "Data de validade (opcional)" : "Data de validade *"; $("semCodigo").classList.toggle("hidden", !!$("barcode").value.trim() && !["FLV", "Padaria"].includes($("category").value)); }
 let scanBusy = Promise.resolve();
 async function liberaCamera(s) {
   if (s) { try { await s.stop(); } catch {} try { s.clear(); } catch {} }
@@ -3163,7 +3164,7 @@ $("pesLista").onclick = e => {
   const r = e.target.closest("[data-pes]"); if (r) { if (pesOpen !== r.dataset.pes) { pesHRegistra($("pesBusca").value); pesUsoSoma(r.dataset.pes); } pesOpen = pesOpen === r.dataset.pes ? "" : r.dataset.pes; document.querySelectorAll("#pesLista .pesrow").forEach(x => x.classList.toggle("open", x.dataset.pes === pesOpen)); }
 };
 $("pesBipar").onclick = () => openScan("etiqueta");
-$("pesNovo").onclick = () => openForm();
+$("pesNovo").onclick = () => { openForm(); semValObrig = true; toggleCodes(); };
 
 // ---------- histórico de etiquetas já impressas (3 dias) ----------
 let EHK = chaveSetor("validamais-etqhist");
