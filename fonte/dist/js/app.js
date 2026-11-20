@@ -3485,3 +3485,6 @@ window.addEventListener("appinstalled", () => { $("installBtn").hidden = true; }
 $("installBtn").onclick = async () => { if (deferred) { deferred.prompt(); await deferred.userChoice; deferred = null; $("installBtn").hidden = true; } };
 if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) $("iosHint").classList.remove("hidden");
 })();
+
+// v584: se a página escapar para o lado (zoom/arrasto), volta para a esquerda
+window.addEventListener("scroll", () => { if (window.scrollX > 0) window.scrollTo(0, window.scrollY); }, { passive: true });
