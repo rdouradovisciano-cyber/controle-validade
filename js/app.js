@@ -2391,6 +2391,7 @@ function saudeAbrir() {
 }
 
 // nuvem: padrão da loja (só o Admin grava); cada aparelho pode ter o seu (fica local)
+if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "notas"), sn => { notasNuvem = (sn.exists() && sn.data().n) || {}; const f = document.activeElement; if (!(f && f.matches && f.matches("[data-nota]"))) { render(); try { silPatch(); } catch (e) {} } }, e => console.warn("notas", e)); } catch (e) { console.warn(e); } }   // v577: volta a ouvir as notas da nuvem (a v494 removeu junto com a área Flores) — sem isso a promoção não chegava aos outros aparelhos
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "nomes_ok"), sn => { if (sn.exists() && Array.isArray(sn.data().l)) { nomesOk = new Set(sn.data().l); store.set(NOK_K, [...nomesOk]); try { saudeRepinta && saudeRepinta(); } catch (e) {} } }, e => console.warn("nomes_ok", e)); } catch (e) { console.warn(e); } }
 if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "visual"), sn => { visCloud = sn.exists() && sn.data().cores ? sn.data() : null; visAplica(); render(); }, e => console.warn("visual", e)); } catch (e) { console.warn(e); } }
 // v567: estilo «vidro» (cartões translúcidos, foto saltando); cada aparelho pode desligar em Mudar layout
