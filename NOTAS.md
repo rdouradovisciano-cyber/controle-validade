@@ -239,3 +239,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v589: Saúde do app, «foto sem recorte»: botão «✓ OK» (`data-a="fok"`) guarda `f:<nome>` em `nomesOk` (sh_cfg/nomes_ok, compartilhado) e some da lista.
 - v590: Saúde do app: `.shimg` com o mesmo tamanho/corte/borda da lista (60px cover + borda; recortada 100px contain + sombra).
 - v591: `silRecorta` recusa o recorte quando >50% do produto é quase branco (Muai Mel); `silKey` prefixo «6:».
+- v592: `silRecorta` = 1ª tentativa normal (T=24); se recusar ou for produto branco, 2ª tentativa `silRecorta1(src,6)` («apertado»: sem descascar/sem checagens de branco) + contorno cinza nas bordas. `silKey` «7:».

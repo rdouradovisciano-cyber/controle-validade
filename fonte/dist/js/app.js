@@ -233,7 +233,8 @@ const gRec = new Set(["v", "h", "a", "y", "ok"]);   // v463: o app SEMPRE abre c
 // v540: foto só com o produto (silhueta). Tira o fundo claro ligado às bordas da imagem, no próprio aparelho; se não der certeza, mantém a foto quadrada.
 const SILK = "validamais-silhueta", silOn = () => true,   // v545: recorte é o padrão oficial (opção removida do menu)
    silCache = new Map(); let silFilaN = 0, silTm = 0;
-function silRecorta(src) { return new Promise(res => { const im = new Image(); im.onerror = () => res(false); im.onload = () => { try {
+function silRecorta(src) { return silRecorta1(src, 24).then(r => r && r !== "branco" ? r : silRecorta1(src, 6)); }   // v592: produto branco → 2ª tentativa com fundo mais exigente + contorno cinza
+function silRecorta1(src, TT) { const apertado = TT < 24; return new Promise(res => { const im = new Image(); im.onerror = () => res(false); im.onload = () => { try {
   const W0 = im.naturalWidth, H0 = im.naturalHeight; if (W0 < 24 || H0 < 24) return res(false);
   const s = Math.min(1, 360 / Math.max(W0, H0)), w = Math.round(W0 * s), h = Math.round(H0 * s), c = document.createElement("canvas"); c.width = w; c.height = h;
   const x = c.getContext("2d", { willReadFrequently: true }); x.drawImage(im, 0, 0, w, h); const d = x.getImageData(0, 0, w, h), px = d.data, N = w * h;
@@ -243,8 +244,8 @@ function silRecorta(src) { return new Promise(res => { const im = new Image(); i
   if ((r + g + b) / 3 < 218) return res(false);   // fundo não é claro: não arrisca
   const dist = o => Math.max(Math.abs(px[o] - r), Math.abs(px[o + 1] - g), Math.abs(px[o + 2] - b));
   let vz = 0; bord.forEach(i => { if (dist(i * 4) > 30) vz++; }); if (vz > nb * .45) return res(false);   // borda cheia de produto: sem fundo para tirar
-  const bg = new Uint8Array(N), pil = []; bord.forEach(i => { if (!bg[i] && dist(i * 4) <= 24) { bg[i] = 1; pil.push(i); } });
-  while (pil.length) { const i = pil.pop(), xx = i % w, yy = (i / w) | 0; for (const j of [xx > 0 ? i - 1 : -1, xx < w - 1 ? i + 1 : -1, yy > 0 ? i - w : -1, yy < h - 1 ? i + w : -1]) { if (j < 0 || bg[j]) continue; if (dist(j * 4) <= 24) { bg[j] = 1; pil.push(j); } } }
+  const bg = new Uint8Array(N), pil = []; bord.forEach(i => { if (!bg[i] && dist(i * 4) <= TT) { bg[i] = 1; pil.push(i); } });
+  while (pil.length) { const i = pil.pop(), xx = i % w, yy = (i / w) | 0; for (const j of [xx > 0 ? i - 1 : -1, xx < w - 1 ? i + 1 : -1, yy > 0 ? i - w : -1, yy < h - 1 ? i + w : -1]) { if (j < 0 || bg[j]) continue; if (dist(j * 4) <= TT) { bg[j] = 1; pil.push(j); } } }
   let nbg = 0; for (let i = 0; i < N; i++) if (bg[i]) nbg++; const f = nbg / N; if (f < .1 || f > .93) return res(false);
   // um bloco só de produto (se o recorte virou pedaços soltos, a foto não serve)
   const vis = new Uint8Array(N); let maior = 0, tot = 0; for (let i = 0; i < N; i++) { if (bg[i] || vis[i]) continue; let n = 0; const st = [i]; vis[i] = 1; while (st.length) { const k = st.pop(); n++; const xx = k % w, yy = (k / w) | 0; for (const j of [xx > 0 ? k - 1 : -1, xx < w - 1 ? k + 1 : -1, yy > 0 ? k - w : -1, yy < h - 1 ? k + w : -1]) { if (j >= 0 && !bg[j] && !vis[j]) { vis[j] = 1; st.push(j); } } } tot += n; if (n > maior) maior = n; }
@@ -262,17 +263,17 @@ function silRecorta(src) { return new Promise(res => { const im = new Image(); i
     for (let i = 0; i < N; i++) if (bg[i] && C[i] && Hh[i] >= 3) bg[i] = 0; }
   // v588: quadradinhos brancos. 1) descasca o branco que ficou colado no fundo (até 3 px); 2) confere se sobrou bloco branco no contorno: se sobrou, o recorte é recusado (a foto vai para a Saúde do app para ser trocada)
   { const nw = o => dist(o) <= 42;
-    { let kp = 0, kw = 0; for (let i = 0; i < N; i++) { if (bg[i]) continue; kp++; if (nw(i * 4)) kw++; } if (kp && kw > kp * .5) return res(false); }   // produto quase todo branco (garrafa branca): o fundo se mistura e o recorte come pedaços do produto
-    for (let it = 0; it < 3; it++) { const rm = []; for (let i = 0; i < N; i++) { if (bg[i] || !nw(i * 4)) continue; const xx = i % w, yy = (i / w) | 0; if ((xx > 0 && bg[i - 1]) || (xx < w - 1 && bg[i + 1]) || (yy > 0 && bg[i - w]) || (yy < h - 1 && bg[i + w])) rm.push(i); } if (!rm.length) break; rm.forEach(i => { bg[i] = 1; }); }
+    { let kp = 0, kw = 0; for (let i = 0; i < N; i++) { if (bg[i]) continue; kp++; if (nw(i * 4)) kw++; } if (kp && kw > kp * .5 && !apertado) return res("branco"); }   // produto quase todo branco (garrafa branca): o fundo se mistura e o recorte come pedaços do produto
+    for (let it = 0; it < (apertado ? 0 : 3); it++) { const rm = []; for (let i = 0; i < N; i++) { if (bg[i] || !nw(i * 4)) continue; const xx = i % w, yy = (i / w) | 0; if ((xx > 0 && bg[i - 1]) || (xx < w - 1 && bg[i + 1]) || (yy > 0 && bg[i - w]) || (yy < h - 1 && bg[i + w])) rm.push(i); } if (!rm.length) break; rm.forEach(i => { bg[i] = 1; }); }
     let bx0 = w, by0 = h, bx1 = 0, by1 = 0; for (let i = 0; i < N; i++) if (!bg[i]) { const xx = i % w, yy = (i / w) | 0; if (xx < bx0) bx0 = xx; if (xx > bx1) bx1 = xx; if (yy < by0) by0 = yy; if (yy > by1) by1 = yy; }
     const bw = bx1 - bx0 + 1, bh = by1 - by0 + 1, q = Math.max(6, Math.round(Math.min(bw, bh) * .16));
-    for (const [cx, cy] of [[bx0, by0], [bx1 - q + 1, by0], [bx0, by1 - q + 1], [bx1 - q + 1, by1 - q + 1]]) { let op = 0, br = 0; for (let yy = cy; yy < cy + q; yy++) for (let xx = cx; xx < cx + q; xx++) { const i = yy * w + xx; if (i < 0 || i >= N || bg[i]) continue; op++; if (nw(i * 4)) br++; } if (op > q * q * .55 && br > op * .6) return res(false); }   // canto cheio de branco = quadradinho
+    for (const [cx, cy] of [[bx0, by0], [bx1 - q + 1, by0], [bx0, by1 - q + 1], [bx1 - q + 1, by1 - q + 1]]) { let op = 0, br = 0; for (let yy = cy; yy < cy + q; yy++) for (let xx = cx; xx < cx + q; xx++) { const i = yy * w + xx; if (i < 0 || i >= N || bg[i]) continue; op++; if (nw(i * 4)) br++; } if (!apertado && op > q * q * .55 && br > op * .6) return res(false); }   // canto cheio de branco = quadradinho
     let rim = 0, per = 0; for (let i = 0; i < N; i++) { if (bg[i]) continue; const xx = i % w, yy = (i / w) | 0; let perto = false; for (let k = 1; k <= 4 && !perto; k++) { if ((xx - k >= 0 && bg[i - k]) || (xx + k < w && bg[i + k]) || (yy - k >= 0 && bg[i - k * w]) || (yy + k < h && bg[i + k * w])) perto = true; } if (!perto) continue; per++; if (nw(i * 4)) rim++; }
-    if (per > 20 && rim > per * .5) return res(false); }
+    if (!apertado && per > 20 && rim > per * .5) return res(false); }
   // bordas suaves: pixel de produto colado no fundo fica meio transparente
   let x0 = w, y0 = h, x1 = 0, y1 = 0;
   for (let i = 0; i < N; i++) { const o = i * 4; if (bg[i]) { px[o + 3] = 0; continue; } const xx = i % w, yy = (i / w) | 0; if (xx < x0) x0 = xx; if (xx > x1) x1 = xx; if (yy < y0) y0 = yy; if (yy > y1) y1 = yy;
-    const viz = (xx > 0 && bg[i - 1]) + (xx < w - 1 && bg[i + 1]) + (yy > 0 && bg[i - w]) + (yy < h - 1 && bg[i + w]); if (viz) px[o + 3] = viz > 1 ? 120 : 190; }
+    const viz = (xx > 0 && bg[i - 1]) + (xx < w - 1 && bg[i + 1]) + (yy > 0 && bg[i - w]) + (yy < h - 1 && bg[i + w]); if (viz) px[o + 3] = viz > 1 ? 120 : 190; if (apertado && viz) { px[o] = 120; px[o + 1] = 126; px[o + 2] = 132; px[o + 3] = 255; } }   // contorno cinza em produto branco
   x.putImageData(d, 0, 0); const pw = x1 - x0 + 1, ph = y1 - y0 + 1, m = 2, o = document.createElement("canvas"); o.width = pw + 2 * m; o.height = ph + 2 * m; o.getContext("2d").drawImage(c, x0, y0, pw, ph, m, m, pw, ph);
   res(o.toDataURL("image/png"));
 } catch (e) { res(false); } }; im.src = src; }); }
@@ -280,7 +281,7 @@ const silPend = new Set();
 const silTrocados = new Map();   // nome → recorte pronto, só desta sessão (para mostrar «deu certo» na Saúde)
 // v545: recortes guardados no aparelho (IndexedDB), para a foto já abrir só com o produto, sem piscar o quadrado
 const SIL = { db: null, pronto: false, mem: new Map(), chaves: new Map() };
-const silKey = d => { let k = SIL.chaves.get(d); if (k) return k; let h = 5381; for (let i = 0; i < d.length; i += 7) h = ((h << 5) + h + d.charCodeAt(i)) | 0; k = "6:" + d.length + ":" + h; SIL.chaves.set(d, k); return k; };
+const silKey = d => { let k = SIL.chaves.get(d); if (k) return k; let h = 5381; for (let i = 0; i < d.length; i += 7) h = ((h << 5) + h + d.charCodeAt(i)) | 0; k = "7:" + d.length + ":" + h; SIL.chaves.set(d, k); return k; };
 async function silIdbCarrega() {
   try { SIL.db = await new Promise(ok => { try { const r = indexedDB.open("validamais-sil", 1); r.onupgradeneeded = () => r.result.createObjectStore("s"); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); r.onblocked = () => ok(null); } catch (e) { ok(null); } });
     if (SIL.db) { const st = SIL.db.transaction("s").objectStore("s"), ks = await idbReq(st.getAllKeys()), vs = await idbReq(st.getAll()); ks.forEach((k, i) => SIL.mem.set(k, vs[i] || false)); }
