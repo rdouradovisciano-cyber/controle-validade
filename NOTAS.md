@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 11/11/2026 · versão 577.
+> Última atualização: 20/11/2026 · versão 594.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -241,3 +241,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v591: `silRecorta` recusa o recorte quando >50% do produto é quase branco (Muai Mel); `silKey` prefixo «6:».
 - v592: `silRecorta` = 1ª tentativa normal (T=24); se recusar ou for produto branco, 2ª tentativa `silRecorta1(src,6)` («apertado»: sem descascar/sem checagens de branco) + contorno cinza nas bordas. `silKey` «7:».
 - v593: fotos recortadas na lista: caixa 100px com padding 9px (produto ≤82px, centralizado); estrela da promoção 128% sempre visível.
+- v594: `saudeCalc` não exclui mais quem tem `codigo_balanca` da lista «foto sem recorte» — pesáveis com foto quadrada também aparecem na Saúde do app, com o PLU na linha. Validades e Pesáveis continuam usando `silPronto`/`.sil` (silhueta) para todas as fotos; as que falham no recorte ficam quadradas e são avisadas na Saúde.
