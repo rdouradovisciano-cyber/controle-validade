@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-20T17:10:00-03:00",
+  "itens": [
+   "Novo lote sem bipar: botão no cartão do produto e na lista de lotes"
+  ]
+ },
+ {
   "t": "2026-11-20T16:55:00-03:00",
   "itens": [
    "Cadastrar pesável: a validade deixou de ser obrigatória"
