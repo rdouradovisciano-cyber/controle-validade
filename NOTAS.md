@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 20/11/2026 · versão 596.
+> Última atualização: 20/11/2026 · versão 597.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -243,3 +243,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v593: fotos recortadas na lista: caixa 100px com padding 9px (produto ≤82px, centralizado); estrela da promoção 128% sempre visível.
 - v594: `saudeCalc` não exclui mais quem tem `codigo_balanca` da lista «foto sem recorte» — pesáveis com foto quadrada também aparecem na Saúde do app, com o PLU na linha. Validades e Pesáveis continuam usando `silPronto`/`.sil` (silhueta) para todas as fotos; as que falham no recorte ficam quadradas e são avisadas na Saúde.
 - v596: **só para o operador «Renato»** (`ehRenato()`: nome salvo em `validamais-operador` contém a palavra «renato», qualquer perfil): no cartão aberto da Validades (`.pi-foto`) e no Editar aparece «🔎 Buscar na internet» (`data-fnet`, abre o Google Imagens com EAN + nome, em `fotoClique`) e, mesmo com foto já existente, «Trocar» / «Outra imagem» (antes só o Admin). Depois de baixar a imagem, o fluxo é o de sempre: «Escolher imagem» → `fotoSalva`. Sem download automático (decisão da v437). Apagar foto continua só do Admin. Sem entrada em `updates.json` (ninguém mais vê a mudança). Teste de lógica: operador/perfil × foto sim/não × cartão/Editar.
+- v597: **recorte da silhueta entende fundo xadrez**: `silXadrez(px,w,h)` (chamada no começo de `silRecorta1`) vê se as bordas têm dois cinzas neutros que se alternam (≥6 saltos, 2 picos de luminância) — é a falsa transparência que o Google/prints salvam como pixels — e pinta de branco o xadrez ligado às bordas; o resto do recorte segue como fundo branco e o que era xadrez nunca volta como produto (`xzm`). Vale também para fotos já salvas (sem reenviar). `fotoReduz` agora enche o canvas de branco antes de desenhar: PNG com transparência de verdade não vira fundo preto no JPEG. `silKey` prefixo «8:» (recalcula o cache). Fundo liso (branco ou cinza) não mudou. Teste: Chromium + foto do Ninho (xadrez 77/128), fundo branco, cinza liso, xadrez claro e PNG transparente.

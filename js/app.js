@@ -236,10 +236,28 @@ const gRec = new Set(["v", "h", "a", "y", "ok"]);   // v463: o app SEMPRE abre c
 const SILK = "validamais-silhueta", silOn = () => true,   // v545: recorte é o padrão oficial (opção removida do menu)
    silCache = new Map(); let silFilaN = 0, silTm = 0;
 function silRecorta(src) { return silRecorta1(src, 24).then(r => r && r !== "branco" ? r : silRecorta1(src, 6)); }   // v592: produto branco → 2ª tentativa com fundo mais exigente + contorno cinza
+// v597: fundo «xadrez» (a falsa transparência que o Google/prints salvam como pixels): dois cinzas neutros que se alternam. Se as bordas mostram isso, pinta de branco o xadrez ligado às bordas (o resto do recorte segue igual, como fundo branco)
+function silXadrez(px, w, h) {
+  const gr = o => Math.max(px[o], px[o + 1], px[o + 2]) - Math.min(px[o], px[o + 1], px[o + 2]) <= 10, L = o => (px[o] + px[o + 1] + px[o + 2]) / 3, N = w * h;
+  const lados = [[0, 1, w], [(h - 1) * w, 1, w], [0, w, h], [w - 1, w, h]], hist = new Array(256).fill(0); let nb = 0, ng = 0;
+  lados.forEach(([a, p, n]) => { for (let k = 0; k < n; k++) { nb++; const o = (a + k * p) * 4; if (gr(o)) { hist[Math.round(L(o))]++; ng++; } } });
+  if (ng < nb * .6) return null;                                                    // borda não é cinza neutro
+  const sm = hist.map((_, i) => { let s = 0; for (let k = -2; k <= 2; k++) s += hist[Math.min(255, Math.max(0, i + k))]; return s; });
+  let p1 = 0; for (let i = 1; i < 256; i++) if (sm[i] > sm[p1]) p1 = i;
+  let p2 = -1; for (let i = 0; i < 256; i++) if (Math.abs(i - p1) >= 25 && (p2 < 0 || sm[i] > sm[p2])) p2 = i;
+  if (p2 < 0 || sm[p1] < ng * .2 || sm[p2] < ng * .15) return null;        // precisa de dois tons bem presentes
+  const lo = Math.min(p1, p2) - 12, hi = Math.max(p1, p2) + 12, salto = Math.abs(p1 - p2) * .35; let sal = 0;
+  lados.forEach(([a, p, n]) => { for (let k = 1; k < n; k++) { const o1 = (a + (k - 1) * p) * 4, o2 = (a + k * p) * 4; if (gr(o1) && gr(o2) && Math.abs(L(o1) - L(o2)) >= salto) sal++; } });
+  if (sal < 6) return null;                                                         // fundo liso/degradê não é xadrez (precisa alternar)
+  const xz = new Uint8Array(N), pil = [], ok = o => gr(o) && L(o) >= lo && L(o) <= hi;
+  lados.forEach(([a, p, n]) => { for (let k = 0; k < n; k++) { const i = a + k * p; if (!xz[i] && ok(i * 4)) { xz[i] = 1; pil.push(i); } } });
+  while (pil.length) { const i = pil.pop(), xx = i % w, yy = (i / w) | 0; for (const j of [xx > 0 ? i - 1 : -1, xx < w - 1 ? i + 1 : -1, yy > 0 ? i - w : -1, yy < h - 1 ? i + w : -1]) { if (j < 0 || xz[j] || !ok(j * 4)) continue; xz[j] = 1; pil.push(j); } }
+  let n = 0; for (let i = 0; i < N; i++) if (xz[i]) { const o = i * 4; px[o] = px[o + 1] = px[o + 2] = 255; px[o + 3] = 255; n++; }
+  return n > N * .1 ? xz : null; }
 function silRecorta1(src, TT) { const apertado = TT < 24; return new Promise(res => { const im = new Image(); im.onerror = () => res(false); im.onload = () => { try {
   const W0 = im.naturalWidth, H0 = im.naturalHeight; if (W0 < 24 || H0 < 24) return res(false);
   const s = Math.min(1, 360 / Math.max(W0, H0)), w = Math.round(W0 * s), h = Math.round(H0 * s), c = document.createElement("canvas"); c.width = w; c.height = h;
-  const x = c.getContext("2d", { willReadFrequently: true }); x.drawImage(im, 0, 0, w, h); const d = x.getImageData(0, 0, w, h), px = d.data, N = w * h;
+  const x = c.getContext("2d", { willReadFrequently: true }); x.drawImage(im, 0, 0, w, h); const d = x.getImageData(0, 0, w, h), px = d.data, N = w * h; const xzm = silXadrez(px, w, h);   // xzm: pixels de xadrez (fundo certo)
   const bord = []; for (let i = 0; i < w; i++) { bord.push(i, (h - 1) * w + i); } for (let j = 0; j < h; j++) { bord.push(j * w, j * w + w - 1); }
   let r = 0, g = 0, b = 0, tr = 0; bord.forEach(i => { const o = i * 4; r += px[o]; g += px[o + 1]; b += px[o + 2]; if (px[o + 3] < 200) tr++; }); const nb = bord.length; r /= nb; g /= nb; b /= nb;
   if (tr > nb * .05) return res(false);   // já tem transparência
@@ -263,6 +281,7 @@ function silRecorta1(src, TT) { const apertado = TT < 24; return new Promise(res
     for (let y = 0; y < h; y++) { let s = 0; for (let x = 0; x < w; x++) { const i = y * w + x; if (!bg[i]) s = 1; else if (s) Hh[i]++; } s = 0; for (let x = w - 1; x >= 0; x--) { const i = y * w + x; if (!bg[i]) s = 1; else if (s) Hh[i]++; } }
     for (let x = 0; x < w; x++) { let s = 0; for (let y = 0; y < h; y++) { const i = y * w + x; if (!bg[i]) s = 1; else if (s) Hh[i]++; } s = 0; for (let y = h - 1; y >= 0; y--) { const i = y * w + x; if (!bg[i]) s = 1; else if (s) Hh[i]++; } }
     for (let i = 0; i < N; i++) if (bg[i] && C[i] && Hh[i] >= 3) bg[i] = 0; }
+  if (xzm) for (let i = 0; i < N; i++) if (xzm[i]) bg[i] = 1;   // v597: o que era xadrez continua fundo, mesmo entre dois potes
   // v588: quadradinhos brancos. 1) descasca o branco que ficou colado no fundo (até 3 px); 2) confere se sobrou bloco branco no contorno: se sobrou, o recorte é recusado (a foto vai para a Saúde do app para ser trocada)
   { const nw = o => dist(o) <= 42;
     { let kp = 0, kw = 0; for (let i = 0; i < N; i++) { if (bg[i]) continue; kp++; if (nw(i * 4)) kw++; } if (kp && kw > kp * .5 && !apertado) return res("branco"); }   // produto quase todo branco (garrafa branca): o fundo se mistura e o recorte come pedaços do produto
@@ -283,7 +302,7 @@ const silPend = new Set();
 const silTrocados = new Map();   // nome → recorte pronto, só desta sessão (para mostrar «deu certo» na Saúde)
 // v545: recortes guardados no aparelho (IndexedDB), para a foto já abrir só com o produto, sem piscar o quadrado
 const SIL = { db: null, pronto: false, mem: new Map(), chaves: new Map() };
-const silKey = d => { let k = SIL.chaves.get(d); if (k) return k; let h = 5381; for (let i = 0; i < d.length; i += 7) h = ((h << 5) + h + d.charCodeAt(i)) | 0; k = "7:" + d.length + ":" + h; SIL.chaves.set(d, k); return k; };
+const silKey = d => { let k = SIL.chaves.get(d); if (k) return k; let h = 5381; for (let i = 0; i < d.length; i += 7) h = ((h << 5) + h + d.charCodeAt(i)) | 0; k = "8:" + d.length + ":" + h; SIL.chaves.set(d, k); return k; };
 async function silIdbCarrega() {
   try { SIL.db = await new Promise(ok => { try { const r = indexedDB.open("validamais-sil", 1); r.onupgradeneeded = () => r.result.createObjectStore("s"); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); r.onblocked = () => ok(null); } catch (e) { ok(null); } });
     if (SIL.db) { const st = SIL.db.transaction("s").objectStore("s"), ks = await idbReq(st.getAllKeys()), vs = await idbReq(st.getAll()); ks.forEach((k, i) => SIL.mem.set(k, vs[i] || false)); }
@@ -339,7 +358,7 @@ function fotosTodas() {
 function fotoReduz(file) {   // miniatura: lado maior 360 px, JPEG (~10–25 KB)
   return new Promise((ok, no) => { const im = new Image(), u = URL.createObjectURL(file);
     im.onload = () => { URL.revokeObjectURL(u); const f = Math.min(1, 360 / Math.max(im.width, im.height)), c = document.createElement("canvas"); c.width = Math.round(im.width * f); c.height = Math.round(im.height * f);
-      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); let q = 0.65, d = c.toDataURL("image/jpeg", q); while (d.length > 90000 && q > 0.3) { q -= 0.1; d = c.toDataURL("image/jpeg", q); } ok(d); };
+      const cx = c.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0, 0, c.width, c.height); cx.drawImage(im, 0, 0, c.width, c.height); let q = 0.65, d = c.toDataURL("image/jpeg", q); while (d.length > 90000 && q > 0.3) { q -= 0.1; d = c.toDataURL("image/jpeg", q); } ok(d); };
     im.onerror = () => { URL.revokeObjectURL(u); no(new Error("img")); }; im.src = u; });
 }
 async function fotoSalva(id, file) {
