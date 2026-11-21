@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-21T15:46:54-03:00",
+  "itens": [
+   "Validades: produtos com 3 dias agora têm um tom laranja de urgência, entre o vermelho (hoje a 2 dias) e o amarelo (4 dias ou mais)"
+  ]
+ },
+ {
   "t": "2026-11-21T15:35:36-03:00",
   "itens": [
    "Validades: botão «Voltar ao topo» (seta no canto inferior esquerdo) aparece quando a lista está longa; um toque sobe até o início"

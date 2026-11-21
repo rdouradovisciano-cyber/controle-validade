@@ -2432,3 +2432,8 @@ html body .pi-bubble b{display:block;max-width:100%;overflow:hidden;text-overflo
 .totop:active{transform:scale(.93)}
 body.np-open .totop{display:none}
 @media (prefers-reduced-motion:reduce){.totop{transition:none}}
+
+/* v606 — 3 dias: tom intermediário (laranja forte) entre o vermelho de hoje/amanhã/2 dias e o amarelo dos 4+ dias. A cor vem de --tc (filete lateral, etiqueta); fundo e ícone de alerta repetem a regra do vermelho, só que em laranja e um pouco mais carregados */
+html body .pitem.pd3{--tc:var(--c3,#ff7a00);--tx:var(--tc3,#1a0f00)}
+html body.vidro #list:not([data-visao=grade]) .pitem.pd3{background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 55%,transparent),color-mix(in srgb,var(--tc) 12%,transparent) 76%,transparent)!important}
+html body .pitem.pd3 .pi-nome::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff7a00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4 2.8 19.5h18.4z'/%3E%3Cpath d='M12 10v4.5M12 17.2v.1'/%3E%3C/svg%3E")}
