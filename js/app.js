@@ -3541,4 +3541,10 @@ if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) $("iosHint").c
 })();
 
 // v584: se a página escapar para o lado (zoom/arrasto), volta para a esquerda
+// v605: botão «Voltar ao topo» na aba Validades: com a lista longa (Perecíveis), no fim não precisa deslizar de volta com o dedo. Aparece depois de ~1,2 tela de rolagem; toque sobe suave ao início
+{ const b = document.createElement("button"); b.type = "button"; b.id = "toTop"; b.className = "totop"; b.setAttribute("aria-label", "Voltar ao topo da lista"); b.title = "Voltar ao topo";
+  b.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'; document.body.appendChild(b);
+  let on = false; const upd = () => { const quer = document.body.dataset.tab === "Loja" && window.scrollY > window.innerHeight * 1.2; if (quer !== on) { on = quer; b.classList.toggle("on", on); b.tabIndex = on ? 0 : -1; } };
+  b.tabIndex = -1; b.onclick = () => { try { window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); } catch (e) { window.scrollTo(0, 0); } };
+  window.addEventListener("scroll", upd, { passive: true }); document.addEventListener("click", () => setTimeout(upd, 60), true); window.addEventListener("resize", upd); }
 window.addEventListener("scroll", () => { if (window.scrollX > 0) window.scrollTo(0, window.scrollY); }, { passive: true });

@@ -2425,3 +2425,10 @@ html[data-tema=dark] body.promoselo .pi-lead.promo::after{box-shadow:0 0 0 2px #
 html body .pi-bubble{display:flex;align-items:center;width:fit-content;max-width:calc(100% - 32px);position:relative;top:10px;margin:0 16px 16px;padding:3px 10px 3px 8px;border-radius:6px;background:#fff3c4;border:1px solid #e6c34a;border-left:3px solid #e0a800;box-shadow:none;color:#4a3a00;transform:none;clip-path:none}
 html body .pi-bubble::before{content:none;display:none}
 html body .pi-bubble b{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;line-height:1.35;font-weight:800;letter-spacing:.01em;color:#4a3a00;-webkit-line-clamp:unset}
+
+/* v605 — botão «Voltar ao topo» (aba Validades, lista longa): canto inferior esquerdo, no mesmo estilo do botão de bipar (fundo escuro + filete dourado) */
+.totop{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:19;width:48px;height:48px;min-height:0;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(20,24,34,.94);color:#f3d87a;border:2px solid #f3d87a;box-shadow:0 6px 16px rgba(0,0,0,.4);opacity:0;transform:translateY(10px) scale(.9);pointer-events:none;transition:opacity .2s ease,transform .2s ease;-webkit-tap-highlight-color:transparent}
+.totop.on{opacity:1;transform:none;pointer-events:auto}
+.totop:active{transform:scale(.93)}
+body.np-open .totop{display:none}
+@media (prefers-reduced-motion:reduce){.totop{transition:none}}
