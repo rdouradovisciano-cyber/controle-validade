@@ -2411,8 +2411,12 @@ html,body{overflow-x:clip;max-width:100%}
 /* v593 — padrão: toda foto recortada ocupa a mesma caixa (100px) com o produto limitado a ~82px e centralizado; o destaque da promoção (estrela) sempre aparece em volta, do mesmo tamanho */
 html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{padding:9px;box-sizing:border-box;object-position:center}
 html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-lead.promo::before{width:106%;max-width:none}
-/* v595 — quando dois produtos com "Já na promoção" ficam seguidos, a estrela amarela de um não encosta na do outro */
-body.vidro #list:not([data-visao=grade]) .pitem:has(.pi-lead.promo):has(+ .pitem .pi-lead.promo){margin-bottom:14px!important}
+/* v595 — quando dois produtos com "Já na promoção" ficam seguidos, a estrela amarela de um não encosta na do outro (v601/v602: 14px; só no modo estrela) */
+body.vidro:not(.promoselo) #list:not([data-visao=grade]) .pitem:has(.pi-lead.promo):has(+ .pitem .pi-lead.promo){margin-bottom:14px!important}
 
 /* v601 — estrela da promoção um pouco menor (128% → 116% da caixa da foto); o espaço entre duas promoções seguidas acompanha (28px → 20px) */
 /* v602 — estrela da promoção mais um pouco menor: 116% → 106% da caixa da foto; espaço entre promoções seguidas 20px → 14px */
+/* v603 — padrão: selinho «PROMO» no canto da foto, no lugar da estrela (a estrela continua em Mudar layout) */
+body.promoselo .pi-lead.promo::before{display:none!important}
+body.promoselo .pi-lead.promo::after{content:"PROMO";left:auto;right:-6px;top:-6px;transform:rotate(6deg);z-index:3;padding:3px 6px;border-radius:6px;font:900 9px/1 system-ui,sans-serif;letter-spacing:.4px;background:#e11d24;color:#fff;box-shadow:0 0 0 2px #fff,0 2px 5px rgba(0,0,0,.4)}
+html[data-tema=dark] body.promoselo .pi-lead.promo::after{box-shadow:0 0 0 2px #12161a,0 2px 5px rgba(0,0,0,.5)}
