@@ -271,7 +271,9 @@ function silRecorta1(src, TT) { const apertado = TT < 24; return new Promise(res
   const vis = new Uint8Array(N); let maior = 0, tot = 0; for (let i = 0; i < N; i++) { if (bg[i] || vis[i]) continue; let n = 0; const st = [i]; vis[i] = 1; while (st.length) { const k = st.pop(); n++; const xx = k % w, yy = (k / w) | 0; for (const j of [xx > 0 ? k - 1 : -1, xx < w - 1 ? k + 1 : -1, yy > 0 ? k - w : -1, yy < h - 1 ? k + w : -1]) { if (j >= 0 && !bg[j] && !vis[j]) { vis[j] = 1; st.push(j); } } } tot += n; if (n > maior) maior = n; }
   if (maior < tot * .85 || maior < N * .08) return res(false);
   // v571: produto branco sobre fundo branco: o flood entra pelas partes brancas da embalagem e abre «buracos» na borda; fecha esses recortes (fechamento morfológico) e devolve os pixels originais
-  { const r = Math.max(4, Math.round(Math.max(w, h) * .07)), P = new Uint8Array(N); for (let i = 0; i < N; i++) P[i] = bg[i] ? 0 : 1;
+  // v599: só produto com bastante branco (≥10%) precisa desse «fechamento»; produto colorido (iogurte, suco) tem cantos brancos entre as peças que são FUNDO e não podem voltar
+  const branca = (() => { let kb = 0, kt = 0; for (let i = 0; i < N; i++) { if (bg[i]) continue; kt++; if (dist(i * 4) <= 42) kb++; } return kt > 0 && kb > kt * .1; })();
+  if (branca) { const r = Math.max(4, Math.round(Math.max(w, h) * .07)), P = new Uint8Array(N); for (let i = 0; i < N; i++) P[i] = bg[i] ? 0 : 1;
     const morf = (S, dil) => { const A = new Uint8Array(N), B = new Uint8Array(N), cs = new Int32Array(Math.max(w, h) + 1);
       for (let y = 0; y < h; y++) { cs[0] = 0; for (let x = 0; x < w; x++) cs[x + 1] = cs[x] + S[y * w + x]; for (let x = 0; x < w; x++) { const x0 = Math.max(0, x - r), x1 = Math.min(w - 1, x + r), c = cs[x1 + 1] - cs[x0]; A[y * w + x] = dil ? (c > 0 ? 1 : 0) : (c === x1 - x0 + 1 ? 1 : 0); } }
       for (let x = 0; x < w; x++) { cs[0] = 0; for (let y = 0; y < h; y++) cs[y + 1] = cs[y] + A[y * w + x]; for (let y = 0; y < h; y++) { const y0 = Math.max(0, y - r), y1 = Math.min(h - 1, y + r), c = cs[y1 + 1] - cs[y0]; B[y * w + x] = dil ? (c > 0 ? 1 : 0) : (c === y1 - y0 + 1 ? 1 : 0); } }
@@ -308,7 +310,7 @@ const silPend = new Set();
 const silTrocados = new Map();   // nome → recorte pronto, só desta sessão (para mostrar «deu certo» na Saúde)
 // v545: recortes guardados no aparelho (IndexedDB), para a foto já abrir só com o produto, sem piscar o quadrado
 const SIL = { db: null, pronto: false, mem: new Map(), chaves: new Map() };
-const silKey = d => { let k = SIL.chaves.get(d); if (k) return k; let h = 5381; for (let i = 0; i < d.length; i += 7) h = ((h << 5) + h + d.charCodeAt(i)) | 0; k = "8:" + d.length + ":" + h; SIL.chaves.set(d, k); return k; };
+const silKey = d => { let k = SIL.chaves.get(d); if (k) return k; let h = 5381; for (let i = 0; i < d.length; i += 7) h = ((h << 5) + h + d.charCodeAt(i)) | 0; k = "9:" + d.length + ":" + h; SIL.chaves.set(d, k); return k; };
 async function silIdbCarrega() {
   try { SIL.db = await new Promise(ok => { try { const r = indexedDB.open("validamais-sil", 1); r.onupgradeneeded = () => r.result.createObjectStore("s"); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); r.onblocked = () => ok(null); } catch (e) { ok(null); } });
     if (SIL.db) { const st = SIL.db.transaction("s").objectStore("s"), ks = await idbReq(st.getAllKeys()), vs = await idbReq(st.getAll()); ks.forEach((k, i) => SIL.mem.set(k, vs[i] || false)); }
