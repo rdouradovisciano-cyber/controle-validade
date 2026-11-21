@@ -242,18 +242,18 @@ function silXadrez(px, w, h) {
   const lados = [[0, 1, w], [(h - 1) * w, 1, w], [0, w, h], [w - 1, w, h]], hist = new Array(256).fill(0); let nb = 0, ng = 0;
   lados.forEach(([a, p, n]) => { for (let k = 0; k < n; k++) { nb++; const o = (a + k * p) * 4; if (gr(o)) { hist[Math.round(L(o))]++; ng++; } } });
   if (ng < nb * .6) return null;                                                    // borda não é cinza neutro
-  const sm = hist.map((_, i) => { let s = 0; for (let k = -2; k <= 2; k++) s += hist[Math.min(255, Math.max(0, i + k))]; return s; });
+  const sm = hist.map((_, i) => { let s = 0; for (let k = -8; k <= 8; k++) s += hist[Math.min(255, Math.max(0, i + k))]; return s; });
   let p1 = 0; for (let i = 1; i < 256; i++) if (sm[i] > sm[p1]) p1 = i;
   let p2 = -1; for (let i = 0; i < 256; i++) if (Math.abs(i - p1) >= 25 && (p2 < 0 || sm[i] > sm[p2])) p2 = i;
   if (p2 < 0 || sm[p1] < ng * .2 || sm[p2] < ng * .15) return null;        // precisa de dois tons bem presentes
-  const lo = Math.min(p1, p2) - 12, hi = Math.max(p1, p2) + 12, salto = Math.abs(p1 - p2) * .35; let sal = 0;
+  const lo = Math.min(p1, p2) - 16, hi = Math.max(p1, p2) + 16, salto = Math.abs(p1 - p2) * .35; let sal = 0;
   lados.forEach(([a, p, n]) => { for (let k = 1; k < n; k++) { const o1 = (a + (k - 1) * p) * 4, o2 = (a + k * p) * 4; if (gr(o1) && gr(o2) && Math.abs(L(o1) - L(o2)) >= salto) sal++; } });
   if (sal < 6) return null;                                                         // fundo liso/degradê não é xadrez (precisa alternar)
   const xz = new Uint8Array(N), pil = [], ok = o => gr(o) && L(o) >= lo && L(o) <= hi;
   lados.forEach(([a, p, n]) => { for (let k = 0; k < n; k++) { const i = a + k * p; if (!xz[i] && ok(i * 4)) { xz[i] = 1; pil.push(i); } } });
   while (pil.length) { const i = pil.pop(), xx = i % w, yy = (i / w) | 0; for (const j of [xx > 0 ? i - 1 : -1, xx < w - 1 ? i + 1 : -1, yy > 0 ? i - w : -1, yy < h - 1 ? i + w : -1]) { if (j < 0 || xz[j] || !ok(j * 4)) continue; xz[j] = 1; pil.push(j); } }
   let n = 0; for (let i = 0; i < N; i++) if (xz[i]) { const o = i * 4; px[o] = px[o + 1] = px[o + 2] = 255; px[o + 3] = 255; n++; }
-  return n > N * .1 ? xz : null; }
+  xz.lo = lo; xz.hi = hi; return n > N * .1 ? xz : null; }
 function silRecorta1(src, TT) { const apertado = TT < 24; return new Promise(res => { const im = new Image(); im.onerror = () => res(false); im.onload = () => { try {
   const W0 = im.naturalWidth, H0 = im.naturalHeight; if (W0 < 24 || H0 < 24) return res(false);
   const s = Math.min(1, 360 / Math.max(W0, H0)), w = Math.round(W0 * s), h = Math.round(H0 * s), c = document.createElement("canvas"); c.width = w; c.height = h;
@@ -282,6 +282,9 @@ function silRecorta1(src, TT) { const apertado = TT < 24; return new Promise(res
     for (let x = 0; x < w; x++) { let s = 0; for (let y = 0; y < h; y++) { const i = y * w + x; if (!bg[i]) s = 1; else if (s) Hh[i]++; } s = 0; for (let y = h - 1; y >= 0; y--) { const i = y * w + x; if (!bg[i]) s = 1; else if (s) Hh[i]++; } }
     for (let i = 0; i < N; i++) if (bg[i] && C[i] && Hh[i] >= 3) bg[i] = 0; }
   if (xzm) for (let i = 0; i < N; i++) if (xzm[i]) bg[i] = 1;   // v597: o que era xadrez continua fundo, mesmo entre dois potes
+  // v597: borda do JPEG: a franja cinza (mistura produto+xadrez) colada no fundo também sai (2 px)
+  if (xzm) { const ne = o => { const m = (px[o] + px[o + 1] + px[o + 2]) / 3; return Math.max(px[o], px[o + 1], px[o + 2]) - Math.min(px[o], px[o + 1], px[o + 2]) <= 16 && m >= xzm.lo - 10 && m <= 205; };
+    for (let it = 0; it < 2; it++) { const rm = []; for (let i = 0; i < N; i++) { if (bg[i] || !ne(i * 4)) continue; const xx = i % w, yy = (i / w) | 0; if ((xx > 0 && bg[i - 1]) || (xx < w - 1 && bg[i + 1]) || (yy > 0 && bg[i - w]) || (yy < h - 1 && bg[i + w])) rm.push(i); } rm.forEach(i => { bg[i] = 1; }); } }
   // v588: quadradinhos brancos. 1) descasca o branco que ficou colado no fundo (até 3 px); 2) confere se sobrou bloco branco no contorno: se sobrou, o recorte é recusado (a foto vai para a Saúde do app para ser trocada)
   { const nw = o => dist(o) <= 42;
     { let kp = 0, kw = 0; for (let i = 0; i < N; i++) { if (bg[i]) continue; kp++; if (nw(i * 4)) kw++; } if (kp && kw > kp * .5 && !apertado) return res("branco"); }   // produto quase todo branco (garrafa branca): o fundo se mistura e o recorte come pedaços do produto
@@ -291,6 +294,9 @@ function silRecorta1(src, TT) { const apertado = TT < 24; return new Promise(res
     for (const [cx, cy] of [[bx0, by0], [bx1 - q + 1, by0], [bx0, by1 - q + 1], [bx1 - q + 1, by1 - q + 1]]) { let op = 0, br = 0; for (let yy = cy; yy < cy + q; yy++) for (let xx = cx; xx < cx + q; xx++) { const i = yy * w + xx; if (i < 0 || i >= N || bg[i]) continue; op++; if (nw(i * 4)) br++; } if (!apertado && op > q * q * .55 && br > op * .6) return res(false); }   // canto cheio de branco = quadradinho
     let rim = 0, per = 0; for (let i = 0; i < N; i++) { if (bg[i]) continue; const xx = i % w, yy = (i / w) | 0; let perto = false; for (let k = 1; k <= 4 && !perto; k++) { if ((xx - k >= 0 && bg[i - k]) || (xx + k < w && bg[i + k]) || (yy - k >= 0 && bg[i - k * w]) || (yy + k < h && bg[i + k * w])) perto = true; } if (!perto) continue; per++; if (nw(i * 4)) rim++; }
     if (!apertado && per > 20 && rim > per * .5) return res(false); }
+  // v597: com xadrez, só o maior bloco é produto (pontinhos soltos do ruído do JPEG viram fundo)
+  if (xzm) { const vs = new Uint8Array(N), comp = []; let mx = -1, mn = 0; for (let i = 0; i < N; i++) { if (bg[i] || vs[i]) continue; const cl = [i]; vs[i] = 1; for (let q = 0; q < cl.length; q++) { const k = cl[q], xx = k % w, yy = (k / w) | 0; for (const j of [xx > 0 ? k - 1 : -1, xx < w - 1 ? k + 1 : -1, yy > 0 ? k - w : -1, yy < h - 1 ? k + w : -1]) { if (j >= 0 && !bg[j] && !vs[j]) { vs[j] = 1; cl.push(j); } } } if (cl.length > mn) { mn = cl.length; mx = comp.length; } comp.push(cl); }
+    comp.forEach((cl, n) => { if (n !== mx) cl.forEach(i => { bg[i] = 1; }); }); }
   // bordas suaves: pixel de produto colado no fundo fica meio transparente
   let x0 = w, y0 = h, x1 = 0, y1 = 0;
   for (let i = 0; i < N; i++) { const o = i * 4; if (bg[i]) { px[o + 3] = 0; continue; } const xx = i % w, yy = (i / w) | 0; if (xx < x0) x0 = xx; if (xx > x1) x1 = xx; if (yy < y0) y0 = yy; if (yy > y1) y1 = yy;
