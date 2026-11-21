@@ -2410,8 +2410,9 @@ html,body{overflow-x:clip;max-width:100%}
 #saudeModal .shimg.sil{width:100px;height:100px;object-fit:contain;border:0;border-radius:0;background:#1b211e;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45));padding:4px;box-sizing:border-box;border-radius:14px}
 /* v593 — padrão: toda foto recortada ocupa a mesma caixa (100px) com o produto limitado a ~82px e centralizado; o destaque da promoção (estrela) sempre aparece em volta, do mesmo tamanho */
 html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{padding:9px;box-sizing:border-box;object-position:center}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-lead.promo::before{width:116%;max-width:none}
+html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-lead.promo::before{width:106%;max-width:none}
 /* v595 — quando dois produtos com "Já na promoção" ficam seguidos, a estrela amarela de um não encosta na do outro */
-body.vidro #list:not([data-visao=grade]) .pitem:has(.pi-lead.promo):has(+ .pitem .pi-lead.promo){margin-bottom:20px!important}
+body.vidro #list:not([data-visao=grade]) .pitem:has(.pi-lead.promo):has(+ .pitem .pi-lead.promo){margin-bottom:14px!important}
 
 /* v601 — estrela da promoção um pouco menor (128% → 116% da caixa da foto); o espaço entre duas promoções seguidas acompanha (28px → 20px) */
+/* v602 — estrela da promoção mais um pouco menor: 116% → 106% da caixa da foto; espaço entre promoções seguidas 20px → 14px */

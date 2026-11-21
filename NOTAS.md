@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 20/11/2026 · versão 601.
+> Última atualização: 20/11/2026 · versão 602.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -248,3 +248,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v599: **cantos brancos entre as peças** (ex.: 6 potes de iogurte sobre fundo branco liso): o «fechamento» das v571/572 devolvia como produto os cantos de fundo cercados por 3 lados. Agora só roda se o produto tem ≥10% de pixels brancos (`branca`; o Ninho tem 2,3%; caixa/pote branco ficam IGUAIS ao antes no teste A/B). `silKey` prefixo «9:» (sem isso o recorte antigo ficava no cache IndexedDB). Reproduzido com a foto do Ninho sobre fundo branco no Chromium (`fotoReduz` → `silRecorta`).
 - v600: **tocar na versão confere atualização**: o `#verTop` (versão no cabeçalho, só Admin/`body.adm-on`) virou botão (`role=button`, Enter/Espaço) e chama `check(true)`; o do rodapé (`#appVer`, 1º e 2º toque) também. `check(manual)` agora diz o resultado em toast: «Você já está na versão mais recente (vNNN)», «Nova versão disponível…» (e mostra o banner verde «Atualizar») ou «Não consegui verificar agora…». A conferência automática (ao abrir e ao voltar ao app) continua silenciosa. Sem entrada em `updates.json` (só o Admin vê o cabeçalho). Teste no Chromium com `version.json` simulado (igual/nova/falha) e teclado.
 - v601: estrela da promoção atrás da foto: 128% → 116% da caixa de 100 px (`.pi-lead.promo::before`, regra v593 em `app.css`); espaço entre duas promoções seguidas (v595) de 28 px → 20 px para acompanhar. Se quiser mexer de novo, é só esse `width`.
+- v602: estrela da promoção 116% → 106% da caixa da foto (pedido: «diminuir um pouquinho mais»); espaço entre promoções seguidas 20 px → 14 px. Histórico do tamanho: 136% (v578) → 112% (v583) → 128% (v593) → 116% (v601) → 106% (v602).
