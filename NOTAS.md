@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 20/11/2026 · versão 602.
+> Última atualização: 20/11/2026 · versão 604.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -250,3 +250,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v601: estrela da promoção atrás da foto: 128% → 116% da caixa de 100 px (`.pi-lead.promo::before`, regra v593 em `app.css`); espaço entre duas promoções seguidas (v595) de 28 px → 20 px para acompanhar. Se quiser mexer de novo, é só esse `width`.
 - v602: estrela da promoção 116% → 106% da caixa da foto (pedido: «diminuir um pouquinho mais»); espaço entre promoções seguidas 20 px → 14 px. Histórico do tamanho: 136% (v578) → 112% (v583) → 128% (v593) → 116% (v601) → 106% (v602).
 - v603: `promoSeloOn()/promoAplica()` usam `validamais-promo-selo` (padrão 1) → `body.promoselo`. CSS esconde `.pi-lead.promo::before` (estrela) e transforma `::after` em selinho vermelho «PROMO» no canto superior direito da foto (rotação 6°, anel branco no tema claro / escuro no escuro). Checkbox `#vsPromo` em `visAbrir()` desliga → volta à estrela (com o tamanho 106% da v602 e o espaço de 14 px da v595/v602); por isso a regra de espaçamento virou `body.vidro:not(.promoselo)`. Sem campo novo no Firestore, sem tocar em `firestore.rules`. Teste: Chromium, selinho padrão → desliga → recarrega → estrela volta; vidro ligado, margem 8 px no selinho e 14 px na estrela.
+- v604: nota do produto (`.pi-bubble`, «Rebaixa feita» etc.) deixa de ser post-it inclinado de 16,5 px e vira **etiqueta reta e pequena** (12,5 px, 1 linha com «…», fundo âmbar claro `#fff3c4`, borda `#e6c34a` e filete esquerdo `#e0a800`; legível no claro e no escuro), alinhada à foto com 10 px de respiro em cima. Regras novas no fim de `app.css` com `html body .pi-bubble` (as antigas v480/v48x ficam por baixo). Nota completa aparece ao abrir o cartão. Teste no Chromium: nota curta e longa, sem rotação/clip-path.

@@ -2420,3 +2420,8 @@ body.vidro:not(.promoselo) #list:not([data-visao=grade]) .pitem:has(.pi-lead.pro
 body.promoselo .pi-lead.promo::before{display:none!important}
 body.promoselo .pi-lead.promo::after{content:"PROMO";left:auto;right:-6px;top:-6px;transform:rotate(6deg);z-index:3;padding:3px 6px;border-radius:6px;font:900 9px/1 system-ui,sans-serif;letter-spacing:.4px;background:#e11d24;color:#fff;box-shadow:0 0 0 2px #fff,0 2px 5px rgba(0,0,0,.4)}
 html[data-tema=dark] body.promoselo .pi-lead.promo::after{box-shadow:0 0 0 2px #12161a,0 2px 5px rgba(0,0,0,.5)}
+
+/* v604 — nota do produto («Rebaixa feita» etc.): sai o post-it inclinado e grande; vira uma etiqueta reta, pequena e alinhada à foto (fundo âmbar claro + filete na lateral, legível no modo claro e no escuro) */
+html body .pi-bubble{display:flex;align-items:center;width:fit-content;max-width:calc(100% - 32px);position:relative;top:10px;margin:0 16px 16px;padding:3px 10px 3px 8px;border-radius:6px;background:#fff3c4;border:1px solid #e6c34a;border-left:3px solid #e0a800;box-shadow:none;color:#4a3a00;transform:none;clip-path:none}
+html body .pi-bubble::before{content:none;display:none}
+html body .pi-bubble b{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;line-height:1.35;font-weight:800;letter-spacing:.01em;color:#4a3a00;-webkit-line-clamp:unset}
