@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 20/11/2026 · versão 594.
+> Última atualização: 20/11/2026 · versão 596.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -242,3 +242,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v592: `silRecorta` = 1ª tentativa normal (T=24); se recusar ou for produto branco, 2ª tentativa `silRecorta1(src,6)` («apertado»: sem descascar/sem checagens de branco) + contorno cinza nas bordas. `silKey` «7:».
 - v593: fotos recortadas na lista: caixa 100px com padding 9px (produto ≤82px, centralizado); estrela da promoção 128% sempre visível.
 - v594: `saudeCalc` não exclui mais quem tem `codigo_balanca` da lista «foto sem recorte» — pesáveis com foto quadrada também aparecem na Saúde do app, com o PLU na linha. Validades e Pesáveis continuam usando `silPronto`/`.sil` (silhueta) para todas as fotos; as que falham no recorte ficam quadradas e são avisadas na Saúde.
+- v596: **só para o operador «Renato»** (`ehRenato()`: nome salvo em `validamais-operador` contém a palavra «renato», qualquer perfil): no cartão aberto da Validades (`.pi-foto`) e no Editar aparece «🔎 Buscar na internet» (`data-fnet`, abre o Google Imagens com EAN + nome, em `fotoClique`) e, mesmo com foto já existente, «Trocar» / «Outra imagem» (antes só o Admin). Depois de baixar a imagem, o fluxo é o de sempre: «Escolher imagem» → `fotoSalva`. Sem download automático (decisão da v437). Apagar foto continua só do Admin. Sem entrada em `updates.json` (ninguém mais vê a mudança). Teste de lógica: operador/perfil × foto sim/não × cartão/Editar.

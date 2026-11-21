@@ -180,12 +180,14 @@ const iconeDe = p => { return "";   // v471: emojis removidos de vez — só fot
   if (!iconesOn() || !p || p.category !== PER) return ""; const esc1 = icoEscolhido(p); if (esc1 !== null && esc1 !== undefined) return esc1; const n = String(p.name || "").toLowerCase(); const m = ICONES.find(([r]) => r.test(n + " ")); return m ? m[1] : "📦"; };
 // ---------- foto do produto (Perecíveis e FLV): uma miniatura por nome, em sh_cfg/foto-<nome>; só é baixada quando o item é aberto ----------
 const FTK = "validamais-fotos-per", fotoK = n => "foto-" + icKey(n), fotoCache = {};
+// v596: só para o operador «Renato»: no cartão aberto da Validades (e no Editar) ganha «Buscar na internet» e pode trocar a foto mesmo já existindo uma. Função (hoisted) para poder ser usada antes de `myName` existir
+function ehRenato() { try { return /\brenato\b/.test(norm(JSON.parse(localStorage.getItem("validamais-operador")) || "")); } catch (e) { return false; } }
 function fotoHtml(k, ed) { const d = fotoVal(k); if (d === undefined) return "";
-  const adm = PERFIL === "Admin", img = d ? `<img class="pf-img" src="${d}" alt="Foto do produto" data-fz="1">` : "";
-  const bt = (a, t) => `<button type="button" class="secondary pf-btn" ${a}="1">${t}</button>`;
-  if (!d) return bt("data-fadd", ico("cam") + "Tirar foto") + bt("data-fgal", ico("img") + "Escolher imagem");   // sem foto: botões no cartão
-  if (!ed) return "";                                                                             // v472: com foto, o cartão aberto não repete a imagem (ela já está no quadrado e abre em tela cheia ao toque)
-  return img + (adm ? bt("data-fadd", ico("cam") + "Trocar") + bt("data-fgal", ico("img") + "Outra imagem") + bt("data-fdel", ico("lixo") + "Apagar") : ""); }
+  const adm = PERFIL === "Admin", ren = ehRenato(), img = d ? `<img class="pf-img" src="${d}" alt="Foto do produto" data-fz="1">` : "";
+  const bt = (a, t) => `<button type="button" class="secondary pf-btn" ${a}="1">${t}</button>`, net = ren ? bt("data-fnet", ico("bus") + "Buscar na internet") : "";
+  if (!d) return bt("data-fadd", ico("cam") + "Tirar foto") + bt("data-fgal", ico("img") + "Escolher imagem") + net;   // sem foto: botões no cartão
+  if (!ed && !ren) return "";                                                                     // v472: com foto, o cartão aberto não repete a imagem (ela já está no quadrado e abre em tela cheia ao toque)
+  return (ed ? img : "") + (adm || ren ? bt("data-fadd", ico("cam") + "Trocar") + bt("data-fgal", ico("img") + "Outra imagem") : "") + net + (adm ? bt("data-fdel", ico("lixo") + "Apagar") : ""); }
 function fotoPaint(id) { fotoVer++; const p = products.find(x => x.id === id); if (!p) return; document.querySelectorAll(`.pi-foto[data-id="${CSS.escape(id)}"]`).forEach(el => { el.innerHTML = fotoHtml(fotoK(p.name), el.dataset.ed === "1"); }); }
 function fotoCarrega(id) {
   const p = products.find(x => x.id === id); if (!p) return; const k = fotoK(p.name);
@@ -1125,7 +1127,7 @@ $("categoryFilter").onchange = render; $("statusFilter").onchange = render;
 $("list").addEventListener("change", e => { const n = e.target.closest && e.target.closest("[data-nota]"); if (n) notaSalva(n.dataset.nota, n.value); });
 $("list").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches && e.target.matches("[data-nota]")) { e.preventDefault(); e.target.blur(); } });
 function fotoClique(e) { const pf = e.target.closest(".pi-foto"); if (!pf) return false; const id = pf.dataset.id, q = sel => pf.parentElement.querySelector(sel);
-  if (e.target.closest("[data-fz]")) fotoZoom(e.target.closest("[data-fz]").src); else if (e.target.closest("[data-fadd]")) { const f = q("[data-fin][capture]"); if (f) f.click(); } else if (e.target.closest("[data-fgal]")) { const f = q("[data-fin]:not([capture])"); if (f) f.click(); } else if (e.target.closest("[data-fdel]")) fotoApaga(id); return true; }
+  if (e.target.closest("[data-fz]")) fotoZoom(e.target.closest("[data-fz]").src); else if (e.target.closest("[data-fnet]")) { const pr = products.find(x => x.id === id); if (pr && ehRenato()) { window.open("https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(((pr.barcode || "") + " " + (pr.name || "")).trim()), "_blank", "noopener"); toast("Segure a imagem escolhida › Baixar imagem. Depois toque em «Escolher imagem» (ou «Outra imagem»)."); } } else if (e.target.closest("[data-fadd]")) { const f = q("[data-fin][capture]"); if (f) f.click(); } else if (e.target.closest("[data-fgal]")) { const f = q("[data-fin]:not([capture])"); if (f) f.click(); } else if (e.target.closest("[data-fdel]")) fotoApaga(id); return true; }
 const fotoMuda = e => { const f = e.target.closest && e.target.closest("[data-fin]"); if (f && f.files && f.files[0]) { fotoSalva(f.dataset.fin, f.files[0]); f.value = ""; } };
 $("list").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("change", fotoMuda); $("fotoEd").addEventListener("click", fotoClique);
 $("list").onclick = e => { const nl = e.target.closest("[data-novolote]"); if (nl) { e.stopPropagation(); loteNovo(products.find(x => String(x.id) === String(nl.dataset.novolote))); return; } const lc = e.target.closest(".pi-lotes"); if (lc) { e.stopPropagation(); const ar = lc.closest(".pitem"); if (ar) loteLista(ar.dataset.id); return; }
