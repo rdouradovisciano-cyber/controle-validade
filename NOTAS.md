@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 20/11/2026 · versão 600.
+> Última atualização: 20/11/2026 · versão 601.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -247,3 +247,4 @@ Setor da loja. Cadastra planta com foto, espécie (catálogo `FL_CAT` em `app.js
 - v598: `silXadrez` ajustada para o JPEG real do app (foto reduzida a 360 px, q 0,65 espalha os dois cinzas): pico com janela ±8 e tolerância ±16. Com xadrez, depois do recorte: (1) `xzm` (pixels de xadrez) nunca volta como produto, nem entre dois potes (fim dos pedaços brancos); (2) franja cinza neutra colada no fundo sai (2 px, `xzm.lo`..205); (3) só o maior bloco é produto (pontinhos soltos do ruído do JPEG viram fundo). Teste: reproduzir o caminho `fotoReduz` → `silRecorta` com a foto do Ninho (PNG com xadrez 77/128) no Chromium.
 - v599: **cantos brancos entre as peças** (ex.: 6 potes de iogurte sobre fundo branco liso): o «fechamento» das v571/572 devolvia como produto os cantos de fundo cercados por 3 lados. Agora só roda se o produto tem ≥10% de pixels brancos (`branca`; o Ninho tem 2,3%; caixa/pote branco ficam IGUAIS ao antes no teste A/B). `silKey` prefixo «9:» (sem isso o recorte antigo ficava no cache IndexedDB). Reproduzido com a foto do Ninho sobre fundo branco no Chromium (`fotoReduz` → `silRecorta`).
 - v600: **tocar na versão confere atualização**: o `#verTop` (versão no cabeçalho, só Admin/`body.adm-on`) virou botão (`role=button`, Enter/Espaço) e chama `check(true)`; o do rodapé (`#appVer`, 1º e 2º toque) também. `check(manual)` agora diz o resultado em toast: «Você já está na versão mais recente (vNNN)», «Nova versão disponível…» (e mostra o banner verde «Atualizar») ou «Não consegui verificar agora…». A conferência automática (ao abrir e ao voltar ao app) continua silenciosa. Sem entrada em `updates.json` (só o Admin vê o cabeçalho). Teste no Chromium com `version.json` simulado (igual/nova/falha) e teclado.
+- v601: estrela da promoção atrás da foto: 128% → 116% da caixa de 100 px (`.pi-lead.promo::before`, regra v593 em `app.css`); espaço entre duas promoções seguidas (v595) de 28 px → 20 px para acompanhar. Se quiser mexer de novo, é só esse `width`.
