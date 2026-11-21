@@ -3511,20 +3511,21 @@ $("rodOn").onclick = () => $("onChip").click();
     };
     document.body.appendChild(b);
   }
-  async function check() {
+  async function check(manual) {   // v600: manual = toque na versão (cabeçalho do Admin ou rodapé): diz o resultado, inclusive quando já está atualizado
     try {
       const v = await (await fetch("./version.json?chk=" + Date.now(), { cache: "no-store" })).json();
       if (v && v.versao && v.versao !== APP_VERSION) {
-        banner(v.versao, v.nota || "");
-      }
-    } catch (e) {}
+        banner(v.versao, v.nota || ""); if (manual) toast("Nova versão disponível (v" + String(v.versao).split("-").pop() + "). Toque em «Atualizar».");
+      } else if (manual) toast("Você já está na versão mais recente (v" + APP_VERSION.split("-").pop() + ").");
+    } catch (e) { if (manual) toast("Não consegui verificar agora. Confira a internet e tente de novo."); }
   }
+  { const vt = $("verTop"), go = () => { toast("Verificando atualização…"); check(true); }; if (vt) { vt.addEventListener("click", go); vt.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }); } }   // v600: versão do cabeçalho (só Admin) também confere
   window.addEventListener("load", () => setTimeout(check, 1500));
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") check(); });
   { let vt = 0, vtm = 0;   // 10 toques seguidos na versão (rodapé) abrem a troca de perfil; toques espaçados > 2 s recomeçam a contagem
   $("appVer").onclick = () => { clearTimeout(vtm); vt++; vtm = setTimeout(() => { vt = 0; }, 2000);
     if (vt >= 10) { vt = 0; perfilEscolher(true, true); return; }
-    if (vt <= 2) { toast("Versão " + APP_VERSION + " · verificando…"); check(); } }; }
+    if (vt <= 2) { toast("Versão " + APP_VERSION + " · verificando…"); check(true); } }; }
 })();
 let deferred; const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; $("installBtn").hidden = false; });
