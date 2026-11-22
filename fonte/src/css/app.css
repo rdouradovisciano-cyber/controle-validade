@@ -2443,3 +2443,6 @@ html body.vidro #list:not([data-visao=grade]) .pitem:is(.prh,.pd1,.pd2,.pd3,.pry
 html body.vidro #list:not([data-visao=grade]) .pitem:is(.prh,.pd1,.pd2,.pd3,.pry) .pi-badge b,html body.vidro #list:not([data-visao=grade]) .pitem:is(.prh,.pd1,.pd2,.pd3,.pry) .pi-badge span{color:var(--tx)!important;font-size:13px}
 html body .pitem.pd3 .pi-nome::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff9500' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4 2.8 19.5h18.4z'/%3E%3Cpath d='M12 10v4.5M12 17.2v.1'/%3E%3C/svg%3E")}
 html body .pitem.pd2 .pi-nome::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f4601a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4 2.8 19.5h18.4z'/%3E%3Cpath d='M12 10v4.5M12 17.2v.1'/%3E%3C/svg%3E")}
+
+/* v608 — espaço neutro (sem câmera) no lugar da foto enquanto as fotos guardadas no aparelho ainda estão sendo lidas */
+html body .ico-tile.ico-carr{border-color:transparent!important;background:rgba(128,128,128,.10)!important}

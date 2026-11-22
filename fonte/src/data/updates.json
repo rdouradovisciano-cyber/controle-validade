@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-22T19:22:12-03:00",
+  "itens": [
+   "Abertura mais suave: as fotos não piscam mais ao abrir o app. A lista deixa de ser refeita sem necessidade e a tela de abertura espera as fotos ficarem prontas"
+  ]
+ },
+ {
   "t": "2026-11-21T16:29:10-03:00",
   "itens": [
    "Validades: a etiqueta de dias agora tem a cor da urgência (vermelho, vermelho-laranja, laranja, amarelo) e os cartões urgentes ficaram mais fortes, com a escala hoje → amanhã → 2 dias → 3 dias → 4+"
