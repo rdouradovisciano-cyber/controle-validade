@@ -2815,7 +2815,11 @@ function plBadge() { try { const ren = ehRenato(), b = $("mnPlantas"), n = ren ?
   document.body.classList.toggle("pldue", n > 0); } catch (e) { console.warn(e); } }
 function plRegou(id, iso) { const p = plL.find(x => x.id === id); if (!p) return; const ant = p.u; p.u = iso || plIso(plHoje());
   plSalva(); plPaint(); plBadge(); plAvisaCache();
-  toast("Regada: " + plNome(p) + ".", "Desfazer", () => { const q = plL.find(x => x.id === id); if (q) q.u = ant; plSalva(); plPaint(); plBadge(); plAvisaCache(); }); }
+  toast("Regada: " + plNome(p) + ".", "Desfazer", () => { const q = plL.find(x => x.id === id); if (q) q.u = ant; plSalva(); plPaint(); plBadge(); plAvisaCache(); if ($("plM")) plDetalhe(id); }); }
+// v613: retirar a rega marcada por engano — o aviso já tem «Desfazer» por 6 s, isto fica sempre no detalhe da planta
+function plRetiraRega(id) { const p = plL.find(x => x.id === id); if (!p || !p.u) return; const ant = p.u; p.u = "";
+  plSalva(); plPaint(); plBadge(); plAvisaCache(); plDetalhe(id);
+  toast("Rega retirada: " + plNome(p) + ".", "Desfazer", () => { const q = plL.find(x => x.id === id); if (q) q.u = ant; plSalva(); plPaint(); plBadge(); plAvisaCache(); if ($("plM")) plDetalhe(id); }); }
 const plFecha = () => { const m = $("plM"); if (m) m.remove(); };
 function plModal() { plFecha(); const m = document.createElement("div"); m.id = "plM"; m.className = "modal plmodal"; document.body.appendChild(m); m.addEventListener("click", e => { if (e.target === m) plFecha(); }); return m; }
 function plCard(d, p) { const ft = plFt[p.id], c = plCls(d);
@@ -2848,10 +2852,12 @@ function plDetalhe(id) { const p = plL.find(x => x.id === id); if (!p) return;
     <dl class="pldl">${lin("Espécie", p.e)}${lin("Onde fica", p.loc)}${lin("Vasos", (Number(p.q) || 1) > 1 ? String(p.q) : "")}${lin("Rega a cada", pi + " dia" + (pi > 1 ? "s" : "") + (ajust ? " (ajustado pela estação)" : ""))}${lin("Última rega", p.u ? plBr(p.u) : "ainda não regada")}${lin("Próxima rega", plBr(plIso(plProx(p))))}${lin("Luz", sp ? sp[2] : "")}</dl>
     ${sp ? `<div class="plcuid"><b>Cuidados</b><p>${esc(sp[3])}</p></div>` : ""}${p.o ? `<div class="plcuid"><b>Anotações</b><p>${esc(p.o)}</p></div>` : ""}
     <div class="toolbar plbar"><button type="button" class="primary big" id="plMr">${ico("gota")}Reguei agora</button></div>
+    ${p.u ? `<button type="button" class="secondary plbig plundo" id="plMun">${ico("lixo")}Retirar rega</button>` : ""}
     <label for="plMdt">Regou em outro dia</label><div class="plurow"><input type="date" id="plMdt" value="${plIso(plHoje())}" max="${plIso(plHoje())}"><button type="button" class="secondary" id="plMd">Registrar</button></div>
     <button type="button" class="secondary plbig" id="plMe">${ico("lapis")}Editar planta</button><button type="button" class="secondary plbig" id="plMnet">${ico("bus")}Buscar foto na internet</button></section>`;
   $("plMx").onclick = plFecha;
   $("plMr").onclick = () => { plFecha(); plRegou(id); };
+  if ($("plMun")) $("plMun").onclick = () => plRetiraRega(id);
   $("plMd").onclick = () => { const v = $("plMdt").value; if (!plData(v)) return toast("Escolha a data."); plFecha(); plRegou(id, v); };
   $("plMe").onclick = () => plForm(id);
   $("plMnet").onclick = () => plNetBusca([p.e, p.n].filter(Boolean).join(" ")); }
