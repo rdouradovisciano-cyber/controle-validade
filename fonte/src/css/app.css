@@ -2308,26 +2308,26 @@ body.adm-on .vertop{cursor:pointer;-webkit-tap-highlight-color:transparent;displ
 .crw .elead.sil .ico-img{object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.3))}
 .crw .elead.silw .ico-img{opacity:0}
 /* v567 — estilo «vidro»: cartões translúcidos, foto saltando para fora, prazo em etiqueta (liga/desliga em Mudar layout) */
-body.vidro #list:not([data-visao=grade]) .pitem{margin:34px 2px 0!important;border:1px solid rgba(160,160,170,.28)!important;border-radius:22px!important;background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.04))!important;box-shadow:inset 4px 0 0 var(--tc,#3f9f6f),inset 0 1px 0 rgba(255,255,255,.22),0 10px 22px rgba(0,0,0,.22)!important;overflow-y:visible!important;overflow-x:clip}
-body.vidro #list:not([data-visao=grade]) .pitem::before{display:none!important}
-body.vidro #list:not([data-visao=grade]) .pitem.open{background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.07))!important}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-main{padding:12px 12px 12px 14px;gap:10px;position:relative}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-lead{margin-top:-30px;align-self:flex-start;position:relative;z-index:2}
-body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:84px;height:84px}
-body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{filter:drop-shadow(0 9px 7px rgba(0,0,0,.5))}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{padding-right:6px;min-width:0}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-badge{align-self:flex-start;display:inline-flex;align-items:baseline;gap:4px;padding:4px 11px;border-radius:99px;background:var(--tc,#3f9f6f);color:#111;min-width:0;height:auto;width:auto;box-shadow:none;border:0;margin-top:-2px}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-badge b{font-size:12px;font-weight:900;line-height:1.2;letter-spacing:0;color:#111}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-badge span{font-size:11px;font-weight:800;color:#111;line-height:1.2}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-lead:has(.ico-vazio){margin-top:0;align-self:center}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem{margin:34px 2px 0!important;border:1px solid rgba(160,160,170,.28)!important;border-radius:22px!important;background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.04))!important;box-shadow:inset 4px 0 0 var(--tc,#3f9f6f),inset 0 1px 0 rgba(255,255,255,.22),0 10px 22px rgba(0,0,0,.22)!important;overflow-y:visible!important;overflow-x:clip}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem::before{display:none!important}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem.open{background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.07))!important}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-main{padding:12px 12px 12px 14px;gap:10px;position:relative}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-lead{margin-top:-30px;align-self:flex-start;position:relative;z-index:2}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:84px;height:84px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{filter:drop-shadow(0 9px 7px rgba(0,0,0,.5))}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-txt{padding-right:6px;min-width:0}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-badge{align-self:flex-start;display:inline-flex;align-items:baseline;gap:4px;padding:4px 11px;border-radius:99px;background:var(--tc,#3f9f6f);color:#111;min-width:0;height:auto;width:auto;box-shadow:none;border:0;margin-top:-2px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-badge b{font-size:12px;font-weight:900;line-height:1.2;letter-spacing:0;color:#111}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-badge span{font-size:11px;font-weight:800;color:#111;line-height:1.2}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-lead:has(.ico-vazio){margin-top:0;align-self:center}
 /* v568 — vidro mais translúcido, foto maior e cabeçalho maior */
 html[data-tema=dark] body.vidro{background:radial-gradient(120% 55% at 12% 0%,#3a2f63 0%,#17132e 42%,#0a0912 100%) fixed!important}
-body.vidro #list:not([data-visao=grade]) .pitem{margin:50px 2px 0!important;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.03))!important;-webkit-backdrop-filter:blur(14px) saturate(150%);backdrop-filter:blur(14px) saturate(150%);border-color:rgba(255,255,255,.22)!important}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-main{padding:14px 12px 14px 12px;min-height:84px}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-lead{margin-top:-52px;margin-bottom:-6px}
-body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:116px;height:116px}
-body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{filter:drop-shadow(0 12px 9px rgba(0,0,0,.55))}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-nome{font-size:16px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem{margin:50px 2px 0!important;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.03))!important;-webkit-backdrop-filter:blur(14px) saturate(150%);backdrop-filter:blur(14px) saturate(150%);border-color:rgba(255,255,255,.22)!important}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-main{padding:14px 12px 14px 12px;min-height:84px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-lead{margin-top:-52px;margin-bottom:-6px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:116px;height:116px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{filter:drop-shadow(0 12px 9px rgba(0,0,0,.55))}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-nome{font-size:16px}
 body.vidro .panel:has(> #list),body.vidro #list{background:transparent}
 body.vidro:not(.hs) header{height:78px}
 body.vidro:not(.hs) h1::before{width:48px!important;height:48px!important;border-radius:13px}
@@ -2339,47 +2339,47 @@ body.vidro:not(.hs) .vertop{height:28px;font-size:12.5px;padding:0 10px}
 body.vidro:not(.hs) .tabbar button{min-height:56px;font-size:15px;border-radius:15px}
 body.vidro:not(.hs) .tabbar button .ic{width:22px;height:22px}
 html[data-tema=dark] body.vidro .top{background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.03))!important;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.14)}
-body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:104px;height:104px}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-lead{margin-right:-16px;margin-top:-46px}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-nome{white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-overflow:clip;font-size:15.5px}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{flex:1}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{padding-left:8px}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-lead:has(.ico-vazio){margin-right:0}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:104px;height:104px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-lead{margin-right:-16px;margin-top:-46px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-nome{white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-overflow:clip;font-size:15.5px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-txt{flex:1}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-txt{padding-left:8px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-lead:has(.ico-vazio){margin-right:0}
 /* v569 — cabeçalho fixo compacto; Perecíveis sem a aba Etiquetas */
 body[data-setor="Perecíveis"] #tbEtiquetas{display:none!important}
 body.hs header{height:42px}
 /* v570 — correções do estilo vidro */
-body.vidro #list:not([data-visao=grade]) .pitem .pi-lead:has(.ico-lado:not(.sil)){margin-top:0;margin-right:0;align-self:center}
-body.vidro #list:not([data-visao=grade]) .pitem .ico-lado:not(.sil) .ico-img{width:84px;height:84px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-lead:has(.ico-lado:not(.sil)){margin-top:0;margin-right:0;align-self:center}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado:not(.sil) .ico-img{width:84px;height:84px}
 body.vidro:not(.hs) .x{}
 body.hs #moreBtn{height:34px;min-width:36px;align-self:center}
 html:not([data-tema=dark]) body.vidro{background:linear-gradient(160deg,#ece4ff 0%,#fde9d4 55%,#e2f4ea 100%) fixed!important}
-html:not([data-tema=dark]) body.vidro #list:not([data-visao=grade]) .pitem{background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.38))!important;border-color:rgba(255,255,255,.9)!important;box-shadow:inset 4px 0 0 var(--tc,#3f9f6f),0 10px 26px rgba(80,60,140,.16)!important}
+html:not([data-tema=dark]) body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem{background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.38))!important;border-color:rgba(255,255,255,.9)!important;box-shadow:inset 4px 0 0 var(--tc,#3f9f6f),0 10px 26px rgba(80,60,140,.16)!important}
 /* v573 — estilo vidro, opção A: sem moldura (barra de cor na lateral + linha fina), foto maior dentro da linha */
-body.vidro #list:not([data-visao=grade]) .pitem,html:not([data-tema=dark]) body.vidro #list:not([data-visao=grade]) .pitem{margin:0!important;border:0!important;border-bottom:1px solid rgba(128,128,128,.28)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none;overflow:visible}
-body.vidro #list:not([data-visao=grade]) .pitem::before{display:block!important;content:"";position:absolute;left:0;top:14px;bottom:14px;right:auto;width:4px;height:auto;border-radius:4px;background:var(--tc,#3f9f6f)}
-body.vidro #list:not([data-visao=grade]) .pitem.open{background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 16%,transparent),transparent 80%)!important}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-main{padding:14px 8px 14px 16px;min-height:0}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-lead,body.vidro #list:not([data-visao=grade]) .pitem .pi-lead:has(.ico-lado:not(.sil)){margin:0;align-self:center}
-body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:92px;height:92px}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{padding-left:6px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem,html:not([data-tema=dark]) body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem{margin:0!important;border:0!important;border-bottom:1px solid rgba(128,128,128,.28)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none;overflow:visible}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem::before{display:block!important;content:"";position:absolute;left:0;top:14px;bottom:14px;right:auto;width:4px;height:auto;border-radius:4px;background:var(--tc,#3f9f6f)}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem.open{background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 16%,transparent),transparent 80%)!important}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-main{padding:14px 8px 14px 16px;min-height:0}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-lead,body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-lead:has(.ico-lado:not(.sil)){margin:0;align-self:center}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil,body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:92px;height:92px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-txt{padding-left:6px}
 /* v574 — estilo vidro, opção B: «palco» (brilho na cor do prazo atrás da foto), sem barra nem linha */
-body.vidro #list:not([data-visao=grade]) .pitem::before{display:none!important}
-body.vidro #list:not([data-visao=grade]) .pitem,html:not([data-tema=dark]) body.vidro #list:not([data-visao=grade]) .pitem{border-bottom:0!important}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-main{padding:12px 8px 12px 6px}
-body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil{width:112px;height:112px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--tc,#3f9f6f) 50%,transparent) 0%,color-mix(in srgb,var(--tc,#3f9f6f) 16%,transparent) 60%,transparent 72%)!important}
-body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:86px;height:86px}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-txt{padding-left:2px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem::before{display:none!important}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem,html:not([data-tema=dark]) body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem{border-bottom:0!important}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-main{padding:12px 8px 12px 6px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil{width:112px;height:112px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--tc,#3f9f6f) 50%,transparent) 0%,color-mix(in srgb,var(--tc,#3f9f6f) 16%,transparent) 60%,transparent 72%)!important}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:86px;height:86px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-txt{padding-left:2px}
 /* v575 — estilo vidro, opção D: faixa suave na cor do prazo, cantos retos, foto dentro da linha (substitui o brilho da B) */
-body.vidro #list:not([data-visao=grade]) .pitem,html:not([data-tema=dark]) body.vidro #list:not([data-visao=grade]) .pitem{margin:0 0 8px!important;border-radius:8px!important;background:linear-gradient(90deg,color-mix(in srgb,var(--tc,#3f9f6f) 32%,transparent),color-mix(in srgb,var(--tc,#3f9f6f) 7%,transparent) 72%,transparent)!important}
-body.vidro #list:not([data-visao=grade]) .pitem.open{background:linear-gradient(90deg,color-mix(in srgb,var(--tc,#3f9f6f) 42%,transparent),color-mix(in srgb,var(--tc,#3f9f6f) 12%,transparent) 78%,transparent)!important}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-main{padding:10px 8px 10px 8px}
-body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil{width:92px;height:92px;background:none!important;border-radius:0;display:block}
-body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:92px;height:92px}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-badge{background:#15130e;color:#fff}
-body.vidro #list:not([data-visao=grade]) .pitem .pi-badge b,body.vidro #list:not([data-visao=grade]) .pitem .pi-badge span{color:#fff}
-html[data-tema=dark] body.vidro #list:not([data-visao=grade]) .pitem .pi-badge{background:rgba(255,255,255,.92)}
-html[data-tema=dark] body.vidro #list:not([data-visao=grade]) .pitem .pi-badge b,html[data-tema=dark] body.vidro #list:not([data-visao=grade]) .pitem .pi-badge span{color:#15130e}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem,html:not([data-tema=dark]) body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem{margin:0 0 8px!important;border-radius:8px!important;background:linear-gradient(90deg,color-mix(in srgb,var(--tc,#3f9f6f) 32%,transparent),color-mix(in srgb,var(--tc,#3f9f6f) 7%,transparent) 72%,transparent)!important}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem.open{background:linear-gradient(90deg,color-mix(in srgb,var(--tc,#3f9f6f) 42%,transparent),color-mix(in srgb,var(--tc,#3f9f6f) 12%,transparent) 78%,transparent)!important}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-main{padding:10px 8px 10px 8px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil{width:92px;height:92px;background:none!important;border-radius:0;display:block}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:92px;height:92px}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-badge{background:#15130e;color:#fff}
+body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-badge b,body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-badge span{color:#fff}
+html[data-tema=dark] body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-badge{background:rgba(255,255,255,.92)}
+html[data-tema=dark] body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-badge b,html[data-tema=dark] body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-badge span{color:#15130e}
 /* v577 — iPhone: sem zoom ao tocar nos campos nem no toque duplo */
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
 @supports (-webkit-touch-callout:none){input,select,textarea,.pi-nota input,input[type=search]{font-size:16px!important}}
@@ -2393,9 +2393,9 @@ html[data-tema=light] .pi-sub2>.pi-lotes,body.vidro .pi-sub2>.pi-lotes{backgroun
 .pi-lotes b{font-size:1.05em}
 .plb i{opacity:.35}.plb i.on{opacity:1}
 /* v581 — só a foto: maior, nítida e com sombra (como na v568); layout da lista inalterado */
-html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil,html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:100px;height:100px}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil{margin:-6px 0}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{object-fit:contain;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45));image-rendering:auto}
+html:root body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil,html:root body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:100px;height:100px}
+html:root body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil{margin:-6px 0}
+html:root body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{object-fit:contain;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45));image-rendering:auto}
 /* v583 — promoção mais leve: estrela menor e suave, selo pequeno (menos poluição quando há muitos itens) */
 .pi-lead.promo::before{width:112%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50.0,2.0 57.8,10.8 68.4,5.7 72.2,16.7 83.9,16.1 83.3,27.8 94.3,31.6 89.2,42.2 98.0,50.0 89.2,57.8 94.3,68.4 83.3,72.2 83.9,83.9 72.2,83.3 68.4,94.3 57.8,89.2 50.0,98.0 42.2,89.2 31.6,94.3 27.8,83.3 16.1,83.9 16.7,72.2 5.7,68.4 10.8,57.8 2.0,50.0 10.8,42.2 5.7,31.6 16.7,27.8 16.1,16.1 27.8,16.7 31.6,5.7 42.2,10.8' fill='%23ffe94d' fill-opacity='.9' stroke='%23e11d24' stroke-opacity='.85' stroke-width='1.8' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;filter:none;opacity:.95}
 .pi-lead.promo::after{top:-9px;font:800 9px/1 system-ui,sans-serif;letter-spacing:.4px;padding:3px 7px;background:#e11d24;box-shadow:none}
@@ -2409,10 +2409,10 @@ html,body{overflow-x:clip;max-width:100%}
 #saudeModal .shimg:not(.sil){width:60px;height:60px;object-fit:cover;border-radius:14px;border:2.5px solid #3f9f6f;background:transparent}
 #saudeModal .shimg.sil{width:100px;height:100px;object-fit:contain;border:0;border-radius:0;background:#1b211e;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45));padding:4px;box-sizing:border-box;border-radius:14px}
 /* v593 — padrão: toda foto recortada ocupa a mesma caixa (100px) com o produto limitado a ~82px e centralizado; o destaque da promoção (estrela) sempre aparece em volta, do mesmo tamanho */
-html:root body.vidro #list:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{padding:9px;box-sizing:border-box;object-position:center}
-html:root body.vidro #list:not([data-visao=grade]) .pitem .pi-lead.promo::before{width:106%;max-width:none}
+html:root body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{padding:9px;box-sizing:border-box;object-position:center}
+html:root body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem .pi-lead.promo::before{width:106%;max-width:none}
 /* v595 — quando dois produtos com "Já na promoção" ficam seguidos, a estrela amarela de um não encosta na do outro (v601/v602: 14px; só no modo estrela) */
-body.vidro:not(.promoselo) #list:not([data-visao=grade]) .pitem:has(.pi-lead.promo):has(+ .pitem .pi-lead.promo){margin-bottom:14px!important}
+body.vidro:not(.promoselo) :is(#list,#plLista):not([data-visao=grade]) .pitem:has(.pi-lead.promo):has(+ .pitem .pi-lead.promo){margin-bottom:14px!important}
 
 /* v601 — estrela da promoção um pouco menor (128% → 116% da caixa da foto); o espaço entre duas promoções seguidas acompanha (28px → 20px) */
 /* v602 — estrela da promoção mais um pouco menor: 116% → 106% da caixa da foto; espaço entre promoções seguidas 20px → 14px */
@@ -2437,10 +2437,10 @@ body.np-open .totop{display:none}
 html body .pitem.pd1{--tc:var(--c1,#f0352b);--tx:#fff}
 html body .pitem.pd2{--tc:var(--c2,#f4601a);--tx:#fff}
 html body .pitem.pd3{--tc:var(--c3,#ff9500);--tx:#1a0f00}
-html body.vidro #list:not([data-visao=grade]) .pitem:is(.prh,.pd1,.pd2,.pd3){background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 52%,transparent),color-mix(in srgb,var(--tc) 11%,transparent) 78%,transparent)!important}
-html body.vidro #list:not([data-visao=grade]) .pitem:is(.prh,.pd1,.pd2,.pd3,.pry)::before{width:6px;top:10px;bottom:10px}
-html body.vidro #list:not([data-visao=grade]) .pitem:is(.prh,.pd1,.pd2,.pd3,.pry) .pi-badge{background:var(--tc)!important;color:var(--tx)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--tc) 28%,transparent)!important;padding:5px 12px}
-html body.vidro #list:not([data-visao=grade]) .pitem:is(.prh,.pd1,.pd2,.pd3,.pry) .pi-badge b,html body.vidro #list:not([data-visao=grade]) .pitem:is(.prh,.pd1,.pd2,.pd3,.pry) .pi-badge span{color:var(--tx)!important;font-size:13px}
+html body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem:is(.prh,.pd1,.pd2,.pd3){background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 52%,transparent),color-mix(in srgb,var(--tc) 11%,transparent) 78%,transparent)!important}
+html body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem:is(.prh,.pd1,.pd2,.pd3,.pry)::before{width:6px;top:10px;bottom:10px}
+html body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem:is(.prh,.pd1,.pd2,.pd3,.pry) .pi-badge{background:var(--tc)!important;color:var(--tx)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--tc) 28%,transparent)!important;padding:5px 12px}
+html body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem:is(.prh,.pd1,.pd2,.pd3,.pry) .pi-badge b,html body.vidro :is(#list,#plLista):not([data-visao=grade]) .pitem:is(.prh,.pd1,.pd2,.pd3,.pry) .pi-badge span{color:var(--tx)!important;font-size:13px}
 html body .pitem.pd3 .pi-nome::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff9500' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4 2.8 19.5h18.4z'/%3E%3Cpath d='M12 10v4.5M12 17.2v.1'/%3E%3C/svg%3E")}
 html body .pitem.pd2 .pi-nome::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f4601a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4 2.8 19.5h18.4z'/%3E%3Cpath d='M12 10v4.5M12 17.2v.1'/%3E%3C/svg%3E")}
 
@@ -2471,20 +2471,7 @@ html[data-tema=dark] .plv .plres span.hj b{color:#f3c64a}
 .plv .plq{margin:4px 0 6px;min-height:50px;border-color:var(--ln);background:var(--card);color:var(--ink)}
 .plv .plgh{display:flex;align-items:center;justify-content:space-between;margin:16px 2px 6px;font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
 .plv .plgh small{font-size:12px;font-weight:800;padding:1px 9px;border-radius:10px;background:var(--lt);color:var(--ink)}
-.plv .plc{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;margin:0 0 8px;border-radius:16px;background:var(--card);border:1px solid var(--ln);border-left:6px solid var(--ln);cursor:pointer}
-.plv .plc.atr{border-left-color:#e11d2e}.plv .plc.hj{border-left-color:#d19a1c}
-.plv .plf{flex:none;width:60px;height:60px;border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:rgba(128,128,128,.12);color:var(--mut)}
-.plv .plf img{width:100%;height:100%;object-fit:cover;display:block}
-.plv .plf .ic{width:26px;height:26px}
-.plv .plx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.plv .plx b{font-size:15.5px;line-height:1.25;color:var(--ink);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.plv .plx span{font-size:12.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.plv .plx em{font-style:normal;font-size:13px;font-weight:800;color:var(--ink)}
-.plv .plx em.atr{color:#c4182a}.plv .plx em.hj{color:#9a6b00}
-html[data-tema=dark] .plv .plx em.atr{color:#ff6b78}
-html[data-tema=dark] .plv .plx em.hj{color:#f3c64a}
-.plv .plb{flex:none;min-height:46px;padding:0 14px;display:flex;align-items:center;gap:6px;font-weight:800}
-.plv .plb .ic{margin:0}
+/* v614 — o cartão de Plantas é o mesmo .pitem de Perecíveis; só o conteúdo muda (rega no lugar da validade) */
 .plv .plvazio{text-align:center;padding:36px 12px;color:var(--mut)}
 .plv .plvazio p{margin:0 0 14px;font-size:15px}
 .plmodal{z-index:5100}
@@ -2513,17 +2500,6 @@ html[data-tema=dark] .plsheet .plst.hj{color:#f3c64a}
 
 /* v612 — Plantas com o visual de Perecíveis: cartão vidro, foto em silhueta (sem fundo) e busca da foto na internet */
 html[data-tema=dark] body.vidro .plv{background:radial-gradient(120% 55% at 12% 0%,#3a2f63 0%,#17132e 42%,#0a0912 100%) fixed!important}
-.plv .plc{--plc:var(--ln,#888)}
-.plv .plc.atr{--plc:#e11d2e}
-.plv .plc.hj{--plc:#d19a1c}
-body.vidro .plv .plc{margin:50px 2px 8px!important;border:1px solid rgba(255,255,255,.22)!important;border-radius:22px!important;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.03))!important;box-shadow:inset 4px 0 0 var(--plc),inset 0 1px 0 rgba(255,255,255,.22),0 10px 22px rgba(0,0,0,.22)!important;padding:14px 12px;min-height:84px;gap:12px;-webkit-backdrop-filter:blur(14px) saturate(150%);backdrop-filter:blur(14px) saturate(150%);overflow-y:visible!important;overflow-x:clip}
-body.vidro .plv .plf{flex:none;width:100px;height:100px;border-radius:0;background:none;overflow:visible;align-self:flex-start;margin:-52px 0 -6px;position:relative;z-index:2}
-body.vidro .plv .plf img{width:100%;height:100%;object-fit:contain;padding:9px;box-sizing:border-box;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45))}
-body.vidro .plv .plf.silw img{opacity:0}
-body.vidro .plv .plf:not(:has(img)){width:60px;height:60px;border-radius:16px;background:rgba(128,128,128,.12);margin:-24px 0 0;overflow:hidden}
-body.vidro .plv .plf .ic{width:26px;height:26px}
-body.vidro .plv .plx{min-width:0;padding-right:6px}
-body.vidro .plv .plx em{align-self:flex-start;width:fit-content;padding:4px 11px;border-radius:99px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18)}
 body.vidro .plsheet .plimg{display:block;text-align:center}
 body.vidro .plsheet .pldimg{display:inline-block;width:auto;max-width:100%;max-height:230px;object-fit:contain;border-radius:0;background:transparent;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45));margin:2px 0 10px}
 body.vidro .plsheet .plimg.silw img{opacity:0}
@@ -2532,16 +2508,26 @@ body.vidro .plsheet .plfbox img{object-fit:contain;padding:9px;box-sizing:border
 body.vidro .plsheet .plfbox.silw img{opacity:0}
 body.vidro .plsheet .plfbox:not(:has(img)){width:92px;height:92px;border-radius:16px;background:rgba(128,128,128,.12);overflow:hidden}
 
-/* v613 — foto da planta 30% maior (cartão, detalhe e formulário) e botão «Retirar rega» no detalhe */
-body.vidro .plv .plc{display:grid;grid-template-columns:130px minmax(0,1fr);grid-template-rows:auto auto;column-gap:12px;row-gap:8px;align-items:start}
-body.vidro .plv .plf{grid-column:1;grid-row:1/3;width:130px;height:130px;margin:-52px 0 -12px;align-self:start}
-body.vidro .plv .plx{grid-column:2;grid-row:1;padding-right:0}
-body.vidro .plv .plb{grid-column:2;grid-row:2;justify-self:start}
-body.vidro .plv .plf img{padding:12px}
-body.vidro .plv .plf:not(:has(img)){width:78px;height:78px;margin:-30px 0 0}
-body.vidro .plv .plf .ic{width:32px;height:32px}
+/* v613 — foto 30% maior no detalhe/formulário e botão «Retirar rega»; em v614 o cartão passou a ser o .pitem de Perecíveis */
 body.vidro .plsheet .pldimg{max-height:300px}
 body.vidro .plsheet .plfbox{width:130px;height:130px}
 body.vidro .plsheet .plfbox img{padding:12px}
 body.vidro .plsheet .plfbox:not(:has(img)){width:120px;height:120px}
 .plsheet .plundo{margin-top:8px;min-height:42px;font-size:13px}
+
+/* v614 — Plantas com o cartão idêntico ao de Perecíveis: mesma vidro, mesma etiqueta, mesma foto em silhueta; muda só a rega no lugar da validade.
+   A foto continua 30% maior (pedido da v613): 130 px contra os 100 px de Perecíveis, daí o grid para o texto não ficar esmagado. */
+body.vidro #plLista:not([data-visao=grade]) .pitem .pi-main{display:grid;grid-template-columns:130px minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;row-gap:8px;align-items:start;padding:12px 10px 10px}
+body.vidro #plLista:not([data-visao=grade]) .pitem .pi-lead{grid-column:1;grid-row:1/3;margin:-52px 0 -14px;align-self:start}
+body.vidro #plLista:not([data-visao=grade]) .pitem .pi-txt{grid-column:2;grid-row:1;padding-left:0;padding-right:0;min-width:0}
+body.vidro #plLista:not([data-visao=grade]) .pitem .pi-badge{grid-column:2;grid-row:2;justify-self:start;margin-top:0}
+body.vidro #plLista:not([data-visao=grade]) .pitem .pi-act{display:block;grid-column:1/3;grid-row:3;padding:0 2px 2px}
+body.vidro #plLista:not([data-visao=grade]) .pitem .pi-act .primary{width:100%;min-height:44px}
+html:root body.vidro #plLista:not([data-visao=grade]) .pitem .ico-lado.sil{width:130px;height:130px;margin:0}
+html:root body.vidro #plLista:not([data-visao=grade]) .pitem .ico-lado.sil .ico-img{width:130px;height:130px;padding:12px}
+body.vidro #plLista:not([data-visao=grade]) .pitem .pi-lead:has(.ico-vazio){width:60px;height:60px;margin:0;align-self:center}
+body.vidro #plLista:not([data-visao=grade]) .pitem .pi-lead:has(.ico-vazio) .ico-tile{width:60px;height:60px}
+.plsheet .plficha{margin:10px 0;padding:10px 12px;border-radius:12px;border:1px solid var(--ln);background:var(--lt2)}
+.plsheet .plficha b{display:block;margin-bottom:4px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.plsheet .plficha p{margin:0 0 6px;font-size:13.5px;line-height:1.5;color:var(--ink)}
+.plsheet .plficha a{display:inline-block;margin-top:8px;color:var(--link,#3f9f6f);font-weight:800;font-size:13px;text-decoration:none}

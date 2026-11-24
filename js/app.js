@@ -2749,8 +2749,17 @@ $("mnEscala").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add
 // Fotos: sh_cfg/planta-<id> {pl:1,id,img,em}. O campo é `img` (e NÃO `d`) de propósito: a consulta de fotos dos produtos (fotosTodas) busca `d` ≥ "data:" em sh_cfg.
 // Rega: intervalo ajustado pela estação (dez–mar ×0,85; jun–ago ×1,3) conforme o mês da última rega. Aviso diário a partir das 08h (app aberto) e, se o aparelho deixar, com o app fechado (sw.js).
 const PL_K = "validamais-plantas", PL_FK = "validamais-plantas-fotos", PL_ONK = "validamais-pl-aviso-on", PL_AVK = "validamais-pl-aviso";
-const PL_CAT = [   // [espécie, rega a cada (dias), luz, cuidados] — conhecimento geral, não vem de busca na internet; os dias são pontos de partida (ajuste pela planta de verdade)
-  ["Poinsétia (vermelha)", 3, "Luz clara, sem sol direto", "Rotina da loja: regar 2 vezes por semana (ex.: sexta). Colocar a água SÓ na terra: molhar por cima queima a folha vermelha."],
+const PL_CAT = [   // [espécie, rega a cada (dias), luz, cuidados resumidos, sinônimos (v614), ficha completa (v614)]
+// v614: fichas das 6 espécies pedidas pelo Renato pesquisadas em fontes botânicas (NC State Extension Plant Toolbox, RHS, Wikipedia e IFAS/UF).
+// Os dias são pontos de partida para a rotina da loja — o mais certo é olhar a planta e ajustar no cadastro.
+  ["Poinsétia (vermelha)", 3, "Meia-sombra, 4 a 5 h de sol se for externa", "Rotina da loja: regar 2 vezes por semana (ex.: sexta). Colocar a água SÓ na terra: molhar por cima queima as brácteas vermelhas. Longe de ar-condicionado.", ["Flor de Natal", "Poinsétia", "Poinsettia", "Euphorbia pulcherrima"], [
+    "Rega: quando a superfície do substrato secar (na loja, 2 vezes por semana). Nunca encharque.",
+    "Luz: meia-sombra; 4 a 5 horas de sol se estiver do lado de fora. Evite aquecedores, lareira e correntes frias; 18 a 21 °C.",
+    "Solo: turfa + matéria orgânica + argila, bem drenado.",
+    "Adubo e poda: fertilize na primavera e pinçe no verão. Para colorir as brácteas, 16 horas de escuridão ininterrupta por 6 a 8 semanas desde setembro.",
+    "Pragas: cochonilha, ácaro-vermelho, escama, mosca-branca, apodrecimento e botrite.",
+    "Atenção: o látex branco irrita pele e olhos, principalmente em alérgicos; a história de que é letal é mito.",
+    "Curiosidade: o vermelho são folhas modificadas (brácteas); as flores verdadeiras são amarelas."]],
   ["Pinheiro de Natal", 2, "Luz clara", "Rotina da loja: regar 3 vezes por semana. Água SÓ na terra, para não queimar as folhinhas."],
   ["Planta de balde grande ou pendurada", 2, "", "Rotina da loja: regar 3 vezes por semana (inclui jiboia e samambaia)."],
   ["Samambaia", 2, "Meia-sombra", "Rotina da loja: 3 vezes por semana (as de balde grande ou penduradas). Substrato sempre levemente úmido, sem encharcar. Borrife as folhas e evite sol direto e ar-condicionado."],
@@ -2758,17 +2767,38 @@ const PL_CAT = [   // [espécie, rega a cada (dias), luz, cuidados] — conhecim
   ["Suculenta", 10, "Sol pleno ou luz forte", "Regue só quando o substrato estiver completamente seco. Não molhe as folhas e evite encharcar."],
   ["Cacto", 14, "Sol pleno", "Pouca água: regue só com o substrato seco. No inverno, quase nada."],
   ["Espada-de-são-jorge", 10, "Meia-sombra a sol", "Aguenta esquecimento. Regue com o substrato seco e nunca deixe empoçar água."],
-  ["Zamioculca", 7, "Meia-sombra", "Rotina da loja: regar 1 vez por semana. Tolera pouca luz; o excesso de água apodrece a raiz."],
+  ["Zamioculcas", 15, "Luz indireta brilhante", "Rotina da loja: regar 1 vez por semana, mas só se a terra estiver bem seca. Nunca deixe água parada: o rizoma apodrece.", ["Zamioculca", "ZZ", "Zamioculcas zamiifolia", "Zamioculca zamiifolia"], [
+    "Rega: a cada 15 dias no calor e cerca de 30 no frio, e só com o substrato completamente seco. Nunca deixe os pés molhados.",
+    "Luz: indireta brilhante. Tolera luz baixa, mas sol direto queima as folhas.",
+    "Solo: orgânico e arenoso, muito bem drenado; os rizomas armazenam água.",
+    "Adubo e limpeza: líquido balanceado 1 ou 2 vezes por ano; limpe as folhas com pano úmido.",
+    "Pragas: cochonilha e apodrecimento do rizoma, quase sempre por excesso de rega.",
+    "Atenção: a seiva tem oxalato de cálcio; é moderadamente tóxica se ingerida por cães e gatos.",
+    "Curiosidade: as folhas têm cerca de 91% de água e a planta aguenta meses sem rega em luz baixa."]],
   ["Jiboia", 2, "Meia-sombra", "Rotina da loja: 3 vezes por semana (as de balde grande ou penduradas). Aceita pouca luz; sol direto queima as folhas."],
   ["Costela-de-adão", 7, "Meia-sombra", "Substrato levemente úmido. Limpe as folhas com pano úmido e evite sol direto."],
   ["Lírio-da-paz", 5, "Meia-sombra", "Gosta de substrato úmido. Folhas caídas avisam que está com sede. Sem sol direto."],
   ["Violeta", 5, "Luz clara, sem sol direto", "Regue por baixo (no pratinho) e tire o excesso depois de 15 minutos. Não molhe as folhas."],
-  ["Antúrio", 5, "Luz clara, sem sol direto", "Substrato úmido, sem encharcar. Gosta de ambiente úmido e arejado."],
+  ["Antúrio", 5, "Luz indireta brilhante", "Rotina da loja: regar quando os primeiros 2 cm da terra secarem (2 vezes por semana). Sol indireto, umidade e ar circulando.", ["Anturio", "Anthurium", "Anthurium andraeanum", "Flamingo"], [
+    "Rega: quando os primeiros 2,5 cm do substrato secarem; na loja, 2 vezes por semana. Sem encharcar.",
+    "Luz: indireta brilhante; sol direto queima as folhas. Prefere 18 a 27 °C e umidade de 60 a 80%.",
+    "Solo: úmido, poroso e bem drenado, rico em matéria orgânica e levemente ácido — é epífito.",
+    "Adubo e limpeza: líquido semanal na floração; retire flores murchas, limpe as folhas e replante a cada 2 ou 3 anos.",
+    "Pragas: pulgões, ácaros, cochonilha e escama; as raízes apodrecem com umidade e ar parado.",
+    "Atenção: os cristais de oxalato irritam boca e pele; evite que crianças e pets mastiguem.",
+    "Curiosidade: a pétala colorida é uma espata; a flor verdadeira é a espiga amarela."]],
   ["Begônia", 4, "Luz clara", "Substrato levemente úmido; evite molhar flores e folhas."],
   ["Bromélia", 7, "Luz clara", "Mantenha um pouco de água no centro (o copo) e troque de vez em quando; o substrato só levemente úmido."],
   ["Figueira-lira", 7, "Luz clara, sem sol direto", "Regue quando a superfície do substrato secar. Não gosta de mudar de lugar nem de corrente de ar."],
   ["Ficus", 7, "Luz clara", "Regue quando a superfície secar. Perde folhas se mudar de lugar ou se encharcar."],
-  ["Rosa-do-deserto", 10, "Sol pleno", "Muito sol e pouca água. Deixe o substrato secar bem entre as regas."],
+  ["Rosa-do-deserto", 14, "Sol pleno", "Muito sol e pouca água. Deixe o substrato secar bem entre as regas (na loja, a cada 2 semanas); no frio, espaçe mais.", ["Rosa do deserto", "Adenium", "Adenium obesum"], [
+    "Rega: a cada 14 dias, deixando secar entre uma e outra; reduza bastante no inverno. Excesso apodrece as raízes.",
+    "Luz: sol pleno (6 horas ou mais); em interior, janela muito clara. Não deixe abaixo de 10 °C no inverno.",
+    "Solo: mistura para cactos e suculentas, arenosa, com vaso de muitos furos.",
+    "Adubo: na primavera, para estimular a floração.",
+    "Pragas: pulgões, cochonilhas, escamas, lagartas de oleandro e manchas foliares.",
+    "Atenção: o látex tem glicosídeos cardíacos — irrita a pele e é tóxico se ingerido, inclusive por pets.",
+    "Curiosidade: o caule inchado (caudex) guarda água; a seiva já foi usada como veneno de flecha na África."]],
   ["Hortênsia", 3, "Sol da manhã ou meia-sombra", "Gosta de substrato sempre úmido. Murcha rápido sem água."],
   ["Azaleia", 3, "Sol da manhã ou meia-sombra", "Substrato úmido, sem encharcar. Regue na base, sem molhar as flores."],
   ["Kalanchoe", 10, "Sol pleno ou luz forte", "Regue só com o substrato seco e não molhe flores nem folhas."],
@@ -2781,7 +2811,23 @@ const PL_CAT = [   // [espécie, rega a cada (dias), luz, cuidados] — conhecim
   ["Alecrim", 7, "Sol pleno", "Muito sol e substrato seco entre as regas. Cuidado com o excesso de água."],
   ["Palmeira-ráfis", 5, "Meia-sombra", "Substrato levemente úmido e luz clara. Pontas secas indicam ar seco."],
   ["Peperômia", 7, "Luz clara, sem sol direto", "Regue pouco; deixe o substrato secar entre as regas, pois as folhas guardam água."],
-  ["Bambu-da-sorte", 7, "Luz clara, sem sol direto", "Mantenha a base na água e troque a água toda semana, de preferência sem cloro (deixada em repouso)."]
+  ["Bambu-da-sorte", 7, "Luz clara, sem sol direto", "Mantenha a base na água e troque a água toda semana, de preferência sem cloro (deixada em repouso)."],
+  ["Bonsai de jabuticaba", 2, "Sol pleno ou meia-sombra", "Bonsai de frutificação: terra sempre levemente úmida e bem drenada. Regue quando a superfície secar (na loja, a cada 2 dias).", ["Jabuticaba", "Bonsai de Jabuticaba", "Plinia cauliflora", "Myrciaria cauliflora"], [
+    "Rega: quando a superfície secar (na loja, a cada 2 dias); mantenha úmido, nunca encharcado, e aumente na seca prolongada.",
+    "Luz: sol pleno a meia-sombra.",
+    "Solo: rico em matéria orgânica, levemente ácido (pH abaixo de 6) e bem drenado; a raiz compacta favorece vaso e bonsai.",
+    "Adubo e poda: as fontes não detalham; como cresce devagar, use adubo orgânico leve e apare só os brotos muito longos.",
+    "Pragas e doenças: ferrugem, cancro, declínio e podridão dos frutos.",
+    "Atenção: não há toxicidade informada; os frutos são comestíveis.",
+    "Curiosidade: os frutos nascem direto no tronco (caulifloria) e a árvore pode dar até 5 ou 6 colheitas por ano."]],
+  ["Lírio laranja", 7, "Sol pleno ou meia-sombra", "Bulbo de floração: terra levemente úmida e bem drenada, muita luz. Regue quando a superfície secar; depois da floração, deixe secar cerca de 60 dias.", ["Lirio laranja", "Amarílis", "Amarilis", "Hippeastrum"], [
+    "Rega: a cada 7 dias, quando a superfície secar; regas leves até brotar. Após a floração, suspenda cerca de 60 dias (dormência).",
+    "Luz: sol pleno ou meia-sombra; em casa, local claro e arejado.",
+    "Solo: rico em matéria orgânica, úmido e bem drenado; plante o bulbo com um terço acima da terra.",
+    "Adubo e poda: líquido com ferro e magnésio; corte a haste murcha rente ao bulbo, remova só folhas amarelas e replante a cada 3 ou 4 anos.",
+    "Pragas: cochonilha, mosca-do-narciso, mancha-vermelha e podridão do bulbo.",
+    "Atenção: contém licorina; o bulbo é a parte mais tóxica, com vômitos e diarreia — cuidado com pets.",
+    "Curiosidade: o nome vem do grego para cavaleiro-estrela; quanto maior o bulbo, mais flores."]]
 ];
 let plL = store.get(PL_K, []), plFt = store.get(PL_FK, {}), plBusca = "", plNuvem = false, plFotosOuve = false, plPronto = !db;
 const plHoje = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
@@ -2789,7 +2835,9 @@ const plData = s => { const m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(s || ""); return 
 const plIso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
 const plBr = s => s ? s.slice(8, 10) + "/" + s.slice(5, 7) : "";
 const plFator = d => 1;   // v610: sem ajuste por estação — a loja segue uma rotina fixa por tipo de planta (antes: dez–mar ×0,85; jun–ago ×1,3)
-const plEspec = n => PL_CAT.find(x => norm(x[0]) === norm(n || ""));
+// v614: aceita sinônimos (5º campo de cada linha do catálogo). Os índices 0..3 continuam os mesmos.
+const plEspec = n => { const x = norm(n || ""); return PL_CAT.find(c => norm(c[0]) === x || (c[4] || []).some(a => norm(a) === x)); };
+const plMesmaEsp = (a, b) => { const x = norm(a), y = norm(b), c = plEspec(a); return x === y || !!c && (norm(c[0]) === y || (c[4] || []).some(z => norm(z) === y)); };
 const plNome = p => p.n || p.e || "Planta";
 const plInt = p => { const u = plData(p.u); return Math.max(1, Math.round((Number(p.i) || 7) * (u ? plFator(u) : 1))); };   // dias entre regas (já com a estação)
 const plProx = p => { const u = plData(p.u); if (!u) return plHoje(); u.setDate(u.getDate() + plInt(p)); return u; };
@@ -2800,11 +2848,23 @@ const plCls = d => d < 0 ? "atr" : d === 0 ? "hj" : "";
 function plNetBusca(q) { const s = String(q || "").trim(); if (!s) return toast("Escreva a espécie ou o nome da planta antes de buscar.");
   window.open("https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(s + " fundo branco"), "_blank", "noopener");
   toast("Segure a imagem escolhida › Baixar imagem. Depois toque em «Escolher imagem» (ou «Trocar»)."); }
+// v614: o app já traz a ficha de cada espécie; este botão abre a pesquisa atualizada na internet
+function plCuidadosNet(q) { const s = String(q || "").trim(); if (!s) return toast("Escolha uma espécie para pesquisar os cuidados.");
+  window.open("https://www.google.com/search?q=" + encodeURIComponent(s + " cuidados rega luz solo adubação pragas"), "_blank", "noopener");
+  toast("Pesquisa aberta. A ficha que o app já sabe continua no detalhe da planta."); }
 const plDevidas = () => plL.map(p => [plDias(p), p]).filter(x => x[0] <= 0).sort((a, b) => a[0] - b[0] || plNome(a[1]).localeCompare(plNome(b[1]), "pt-BR"));
 function plSalva() { store.set(PL_K, plL); if (!db) return;
   V.setDoc(V.doc(db, "sh_cfg", "plantas"), { l: plL, em: Date.now(), por: myName().slice(0, 40) }).catch(e => { console.error(e); toast("Não consegui salvar na nuvem."); }); }
 function plInicia() { if (plNuvem || !db) return; plNuvem = true;
-  try { V.onSnapshot(V.doc(db, "sh_cfg", "plantas"), sn => { if (sn.exists() && Array.isArray(sn.data().l)) { plL = sn.data().l; store.set(PL_K, plL); } plPronto = true; plPaint(); plBadge(); plAvisaCache(); }, e => console.warn("plantas", e)); } catch (e) { console.warn(e); } }
+  try { V.onSnapshot(V.doc(db, "sh_cfg", "plantas"), sn => { if (sn.exists() && Array.isArray(sn.data().l)) { plL = sn.data().l; store.set(PL_K, plL); } plPronto = true; plGaranteNovas(); plPaint(); plBadge(); plAvisaCache(); }, e => console.warn("plantas", e)); } catch (e) { console.warn(e); } }
+// v614: as seis plantas que o Renato mandou entram sozinhas na primeira abertura; nunca duplica espécie já cadastrada (nem sinônimo)
+const PL_NOVAS_K = "validamais-plantas-v614";
+const PL_NOVAS = ["Bonsai de jabuticaba", "Zamioculcas", "Lírio laranja", "Antúrio", "Rosa do deserto", "Flor de Natal"];
+function plGaranteNovas() { if (store.get(PL_NOVAS_K, false)) return; store.set(PL_NOVAS_K, true);
+  let add = 0;
+  PL_NOVAS.forEach(e => { if (plL.some(p => plMesmaEsp(p.e, e))) return;
+    const c = plEspec(e); plL.push({ id: uid().slice(0, 8), n: "", e, loc: "", q: 1, i: c ? c[1] : 7, u: "", o: "", f: 0 }); add++; });
+  if (add) { plSalva(); plPaint(); plBadge(); plAvisaCache(); toast(add + " plantas adicionadas à lista."); } }
 function plFotosInicia() { if (plFotosOuve || !db) return; plFotosOuve = true;
   try { V.onSnapshot(V.query(V.collection(db, "sh_cfg"), V.where("pl", "==", 1)), sn => { const m = {}; sn.forEach(x => { const o = x.data(); if (o && o.id && o.img) m[o.id] = o.img; }); plFt = m; plPaint(); }, e => console.warn("plantas-fotos", e)); } catch (e) { console.warn(e); } }
 async function plFotoGrava(id, img) { plFt[id] = img; if (db) await V.setDoc(V.doc(db, "sh_cfg", "planta-" + id), { pl: 1, id, img, em: Date.now() }); else store.set(PL_FK, plFt); }
@@ -2822,12 +2882,22 @@ function plRetiraRega(id) { const p = plL.find(x => x.id === id); if (!p || !p.u
   toast("Rega retirada: " + plNome(p) + ".", "Desfazer", () => { const q = plL.find(x => x.id === id); if (q) q.u = ant; plSalva(); plPaint(); plBadge(); plAvisaCache(); if ($("plM")) plDetalhe(id); }); }
 const plFecha = () => { const m = $("plM"); if (m) m.remove(); };
 function plModal() { plFecha(); const m = document.createElement("div"); m.id = "plM"; m.className = "modal plmodal"; document.body.appendChild(m); m.addEventListener("click", e => { if (e.target === m) plFecha(); }); return m; }
-function plCard(d, p) { const ft = plFt[p.id], c = plCls(d);
-  const s = ft ? silPronto(ft) : "", sl = !!ft && s !== ft, sw = !!ft && s === ft && silEspera(ft);
-  const sub = [p.e && p.n ? p.e : "", p.loc, (Number(p.q) || 1) > 1 ? p.q + " vasos" : ""].filter(Boolean).join(" · ");
-  return `<div class="plc ${c}" data-pid="${esc(p.id)}"><div class="plf${sl ? " sil" : ""}${sw ? " silw" : ""}">${ft ? `<img src="${s}" alt="" loading="lazy">` : ico("gota", "ic")}</div>
-    <div class="plx"><b>${esc(plNome(p))}</b>${sub ? `<span>${esc(sub)}</span>` : ""}<em class="${c}">${plStatus(d)}</em></div>
-    <button type="button" class="plb ${c ? "primary" : "secondary"}" data-pr="${esc(p.id)}" aria-label="Reguei ${esc(plNome(p))}">${ico("gota")}<span>Reguei</span></button></div>`; }
+// v614 — o mesmo cartão .pitem de Perecíveis; a única diferença é a rega no lugar da validade
+const plPrCls = d => d < 0 ? "prv" : d === 0 ? "prh" : d === 1 ? "pra pd1" : d === 2 ? "pra pd2" : d === 3 ? "pra pd3" : d <= 7 ? "pry" : "prok";
+const plBadgePar = d => d < 0 ? ["ATRASADA", `há ${-d} dia${d < -1 ? "s" : ""}`] : d === 0 ? ["REGAR", "HOJE"] : d === 1 ? ["AMANHÃ", "regar"] : [String(d), "dias"];
+const plFotoLado = p => { const ft = plFt[p.id];
+  if (!ft) return `<span class="ico-tile ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`;
+  const s = silPronto(ft), sl = s !== ft, sw = s === ft && silEspera(ft);
+  return `<span class="ico ico-foto ico-lado${sl ? " sil" : ""}${sw ? " silw" : ""}" data-pid="${esc(p.id)}"><img class="ico-img" src="${s}" alt="" decoding="async"></span>`; };
+function plCard(d, p) { const [big, small] = plBadgePar(d);
+  return `<article class="pitem ${plPrCls(d)} ${plCls(d)}" data-pid="${esc(p.id)}">
+    <div class="pi-main"><span class="pi-lead">${plFotoLado(p)}</span>
+      <div class="pi-txt"><b class="pi-nome">${esc(plNome(p))}</b>
+        <small class="pi-sub"><b>${esc(p.e || "Planta")}</b>${p.loc ? " · " + esc(p.loc) : ""}</small>
+        <small class="pi-sub2">${(Number(p.q) || 1) > 1 ? `<span>${p.q} vasos</span>` : ""}<span>${plStatus(d)}</span></small></div>
+      <div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div>
+    <div class="pi-act"><button type="button" class="primary" data-pr="${esc(p.id)}">${ico("gota")}Reguei</button></div>
+  </article>`; }
 function plPaint() { const v = $("plV"); if (!v) return;
   const q = norm(plBusca), L = plL.filter(p => !q || norm([p.n, p.e, p.loc].join(" ")).includes(q)), g = { atr: [], hj: [], prox: [] };
   L.forEach(p => { const d = plDias(p); g[d < 0 ? "atr" : d === 0 ? "hj" : "prox"].push([d, p]); });
@@ -2850,16 +2920,19 @@ function plDetalhe(id) { const p = plL.find(x => x.id === id); if (!p) return;
     ${ft ? `<span class="plimg${fsl ? " sil" : ""}${fsw ? " silw" : ""}"><img class="pldimg" src="${fs}" alt=""></span>` : ""}
     <p class="plst ${plCls(d)}">${plStatus(d)}</p>
     <dl class="pldl">${lin("Espécie", p.e)}${lin("Onde fica", p.loc)}${lin("Vasos", (Number(p.q) || 1) > 1 ? String(p.q) : "")}${lin("Rega a cada", pi + " dia" + (pi > 1 ? "s" : "") + (ajust ? " (ajustado pela estação)" : ""))}${lin("Última rega", p.u ? plBr(p.u) : "ainda não regada")}${lin("Próxima rega", plBr(plIso(plProx(p))))}${lin("Luz", sp ? sp[2] : "")}</dl>
-    ${sp ? `<div class="plcuid"><b>Cuidados</b><p>${esc(sp[3])}</p></div>` : ""}${p.o ? `<div class="plcuid"><b>Anotações</b><p>${esc(p.o)}</p></div>` : ""}
+    ${sp ? `<div class="plcuid"><b>Cuidados</b><p>${esc(sp[3])}</p></div>` : ""}
+    ${sp && sp[5] ? `<div class="plficha"><b>Ficha da espécie · o app sabe cuidar dela</b>${sp[5].map(x => `<p>${esc(x)}</p>`).join("")}</div>` : ""}
+    ${p.o ? `<div class="plcuid"><b>Anotações</b><p>${esc(p.o)}</p></div>` : ""}
     <div class="toolbar plbar"><button type="button" class="primary big" id="plMr">${ico("gota")}Reguei agora</button></div>
     ${p.u ? `<button type="button" class="secondary plbig plundo" id="plMun">${ico("lixo")}Retirar rega</button>` : ""}
     <label for="plMdt">Regou em outro dia</label><div class="plurow"><input type="date" id="plMdt" value="${plIso(plHoje())}" max="${plIso(plHoje())}"><button type="button" class="secondary" id="plMd">Registrar</button></div>
-    <button type="button" class="secondary plbig" id="plMe">${ico("lapis")}Editar planta</button><button type="button" class="secondary plbig" id="plMnet">${ico("bus")}Buscar foto na internet</button></section>`;
+    <button type="button" class="secondary plbig" id="plMe">${ico("lapis")}Editar planta</button><button type="button" class="secondary plbig" id="plMcare">${ico("bus")}Buscar cuidados na internet</button><button type="button" class="secondary plbig" id="plMnet">${ico("bus")}Buscar foto na internet</button></section>`;
   $("plMx").onclick = plFecha;
   $("plMr").onclick = () => { plFecha(); plRegou(id); };
   if ($("plMun")) $("plMun").onclick = () => plRetiraRega(id);
   $("plMd").onclick = () => { const v = $("plMdt").value; if (!plData(v)) return toast("Escolha a data."); plFecha(); plRegou(id, v); };
   $("plMe").onclick = () => plForm(id);
+  $("plMcare").onclick = () => plCuidadosNet([p.e, p.n].filter(Boolean).join(" "));
   $("plMnet").onclick = () => plNetBusca([p.e, p.n].filter(Boolean).join(" ")); }
 function plForm(id) { const p = id ? plL.find(x => x.id === id) : null; if (id && !p) return;
   const d = p ? { ...p } : { id: uid().slice(0, 8), n: "", e: "", loc: "", q: 1, i: 7, u: plIso(plHoje()), o: "", f: 0 };
@@ -2906,7 +2979,7 @@ function plForm(id) { const p = id ? plL.find(x => x.id === id) : null; if (id &
 function plSemeia() { const base = ["Orquídea Phalaenopsis", "Zamioculca", "Poinsétia (vermelha)", "Pinheiro de Natal", "Jiboia", "Samambaia"];   // plantas da rotina da loja; sem data de rega (aparecem «Regar hoje» até marcar «Reguei»)
   base.forEach(e => { if (plL.some(x => norm(x.e) === norm(e))) return; const c = plEspec(e); plL.push({ id: uid().slice(0, 8), n: "", e, loc: "", q: 1, i: c ? c[1] : 7, u: "", o: "", f: 0 }); });
   plSalva(); plPaint(); plBadge(); plAvisaCache(); toast("Plantas adicionadas. Toque em «Reguei» quando regar."); }
-function plAbrir() { if (!ehRenato()) return; plInicia(); plFotosInicia();
+function plAbrir() { if (!ehRenato()) return; plInicia(); plFotosInicia(); if (!db) plGaranteNovas();
   let v = $("plV"); if (!v) { v = document.createElement("div"); v.id = "plV"; v.className = "plv"; document.body.appendChild(v);
     v.innerHTML = `<div class="plh"><button type="button" id="plX" class="secondary">Fechar</button><h2>Plantas</h2><button type="button" id="plNew" class="primary">＋ Nova</button></div>
       <div id="plRes" class="plres"></div><div id="plAv" class="plav"></div>
