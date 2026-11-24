@@ -2744,6 +2744,187 @@ if (db) { try { V.onSnapshot(V.doc(db, "sh_cfg", "escala"), sn => { escO = (sn.e
 const escNome = () => /benassi/i.test(myName());   // quem se identificou como BENASSI também enxerga a escala (só leitura)
 if (escNome()) document.body.dataset.esc = "1";
 $("mnEscala").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } escAbrir(); };
+// ---------- Plantas (só para o operador «Renato», menu ⋮ › Plantas): plantas da loja, cuidados de cada espécie e lembrete de rega ----------
+// Dados: sh_cfg/plantas {l:[{id,n,e,loc,q,i,u,o,f}]} — n nome/apelido, e espécie, loc local, q vasos, i rega a cada N dias, u última rega (AAAA-MM-DD), o anotação, f=1 se tem foto.
+// Fotos: sh_cfg/planta-<id> {pl:1,id,img,em}. O campo é `img` (e NÃO `d`) de propósito: a consulta de fotos dos produtos (fotosTodas) busca `d` ≥ "data:" em sh_cfg.
+// Rega: intervalo ajustado pela estação (dez–mar ×0,85; jun–ago ×1,3) conforme o mês da última rega. Aviso diário a partir das 08h (app aberto) e, se o aparelho deixar, com o app fechado (sw.js).
+const PL_K = "validamais-plantas", PL_FK = "validamais-plantas-fotos", PL_ONK = "validamais-pl-aviso-on", PL_AVK = "validamais-pl-aviso";
+const PL_CAT = [   // [espécie, rega a cada (dias), luz, cuidados] — conhecimento geral, não vem de busca na internet; os dias são pontos de partida (ajuste pela planta de verdade)
+  ["Samambaia", 3, "Meia-sombra", "Substrato sempre levemente úmido, sem encharcar. Borrife as folhas e evite sol direto e ar-condicionado."],
+  ["Orquídea Phalaenopsis", 7, "Luz clara, sem sol direto", "Regue deixando a água escorrer bem e nunca deixe água parada no cachepô. Espere o substrato secar antes de regar de novo."],
+  ["Suculenta", 10, "Sol pleno ou luz forte", "Regue só quando o substrato estiver completamente seco. Não molhe as folhas e evite encharcar."],
+  ["Cacto", 14, "Sol pleno", "Pouca água: regue só com o substrato seco. No inverno, quase nada."],
+  ["Espada-de-são-jorge", 10, "Meia-sombra a sol", "Aguenta esquecimento. Regue com o substrato seco e nunca deixe empoçar água."],
+  ["Zamioculca", 14, "Meia-sombra", "Tolera pouca luz e pouca água. O excesso de água apodrece a raiz."],
+  ["Jiboia", 7, "Meia-sombra", "Regue quando a superfície do substrato secar. Aceita pouca luz; sol direto queima as folhas."],
+  ["Costela-de-adão", 7, "Meia-sombra", "Substrato levemente úmido. Limpe as folhas com pano úmido e evite sol direto."],
+  ["Lírio-da-paz", 5, "Meia-sombra", "Gosta de substrato úmido. Folhas caídas avisam que está com sede. Sem sol direto."],
+  ["Violeta", 5, "Luz clara, sem sol direto", "Regue por baixo (no pratinho) e tire o excesso depois de 15 minutos. Não molhe as folhas."],
+  ["Antúrio", 5, "Luz clara, sem sol direto", "Substrato úmido, sem encharcar. Gosta de ambiente úmido e arejado."],
+  ["Begônia", 4, "Luz clara", "Substrato levemente úmido; evite molhar flores e folhas."],
+  ["Bromélia", 7, "Luz clara", "Mantenha um pouco de água no centro (o copo) e troque de vez em quando; o substrato só levemente úmido."],
+  ["Figueira-lira", 7, "Luz clara, sem sol direto", "Regue quando a superfície do substrato secar. Não gosta de mudar de lugar nem de corrente de ar."],
+  ["Ficus", 7, "Luz clara", "Regue quando a superfície secar. Perde folhas se mudar de lugar ou se encharcar."],
+  ["Rosa-do-deserto", 10, "Sol pleno", "Muito sol e pouca água. Deixe o substrato secar bem entre as regas."],
+  ["Hortênsia", 3, "Sol da manhã ou meia-sombra", "Gosta de substrato sempre úmido. Murcha rápido sem água."],
+  ["Azaleia", 3, "Sol da manhã ou meia-sombra", "Substrato úmido, sem encharcar. Regue na base, sem molhar as flores."],
+  ["Kalanchoe", 10, "Sol pleno ou luz forte", "Regue só com o substrato seco e não molhe flores nem folhas."],
+  ["Babosa", 14, "Sol pleno", "Regue só com o substrato bem seco. Excesso de água apodrece o caule."],
+  ["Dracena", 7, "Meia-sombra", "Regue quando a superfície secar. Pontas marrons podem ser excesso de sol ou de água."],
+  ["Maranta", 4, "Meia-sombra", "Substrato levemente úmido e ambiente úmido. Sem sol direto."],
+  ["Clívia", 10, "Meia-sombra", "Regue pouco; deixe secar entre as regas."],
+  ["Lavanda", 7, "Sol pleno", "Muito sol e substrato bem drenado; deixe secar entre as regas."],
+  ["Manjericão", 2, "Sol pleno", "Substrato sempre levemente úmido e sol direto por várias horas. Tire as flores para a folha continuar crescendo."],
+  ["Alecrim", 7, "Sol pleno", "Muito sol e substrato seco entre as regas. Cuidado com o excesso de água."],
+  ["Palmeira-ráfis", 5, "Meia-sombra", "Substrato levemente úmido e luz clara. Pontas secas indicam ar seco."],
+  ["Peperômia", 7, "Luz clara, sem sol direto", "Regue pouco; deixe o substrato secar entre as regas, pois as folhas guardam água."],
+  ["Bambu-da-sorte", 7, "Luz clara, sem sol direto", "Mantenha a base na água e troque a água toda semana, de preferência sem cloro (deixada em repouso)."]
+];
+let plL = store.get(PL_K, []), plFt = store.get(PL_FK, {}), plBusca = "", plNuvem = false, plFotosOuve = false, plPronto = !db;
+const plHoje = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+const plData = s => { const m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(s || ""); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
+const plIso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const plBr = s => s ? s.slice(8, 10) + "/" + s.slice(5, 7) : "";
+const plFator = d => { const m = d.getMonth(); return m === 11 || m <= 2 ? 0.85 : m >= 5 && m <= 7 ? 1.3 : 1; };
+const plEspec = n => PL_CAT.find(x => norm(x[0]) === norm(n || ""));
+const plNome = p => p.n || p.e || "Planta";
+const plInt = p => { const u = plData(p.u); return Math.max(1, Math.round((Number(p.i) || 7) * (u ? plFator(u) : 1))); };   // dias entre regas (já com a estação)
+const plProx = p => { const u = plData(p.u); if (!u) return plHoje(); u.setDate(u.getDate() + plInt(p)); return u; };
+const plDias = p => Math.round((plProx(p) - plHoje()) / 864e5);   // <0 atrasada · 0 hoje · >0 faltam N dias
+const plStatus = d => d < 0 ? `Atrasada há ${-d} dia${d < -1 ? "s" : ""}` : d === 0 ? "Regar hoje" : d === 1 ? "Regar amanhã" : `Regar em ${d} dias`;
+const plCls = d => d < 0 ? "atr" : d === 0 ? "hj" : "";
+const plDevidas = () => plL.map(p => [plDias(p), p]).filter(x => x[0] <= 0).sort((a, b) => a[0] - b[0] || plNome(a[1]).localeCompare(plNome(b[1]), "pt-BR"));
+function plSalva() { store.set(PL_K, plL); if (!db) return;
+  V.setDoc(V.doc(db, "sh_cfg", "plantas"), { l: plL, em: Date.now(), por: myName().slice(0, 40) }).catch(e => { console.error(e); toast("Não consegui salvar na nuvem."); }); }
+function plInicia() { if (plNuvem || !db) return; plNuvem = true;
+  try { V.onSnapshot(V.doc(db, "sh_cfg", "plantas"), sn => { if (sn.exists() && Array.isArray(sn.data().l)) { plL = sn.data().l; store.set(PL_K, plL); } plPronto = true; plPaint(); plBadge(); plAvisaCache(); }, e => console.warn("plantas", e)); } catch (e) { console.warn(e); } }
+function plFotosInicia() { if (plFotosOuve || !db) return; plFotosOuve = true;
+  try { V.onSnapshot(V.query(V.collection(db, "sh_cfg"), V.where("pl", "==", 1)), sn => { const m = {}; sn.forEach(x => { const o = x.data(); if (o && o.id && o.img) m[o.id] = o.img; }); plFt = m; plPaint(); }, e => console.warn("plantas-fotos", e)); } catch (e) { console.warn(e); } }
+async function plFotoGrava(id, img) { plFt[id] = img; if (db) await V.setDoc(V.doc(db, "sh_cfg", "planta-" + id), { pl: 1, id, img, em: Date.now() }); else store.set(PL_FK, plFt); }
+function plFotoApaga(id) { delete plFt[id]; if (db) V.deleteDoc(V.doc(db, "sh_cfg", "planta-" + id)).catch(e => console.warn(e)); else store.set(PL_FK, plFt); }
+function plBadge() { try { const ren = ehRenato(), b = $("mnPlantas"), n = ren ? plDevidas().length : 0;
+  if (b) b.classList.toggle("hidden", !ren);
+  const c = $("mnPlN"); if (c) { c.textContent = n || ""; c.classList.toggle("hidden", !n); }
+  document.body.classList.toggle("pldue", n > 0); } catch (e) { console.warn(e); } }
+function plRegou(id, iso) { const p = plL.find(x => x.id === id); if (!p) return; const ant = p.u; p.u = iso || plIso(plHoje());
+  plSalva(); plPaint(); plBadge(); plAvisaCache();
+  toast("Regada: " + plNome(p) + ".", "Desfazer", () => { const q = plL.find(x => x.id === id); if (q) q.u = ant; plSalva(); plPaint(); plBadge(); plAvisaCache(); }); }
+const plFecha = () => { const m = $("plM"); if (m) m.remove(); };
+function plModal() { plFecha(); const m = document.createElement("div"); m.id = "plM"; m.className = "modal plmodal"; document.body.appendChild(m); m.addEventListener("click", e => { if (e.target === m) plFecha(); }); return m; }
+function plCard(d, p) { const ft = plFt[p.id], c = plCls(d);
+  const sub = [p.e && p.n ? p.e : "", p.loc, (Number(p.q) || 1) > 1 ? p.q + " vasos" : ""].filter(Boolean).join(" · ");
+  return `<div class="plc ${c}" data-pid="${esc(p.id)}"><div class="plf">${ft ? `<img src="${ft}" alt="" loading="lazy">` : ico("gota", "ic")}</div>
+    <div class="plx"><b>${esc(plNome(p))}</b>${sub ? `<span>${esc(sub)}</span>` : ""}<em class="${c}">${plStatus(d)}</em></div>
+    <button type="button" class="plb ${c ? "primary" : "secondary"}" data-pr="${esc(p.id)}" aria-label="Reguei ${esc(plNome(p))}">${ico("gota")}<span>Reguei</span></button></div>`; }
+function plPaint() { const v = $("plV"); if (!v) return;
+  const q = norm(plBusca), L = plL.filter(p => !q || norm([p.n, p.e, p.loc].join(" ")).includes(q)), g = { atr: [], hj: [], prox: [] };
+  L.forEach(p => { const d = plDias(p); g[d < 0 ? "atr" : d === 0 ? "hj" : "prox"].push([d, p]); });
+  Object.values(g).forEach(a => a.sort((x, y) => x[0] - y[0] || plNome(x[1]).localeCompare(plNome(y[1]), "pt-BR")));
+  const tot = { atr: 0, hj: 0, prox: 0 }; plL.forEach(p => { const d = plDias(p); tot[d < 0 ? "atr" : d === 0 ? "hj" : "prox"]++; });
+  $("plRes").innerHTML = `<span class="atr"><b>${tot.atr}</b> atrasada${tot.atr === 1 ? "" : "s"}</span><span class="hj"><b>${tot.hj}</b> hoje</span><span><b>${tot.prox}</b> próxima${tot.prox === 1 ? "" : "s"}</span>`;
+  const sec = (t, a) => a.length ? `<div class="plgh">${t}<small>${a.length}</small></div>` + a.map(x => plCard(x[0], x[1])).join("") : "";
+  $("plLista").innerHTML = !plL.length ? `<div class="plvazio"><p>Nenhuma planta cadastrada ainda.</p><button type="button" class="primary big" data-pnew="1">＋ Cadastrar a primeira planta</button></div>`
+    : !L.length ? `<p class="note">Nenhuma planta encontrada.</p>` : sec("Atrasadas", g.atr) + sec("Regar hoje", g.hj) + sec("Próximas", g.prox);
+  const sup = notifSuporte(), perm = sup ? Notification.permission : "unsupported", on = store.get(PL_ONK, false) && perm === "granted";
+  $("plAv").innerHTML = !sup ? `<span>Este aparelho não mostra avisos.</span>` : perm === "denied" ? `<span>Avisos bloqueados no navegador (libere nas configurações do celular).</span>`
+    : on ? `<span>Aviso de rega todo dia às 08h: <b>ligado</b></span><button type="button" class="secondary" data-pav="teste">Testar</button><button type="button" class="secondary" data-pav="off">Desligar</button>`
+    : `<span>Avisar quando tiver planta para regar (todo dia às 08h)</span><button type="button" class="primary" data-pav="on">Ativar aviso</button>`; }
+function plDetalhe(id) { const p = plL.find(x => x.id === id); if (!p) return;
+  const m = plModal(), sp = plEspec(p.e), d = plDias(p), ft = plFt[p.id], nm = plNome(p), pi = plInt(p), ajust = pi !== (Number(p.i) || 7);
+  const lin = (k, v) => v ? `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>` : "";
+  m.innerHTML = `<section class="sheet plsheet" role="dialog" aria-modal="true" aria-label="${esc(nm)}">
+    <div class="sheethead"><h2>${esc(nm)}</h2><button type="button" class="secondary" id="plMx" aria-label="Fechar">${ico("fechar", "ic ti only")}</button></div>
+    ${ft ? `<img class="pldimg" src="${ft}" alt="">` : ""}
+    <p class="plst ${plCls(d)}">${plStatus(d)}</p>
+    <dl class="pldl">${lin("Espécie", p.e)}${lin("Onde fica", p.loc)}${lin("Vasos", (Number(p.q) || 1) > 1 ? String(p.q) : "")}${lin("Rega a cada", pi + " dia" + (pi > 1 ? "s" : "") + (ajust ? " (ajustado pela estação)" : ""))}${lin("Última rega", p.u ? plBr(p.u) : "ainda não regada")}${lin("Próxima rega", plBr(plIso(plProx(p))))}${lin("Luz", sp ? sp[2] : "")}</dl>
+    ${sp ? `<div class="plcuid"><b>Cuidados</b><p>${esc(sp[3])}</p></div>` : ""}${p.o ? `<div class="plcuid"><b>Anotações</b><p>${esc(p.o)}</p></div>` : ""}
+    <div class="toolbar plbar"><button type="button" class="primary big" id="plMr">${ico("gota")}Reguei agora</button></div>
+    <label for="plMdt">Regou em outro dia</label><div class="plurow"><input type="date" id="plMdt" value="${plIso(plHoje())}" max="${plIso(plHoje())}"><button type="button" class="secondary" id="plMd">Registrar</button></div>
+    <button type="button" class="secondary plbig" id="plMe">${ico("lapis")}Editar planta</button></section>`;
+  $("plMx").onclick = plFecha;
+  $("plMr").onclick = () => { plFecha(); plRegou(id); };
+  $("plMd").onclick = () => { const v = $("plMdt").value; if (!plData(v)) return toast("Escolha a data."); plFecha(); plRegou(id, v); };
+  $("plMe").onclick = () => plForm(id); }
+function plForm(id) { const p = id ? plL.find(x => x.id === id) : null; if (id && !p) return;
+  const d = p ? { ...p } : { id: uid().slice(0, 8), n: "", e: "", loc: "", q: 1, i: 7, u: plIso(plHoje()), o: "", f: 0 };
+  let pend = null, tocouI = !!p;
+  const locais = [...new Set(plL.map(x => x.loc).filter(Boolean))], m = plModal(), ft = plFt[d.id];
+  m.innerHTML = `<section class="sheet plsheet" role="dialog" aria-modal="true" aria-label="${p ? "Editar planta" : "Nova planta"}">
+    <div class="sheethead"><h2>${p ? "Editar planta" : "Nova planta"}</h2><button type="button" class="secondary" id="plMx" aria-label="Fechar">${ico("fechar", "ic ti only")}</button></div>
+    <div class="plfoto"><div class="plfbox" id="plFb">${ft ? `<img src="${ft}" alt="">` : ico("cam", "ic")}</div><div class="plfbt"><button type="button" class="secondary" id="plFc">${ico("cam")}Tirar foto</button><button type="button" class="secondary" id="plFg">${ico("img")}Escolher imagem</button></div></div>
+    <input type="file" id="plFi1" accept="image/*" capture="environment" hidden><input type="file" id="plFi2" accept="image/*" hidden>
+    <label for="plE">Espécie</label><input id="plE" list="plEsp" maxlength="40" autocomplete="off" placeholder="Ex.: Samambaia" value="${esc(d.e)}"><datalist id="plEsp">${PL_CAT.map(x => `<option value="${esc(x[0])}"></option>`).join("")}</datalist>
+    <p class="note plinfo" id="plInfo"></p>
+    <label for="plN">Nome ou apelido (opcional)</label><input id="plN" maxlength="40" autocomplete="off" placeholder="Ex.: Samambaia grande" value="${esc(d.n)}">
+    <label for="plLc">Onde fica na loja</label><input id="plLc" list="plLoc" maxlength="40" autocomplete="off" placeholder="Ex.: Bancada 2" value="${esc(d.loc)}"><datalist id="plLoc">${locais.map(x => `<option value="${esc(x)}"></option>`).join("")}</datalist>
+    <label>Quantidade de vasos</label><div class="stepper"><button type="button" class="secondary" id="plQm" aria-label="Diminuir">−</button><input id="plQ" type="text" readonly inputmode="none" value="${Number(d.q) || 1}"><button type="button" class="secondary" id="plQp" aria-label="Aumentar">＋</button></div>
+    <label>Regar a cada (dias)</label><div class="stepper"><button type="button" class="secondary" id="plIm" aria-label="Diminuir">−</button><input id="plI" type="text" readonly inputmode="none" value="${Number(d.i) || 7}"><button type="button" class="secondary" id="plIp" aria-label="Aumentar">＋</button></div><p class="note" id="plIn"></p>
+    <label for="plU">Última rega</label><div class="plurow"><input type="date" id="plU" value="${esc(d.u)}" max="${plIso(plHoje())}"><button type="button" class="secondary" id="plUh">Hoje</button></div>
+    <label for="plO">Anotações (opcional)</label><textarea id="plO" maxlength="300" rows="2" placeholder="Ex.: folhas amareladas, chegou dia 20">${esc(d.o)}</textarea>
+    <div class="toolbar plbar"><button type="button" class="primary big" id="plMs">Salvar</button></div>${p ? `<button type="button" class="lmdel" id="plMdel">${ico("lixo")}Apagar planta</button>` : ""}</section>`;
+  const info = () => { const s = plEspec($("plE").value); $("plInfo").innerHTML = s ? `<b>${esc(s[2])}</b> · ${esc(s[3])}` : ""; };
+  const dica = () => { const i = Number($("plI").value) || 7, u = plData($("plU").value) || plHoje(), e = Math.max(1, Math.round(i * plFator(u))); $("plIn").textContent = e !== i ? `Pela estação, vai contar ${e} dia${e > 1 ? "s" : ""} entre as regas.` : ""; };
+  const passo = (campo, delta, min, max, tocou) => { const e = $(campo); e.value = Math.max(min, Math.min(max, (Number(e.value) || min) + delta)); if (tocou) tocouI = true; dica(); };
+  info(); dica();
+  $("plMx").onclick = plFecha;
+  $("plE").oninput = () => { info(); const s = plEspec($("plE").value); if (s && !tocouI) { $("plI").value = s[1]; dica(); } };
+  $("plQm").onclick = () => passo("plQ", -1, 1, 999); $("plQp").onclick = () => passo("plQ", 1, 1, 999);
+  $("plIm").onclick = () => passo("plI", -1, 1, 60, true); $("plIp").onclick = () => passo("plI", 1, 1, 60, true);
+  $("plU").oninput = dica; $("plUh").onclick = () => { $("plU").value = plIso(plHoje()); dica(); };
+  $("plFc").onclick = () => $("plFi1").click(); $("plFg").onclick = () => $("plFi2").click();
+  [$("plFi1"), $("plFi2")].forEach(inp => inp.onchange = () => { const f = inp.files && inp.files[0]; if (!f) return;
+    fotoReduz(f).then(img => { pend = img; $("plFb").innerHTML = `<img src="${img}" alt="">`; }).catch(() => toast("Não consegui ler essa imagem.")); inp.value = ""; });
+  $("plMs").onclick = async () => { const e = $("plE").value.trim().slice(0, 40), n = $("plN").value.trim().slice(0, 40);
+    if (!e && !n) { toast("Escreva o nome ou a espécie da planta."); return $("plE").focus(); }
+    $("plMs").disabled = true;
+    Object.assign(d, { e, n, loc: $("plLc").value.trim().slice(0, 40), q: Number($("plQ").value) || 1, i: Number($("plI").value) || 7, u: plData($("plU").value) ? $("plU").value : "", o: $("plO").value.trim().slice(0, 300) });
+    if (pend) { try { await plFotoGrava(d.id, pend); d.f = 1; } catch (er) { console.warn(er); toast("Salvei a planta, mas não consegui salvar a foto."); } }
+    const cur = plL.find(x => x.id === d.id); if (cur) Object.assign(cur, d); else plL.push(d);   // procura de novo: a lista pode ter vindo da nuvem com a janela aberta
+    plSalva(); plFecha(); plPaint(); plBadge(); plAvisaCache(); toast("Planta salva."); };
+  if (p) $("plMdel").onclick = async () => { if (!(await askConfirm({ icon: "🗑", title: "Apagar esta planta?", text: plNome(p), sub: "Ela sai da lista.", ok: "Apagar", cancel: "Cancelar" }))) return;
+    plL = plL.filter(x => x.id !== p.id); plFotoApaga(p.id); plSalva(); plFecha(); plPaint(); plBadge(); plAvisaCache(); toast("Planta apagada."); }; }
+function plAbrir() { if (!ehRenato()) return; plInicia(); plFotosInicia();
+  let v = $("plV"); if (!v) { v = document.createElement("div"); v.id = "plV"; v.className = "plv"; document.body.appendChild(v);
+    v.innerHTML = `<div class="plh"><button type="button" id="plX" class="secondary">Fechar</button><h2>Plantas</h2><button type="button" id="plNew" class="primary">＋ Nova</button></div>
+      <div id="plRes" class="plres"></div><div id="plAv" class="plav"></div>
+      <input id="plQ0" class="plq" type="search" placeholder="Buscar planta, espécie ou local" autocomplete="off" aria-label="Buscar planta">
+      <div id="plLista"></div>`;
+    $("plQ0").oninput = e => { plBusca = e.target.value; plPaint(); };
+    v.onclick = e => { const r = e.target.closest("[data-pr]"), a = e.target.closest("[data-pav]"), c = e.target.closest("[data-pid]");
+      if (e.target.closest("#plX")) { v.remove(); document.body.classList.remove("plOn"); return; }
+      if (e.target.closest("#plNew") || e.target.closest("[data-pnew]")) return plForm(null);
+      if (a) return plAviso(a.dataset.pav);
+      if (r) return plRegou(r.dataset.pr);
+      if (c) return plDetalhe(c.dataset.pid); }; }
+  document.body.classList.add("plOn"); plPaint(); }
+// ---- aviso de rega ----
+function plTextoAviso(l) { const n = l.length, itens = l.slice(0, 4).map(([d, p]) => `${plNome(p)} — ${d < 0 ? "atrasada " + (-d) + " dia" + (d < -1 ? "s" : "") : "hoje"}`);
+  return { title: n === 1 ? "1 planta para regar" : n + " plantas para regar", body: itens.concat(n > 4 ? ["+ " + (n - 4) + " plantas"] : []).join("\n") }; }
+async function plUltimoCache() { try { const ch = await caches.open("vm-cfg"), r = await ch.match("vm-plantas.json"); return r ? ((await r.json()).ultimo || "") : ""; } catch (e) { return ""; } }
+async function plAvisaCache(ultimo) {   // o service worker lê esta cópia para avisar com o app fechado (Chrome/Android com o app instalado)
+  try { if (!ehRenato() || !store.get(PL_ONK, false) || !notifSuporte() || Notification.permission !== "granted") return;
+    const ch = await caches.open("vm-cfg"); await ch.put("vm-plantas.json", new Response(JSON.stringify({ on: true, pid: fb.projectId || "", key: fb.apiKey || "", ultimo: ultimo || store.get(PL_AVK, "") }), { headers: { "content-type": "application/json" } }));
+    const reg = await navigator.serviceWorker.ready; if (reg.periodicSync) await reg.periodicSync.register("vm-plantas", { minInterval: 3600 * 1000 }); } catch (e) { console.warn(e); } }
+async function plAvisa(forcar) {   // no máximo uma vez por dia, depois das 08h (ou quando o teste é pedido)
+  try { if (!ehRenato() || !notifSuporte() || Notification.permission !== "granted" || (!forcar && !store.get(PL_ONK, false))) return false;
+    if (!forcar && (new Date().getHours() < NOTIF_HORA || store.get(PL_AVK, "") === diaKey() || !plPronto || (await plUltimoCache()) === diaKey())) return false;
+    const l = plDevidas(); if (!l.length) { if (forcar) toast("Nenhuma planta para regar agora."); return false; }
+    const t = plTextoAviso(l), reg = await navigator.serviceWorker.ready;
+    await reg.showNotification(t.title, { body: t.body, tag: "vm-plantas", icon: "icon-192.png", badge: "icon-192.png", data: { url: "./" } });
+    if (!forcar) { store.set(PL_AVK, diaKey()); plAvisaCache(diaKey()); } return true; } catch (e) { console.warn(e); return false; } }
+async function plAviso(acao) {
+  if (acao === "off") { store.set(PL_ONK, false); try { const reg = await navigator.serviceWorker.ready; if (reg.periodicSync) await reg.periodicSync.unregister("vm-plantas"); const ch = await caches.open("vm-cfg"); await ch.delete("vm-plantas.json"); } catch (e) { console.warn(e); } plPaint(); return toast("Aviso de rega desligado."); }
+  if (!notifSuporte()) return toast("Este aparelho não mostra avisos.");
+  if (Notification.permission !== "granted") { let r = "denied"; try { r = await Notification.requestPermission(); } catch (e) { console.warn(e); } if (r !== "granted") { plPaint(); return toast("Sem permissão para avisar. Libere as notificações do app no celular."); } }
+  if (acao === "on") { store.set(PL_ONK, true); await plAvisaCache(); plPaint(); toast("Aviso ligado: todo dia às 08h, se tiver planta para regar."); plAvisa(); return; }
+  if (acao === "teste") { const ok = await plAvisa(true); if (ok) toast("Aviso enviado."); } }
+try {
+  document.addEventListener("click", e => { if (e.target.closest && e.target.closest("#moreBtn")) { plInicia(); plBadge(); } }, true);   // o nome do operador pode ter mudado: reavalia se o item aparece
+  if ($("mnPlantas")) $("mnPlantas").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add("hidden"); $("moreBg").classList.add("hidden"); } plAbrir(); };
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { plBadge(); plAvisa(); } });
+  setInterval(() => { plBadge(); plAvisa(); }, 15 * 60 * 1000);   // cobre o celular que dormiu e o virar do dia
+  setTimeout(() => { if (ehRenato()) { plInicia(); plBadge(); plAvisa(); } }, 2500);
+} catch (e) { console.warn("plantas", e); }
 // ---------- atalhos do ícone (segurar o ícone do app): ?acao=bipar | hoje ----------
 $("acaoX").onclick = () => { acaoF = ""; render(); };
 $("novoBtn").onclick = () => { novoF = true; render(); window.scrollTo(0, 0); };   // «🆕 Últimos lançados»

@@ -65,6 +65,25 @@ async function verificaVenc() {
   await cfgSet({ ...cfg, ultimo: diaKey() });
 }
 self.addEventListener("periodicsync", e => { if (e.tag === "vm-venc") e.waitUntil(verificaVenc().catch(() => {})); });
+/* ---- Plantas (só liga quem se identifica como Renato no app): aviso de rega com o app fechado ---- */
+const plFv = f => !f ? undefined : f.stringValue !== undefined ? f.stringValue : f.integerValue !== undefined ? Number(f.integerValue) : f.doubleValue;
+const plLista = doc => ((((doc.fields || {}).l || {}).arrayValue || {}).values || []).map(v => { const f = (v.mapValue || {}).fields || {}; return { n: plFv(f.n) || "", e: plFv(f.e) || "", i: plFv(f.i), u: plFv(f.u) || "" }; });
+function plDiasSw(p, base) {   // mesma conta do app: intervalo × estação do mês da última rega (dez–mar ×0,85; jun–ago ×1,3)
+  const m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(p.u || ""); if (!m) return 0;
+  const u = new Date(+m[1], +m[2] - 1, +m[3]), mes = u.getMonth(), f = mes === 11 || mes <= 2 ? 0.85 : mes >= 5 && mes <= 7 ? 1.3 : 1;
+  u.setDate(u.getDate() + Math.max(1, Math.round((Number(p.i) || 7) * f))); return Math.round((u - base) / DIA);
+}
+async function verificaPlantas() {
+  const ch = await caches.open("vm-cfg"), r = await ch.match("vm-plantas.json"); if (!r) return;
+  const cfg = await r.json(); if (!cfg || !cfg.on || !cfg.pid || cfg.ultimo === diaKey() || new Date().getHours() < 8) return;
+  const rs = await fetch("https://firestore.googleapis.com/v1/projects/" + cfg.pid + "/databases/(default)/documents/sh_cfg/plantas?key=" + encodeURIComponent(cfg.key)); if (!rs.ok) return;
+  const base = hoje0(), dev = plLista(await rs.json()).filter(p => p.n || p.e).map(p => [plDiasSw(p, base), p]).filter(x => x[0] <= 0).sort((a, b) => a[0] - b[0]);
+  if (!dev.length) return;
+  const nome = p => p.n || p.e, itens = dev.slice(0, 4).map(([d, p]) => nome(p) + " — " + (d < 0 ? "atrasada " + (-d) + " dia" + (d < -1 ? "s" : "") : "hoje"));
+  await self.registration.showNotification(dev.length === 1 ? "1 planta para regar" : dev.length + " plantas para regar", { body: itens.concat(dev.length > 4 ? ["+ " + (dev.length - 4) + " plantas"] : []).join("\n"), tag: "vm-plantas", icon: "icon-192.png", badge: "icon-192.png", data: { url: "./" } });
+  await ch.put("vm-plantas.json", new Response(JSON.stringify({ ...cfg, ultimo: diaKey() }), { headers: { "content-type": "application/json" } }));
+}
+self.addEventListener("periodicsync", e => { if (e.tag === "vm-plantas") e.waitUntil(verificaPlantas().catch(() => {})); });
 self.addEventListener("notificationclick", e => {
   e.notification.close();
   e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(cs => { const c = cs.find(x => "focus" in x); return c ? c.focus() : self.clients.openWindow(self.registration.scope); }));
