@@ -2826,7 +2826,7 @@ function plPaint() { const v = $("plV"); if (!v) return;
   const tot = { atr: 0, hj: 0, prox: 0 }; plL.forEach(p => { const d = plDias(p); tot[d < 0 ? "atr" : d === 0 ? "hj" : "prox"]++; });
   $("plRes").innerHTML = `<span class="atr"><b>${tot.atr}</b> atrasada${tot.atr === 1 ? "" : "s"}</span><span class="hj"><b>${tot.hj}</b> hoje</span><span><b>${tot.prox}</b> próxima${tot.prox === 1 ? "" : "s"}</span>`;
   const sec = (t, a) => a.length ? `<div class="plgh">${t}<small>${a.length}</small></div>` + a.map(x => plCard(x[0], x[1])).join("") : "";
-  $("plLista").innerHTML = !plL.length ? `<div class="plvazio"><p>Nenhuma planta cadastrada ainda.</p><button type="button" class="primary big" data-pnew="1">＋ Cadastrar a primeira planta</button></div>`
+  $("plLista").innerHTML = !plL.length ? `<div class="plvazio"><p>Nenhuma planta cadastrada ainda.</p><button type="button" class="primary big" data-pseed="1">Adicionar as plantas da loja</button><p class="note">Orquídea, zamioculca, poinsétia, pinheiro de Natal, jiboia e samambaia, já com a rotina de rega. Depois você muda foto, local e quantidade.</p><button type="button" class="secondary big" data-pnew="1">＋ Cadastrar uma planta</button></div>`
     : !L.length ? `<p class="note">Nenhuma planta encontrada.</p>` : sec("Atrasadas", g.atr) + sec("Regar hoje", g.hj) + sec("Próximas", g.prox);
   const sup = notifSuporte(), perm = sup ? Notification.permission : "unsupported", on = store.get(PL_ONK, false) && perm === "granted";
   $("plAv").innerHTML = !sup ? `<span>Este aparelho não mostra avisos.</span>` : perm === "denied" ? `<span>Avisos bloqueados no navegador (libere nas configurações do celular).</span>`
@@ -2886,6 +2886,9 @@ function plForm(id) { const p = id ? plL.find(x => x.id === id) : null; if (id &
     plSalva(); plFecha(); plPaint(); plBadge(); plAvisaCache(); toast("Planta salva."); };
   if (p) $("plMdel").onclick = async () => { if (!(await askConfirm({ icon: "🗑", title: "Apagar esta planta?", text: plNome(p), sub: "Ela sai da lista.", ok: "Apagar", cancel: "Cancelar" }))) return;
     plL = plL.filter(x => x.id !== p.id); plFotoApaga(p.id); plSalva(); plFecha(); plPaint(); plBadge(); plAvisaCache(); toast("Planta apagada."); }; }
+function plSemeia() { const base = ["Orquídea Phalaenopsis", "Zamioculca", "Poinsétia (vermelha)", "Pinheiro de Natal", "Jiboia", "Samambaia"];   // plantas da rotina da loja; sem data de rega (aparecem «Regar hoje» até marcar «Reguei»)
+  base.forEach(e => { if (plL.some(x => norm(x.e) === norm(e))) return; const c = plEspec(e); plL.push({ id: uid().slice(0, 8), n: "", e, loc: "", q: 1, i: c ? c[1] : 7, u: "", o: "", f: 0 }); });
+  plSalva(); plPaint(); plBadge(); plAvisaCache(); toast("Plantas adicionadas. Toque em «Reguei» quando regar."); }
 function plAbrir() { if (!ehRenato()) return; plInicia(); plFotosInicia();
   let v = $("plV"); if (!v) { v = document.createElement("div"); v.id = "plV"; v.className = "plv"; document.body.appendChild(v);
     v.innerHTML = `<div class="plh"><button type="button" id="plX" class="secondary">Fechar</button><h2>Plantas</h2><button type="button" id="plNew" class="primary">＋ Nova</button></div>
@@ -2895,6 +2898,7 @@ function plAbrir() { if (!ehRenato()) return; plInicia(); plFotosInicia();
     $("plQ0").oninput = e => { plBusca = e.target.value; plPaint(); };
     v.onclick = e => { const r = e.target.closest("[data-pr]"), a = e.target.closest("[data-pav]"), c = e.target.closest("[data-pid]");
       if (e.target.closest("#plX")) { v.remove(); document.body.classList.remove("plOn"); return; }
+      if (e.target.closest("[data-pseed]")) return plSemeia();
       if (e.target.closest("#plNew") || e.target.closest("[data-pnew]")) return plForm(null);
       if (a) return plAviso(a.dataset.pav);
       if (r) return plRegou(r.dataset.pr);

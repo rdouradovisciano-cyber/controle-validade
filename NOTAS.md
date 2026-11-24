@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 24/11/2026 · versão 610.
+> Última atualização: 24/11/2026 · versão 611.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -268,3 +268,4 @@ Setor novo, pedido para uso pessoal do Renato (substitui a antiga área Flores).
 - v608: **fotos piscando ao abrir**. Medido no Chromium com Firebase simulado (30 produtos, fotos e recortes já guardados): a lista era refeita **6 vezes** em ~1,6 s (a 6ª depois que a tela de abertura saía) e o 1º desenho mostrava o quadradinho de câmera. Agora: (1) `render()` só escreve em `#list` se o HTML mudou (`Ls._h`; o esqueleto inicial zera `_h`) → 1 repintura na abertura normal, 2 quando precisa recortar de novo; (2) a tela de abertura (`splashAbertura`) também espera `silFilaN <= 0` (recortes pendentes), respeitando o teto de 5 s; (3) `icoLado` mostra espaço neutro (`.ico-carr`, sem câmera) até as fotos do aparelho serem lidas (`FIDB.lido`/`fotosConhecidas()`), depois o ícone de câmera só nos produtos realmente sem foto. **Não trocar a chave `silKey` (prefixo «9:») sem necessidade**: cada troca refaz o recorte de todas as fotos na abertura seguinte (foi o que aconteceu nas v597 e v599). Teste: `abertura.mjs` (Playwright, contexto persistente, `vendor.js` falso com snapshots cache→servidor).
 - v609: **setor Plantas** só para o operador «Renato» (menu ⋮ › Plantas): cadastro com foto, cuidados por espécie, rega a cada N dias com estação, lista Atrasadas/Hoje/Próximas, «Reguei» com Desfazer e aviso diário às 08h. Detalhes na seção «Plantas». Sem entrada em `updates.json`. Teste: `fonte/tools/plantas-test.mjs`.
 - v610: catálogo de Plantas segue a rotina da loja (orquídea/zamioculca 7 dias, poinsétia 3, pinheiro de Natal 2, jiboia/samambaia 2, «Planta de balde grande ou pendurada» 2) e o ajuste por estação foi removido (app.js e sw.js). Sem entrada em `updates.json`.
+- v611: tela Plantas vazia ganha «Adicionar as plantas da loja» (`plSemeia`): cria orquídea, zamioculca, poinsétia, pinheiro de Natal, jiboia e samambaia com o intervalo do catálogo e sem data de rega (aparecem «Regar hoje» até tocar em «Reguei»); não duplica espécie já cadastrada. Sem entrada em `updates.json`.
