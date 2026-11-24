@@ -70,7 +70,7 @@ const plFv = f => !f ? undefined : f.stringValue !== undefined ? f.stringValue :
 const plLista = doc => ((((doc.fields || {}).l || {}).arrayValue || {}).values || []).map(v => { const f = (v.mapValue || {}).fields || {}; return { n: plFv(f.n) || "", e: plFv(f.e) || "", i: plFv(f.i), u: plFv(f.u) || "" }; });
 function plDiasSw(p, base) {   // mesma conta do app: intervalo × estação do mês da última rega (dez–mar ×0,85; jun–ago ×1,3)
   const m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(p.u || ""); if (!m) return 0;
-  const u = new Date(+m[1], +m[2] - 1, +m[3]), mes = u.getMonth(), f = mes === 11 || mes <= 2 ? 0.85 : mes >= 5 && mes <= 7 ? 1.3 : 1;
+  const u = new Date(+m[1], +m[2] - 1, +m[3]), mes = u.getMonth(), f = 1;   // v610: sem ajuste por estação (rotina fixa da loja)
   u.setDate(u.getDate() + Math.max(1, Math.round((Number(p.i) || 7) * f))); return Math.round((u - base) / DIA);
 }
 async function verificaPlantas() {

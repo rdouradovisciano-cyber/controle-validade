@@ -40,7 +40,7 @@ await pg.screenshot({ path: SHOT + "/pl_1_vazio.png" });
 // nova planta 1: Samambaia, atrasada
 await pg.click("#plNew"); await pg.waitForTimeout(300);
 await pg.fill("#plE", "Samambaia"); await pg.waitForTimeout(100);
-ok("espécie preenche rega a cada 3 dias", (await pg.inputValue("#plI")) === "3");
+ok("espécie preenche rega a cada 2 dias (3x por semana)", (await pg.inputValue("#plI")) === "2");
 ok("mostra luz e cuidados da espécie", await pg.evaluate(() => /Meia-sombra/.test(document.getElementById("plInfo").innerText) && /levemente úmido/.test(document.getElementById("plInfo").innerText)));
 await pg.fill("#plN", "Samambaia da entrada"); await pg.fill("#plLc", "Bancada 2");
 await pg.click("#plQp"); await pg.click("#plQp");
@@ -55,7 +55,7 @@ ok("fechou o formulário ao salvar", await pg.evaluate(() => !document.getElemen
 await pg.click("#plNew"); await pg.waitForTimeout(200); await pg.fill("#plE", "Suculenta"); await pg.click("#plMs"); await pg.waitForTimeout(400);
 // planta 3: Jiboia (7 dias) pensada para vencer hoje, usando a mesma conta do app
 const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
-let n3 = 0; for (let k = 1; k <= 20; k++) { const u = new Date(hoje); u.setDate(u.getDate() - k); if (Math.max(1, Math.round(7 * fator(u))) === k) { n3 = k; break; } }
+let n3 = 0; for (let k = 1; k <= 20; k++) { const u = new Date(hoje); u.setDate(u.getDate() - k); if (Math.max(1, Math.round(2 * fator(u))) === k) { n3 = k; break; } }
 await pg.click("#plNew"); await pg.waitForTimeout(200); await pg.fill("#plE", "Jiboia");
 await pg.evaluate(d => { const e = document.getElementById("plU"); e.value = d; e.dispatchEvent(new Event("input")); }, ago(n3)); await pg.click("#plMs"); await pg.waitForTimeout(400);
 

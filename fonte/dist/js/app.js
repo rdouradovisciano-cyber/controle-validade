@@ -2750,13 +2750,16 @@ $("mnEscala").onclick = () => { if ($("moreMenu")) { $("moreMenu").classList.add
 // Rega: intervalo ajustado pela estação (dez–mar ×0,85; jun–ago ×1,3) conforme o mês da última rega. Aviso diário a partir das 08h (app aberto) e, se o aparelho deixar, com o app fechado (sw.js).
 const PL_K = "validamais-plantas", PL_FK = "validamais-plantas-fotos", PL_ONK = "validamais-pl-aviso-on", PL_AVK = "validamais-pl-aviso";
 const PL_CAT = [   // [espécie, rega a cada (dias), luz, cuidados] — conhecimento geral, não vem de busca na internet; os dias são pontos de partida (ajuste pela planta de verdade)
-  ["Samambaia", 3, "Meia-sombra", "Substrato sempre levemente úmido, sem encharcar. Borrife as folhas e evite sol direto e ar-condicionado."],
-  ["Orquídea Phalaenopsis", 7, "Luz clara, sem sol direto", "Regue deixando a água escorrer bem e nunca deixe água parada no cachepô. Espere o substrato secar antes de regar de novo."],
+  ["Poinsétia (vermelha)", 3, "Luz clara, sem sol direto", "Rotina da loja: regar 2 vezes por semana (ex.: sexta). Colocar a água SÓ na terra: molhar por cima queima a folha vermelha."],
+  ["Pinheiro de Natal", 2, "Luz clara", "Rotina da loja: regar 3 vezes por semana. Água SÓ na terra, para não queimar as folhinhas."],
+  ["Planta de balde grande ou pendurada", 2, "", "Rotina da loja: regar 3 vezes por semana (inclui jiboia e samambaia)."],
+  ["Samambaia", 2, "Meia-sombra", "Rotina da loja: 3 vezes por semana (as de balde grande ou penduradas). Substrato sempre levemente úmido, sem encharcar. Borrife as folhas e evite sol direto e ar-condicionado."],
+  ["Orquídea Phalaenopsis", 7, "Luz clara, sem sol direto", "Rotina da loja: regar só 1 vez por semana, sempre no mesmo dia (ex.: segunda). Se regar mais, ela morre. Deixe a água escorrer bem e não deixe água parada no cachepô."],
   ["Suculenta", 10, "Sol pleno ou luz forte", "Regue só quando o substrato estiver completamente seco. Não molhe as folhas e evite encharcar."],
   ["Cacto", 14, "Sol pleno", "Pouca água: regue só com o substrato seco. No inverno, quase nada."],
   ["Espada-de-são-jorge", 10, "Meia-sombra a sol", "Aguenta esquecimento. Regue com o substrato seco e nunca deixe empoçar água."],
-  ["Zamioculca", 14, "Meia-sombra", "Tolera pouca luz e pouca água. O excesso de água apodrece a raiz."],
-  ["Jiboia", 7, "Meia-sombra", "Regue quando a superfície do substrato secar. Aceita pouca luz; sol direto queima as folhas."],
+  ["Zamioculca", 7, "Meia-sombra", "Rotina da loja: regar 1 vez por semana. Tolera pouca luz; o excesso de água apodrece a raiz."],
+  ["Jiboia", 2, "Meia-sombra", "Rotina da loja: 3 vezes por semana (as de balde grande ou penduradas). Aceita pouca luz; sol direto queima as folhas."],
   ["Costela-de-adão", 7, "Meia-sombra", "Substrato levemente úmido. Limpe as folhas com pano úmido e evite sol direto."],
   ["Lírio-da-paz", 5, "Meia-sombra", "Gosta de substrato úmido. Folhas caídas avisam que está com sede. Sem sol direto."],
   ["Violeta", 5, "Luz clara, sem sol direto", "Regue por baixo (no pratinho) e tire o excesso depois de 15 minutos. Não molhe as folhas."],
@@ -2785,7 +2788,7 @@ const plHoje = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }
 const plData = s => { const m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(s || ""); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
 const plIso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
 const plBr = s => s ? s.slice(8, 10) + "/" + s.slice(5, 7) : "";
-const plFator = d => { const m = d.getMonth(); return m === 11 || m <= 2 ? 0.85 : m >= 5 && m <= 7 ? 1.3 : 1; };
+const plFator = d => 1;   // v610: sem ajuste por estação — a loja segue uma rotina fixa por tipo de planta (antes: dez–mar ×0,85; jun–ago ×1,3)
 const plEspec = n => PL_CAT.find(x => norm(x[0]) === norm(n || ""));
 const plNome = p => p.n || p.e || "Planta";
 const plInt = p => { const u = plData(p.u); return Math.max(1, Math.round((Number(p.i) || 7) * (u ? plFator(u) : 1))); };   // dias entre regas (já com a estação)
