@@ -2510,3 +2510,24 @@ html[data-tema=dark] .plsheet .plst.hj{color:#f3c64a}
 .plsheet .plfbt{flex:1;display:flex;flex-direction:column;gap:8px}.plsheet .plfbt button{min-height:42px}
 .plsheet .plinfo{margin:6px 0 0}.plsheet .plinfo b{color:var(--ink)}
 .plsheet label{color:var(--mut)}
+
+/* v612 — Plantas com o visual de Perecíveis: cartão vidro, foto em silhueta (sem fundo) e busca da foto na internet */
+html[data-tema=dark] body.vidro .plv{background:radial-gradient(120% 55% at 12% 0%,#3a2f63 0%,#17132e 42%,#0a0912 100%) fixed!important}
+.plv .plc{--plc:var(--ln,#888)}
+.plv .plc.atr{--plc:#e11d2e}
+.plv .plc.hj{--plc:#d19a1c}
+body.vidro .plv .plc{margin:50px 2px 8px!important;border:1px solid rgba(255,255,255,.22)!important;border-radius:22px!important;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.03))!important;box-shadow:inset 4px 0 0 var(--plc),inset 0 1px 0 rgba(255,255,255,.22),0 10px 22px rgba(0,0,0,.22)!important;padding:14px 12px;min-height:84px;gap:12px;-webkit-backdrop-filter:blur(14px) saturate(150%);backdrop-filter:blur(14px) saturate(150%);overflow-y:visible!important;overflow-x:clip}
+body.vidro .plv .plf{flex:none;width:100px;height:100px;border-radius:0;background:none;overflow:visible;align-self:flex-start;margin:-52px 0 -6px;position:relative;z-index:2}
+body.vidro .plv .plf img{width:100%;height:100%;object-fit:contain;padding:9px;box-sizing:border-box;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45))}
+body.vidro .plv .plf.silw img{opacity:0}
+body.vidro .plv .plf:not(:has(img)){width:60px;height:60px;border-radius:16px;background:rgba(128,128,128,.12);margin:-24px 0 0;overflow:hidden}
+body.vidro .plv .plf .ic{width:26px;height:26px}
+body.vidro .plv .plx{min-width:0;padding-right:6px}
+body.vidro .plv .plx em{align-self:flex-start;width:fit-content;padding:4px 11px;border-radius:99px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18)}
+body.vidro .plsheet .plimg{display:block;text-align:center}
+body.vidro .plsheet .pldimg{display:inline-block;width:auto;max-width:100%;max-height:230px;object-fit:contain;border-radius:0;background:transparent;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45));margin:2px 0 10px}
+body.vidro .plsheet .plimg.silw img{opacity:0}
+body.vidro .plsheet .plfbox{width:100px;height:100px;border-radius:0;background:none;overflow:visible}
+body.vidro .plsheet .plfbox img{object-fit:contain;padding:9px;box-sizing:border-box;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45))}
+body.vidro .plsheet .plfbox.silw img{opacity:0}
+body.vidro .plsheet .plfbox:not(:has(img)){width:92px;height:92px;border-radius:16px;background:rgba(128,128,128,.12);overflow:hidden}

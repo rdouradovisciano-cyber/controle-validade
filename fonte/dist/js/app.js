@@ -2796,6 +2796,10 @@ const plProx = p => { const u = plData(p.u); if (!u) return plHoje(); u.setDate(
 const plDias = p => Math.round((plProx(p) - plHoje()) / 864e5);   // <0 atrasada · 0 hoje · >0 faltam N dias
 const plStatus = d => d < 0 ? `Atrasada há ${-d} dia${d < -1 ? "s" : ""}` : d === 0 ? "Regar hoje" : d === 1 ? "Regar amanhã" : `Regar em ${d} dias`;
 const plCls = d => d < 0 ? "atr" : d === 0 ? "hj" : "";
+// v612: busca da foto da planta na internet — mesmo fluxo do Renato em Perecíveis (v596), com «fundo branco» para o recorte funcionar
+function plNetBusca(q) { const s = String(q || "").trim(); if (!s) return toast("Escreva a espécie ou o nome da planta antes de buscar.");
+  window.open("https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(s + " fundo branco"), "_blank", "noopener");
+  toast("Segure a imagem escolhida › Baixar imagem. Depois toque em «Escolher imagem» (ou «Trocar»)."); }
 const plDevidas = () => plL.map(p => [plDias(p), p]).filter(x => x[0] <= 0).sort((a, b) => a[0] - b[0] || plNome(a[1]).localeCompare(plNome(b[1]), "pt-BR"));
 function plSalva() { store.set(PL_K, plL); if (!db) return;
   V.setDoc(V.doc(db, "sh_cfg", "plantas"), { l: plL, em: Date.now(), por: myName().slice(0, 40) }).catch(e => { console.error(e); toast("Não consegui salvar na nuvem."); }); }
@@ -2815,8 +2819,9 @@ function plRegou(id, iso) { const p = plL.find(x => x.id === id); if (!p) return
 const plFecha = () => { const m = $("plM"); if (m) m.remove(); };
 function plModal() { plFecha(); const m = document.createElement("div"); m.id = "plM"; m.className = "modal plmodal"; document.body.appendChild(m); m.addEventListener("click", e => { if (e.target === m) plFecha(); }); return m; }
 function plCard(d, p) { const ft = plFt[p.id], c = plCls(d);
+  const s = ft ? silPronto(ft) : "", sl = !!ft && s !== ft, sw = !!ft && s === ft && silEspera(ft);
   const sub = [p.e && p.n ? p.e : "", p.loc, (Number(p.q) || 1) > 1 ? p.q + " vasos" : ""].filter(Boolean).join(" · ");
-  return `<div class="plc ${c}" data-pid="${esc(p.id)}"><div class="plf">${ft ? `<img src="${ft}" alt="" loading="lazy">` : ico("gota", "ic")}</div>
+  return `<div class="plc ${c}" data-pid="${esc(p.id)}"><div class="plf${sl ? " sil" : ""}${sw ? " silw" : ""}">${ft ? `<img src="${s}" alt="" loading="lazy">` : ico("gota", "ic")}</div>
     <div class="plx"><b>${esc(plNome(p))}</b>${sub ? `<span>${esc(sub)}</span>` : ""}<em class="${c}">${plStatus(d)}</em></div>
     <button type="button" class="plb ${c ? "primary" : "secondary"}" data-pr="${esc(p.id)}" aria-label="Reguei ${esc(plNome(p))}">${ico("gota")}<span>Reguei</span></button></div>`; }
 function plPaint() { const v = $("plV"); if (!v) return;
@@ -2834,27 +2839,30 @@ function plPaint() { const v = $("plV"); if (!v) return;
     : `<span>Avisar quando tiver planta para regar (todo dia às 08h)</span><button type="button" class="primary" data-pav="on">Ativar aviso</button>`; }
 function plDetalhe(id) { const p = plL.find(x => x.id === id); if (!p) return;
   const m = plModal(), sp = plEspec(p.e), d = plDias(p), ft = plFt[p.id], nm = plNome(p), pi = plInt(p), ajust = pi !== (Number(p.i) || 7);
+  const fs = ft ? silPronto(ft) : "", fsl = !!ft && fs !== ft, fsw = !!ft && fs === ft && silEspera(ft);
   const lin = (k, v) => v ? `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>` : "";
   m.innerHTML = `<section class="sheet plsheet" role="dialog" aria-modal="true" aria-label="${esc(nm)}">
     <div class="sheethead"><h2>${esc(nm)}</h2><button type="button" class="secondary" id="plMx" aria-label="Fechar">${ico("fechar", "ic ti only")}</button></div>
-    ${ft ? `<img class="pldimg" src="${ft}" alt="">` : ""}
+    ${ft ? `<span class="plimg${fsl ? " sil" : ""}${fsw ? " silw" : ""}"><img class="pldimg" src="${fs}" alt=""></span>` : ""}
     <p class="plst ${plCls(d)}">${plStatus(d)}</p>
     <dl class="pldl">${lin("Espécie", p.e)}${lin("Onde fica", p.loc)}${lin("Vasos", (Number(p.q) || 1) > 1 ? String(p.q) : "")}${lin("Rega a cada", pi + " dia" + (pi > 1 ? "s" : "") + (ajust ? " (ajustado pela estação)" : ""))}${lin("Última rega", p.u ? plBr(p.u) : "ainda não regada")}${lin("Próxima rega", plBr(plIso(plProx(p))))}${lin("Luz", sp ? sp[2] : "")}</dl>
     ${sp ? `<div class="plcuid"><b>Cuidados</b><p>${esc(sp[3])}</p></div>` : ""}${p.o ? `<div class="plcuid"><b>Anotações</b><p>${esc(p.o)}</p></div>` : ""}
     <div class="toolbar plbar"><button type="button" class="primary big" id="plMr">${ico("gota")}Reguei agora</button></div>
     <label for="plMdt">Regou em outro dia</label><div class="plurow"><input type="date" id="plMdt" value="${plIso(plHoje())}" max="${plIso(plHoje())}"><button type="button" class="secondary" id="plMd">Registrar</button></div>
-    <button type="button" class="secondary plbig" id="plMe">${ico("lapis")}Editar planta</button></section>`;
+    <button type="button" class="secondary plbig" id="plMe">${ico("lapis")}Editar planta</button><button type="button" class="secondary plbig" id="plMnet">${ico("bus")}Buscar foto na internet</button></section>`;
   $("plMx").onclick = plFecha;
   $("plMr").onclick = () => { plFecha(); plRegou(id); };
   $("plMd").onclick = () => { const v = $("plMdt").value; if (!plData(v)) return toast("Escolha a data."); plFecha(); plRegou(id, v); };
-  $("plMe").onclick = () => plForm(id); }
+  $("plMe").onclick = () => plForm(id);
+  $("plMnet").onclick = () => plNetBusca([p.e, p.n].filter(Boolean).join(" ")); }
 function plForm(id) { const p = id ? plL.find(x => x.id === id) : null; if (id && !p) return;
   const d = p ? { ...p } : { id: uid().slice(0, 8), n: "", e: "", loc: "", q: 1, i: 7, u: plIso(plHoje()), o: "", f: 0 };
   let pend = null, tocouI = !!p;
   const locais = [...new Set(plL.map(x => x.loc).filter(Boolean))], m = plModal(), ft = plFt[d.id];
+  const fs = ft ? silPronto(ft) : "", fsl = !!ft && fs !== ft, fsw = !!ft && fs === ft && silEspera(ft);
   m.innerHTML = `<section class="sheet plsheet" role="dialog" aria-modal="true" aria-label="${p ? "Editar planta" : "Nova planta"}">
     <div class="sheethead"><h2>${p ? "Editar planta" : "Nova planta"}</h2><button type="button" class="secondary" id="plMx" aria-label="Fechar">${ico("fechar", "ic ti only")}</button></div>
-    <div class="plfoto"><div class="plfbox" id="plFb">${ft ? `<img src="${ft}" alt="">` : ico("cam", "ic")}</div><div class="plfbt"><button type="button" class="secondary" id="plFc">${ico("cam")}Tirar foto</button><button type="button" class="secondary" id="plFg">${ico("img")}Escolher imagem</button></div></div>
+    <div class="plfoto"><div class="plfbox${fsl ? " sil" : ""}${fsw ? " silw" : ""}" id="plFb">${ft ? `<img src="${fs}" alt="">` : ico("cam", "ic")}</div><div class="plfbt"><button type="button" class="secondary" id="plFc">${ico("cam")}Tirar foto</button><button type="button" class="secondary" id="plFg">${ico("img")}Escolher imagem</button><button type="button" class="secondary" id="plFnet">${ico("bus")}Buscar na internet</button></div></div>
     <input type="file" id="plFi1" accept="image/*" capture="environment" hidden><input type="file" id="plFi2" accept="image/*" hidden>
     <label for="plE">Espécie</label><input id="plE" list="plEsp" maxlength="40" autocomplete="off" placeholder="Ex.: Samambaia" value="${esc(d.e)}"><datalist id="plEsp">${PL_CAT.map(x => `<option value="${esc(x[0])}"></option>`).join("")}</datalist>
     <p class="note plinfo" id="plInfo"></p>
@@ -2875,8 +2883,11 @@ function plForm(id) { const p = id ? plL.find(x => x.id === id) : null; if (id &
   $("plIm").onclick = () => passo("plI", -1, 1, 60, true); $("plIp").onclick = () => passo("plI", 1, 1, 60, true);
   $("plU").oninput = dica; $("plUh").onclick = () => { $("plU").value = plIso(plHoje()); dica(); };
   $("plFc").onclick = () => $("plFi1").click(); $("plFg").onclick = () => $("plFi2").click();
+  $("plFnet").onclick = () => plNetBusca([$("plE").value.trim(), $("plN").value.trim()].filter(Boolean).join(" "));
   [$("plFi1"), $("plFi2")].forEach(inp => inp.onchange = () => { const f = inp.files && inp.files[0]; if (!f) return;
-    fotoReduz(f).then(img => { pend = img; $("plFb").innerHTML = `<img src="${img}" alt="">`; }).catch(() => toast("Não consegui ler essa imagem.")); inp.value = ""; });
+    fotoReduz(f).then(img => { pend = img; const s = silPronto(img), sl = s !== img, sw = s === img && silEspera(img);
+      const box = $("plFb"); box.className = "plfbox" + (sl ? " sil" : "") + (sw ? " silw" : ""); box.innerHTML = `<img src="${s}" alt="">`;
+    }).catch(() => toast("Não consegui ler essa imagem.")); inp.value = ""; });
   $("plMs").onclick = async () => { const e = $("plE").value.trim().slice(0, 40), n = $("plN").value.trim().slice(0, 40);
     if (!e && !n) { toast("Escreva o nome ou a espécie da planta."); return $("plE").focus(); }
     $("plMs").disabled = true;
