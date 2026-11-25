@@ -169,7 +169,8 @@ const ntTipo = t => { const n = norm(t); const x = NT_TIPOS.find(k => k[0].test(
 const ntQuando = em => { if (!em) return ""; const d = new Date(em), h = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"), hj = new Date(); hj.setHours(0, 0, 0, 0); const dia = Math.round((hj - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 864e5);
   return dia <= 0 ? h : dia === 1 ? "ontem " + h : String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0"); };
 const ntMeta = x => [String(x.por || "").split(" ")[0], ntQuando(x.em)].filter(Boolean).join(" · ");
-const ntTag = (x, ex) => { const k = ntTipo(x.t), m = ntMeta(x); return `<span class="pi-tag tp-${k.c}"><i aria-hidden="true">${k.i}</i><b>${esc(x.t)}</b>${m ? `<small>${esc(m)}</small>` : ""}${ex ? `<button type="button" class="pi-tagx" data-ntdel="${esc(x.t)}" aria-label="Tirar a nota ${esc(x.t)}">×</button>` : ""}</span>`; };
+// v626: só a mensagem (autor e hora continuam gravados, mas não aparecem)
+const ntTag = (x, ex) => { const k = ntTipo(x.t); return `<span class="pi-tag tp-${k.c}"><i aria-hidden="true">${k.i}</i><b>${esc(x.t)}</b>${ex ? `<button type="button" class="pi-tagx" data-ntdel="${esc(x.t)}" aria-label="Tirar a nota ${esc(x.t)}">×</button>` : ""}</span>`; };
 // ícone por tipo de produto (só Perecíveis; dá para desligar em 🎨 Cores e prazos)
 const ICK = "validamais-icones", iconesOn = () => store.get(ICK, true) !== false;
 const FXK = "validamais-fx", fxOn = () => store.get(FXK, true) !== false, fxAplica = () => { document.documentElement.dataset.fx = fxOn() ? "on" : "off"; }; fxAplica();

@@ -17,7 +17,7 @@ await pg.goto(`http://localhost:${srv.address().port}/`); await pg.waitForTimeou
 const notas = () => pg.evaluate(() => JSON.parse(localStorage.getItem("validamais-notas") || "{}"));
 const tags = id => pg.evaluate(id => [...document.querySelectorAll(`.pitem[data-id="${id}"] .pi-tags .pi-tag`)].map(t => ({ cls: t.className, txt: t.querySelector("b").textContent, meta: (t.querySelector("small") || {}).textContent || "", ic: t.querySelector("i").textContent })), id);
 let t2 = await tags("p2");
-ok("nota antiga (sem lista) aparece como etiqueta cinza «Etiqueta manual» com autor", t2.length === 1 && /tp-et/.test(t2[0].cls) && /^Ana/.test(t2[0].meta), JSON.stringify(t2));
+ok("nota antiga (sem lista) aparece como etiqueta cinza «Etiqueta manual» sem nome", t2.length === 1 && /tp-et/.test(t2[0].cls) && t2[0].meta === "", JSON.stringify(t2));
 // adicionar 2 notas no mesmo produto
 const abre = id => pg.click(`.pitem[data-id="${id}"] .pi-main`).then(() => pg.waitForTimeout(250));
 await abre("p0");
@@ -35,7 +35,7 @@ ok("cartão aberto mostra as notas com ×", (await pg.$$(".pitem.open .nt-lista 
 await pg.click(".pitem.open .pi-main"); await pg.waitForTimeout(300);
 let t0 = await tags("p0");
 ok("lista mostra 2 etiquetas: verde (rebaixa) e azul (câmara)", t0.length === 2 && /tp-rb/.test(t0[0].cls) && /tp-cm/.test(t0[1].cls), JSON.stringify(t0));
-ok("etiqueta traz ícone e «Ronaldo · hh:mm» (primeiro nome)", t0[0].ic === "🏷️" && t0[1].ic === "❄️" && /^Ronaldo · \d\d:\d\d$/.test(t0[0].meta), JSON.stringify(t0.map(x => x.meta)));
+ok("etiqueta traz ícone e só a mensagem (sem nome nem hora)", t0[0].ic === "🏷️" && t0[1].ic === "❄️" && t0.every(x => x.meta === "") && !(await pg.evaluate(() => /Ronaldo|\d\d:\d\d/.test(document.querySelector(".pi-tags").textContent))), JSON.stringify(t0.map(x => x.meta)));
 await pg.screenshot({ path: SHOT + "/n624_lista.png" });
 // tirar uma
 await abre("p0"); await pg.click('.pitem.open .nt-lista .pi-tagx[data-ntdel="Rebaixa feita"]'); await pg.waitForTimeout(400);
