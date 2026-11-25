@@ -2955,7 +2955,7 @@ const plFotoLado = p => { const ft = plFt[p.id];
 function plCard(d, p) { const [big, small] = plBadgePar(d), qt = plAguaTxt(plAgua(p)), ft = plFt[p.id], ad = plData(p.ad), adia = !!ad && ad > plHoje();
   const sub = [p.n && p.e && norm(p.n) !== norm(p.e) ? p.e : "", p.loc].filter(Boolean).map(esc).join(" · ");
   const chips = [(Number(p.q) || 1) > 1 ? `${p.q} vasos` : "", adia ? "Adiada: terra úmida" : p.u ? "Regou " + plHaDias(p.u) : "Ainda não regada", qt].filter(Boolean).map(x => `<span>${esc(x)}</span>`).join("")
-    + (!ft ? `<span class="plch-f">Falta foto</span>` : plFotoDue(p) ? `<span class="plch-f">Mandar foto</span>` : "");
+    + (!ft ? `<span class="plch-f">Falta foto</span>` : "");
   return `<article class="pitem ${plPrCls(d)} ${plCls(d)}" data-pid="${esc(p.id)}">
     <div class="pi-main"><span class="pi-lead">${plFotoLado(p)}</span>
       <div class="pi-txt"><b class="pi-nome">${esc(plNome(p))}</b>

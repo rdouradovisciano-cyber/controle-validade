@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 24/11/2026 · versão 615.
+> Última atualização: 24/11/2026 · versão 616.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -283,3 +283,4 @@ Setor novo, pedido para uso pessoal do Renato (substitui a antiga área Flores).
   - **WhatsApp**: `plZapAbre` (janela com checkbox por planta; as que têm foto e passaram de `PL_FOTO_DIAS` = 7 dias sem envio vêm marcadas) e `plZap`: com `navigator.share` + `canShare({files})` manda as fotos anexadas e o texto (nome, espécie, local, status, última rega) e grava `w`; sem isso abre `wa.me/?text=` só com o texto e **não** marca como enviada (o usuário toca em «Já mandei»). Detalhe da planta também tem «Enviar foto no WhatsApp» (sem foto → abre a edição). A foto enviada é a miniatura salva (lado maior 360 px, `fotoReduz`), não a original. Não há número de telefone no repositório: o WhatsApp abre a lista de contatos.
   - **Corrigido**: no `#plLista` a foto de 130 px «saltava» 40 px e cobria o botão do cartão de cima e o título do grupo; agora o cartão tem `margin-top:46px` (regra no fim do `app.css`, com `html:root` para vencer as regras antigas do vidro).
   - **Não testado**: Firebase real, `navigator.share` real no celular (no teste ele é simulado), câmera real. Ideias ainda não feitas: aviso das 08h também lembrando as fotos, adubo/poda com lembrete, agrupar por bancada, reconhecer a espécie pela foto.
+- v616: removida a etiqueta «Mandar foto» do cartão (a foto do WhatsApp é do conjunto todo, não de cada planta); «Falta foto» continua.
