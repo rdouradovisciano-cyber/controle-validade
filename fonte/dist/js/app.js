@@ -68,6 +68,7 @@ if (!PERFIL) perfilEscolher(false);
 const $ = id => document.getElementById(id);
 const LK = "validamais-produtos-v1", LC = "validamais-ultima-categoria", TK = "validamais-tam";
 let novoF = false, novoVisto = new Set(), novoIni = false, meuNovo = 0;   // «Últimos lançados»: filtro ligado · lotes que já tocaram o efeito · 1º desenho feito · hora do lote que ESTE aparelho acabou de lançar (declarados aqui em cima: o render() roda cedo)
+let catInicial = true;   // v622: o 1º desenho já filtra pelo setor da loja — antes ele pintava "todos" e refazia a lista logo em seguida
 const NOVO_MS = 30 * 60 * 1000, NOVO_N = 15;   // «NOVO» fica 30 min no item; o filtro mostra os 15 últimos
 const lancMs = p => { const v = p.createdAt; if (v === null) return Date.now(); const n = v && v.toMillis ? v.toMillis() : Number(v); return n > 0 ? n : 0; };   // quando o lote foi lançado (createdAt null = acabou de ser enviado, a nuvem ainda não carimbou)
 let curTab = "Loja", tierF = "", openId = "", pesOpen = "", acaoF = "";   // pesOpen: pesável aberta (só ela mostra «Lançar etiqueta» e «Editar»); pesTipo: atalho de tipo escolhido na aba Pesáveis
@@ -315,7 +316,7 @@ async function silIdbCarrega() {
   try { SIL.db = await new Promise(ok => { try { const r = indexedDB.open("validamais-sil", 1); r.onupgradeneeded = () => r.result.createObjectStore("s"); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); r.onblocked = () => ok(null); } catch (e) { ok(null); } });
     if (SIL.db) { const st = SIL.db.transaction("s").objectStore("s"), ks = await idbReq(st.getAllKeys()), vs = await idbReq(st.getAll()); ks.forEach((k, i) => SIL.mem.set(k, vs[i] || false)); }
   } catch (e) { console.warn("sil-cache", e); }
-  SIL.pronto = true; try { render(); } catch (e) {} }
+  SIL.pronto = true; try { fotoIcones(); } catch (e) {} }
 setTimeout(silIdbCarrega, 0);   // roda em qualquer modo (nuvem ou local)
 function silGrava(d, v) { try { SIL.mem.set(silKey(d), v); if (SIL.db) SIL.db.transaction("s", "readwrite").objectStore("s").put(v || 0, silKey(d)); } catch (e) {} }
 // true enquanto o recorte desta foto ainda não está pronto: a tela esconde a foto (sem quadrado) até ficar pronta
@@ -326,19 +327,53 @@ function silPatch() { document.querySelectorAll(".silw").forEach(el => { const i
 function silPronto(d, forca) { if (!d) return d; if (silCache.has(d)) return silCache.get(d) || d; if (!SIL.pronto) return d;
   const k = silKey(d); if (SIL.mem.has(k) && !forca) { const v = SIL.mem.get(k); silCache.set(d, v); return v || d; }
   silCache.set(d, false); silPend.add(d); silFilaN++;
-  silRecorta(d).then(v => { silCache.set(d, v); silGrava(d, v); silPend.delete(d); silFilaN--; if (silFilaN <= 0) { clearTimeout(silTm); silTm = setTimeout(() => { if (silFilaN > 0) return; try { render(); } catch (e) {} try { silPatch(); } catch (e) {} try { saudeRepinta && saudeRepinta(); } catch (e) {} }, 350); } }); return d; }
+  // v622: quando o recorte termina, troca só o src da imagem — reconstruir a lista fazia a foto sumir e voltar
+  silRecorta(d).then(v => { silCache.set(d, v); silGrava(d, v); silPend.delete(d); silFilaN--; if (silFilaN <= 0) { clearTimeout(silTm); silTm = setTimeout(() => { if (silFilaN > 0) return; try { silPatch(); } catch (e) {} try { saudeRepinta && saudeRepinta(); } catch (e) {} }, 120); } }); return d; }
 const fotosConhecidas = () => !db || FIDB.lido || fotosPronto;   // v608: antes das fotos do aparelho serem lidas, não sabemos se o produto tem foto
 const icoLado = p => fotoDe(p) || !iconesOn() || !p || p.category !== PER ? "" : !fotosConhecidas() ? `<span class="ico-tile ico-carr" aria-hidden="true"></span>` : `<span class="ico-tile ico-vazio" aria-hidden="true">${ico("cam", "ic")}</span>`;   // v458: emoji do produto num quadrado do mesmo tamanho da foto
 // v473: a nota vira um balão amarelo no canto da foto do produto (sem foto/quadrado, o ícone continua ao lado do nome)
 const leadNota = p => { const l = fotoLado(p) || icoLado(p); if (!l) return ""; const n = notaDe(p.id), pm = n && /ja na promocao/.test(norm(n.t)); return `<span class="pi-lead${pm ? " promo" : ""}">${l}</span>`; };
 const fotoLado = p => { const d = fotoDe(p); if (!d) return ""; const s = silPronto(d); return `<span class="ico ico-foto ico-lado${s !== d ? " sil" : ""}${s === d && silEspera(d) ? " silw" : ""}" data-id="${esc(p.id)}"><img class="ico-img" src="${s}" alt="" decoding="async"></span>`; };   // lista de Validades: foto na lateral
+// v622: quando muda só a foto (chegou do aparelho/nuvem ou terminou o recorte), troca a imagem no lugar — nunca reconstrói a lista inteira
+function fotosPatchLista() {
+  const L = $("list");
+  if (!L || !L.querySelector(".pitem")) { render(); return; }   // ainda é o esqueleto: este é o 1º desenho com foto
+  const porId = new Map(products.map(p => [p.id, p]));
+  L.querySelectorAll(".pitem .pi-lead").forEach(lead => {
+    const p = porId.get((lead.closest(".pitem") || {}).dataset.id); if (!p) return;
+    const d = fotoDe(p), im = lead.querySelector("img.ico-img"), span = lead.querySelector(".ico-lado, .ico-vazio, .ico-tile");
+    if (!d) { if (span && (span.classList.contains("ico-foto") || span.classList.contains("ico-carr"))) lead.innerHTML = icoLado(p); return; }
+    let el = im && im.parentElement;
+    if (!im || !el || !el.classList.contains("ico-lado")) { lead.innerHTML = fotoLado(p); return; }
+    const v = silPronto(d);
+    if (im.getAttribute("src") !== v) im.src = v;
+    el.classList.toggle("sil", v !== d); el.classList.remove("silw");
+    if (v === d && silEspera(d)) el.classList.add("silw");   // v622: continua visível até o recorte entrar (CSS próprio)
+    const n = notaDe(p.id); lead.classList.toggle("promo", !!n && /ja na promocao/.test(norm(n.t)));
+  });
+  L.querySelectorAll(".pgp .pgt[data-id]").forEach(el => {
+    const p = porId.get(el.dataset.id); if (!p || !p.name) return;
+    const d0 = fotoVal(fotoK(p.name)); if (!d0) return;
+    const d = silPronto(d0), im = el.querySelector("img");
+    if (im && im.getAttribute("src") !== d) im.src = d;
+    el.classList.toggle("sil", d !== d0); el.classList.remove("silw");
+    if (d === d0 && silEspera(d0)) el.classList.add("silw");
+  });
+  try { document.querySelectorAll("#plLista .ico-lado[data-pid]").forEach(el => {
+    const ft = plFt[el.dataset.pid]; if (!ft) return;
+    const v = silPronto(ft), im = el.querySelector("img");
+    if (im && im.getAttribute("src") !== v) im.src = v;
+    el.classList.toggle("sil", v !== ft); el.classList.remove("silw");
+    if (v === ft && silEspera(ft)) el.classList.add("silw");
+  }); } catch (e) {}
+}
 let fotoIcTimer = 0, fotoVer = 0, famMemo = { p: null, n: -1, v: -1, m: new Map() };
 // foto para os balões e linhas da Doação (FLV): a do nome exato; senão a de qualquer produto da mesma família (1ª palavra: Banana, Tomate…)
 function famFotos() { if (famMemo.p === products && famMemo.n === products.length && famMemo.v === fotoVer) return famMemo.m;
   const m = new Map(); products.forEach(p => { if (!p || !p.name) return; const d = fotoCache[fotoK(p.name)]; if (!d) return; const k = dFamKey(p.name); if (k && !m.has(k)) m.set(k, d); });
   famMemo = { p: products, n: products.length, v: fotoVer, m }; return m; }
 function balFoto(w) { if (!iconesOn() || !w) return ""; const ex = fotoCache[fotoK(w)]; if (ex) return ex; const k = dFamKey(w); return k ? (famFotos().get(k) || "") : ""; }
-function fotoIcones() { clearTimeout(fotoIcTimer); fotoIcTimer = setTimeout(() => { fotoVer++; try { render(); } catch (e) {} try { if ($("dTop6")) renderDon(); } catch (e) {} try { if ($("pesLista") && $("pesLista").children.length) renderPesaveis(); } catch (e) {}  }, 60); }
+function fotoIcones() { clearTimeout(fotoIcTimer); fotoIcTimer = setTimeout(() => { fotoVer++; try { fotosPatchLista(); } catch (e) { try { render(); } catch (x) {} } try { if ($("dTop6")) renderDon(); } catch (e) {} try { if ($("pesLista") && $("pesLista").children.length) renderPesaveis(); } catch (e) {} }, 60); }
 // v517: fotos guardadas no aparelho (IndexedDB): aparecem na hora ao abrir; a nuvem só atualiza o que mudou
 const FIDB = { db: null };
 const idbReq = r => new Promise((ok, no) => { r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); });
@@ -346,7 +381,8 @@ async function fidbCarrega() {
   try { FIDB.db = await new Promise(ok => { try { const r = indexedDB.open("validamais-fotos-cache", 1); r.onupgradeneeded = () => r.result.createObjectStore("f"); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); } catch (e) { ok(null); } });
     if (!FIDB.db) return; const st = FIDB.db.transaction("f").objectStore("f"), ks = await idbReq(st.getAllKeys()), vs = await idbReq(st.getAll()); let n = 0;
     ks.forEach((k, i) => { if (fotoCache[k] === undefined && vs[i]) { fotoCache[k] = vs[i]; n++; } });
-    FIDB.n = ks.length; FIDB.mudou = n > 0; if (n) fotoIcones(); } catch (e) { console.warn("fotos-cache", e); } finally { FIDB.lido = true; if (!FIDB.mudou) fotoIcones(); }
+    FIDB.n = ks.length; FIDB.mudou = n > 0;   // v622: um único aviso, depois de marcar como lido — evita o desenho sem foto seguido do com foto
+  } catch (e) { console.warn("fotos-cache", e); } finally { FIDB.lido = true; fotoIcones(); }
 }
 function fidbGrava(ch) {   // ch: [[chave, dado|null]]
   try { if (!FIDB.db || !ch.length) return; const st = FIDB.db.transaction("f", "readwrite").objectStore("f"); ch.forEach(([k, d]) => d ? st.put(d, k) : st.delete(k)); } catch (e) { console.warn("fotos-cache", e); }
@@ -555,10 +591,12 @@ async function phRestore(i) {
 }
 const gruposOn = () => { try { return localStorage.getItem("validamais-grupos") === "1"; } catch (e) { return false; } };
 function render() {
+  if (!db && !fotosOuvindo) fotosTodas();   // v622: no modo local, carrega as fotos do aparelho ANTES do 1º desenho (antes ficavam para depois e a lista piscava)
   retOverlay(); phDiff();
   { const cf = $("categoryFilter"), oth = [...new Set(products.map(p => p.category).filter(c => c && c !== CATSET))].sort(), sig = oth.join("|");
-    if (cf.dataset.sig !== sig) { const cur = cf.value; cf.innerHTML = ""; cf.add(new Option("Todos os setores", "")); [CATSET, ...oth].forEach(c => cf.add(new Option(c, c)));
+    if (cf.dataset.sig !== sig) { const cur = catInicial ? CATSET : cf.value; cf.innerHTML = ""; cf.add(new Option("Todos os setores", "")); [CATSET, ...oth].forEach(c => cf.add(new Option(c, c)));
       cf.value = [...cf.options].some(o => o.value === cur) ? cur : CATSET; cf.dataset.sig = sig; }
+    catInicial = false;   // v622: só a 1ª pintagem é forçada no setor; depois, respeita o escolhido pela pessoa
     cf.classList.toggle("hidden", !oth.length); document.querySelector("#tabLoja .filters").classList.toggle("hidden", !oth.length); $("verTodos").classList.toggle("hidden", !!oth.length); }
   const q = $("search").value.trim().toLowerCase(), cat = $("categoryFilter").value, st = $("statusFilter").value;
   const base = products.filter(p => !p.retirado && (!cat || p.category === cat)), ex = base.filter(p => status(p) === "expired").length, so = base.filter(p => status(p) === "soon").length;
@@ -618,7 +656,10 @@ function render() {
     const tl = lancMs(p), novo = tl > 0 && Date.now() - tl < NOVO_MS;   // lançado há menos de 30 min
     return hd + `<article class="pitem${pr ? " pr" + pr : " prok"}${pr && daysLeft(p.expiry) >= 1 && daysLeft(p.expiry) <= 3 ? " pd" + daysLeft(p.expiry) : ""}${novo ? " pnovo" : ""}${openId === p.id ? " open" : ""}" data-id="${esc(p.id)}" data-lt="${tl}">${notaDe(p.id) && !/ja na promocao/.test(norm(notaDe(p.id).t)) ? `<div class="pi-bubble" role="note" title="Nota"><b>${esc(notaDe(p.id).t)}</b></div>` : ""}<div class="pi-main">${leadNota(p)}<div class="pi-txt"><b class="pi-nome">${esc(nomeBonito(p.name))}${novo ? '<i class="pi-novo">NOVO</i>' : ""}</b><small class="pi-sub"><b>Qtd ${esc(p.quantity)}</b> · vence ${fmtCurto(p.expiry)}</small><small class="pi-sub2">${lo ? `<span class="pi-lotes" aria-label="Lote ${lo.i} de ${lo.n}"><b>${lo.i}/${lo.n}</b><span class="plb">${Array.from({ length: lo.n }, (_, j) => j < lo.i ? '<i class="on"></i>' : "<i></i>").join("")}</span></span>` : ""}${nvF && tl ? `<span class="pi-lt" data-lt="${tl}">${haQuanto(tl)}</span>` : ""}${semAdmin(p.por) ? `<span class="pi-op" title="Lançado por ${esc(semAdmin(p.por))}">${porHtml(p.por)}</span>` : ""}</small></div><div class="pi-badge"><b>${big}</b>${small ? `<span>${small}</span>` : ""}</div></div><div class="pi-act"><div class="pi-foto" data-id="${esc(p.id)}"></div><button type="button" class="pi-novolote" data-novolote="${esc(p.id)}">＋ Novo lote deste produto</button><input type="file" accept="image/*" capture="environment" hidden data-fin="${esc(p.id)}"><input type="file" accept="image/*" hidden data-fin="${esc(p.id)}"><label class="pi-nota"><span>${ico("nota", "ic ti only")}</span><input type="text" maxlength="60" data-nota="${esc(p.id)}" value="${esc((notaDe(p.id) || {}).t || "")}" placeholder="Nota (ex.: gôndola 3, já na promoção)" autocomplete="off" enterkeyhint="done">${notaDe(p.id) ? `<button type="button" class="nt-rem" data-ntx="${esc(p.id)}" aria-label="Remover a nota e o balão">${ico("lixo", "ic")}<b>Remover</b></button>` : ""}</label><div class="nt-fav" aria-label="Notas mais usadas">${notasTop().map(t => `<span class="nt-chip${norm(t) === norm((notaDe(p.id) || {}).t || "") ? " on" : ""}"><button type="button" class="nt-use" data-ntf="${esc(t)}">${esc(t)}</button>${ntEdit ? `<button type="button" class="nt-del" data-ntd="${esc(t)}" aria-label="Tirar «${esc(t)}» dos atalhos">${ico("fechar", "ic")}</button>` : ""}</span>`).join("")}<span class="nt-ctl">${ntEdit && ntOcultas().length ? `<button type="button" class="nt-rest" data-ntr="1">Restaurar atalhos</button>` : ""}<button type="button" class="nt-rest" data-nte="1">${ntEdit ? "Concluir" : "Editar atalhos"}</button></span></div><small class="pi-cod">Cód.: ${p.barcode ? esc(p.barcode) : p.codigo_balanca ? "PLU " + pluH(p.codigo_balanca) : "—"} · ${esc(p.category)}</small><div class="actions"><button class="secondary" data-edit="${esc(p.id)}">Editar</button><button class="primary" data-ret="${esc(p.id)}">Retirar</button></div></div></article>`;
   }).join("") : (carregando && !products.length ? SKEL : cat === "FLV" && !q && !st ? EMPTY_FLV : '<p class="muted">Nenhum produto encontrado. Use "Bipar código" ou "Cadastro manual".</p>');
-  { const Ls = $("list"); if (Ls._h !== listaHtml) { Ls.innerHTML = listaHtml; Ls._h = listaHtml; } }   // v608: HTML igual ao que já está na tela = não mexe (as fotos não piscam a cada atualização da nuvem)
+  { const Ls = $("list");
+    // v622: o 1º desenho espera as fotos salvas no aparelho; antes disso fica o esqueleto (sem quadrado vazio depois)
+    if (!fotosConhecidas()) { if (Ls._h !== null || Ls.innerHTML !== SKEL) { Ls.innerHTML = SKEL; Ls._h = null; } }
+    else if (Ls._h !== listaHtml) { Ls.innerHTML = listaHtml; Ls._h = listaHtml; } }   // v608: HTML igual ao que já está na tela = não mexe
   $("list").dataset.visao = visaoDe();
   $("list").dataset.rec = recOn ? [...gRec].join(" ") : "";   // com busca/filtro ligado não há títulos de grupo: nada fica escondido
   $("acaoBar").classList.toggle("hidden", !acaoF);
@@ -1229,7 +1270,9 @@ if (cloud && V.initializeApp) {
 // v519: tela de abertura: só some quando a lista e as fotos estiverem prontas (no máximo ~5 s)
 (function splashAbertura() { const sp = document.getElementById("splash"); if (!sp) return; const t0 = Date.now(); let fechado = false;
   const fim = () => { if (fechado) return; fechado = true; clearInterval(tm); sp.classList.add("sai"); setTimeout(() => sp.remove(), 400); };
-  const tm = setInterval(() => { const ms = Date.now() - t0, fotosOk = SIL.pronto && silFilaN <= 0 && (!db || fotosPronto || FIDB.n > 0); if ((!carregando && fotosOk && ms > 500) || ms > 5000) fim(); }, 100);
+  // v622: espera a lista já desenhada com as fotos locais; o recorte da silhueta entra depois, sem apagar a imagem nem reconstruir a lista
+  const tm = setInterval(() => { const ms = Date.now() - t0, fotosOk = !db || FIDB.lido || fotosPronto, listaOk = $("list")._h !== null;
+    if ((!carregando && listaOk && fotosOk && ms > 120) || ms > 5000) fim(); }, 100);
   sp.onclick = fim; })();
 
 // ---------- aparelho, contadores (visitas/online) e histórico de leituras ----------
@@ -1319,7 +1362,7 @@ hojeTop(); setInterval(hojeTop, 60000);
 function rotulosSetor() {   // Perecíveis: «código de doação» vira «código interno»
   [["label[for=cDoacao]", "Código interno", "Código de doação"], ["label[for=cDon]", "Código interno", "Código de doação"]].forEach(([q, per, flv]) => { const e = document.querySelector(q); if (!e) return; const t = SETOR === PER ? per : flv; const n = [...e.childNodes].find(c => c.nodeType === 3); if (n) n.textContent = t; else e.textContent = t; }); }
 pintaSetor();
-$("categoryFilter").value = CATSET; store.set(LC, CATSET); render();
+{ const cf = $("categoryFilter"); store.set(LC, CATSET); if (cf.value !== CATSET) { cf.value = CATSET; render(); } }   // v622: se o 1º desenho já usou o setor, não repinta a lista
 { const sf = $("statusFilter"), stt = document.querySelectorAll("#tabLoja .stats .stat");
   stt[0].onclick = () => { sf.value = ""; render(); }; stt[1].onclick = () => { sf.value = sf.value === "soon" ? "" : "soon"; render(); }; stt[2].onclick = () => { sf.value = sf.value === "expired" ? "" : "expired"; render(); }; }
 $("phClose").onclick = () => $("phModal").classList.add("hidden"); $("phBusca").oninput = phDraw;
@@ -3790,7 +3833,8 @@ function efeitoTV(el) { return new Promise(res => {
       <p>Arraste o cartão do produto para a <b>direita</b> e solte para <b>tirar o item da loja</b>.<br>Foi sem querer? Toque em <b>Desfazer</b> logo depois.</p><button type="button" class="primary big dica-ok">Entendi</button></div>`;
     const fecha = () => ov.remove(); ov.onclick = e => { if (e.target === ov || e.target.closest(".dica-ok")) fecha(); }; document.body.appendChild(ov); try { ov.querySelector(".dica-ok").focus({ preventScroll: true }); } catch (e) {} }, 700); })();
 // ---------- PWA ----------
-if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").then(r => r.update()).catch(console.error));
+// v622: a checagem de atualização do service worker vai para depois da abertura, para não disputar rede com a lista e as fotos
+if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").then(r => { setTimeout(() => r.update().catch(() => {}), 4000); }).catch(console.error));
 
 // ---------- versão do app + aviso de atualização ----------
 // >>> a cada envio de atualização, troque este número (ex.: 2026.10.04-2) <<<
