@@ -9,6 +9,10 @@ const CATS = ["Ovos","FLV","Padaria","Laticínios","Mercearia","Bebidas","Congel
 // perfil do aparelho (escolhido uma vez): "FLV" e "Perecíveis" entram direto e só nesse setor; "Admin" acessa os dois
 const PERFIL_K = "validamais-perfil";
 let PERFIL = (() => { try { const s = localStorage.getItem(PERFIL_K); return s === "FLV" || s === PER || s === "Admin" ? s : null; } catch (e) { return null; } })();
+// v629: «Ver como usuário normal» — o aparelho continua Admin, mas o app se comporta como o perfil FLV/Perecíveis até voltar
+const VER_K = "validamais-ver-como", PERFIL_REAL = PERFIL;
+const VER_COMO = (() => { try { const v = localStorage.getItem(VER_K); return PERFIL === "Admin" && (v === "FLV" || v === PER) ? v : null; } catch (e) { return null; } })();
+if (VER_COMO) PERFIL = VER_COMO;
 // v506: Admin volta no último setor aberto (localStorage), em vez de sempre FLV
 let SETOR = (() => { if (PERFIL === "FLV" || PERFIL === PER) return PERFIL; try { const s = localStorage.getItem("validamais-setor-adm") || sessionStorage.getItem("validamais-setor"); return s === PER ? s : "FLV"; } catch (e) { return "FLV"; } })();
 const setorDe = p => p.category === PER ? PER : "FLV";   // Perecíveis tem cadastro próprio; FLV usa o cadastro «FLV» e as demais categorias
@@ -199,7 +203,8 @@ const iconeDe = p => { return "";   // v471: emojis removidos de vez — só fot
 // ---------- foto do produto (Perecíveis e FLV): uma miniatura por nome, em sh_cfg/foto-<nome>; só é baixada quando o item é aberto ----------
 const FTK = "validamais-fotos-per", fotoK = n => "foto-" + icKey(n), fotoCache = {};
 // v596: só para o operador «Renato»: no cartão aberto da Validades (e no Editar) ganha «Buscar na internet» e pode trocar a foto mesmo já existindo uma. Função (hoisted) para poder ser usada antes de `myName` existir
-function ehRenato() { try { return /\brenato\b/.test(norm(JSON.parse(localStorage.getItem("validamais-operador")) || "")); } catch (e) { return false; } }
+function ehRenatoReal() { try { return /\brenato\b/.test(norm(JSON.parse(localStorage.getItem("validamais-operador")) || "")); } catch (e) { return false; } }
+function ehRenato() { if (VER_COMO) return false; try { return /\brenato\b/.test(norm(JSON.parse(localStorage.getItem("validamais-operador")) || "")); } catch (e) { return false; } }
 function fotoHtml(k, ed) { const d = fotoVal(k); if (d === undefined) return "";
   const adm = PERFIL === "Admin", ren = ehRenato(), img = d ? `<img class="pf-img" src="${d}" alt="Foto do produto" data-fz="1">` : "";
   const bt = (a, t) => `<button type="button" class="secondary pf-btn" ${a}="1">${t}</button>`, net = ren ? bt("data-fnet", ico("bus") + "Buscar na internet") : "";
@@ -3968,6 +3973,13 @@ $("rodOn").onclick = () => $("onChip").click();
     } catch (e) { if (manual) toast("Não consegui verificar agora. Confira a internet e tente de novo."); }
   }
   { const vt = $("verTop"), go = () => { toast("Verificando atualização…"); check(true); }; if (vt) { vt.addEventListener("click", go); vt.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }); } }   // v600: versão do cabeçalho (só Admin) também confere
+  // v629: botão no menu «Mais» + faixa fixa enquanto estiver no modo normal
+  { const mb = $("mnVerComo");
+    if (mb) { const pode = PERFIL_REAL === "Admin" && ehRenatoReal(); mb.classList.toggle("hidden", !pode);
+      mb.querySelector("span").textContent = VER_COMO ? "Voltar ao modo Admin" : "Ver como usuário normal";
+      mb.onclick = () => { try { if (VER_COMO) localStorage.removeItem(VER_K); else localStorage.setItem(VER_K, SETOR === PER ? PER : "FLV"); } catch (e) {} location.reload(); }; }
+    if (VER_COMO) { const f = document.createElement("button"); f.type = "button"; f.id = "verComoFaixa"; f.textContent = "👁 Modo normal (" + VER_COMO + ") · toque para voltar ao Admin";
+      f.onclick = () => { try { localStorage.removeItem(VER_K); } catch (e) {} location.reload(); }; document.body.appendChild(f); } }
   window.addEventListener("load", () => setTimeout(check, 1500));
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") check(); });
   { let vt = 0, vtm = 0;   // 10 toques seguidos na versão (rodapé) abrem a troca de perfil; toques espaçados > 2 s recomeçam a contagem

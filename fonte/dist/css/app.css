@@ -2596,3 +2596,6 @@ html[data-tema=dark] .tp-dc{--tf:#4a2b0c;--tb:#8a5620;--tt:#ffdcb8}
 html[data-tema=dark] .tp-al{--tf:#4a3a08;--tb:#8a7020;--tt:#fff0b0}
 html[data-tema=dark] .tp-ot{--tf:#2a2a2a;--tb:#4a4a4a;--tt:#e6e6e6}
 .pitem.open .pi-tags{display:none}
+
+/* v629: faixa do modo normal */
+#verComoFaixa{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom));z-index:9000;border:0;border-radius:999px;padding:9px 16px;background:#7c3aed;color:#fff;font:700 13px/1.2 inherit;box-shadow:0 4px 14px rgba(0,0,0,.4);max-width:92vw}
