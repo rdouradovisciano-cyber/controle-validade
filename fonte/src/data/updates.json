@@ -1,5 +1,19 @@
 [
  {
+  "t": "2026-11-25T16:58:00-03:00",
+  "itens": [
+   "Perecíveis: as notas viraram etiquetas coloridas com ícone (rebaixa, câmara, promoção, etiqueta manual…), mostrando só a mensagem",
+   "Perecíveis: cada produto aceita até 5 notas; no cartão aberto, toque no × para tirar uma"
+  ]
+ },
+ {
+  "t": "2026-11-25T14:00:00-03:00",
+  "itens": [
+   "Plantas: regras da instrutora (orquídea e zamioculca 1x/semana, bico-de-papagaio e pinheiro de Natal 3x/semana, etc.) dentro do app, com o tamanho do vaso e «vezes por semana»",
+   "Plantas: ao tocar em «Reguei» o regador se inclina com uma animação; todas as plantas começam como regadas na quarta, 25/11"
+  ]
+ },
+ {
   "t": "2026-11-25T09:22:00-03:00",
   "itens": [
    "Abertura estável: a lista espera as fotos salvas no aparelho antes de aparecer, e as fotos que chegam depois trocam só a imagem — sem lista piscando nem quadrado vazio"
