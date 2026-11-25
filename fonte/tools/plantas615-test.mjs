@@ -90,6 +90,34 @@ const sob = await pg.evaluate(() => { const c = [...document.querySelectorAll("#
 ok("foto não cobre o botão do cartão de cima", sob.length === 0, sob.join(","));
 const sobH = await pg.evaluate(() => { const h = document.querySelector("#plLista .plgh"), c = document.querySelector("#plLista .pitem .ico-img"); if (!h || !c) return false; const a = h.getBoundingClientRect(), b = c.getBoundingClientRect(); return b.top < a.bottom; });
 ok("foto do 1º cartão não cobre o título do grupo", !sobH);
+// ---- «Já regadas hoje» (dia em que já regaram de manhã) ----
+await pg.evaluate(() => { const l = JSON.parse(localStorage.getItem("validamais-plantas")); l.forEach(p => { p.u = ""; p.h = []; delete p.ad; }); localStorage.setItem("validamais-plantas", JSON.stringify(l)); });
+await pg.reload(); await pg.waitForTimeout(3500); await pg.click("#moreBtn"); await pg.waitForTimeout(300); await pg.click("#mnPlantas"); await pg.waitForTimeout(800);
+ok("botão «Já regadas hoje» aparece", !!(await pg.$("[data-ptodas]")));
+await pg.click("[data-ptodas]"); await pg.waitForTimeout(300); await pg.click(".askbg .arow .ok"); await pg.waitForTimeout(500);
+L = await lista(); ok("todas ficam regadas hoje", L.length > 0 && L.every(p => p.u === ago(0) && (p.h || []).includes(ago(0))), JSON.stringify(L.map(p => p.u)));
+ok("guia passa a «Nada para regar hoje»", /Nada para regar hoje/.test(await txt()));
+await pg.click("#toast button"); await pg.waitForTimeout(400);
+L = await lista(); ok("Desfazer devolve o estado anterior", L.every(p => !p.u), JSON.stringify(L.map(p => p.u)));
+// ---- v619: vezes por semana (1x/2x/3x), Zamioculca 1x e alternância 3/4 dias ----
+await pg.click("#plNew"); await pg.waitForTimeout(300);
+await pg.fill("#plE", "Zamioculcas"); await pg.waitForTimeout(100);
+ok("Zamioculcas = 1x por semana (7 dias)", (await pg.inputValue("#plI")) === "7" && await pg.evaluate(() => document.querySelector('[data-vz="1"]').classList.contains("on")));
+await pg.fill("#plE", "Poinsétia (vermelha)"); await pg.waitForTimeout(100);
+ok("Poinsétia = 2x por semana", (await pg.inputValue("#plI")) === "3" && await pg.evaluate(() => document.querySelector('[data-vz="2"]').classList.contains("on")));
+await pg.fill("#plE", "Pinheiro de Natal"); await pg.waitForTimeout(100);
+ok("Pinheiro de Natal = 3x por semana", (await pg.inputValue("#plI")) === "2" && await pg.evaluate(() => document.querySelector('[data-vz="3"]').classList.contains("on")));
+await pg.click('[data-vz="1"]'); ok("tocar em 1x põe 7 dias", (await pg.inputValue("#plI")) === "7");
+await pg.click("#plIm"); ok("mexer nos dias desliga o selo", await pg.evaluate(() => !document.querySelector('[data-vz].on')));
+await pg.click('[data-vz="2"]'); await pg.click('[data-qu="0"]'); await pg.click("#plMs"); await pg.waitForTimeout(500);
+L = await lista(); const pz = L.find(p => p.e === "Pinheiro de Natal");
+ok("planta salva com z=2 e 3 dias", pz && pz.z === 2 && pz.i === 3, JSON.stringify(pz && { z: pz.z, i: pz.i }));
+await pg.evaluate(() => { const l = JSON.parse(localStorage.getItem("validamais-plantas")), x = l.find(p => p.e === "Pinheiro de Natal"), d = n => { const a = new Date(); a.setDate(a.getDate() - n); return a.getFullYear() + "-" + String(a.getMonth() + 1).padStart(2, "0") + "-" + String(a.getDate()).padStart(2, "0"); }; x.z = 2; x.h = [d(3), d(0)]; x.u = d(0); delete x.ad; localStorage.setItem("validamais-plantas", JSON.stringify(l)); });
+await pg.reload(); await pg.waitForTimeout(3500); await pg.click("#moreBtn"); await pg.waitForTimeout(300); await pg.click("#mnPlantas"); await pg.waitForTimeout(800);
+ok("2x/semana: depois de 3 dias de intervalo, o próximo é em 4", await pg.evaluate(() => { const a = [...document.querySelectorAll("#plLista .pitem")].find(c => /Pinheiro/.test(c.querySelector(".pi-nome").textContent)); return !!a && /4\s*DIAS/i.test(a.querySelector(".pi-badge").textContent); }));
+await pg.evaluate(() => { const l = JSON.parse(localStorage.getItem("validamais-plantas")); l.forEach(x => { if (x.e === "Zamioculcas") { x.i = 15; delete x.z; } }); localStorage.setItem("validamais-plantas", JSON.stringify(l)); localStorage.removeItem("validamais-plantas-v619"); });
+await pg.reload(); await pg.waitForTimeout(3500); await pg.click("#moreBtn"); await pg.waitForTimeout(300); await pg.click("#mnPlantas"); await pg.waitForTimeout(800); L = await lista();
+ok("migração: Zamioculca antiga de 15 vai para 7 dias com selo 1x", L.filter(x => x.e === "Zamioculcas").every(x => x.i === 7 && x.z === 1), JSON.stringify(L.filter(x => x.e === "Zamioculcas").map(x => [x.i, x.z])));
 // ---- todas as plantas com foto de verdade (silhueta): nada pode se sobrepor ----
 await pg.evaluate(() => { const c = document.createElement("canvas"); c.width = c.height = 240; const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, 240, 240); x.fillStyle = "#2e8b3e"; x.beginPath(); x.arc(120, 100, 70, 0, 7); x.fill(); x.fillStyle = "#7a4a2a"; x.fillRect(80, 160, 80, 60);
   const img = c.toDataURL("image/jpeg", .8), l = JSON.parse(localStorage.getItem("validamais-plantas")), f = {}; l.forEach(p => { f[p.id] = img; p.f = 1; }); localStorage.setItem("validamais-plantas-fotos", JSON.stringify(f)); localStorage.setItem("validamais-plantas", JSON.stringify(l)); });

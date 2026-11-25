@@ -2563,3 +2563,7 @@ html:root body.vidro #plLista:not([data-visao=grade]) .pitem{margin:46px 0 0!imp
 .pitem.regou{animation:plBrilho 1s ease-out}
 @keyframes plBrilho{0%,100%{box-shadow:0 0 0 0 rgba(47,143,232,0)}40%{box-shadow:0 0 0 3px rgba(47,143,232,.6),0 0 26px rgba(47,143,232,.5)}}
 @media (prefers-reduced-motion:reduce){.plrg .ic,.plgt,.pitem.regou{animation:none}}
+/* v619 — «Já regadas hoje» */
+.plv .plg.dia{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+.plv .plg.dia>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.plv .plg.dia button{flex:none;min-height:42px;padding:0 12px;font-size:13px;font-weight:800}
