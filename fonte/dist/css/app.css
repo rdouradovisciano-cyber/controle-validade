@@ -2570,3 +2570,29 @@ html:root body.vidro #plLista:not([data-visao=grade]) .pitem{margin:46px 0 0!imp
 /* v622 — abertura estável: enquanto o recorte da silhueta é preparado, a foto original continua visível.
    Antes, .silw deixava o <img> em opacity:0 e a imagem só aparecia depois do canvas terminar. */
 #list .ico-lado.silw .ico-img,#list .pgp .pgt.silw img,#plLista .ico-lado.silw .ico-img{opacity:1!important}
+
+/* v624 — várias notas por produto: etiquetas com cor e ícone por tipo, autor e hora pequenos */
+.pi-tags{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:5px;margin:12px 16px 2px}
+.nt-lista{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.pi-tag{display:inline-flex;align-items:center;gap:5px;max-width:100%;padding:3px 9px 3px 7px;border-radius:7px;border:1px solid var(--tb);border-left:3px solid var(--tl);background:var(--tf);color:var(--tt);line-height:1.3}
+.pi-tag i{font-style:normal;font-size:13px}
+.pi-tag b{font-size:12.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pi-tag small{font-size:10.5px;font-weight:700;opacity:.7;white-space:nowrap}
+.pi-tagx{border:0;background:transparent;color:inherit;font-size:19px;line-height:1;padding:0 2px 0 4px;opacity:.7;min-width:26px;min-height:26px}
+.tp-rb{--tf:#dcf5df;--tb:#8fd39a;--tl:#1f9d3a;--tt:#0f3d1a}
+.tp-cm{--tf:#dcecff;--tb:#8fbdf0;--tl:#1d6fd6;--tt:#0d2f5c}
+.tp-pm{--tf:#ffe0dc;--tb:#f0a39b;--tl:#d62a1d;--tt:#5c120d}
+.tp-et{--tf:#e9e9ee;--tb:#bdbdc9;--tl:#6b6b7a;--tt:#2a2a33}
+.tp-lc{--tf:#ece0fa;--tb:#c3a6ec;--tl:#7a3fd1;--tt:#35155e}
+.tp-dc{--tf:#ffe9d2;--tb:#f0c08a;--tl:#e07a00;--tt:#5c3000}
+.tp-al{--tf:#fff3c4;--tb:#e6c34a;--tl:#e0a800;--tt:#4a3a00}
+.tp-ot{--tf:#f1f1f1;--tb:#cfcfcf;--tl:#9a9a9a;--tt:#333}
+html[data-tema=dark] .tp-rb{--tf:#16341d;--tb:#2c6a3a;--tt:#bdf0c6}
+html[data-tema=dark] .tp-cm{--tf:#14304f;--tb:#2b5f9c;--tt:#c4defc}
+html[data-tema=dark] .tp-pm{--tf:#4a1a16;--tb:#8a3a33;--tt:#ffd0cb}
+html[data-tema=dark] .tp-et{--tf:#2c2c34;--tb:#50505e;--tt:#e0e0ea}
+html[data-tema=dark] .tp-lc{--tf:#2f1d4d;--tb:#5f3c99;--tt:#e2d0fb}
+html[data-tema=dark] .tp-dc{--tf:#4a2b0c;--tb:#8a5620;--tt:#ffdcb8}
+html[data-tema=dark] .tp-al{--tf:#4a3a08;--tb:#8a7020;--tt:#fff0b0}
+html[data-tema=dark] .tp-ot{--tf:#2a2a2a;--tb:#4a4a4a;--tt:#e6e6e6}
+.pitem.open .pi-tags{display:none}
