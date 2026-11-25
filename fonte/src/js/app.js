@@ -2873,6 +2873,15 @@ function plAgua(p) {   // ponto de partida simples; o certo é olhar a planta e 
   if (/Orquídea/.test(nm)) return { modo: "Regue a casca por cima, deixe escorrer e esvazie o pratinho. Sempre no mesmo dia da semana.", ml: v === "P" ? 50 : 100, teste: "Raízes prateadas pedem água; verdes, ainda não." };
   const pouca = PL_POUCA.includes(nm), so = /Poinsétia|Pinheiro/.test(nm), base = v === "P" ? 100 : v === "G" ? 400 : 200;
   return { modo: (so ? "Água SÓ na terra, nunca nas folhas. " : "") + "Regue devagar até começar a escorrer pelo furo e esvazie o pratinho.", ml: pouca ? base / 2 : base, teste: pouca ? "Só regue com a terra bem seca (dedo ou palito saem limpos)." : dedo }; }
+// v621: regras de rega passadas pela instrutora da loja (áudio de 25/11/2026). Aparecem no guia do topo e na ficha de cada planta.
+const PL_REGRAS = [
+  ["Orquídeas", "1 vez por semana. Se molhar mais de uma vez, elas morrem. Exemplo dado: segunda-feira.", /Orqu[ií]dea/i],
+  ["Zamioculca", "1 vez por semana.", /Zamioculc/i],
+  ["Flor de Natal (poinsétia, a vermelha)", "2 vezes por semana, água SÓ na terra. A folha vermelha é pintada e queima se molhar em cima: uma da loja já está meio queimada por isso. Exemplo dado: sexta-feira.", /Poins[eé]tia|Flor de Natal/i],
+  ["Pinheiro de Natal (o «espinhão», árvore de Natal)", "3 vezes por semana, água SÓ na terra para não queimar a folhinha.", /Pinheiro/i],
+  ["Plantas de balde grande e penduradas (jiboia, samambaia)", "3 vezes por semana. É raro aparecerem.", /balde|pendurada|Jiboia|Samambaia/i],
+  ["Demais plantas", "Água normal, seguindo a rotina indicada. Exemplo dado: quarta-feira.", null]];
+const plRegra = p => PL_REGRAS.find(r => r[2] && r[2].test((p.e || "") + " " + (p.n || ""))) || PL_REGRAS[PL_REGRAS.length - 1];
 const plAguaTxt = a => a.ml ? plCopo(a.ml) : "";
 const plHaDias = s => { const d = plData(s); if (!d) return ""; const n = Math.round((plHoje() - d) / 864e5); return n <= 0 ? "hoje" : n === 1 ? "ontem" : "há " + n + " dias"; };
 const plHist = p => Array.isArray(p.h) ? p.h : [];
@@ -2979,6 +2988,7 @@ function plDetalhe(id) { const p = plL.find(x => x.id === id); if (!p) return;
     <p class="plst ${plCls(d)}">${plStatus(d)}${adia ? " (adiada: terra úmida)" : ""}</p>
     <dl class="pldl">${lin("Espécie", p.e)}${lin("Onde fica", p.loc)}${lin("Vasos", (Number(p.q) || 1) > 1 ? String(p.q) : "")}${lin("Tamanho do vaso", PL_VASOS[p.v] || PL_VASOS.M)}${lin("Água por rega", plAguaTxt(ag))}${lin("Rega", plVz(p) ? plVz(p) + (plVz(p) === 1 ? " vez" : " vezes") + " por semana" : "a cada " + pi + " dia" + (pi > 1 ? "s" : "") + (ajust ? " (ajustado pela estação)" : ""))}${lin("Última rega", p.u ? plBr(p.u) + " (" + plHaDias(p.u) + ")" : "ainda não regada")}${lin("Próxima rega", plBr(plIso(plProx(p))))}${lin("Últimas regas", plHist(p).length > 1 ? hist : "")}${lin("Luz", sp ? sp[2] : "")}</dl>
     <div class="plcuid plcomo"><b>Como regar</b><p>${esc(ag.modo)}</p><p>${esc(ag.teste)}</p><p class="plmut">Quantidade é ponto de partida (1 copo = 200 ml): o certo é regar até a terra ficar úmida, sem encharcar.</p></div>
+    <div class="plcuid plregra"><b>Regra da loja: ${esc(plRegra(p)[0])}</b><p>${esc(plRegra(p)[1])}</p></div>
     ${sp ? `<div class="plcuid"><b>Cuidados</b><p>${esc(sp[3])}</p></div>` : ""}
     ${sp && sp[5] ? `<div class="plficha"><b>Ficha da espécie · o app sabe cuidar dela</b>${sp[5].map(x => `<p>${esc(x)}</p>`).join("")}</div>` : ""}
     ${p.o ? `<div class="plcuid"><b>Anotações</b><p>${esc(p.o)}</p></div>` : ""}
@@ -3062,6 +3072,9 @@ function plAbrir() { if (!ehRenato()) return; plInicia(); plFotosInicia(); if (!
         <p><b>3. Quantidade de partida:</b> vaso pequeno ½ copo (100 ml), médio 1 copo (200 ml), grande 2 copos (400 ml). Suculentas e cactos: metade.</p>
         <p><b>4. Na dúvida, espere.</b> Água demais mata mais planta do que água de menos.</p>
         <p><b>5. Água só na terra</b> na poinsétia e no pinheiro de Natal: folha molhada queima.</p></details>
+      <details class="plreg plrloja"><summary>Regras da loja (passadas pela instrutora)</summary>
+        ${PL_REGRAS.map(r => `<p><b>${esc(r[0])}:</b> ${esc(r[1])}</p>`).join("")}
+        <p>Ela vai colocar um número em cima de cada vaso para facilitar. Quando chegar, toque em 1x, 2x ou 3x no cadastro da planta.</p></details>
       <div id="plAv" class="plav"></div>
       <input id="plQ0" class="plq" type="search" placeholder="Buscar planta, espécie ou local" autocomplete="off" aria-label="Buscar planta">
       <div id="plLista"></div>`;
