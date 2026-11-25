@@ -12,7 +12,7 @@ const iso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0
 const ago = n => { const d = new Date(); d.setDate(d.getDate() - n); return iso(d); };
 
 const ctx = await br.newContext({ viewport: { width: 390, height: 860 }, deviceScaleFactor: 2, permissions: [] });
-await ctx.addInitScript(() => { if (localStorage.getItem("s")) return; localStorage.setItem("s", "1"); localStorage.setItem("validamais-operador", JSON.stringify("Renato")); localStorage.setItem("validamais-perfil", "Admin"); sessionStorage.setItem("vm-notif-pedido", "1"); });
+await ctx.addInitScript(() => { if (localStorage.getItem("s")) return; localStorage.setItem("s", "1"); localStorage.setItem("validamais-plantas-v622", "true"); localStorage.setItem("validamais-operador", JSON.stringify("Renato")); localStorage.setItem("validamais-perfil", "Admin"); sessionStorage.setItem("vm-notif-pedido", "1"); });
 const pg = await ctx.newPage(); const errs = []; pg.on("pageerror", e => errs.push(String(e))); pg.on("console", m => { if (m.type() === "error") errs.push("console: " + m.text()); }); pg.on("response", r => { if (r.status() === 404) errs.push("404 " + r.url().replace(/^http:\/\/localhost:\d+/, "")); });
 await pg.goto(`http://localhost:${srv.address().port}/`); await pg.waitForTimeout(3500);
 const txt = () => pg.evaluate(() => document.getElementById("plV").innerText.replace(/\s+/g, " "));
@@ -122,6 +122,13 @@ await pg.click("#plMx"); await pg.waitForTimeout(200);
 await pg.evaluate(() => { const l = JSON.parse(localStorage.getItem("validamais-plantas")); l.forEach(x => { if (x.e === "Zamioculcas") { x.i = 15; delete x.z; } }); localStorage.setItem("validamais-plantas", JSON.stringify(l)); localStorage.removeItem("validamais-plantas-v619"); });
 await pg.reload(); await pg.waitForTimeout(3500); await pg.click("#moreBtn"); await pg.waitForTimeout(300); await pg.click("#mnPlantas"); await pg.waitForTimeout(800); L = await lista();
 ok("migração: Zamioculca antiga de 15 vai para 7 dias com selo 1x", L.filter(x => x.e === "Zamioculcas").every(x => x.i === 7 && x.z === 1), JSON.stringify(L.filter(x => x.e === "Zamioculcas").map(x => [x.i, x.z])));
+// ---- v622: plantas sem data de rega viram «regadas em 25/11»; quem já tem data não muda ----
+await pg.evaluate(() => { const l = JSON.parse(localStorage.getItem("validamais-plantas")); l[0].u = ""; delete l[0].h; l[1].u = "2026-11-20"; l[1].h = ["2026-11-20"]; localStorage.setItem("validamais-plantas", JSON.stringify(l)); localStorage.removeItem("validamais-plantas-v622"); window.__p = [l[0].id, l[1].id]; sessionStorage.setItem("ids", JSON.stringify(window.__p)); });
+const ids622 = await pg.evaluate(() => JSON.parse(sessionStorage.getItem("ids")));
+await pg.reload(); await pg.waitForTimeout(3500); await pg.click("#moreBtn"); await pg.waitForTimeout(300); await pg.click("#mnPlantas"); await pg.waitForTimeout(800);
+L = await lista();
+ok("sem data → regada em 25/11 (histórico junto)", (() => { const x = L.find(p => p.id === ids622[0]); return x.u === "2026-11-25" && x.h[0] === "2026-11-25"; })());
+ok("quem já tinha data não muda", L.find(p => p.id === ids622[1]).u === "2026-11-20");
 // ---- todas as plantas com foto de verdade (silhueta): nada pode se sobrepor ----
 await pg.evaluate(() => { const c = document.createElement("canvas"); c.width = c.height = 240; const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, 240, 240); x.fillStyle = "#2e8b3e"; x.beginPath(); x.arc(120, 100, 70, 0, 7); x.fill(); x.fillStyle = "#7a4a2a"; x.fillRect(80, 160, 80, 60);
   const img = c.toDataURL("image/jpeg", .8), l = JSON.parse(localStorage.getItem("validamais-plantas")), f = {}; l.forEach(p => { f[p.id] = img; p.f = 1; }); localStorage.setItem("validamais-plantas-fotos", JSON.stringify(f)); localStorage.setItem("validamais-plantas", JSON.stringify(l)); });

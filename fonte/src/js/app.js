@@ -2946,7 +2946,12 @@ function plAjusta() { if (store.get(PL_AJ_K, false)) return; store.set(PL_AJ_K, 
     if (plMesmaEsp(p.e, "Zamioculcas") && Number(p.i) === 15) { p.i = 7; m++; }
     if (!p.z && Number(p.i) === c[1] && PL_VZ_CAT[c[1]]) { p.z = PL_VZ_CAT[c[1]]; m++; } });
   if (m) { plSalva(); plPaint(); plBadge(); plAvisaCache(); } }
-function plGaranteNovas() { plAjusta(); if (store.get(PL_NOVAS_K, false)) return; store.set(PL_NOVAS_K, true);
+// v622: o Renato começou na quarta-feira 25/11/2026 e todas as plantas já tinham sido regadas naquele dia — as que estão sem data de rega ficam como «regadas em 25/11» (uma vez só; quem já tem data não muda)
+const PL_INI_K = "validamais-plantas-v622", PL_INI_DIA = "2026-11-25";
+function plInicio() { if (store.get(PL_INI_K, false) || !plL.length) return; store.set(PL_INI_K, true); let m = 0;
+  plL.forEach(p => { if (p.u) return; p.u = PL_INI_DIA; p.h = [PL_INI_DIA]; delete p.ad; m++; });
+  if (m) { plSalva(); plPaint(); plBadge(); plAvisaCache(); toast(m + (m === 1 ? " planta marcada" : " plantas marcadas") + " como regadas na quarta, 25/11."); } }
+function plGaranteNovas() { plAjusta(); plInicio(); if (store.get(PL_NOVAS_K, false)) return; store.set(PL_NOVAS_K, true);
   let add = 0;
   PL_NOVAS.forEach(e => { if (plL.some(p => plMesmaEsp(p.e, e))) return;
     const c = plEspec(e); plL.push({ id: uid().slice(0, 8), n: "", e, loc: "", q: 1, i: c ? c[1] : 7, u: "", o: "", f: 0 }); add++; });
