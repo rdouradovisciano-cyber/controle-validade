@@ -42,7 +42,11 @@ await pg.click("#toast button"); await pg.waitForTimeout(300);
 L = await lista(); ok("Desfazer tira o adiamento", !(L.find(p => p.id === idAd) || {}).ad);
 
 // ---- Reguei: histórico; retirar volta para a rega anterior ----
-await pg.click(`[data-pr="${idAd}"]`); await pg.waitForTimeout(400);
+await pg.click(`[data-pr="${idAd}"]`); await pg.waitForTimeout(350);
+ok("«Reguei» vira regador animado («Regando…»)", await pg.evaluate(id => { const b = document.querySelector(`[data-pr="${id}"]`); return !!b && b.classList.contains("regando") && /i-regador/.test(b.innerHTML) && /Regando/.test(b.textContent); }, idAd));
+ok("cartão ganha o brilho", await pg.evaluate(id => document.querySelector(`#plLista [data-pid="${id}"]`).classList.contains("regou"), idAd));
+await pg.screenshot({ path: SHOT + "/p615_8_regando.png" });
+await pg.waitForTimeout(1000);
 L = await lista(); const pR = L.find(p => p.id === idAd);
 ok("Reguei grava última rega e histórico", pR.u === ago(0) && (pR.h || []).includes(ago(0)), JSON.stringify(pR));
 await pg.click(`#plLista [data-pid="${idAd}"] .pi-main`); await pg.waitForTimeout(300);

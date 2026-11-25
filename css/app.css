@@ -2551,3 +2551,15 @@ body.vidro #plLista:not([data-visao=grade]) .pitem .pi-act .plum{flex:none;min-h
 /* a foto «salta» uns 26 px acima do cartão: sem folga ela cobria o botão do cartão de cima e o título do grupo */
 html:root body.vidro #plLista:not([data-visao=grade]) .pitem{margin:46px 0 0!important}
 #plLista{padding-bottom:24px}
+/* v618 — animação do «Reguei»: regador inclina, gotas caem, cartão brilha */
+.plv .pi-act .primary{position:relative;overflow:visible}
+.plv .primary.regando{pointer-events:none}
+.plrg{position:relative;display:inline-flex;margin-right:6px}
+.plrg .ic{transform-origin:30% 80%;animation:plInclina 1s ease-in-out forwards}
+.plgt{position:absolute;top:9px;width:4px;height:7px;border-radius:50% 50% 50% 50%/65% 65% 35% 35%;background:#2f8fe8;opacity:0;animation:plGota .55s ease-in infinite}
+.plgt:nth-of-type(1){left:19px}.plgt:nth-of-type(2){left:22px;animation-delay:.18s}.plgt:nth-of-type(3){left:25px;animation-delay:.36s}
+@keyframes plInclina{0%{transform:rotate(0)}30%,80%{transform:rotate(24deg)}100%{transform:rotate(0)}}
+@keyframes plGota{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(20px)}}
+.pitem.regou{animation:plBrilho 1s ease-out}
+@keyframes plBrilho{0%,100%{box-shadow:0 0 0 0 rgba(47,143,232,0)}40%{box-shadow:0 0 0 3px rgba(47,143,232,.6),0 0 26px rgba(47,143,232,.5)}}
+@media (prefers-reduced-motion:reduce){.plrg .ic,.plgt,.pitem.regou{animation:none}}

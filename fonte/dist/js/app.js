@@ -2902,6 +2902,13 @@ function plRegou(id, iso) { const p = plL.find(x => x.id === id); if (!p) return
 function plRetiraRega(id) { const p = plL.find(x => x.id === id); if (!p || !p.u) return; const s = plSnap(p); p.h = plHist(p).filter(x => x !== p.u); p.u = p.h.length ? p.h[p.h.length - 1] : ""; delete p.ad;
   plSalva(); plRep(); plDetalhe(id);
   toast("Rega retirada: " + plNome(p) + ".", "Desfazer", () => plRest(id, s)); }
+// v618: ao tocar em «Reguei» o desenho vira um regador que inclina e pinga, o cartão brilha e só depois a rega é registrada (sem movimento se o aparelho pede menos animação)
+function plAnimaRega(b, fim) { if (!b || b.dataset.rg) return; b.dataset.rg = "1";
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return fim();
+  b.classList.add("regando"); b.innerHTML = `<span class="plrg">${ico("regador")}<i class="plgt"></i><i class="plgt"></i><i class="plgt"></i></span>Regando…`;
+  const a = b.closest(".pitem"); if (a) a.classList.add("regou");
+  try { navigator.vibrate && navigator.vibrate(30); } catch (e) {}
+  setTimeout(fim, 1000); }
 // v615: terra ainda úmida no teste do dedo → empurra a próxima rega para amanhã (pode repetir quantos dias precisar)
 function plAdia(id) { const p = plL.find(x => x.id === id); if (!p) return; const s = plSnap(p), a = plHoje(); a.setDate(a.getDate() + 1); p.ad = plIso(a);
   plSalva(); plRep(); plFecha();
@@ -2963,7 +2970,7 @@ function plDetalhe(id) { const p = plL.find(x => x.id === id); if (!p) return;
     <label for="plMdt">Regou em outro dia</label><div class="plurow"><input type="date" id="plMdt" value="${plIso(plHoje())}" max="${plIso(plHoje())}"><button type="button" class="secondary" id="plMd">Registrar</button></div>
     <button type="button" class="secondary plbig" id="plMe">${ico("lapis")}Editar planta</button><button type="button" class="secondary plbig" id="plMcare">${ico("bus")}Buscar cuidados na internet</button><button type="button" class="secondary plbig" id="plMnet">${ico("bus")}Buscar foto na internet</button></section>`;
   $("plMx").onclick = plFecha;
-  $("plMr").onclick = () => { plFecha(); plRegou(id); };
+  $("plMr").onclick = () => plAnimaRega($("plMr"), () => { plFecha(); plRegou(id); });
   $("plMad").onclick = () => plAdia(id);
   if ($("plMun")) $("plMun").onclick = () => plRetiraRega(id);
   $("plMd").onclick = () => { const v = $("plMdt").value; if (!plData(v)) return toast("Escolha a data."); plFecha(); plRegou(id, v); };
@@ -3045,7 +3052,7 @@ function plAbrir() { if (!ehRenato()) return; plInicia(); plFotosInicia(); if (!
       if (e.target.closest("[data-pseed]")) return plSemeia();
       if (e.target.closest("#plNew") || e.target.closest("[data-pnew]")) return plForm(null);
       if (a) return plAviso(a.dataset.pav);
-      if (r) return plRegou(r.dataset.pr);
+      if (r) return plAnimaRega(r, () => plRegou(r.dataset.pr));
       if (c) return plDetalhe(c.dataset.pid); }; }
   document.body.classList.add("plOn"); plPaint(); }
 // ---- aviso de rega ----

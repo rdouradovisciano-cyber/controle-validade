@@ -1,7 +1,7 @@
 # NOTAS DO PROJETO — Valida+
 
 > Leia este arquivo no começo de toda conversa nova. Sem dados pessoais de propósito (o repositório é público).
-> Última atualização: 24/11/2026 · versão 617.
+> Última atualização: 24/11/2026 · versão 618.
 
 ## O que é
 App PWA de controle de validade de loja. JavaScript puro + Firebase Firestore, publicado no GitHub Pages
@@ -285,3 +285,4 @@ Setor novo, pedido para uso pessoal do Renato (substitui a antiga área Flores).
   - **Não testado**: Firebase real, `navigator.share` real no celular (no teste ele é simulado), câmera real. Ideias ainda não feitas: aviso das 08h também lembrando as fotos, adubo/poda com lembrete, agrupar por bancada, reconhecer a espécie pela foto.
 - v616: removida a etiqueta «Mandar foto» do cartão (a foto do WhatsApp é do conjunto todo, não de cada planta); «Falta foto» continua.
 - v617: **removido tudo do envio de fotos ao WhatsApp** em Plantas (a pedido): linha «Fotos para o WhatsApp» do topo, janela de seleção, botão no detalhe, `plZap*`, lembrete de 7 dias, ícone `i-zap` e CSS `.plz*`. Fica «Falta foto» no cartão. O campo `w` que a v615/v616 possam ter gravado no Firestore fica sem uso. As partes «WhatsApp» da v615 acima não existem mais. Teste: `plantas615-test.mjs` (29 verificações).
+- v618: **animação do «Reguei»** (Plantas, só Renato): `plAnimaRega(botão, fim)` troca o desenho da gota pelo regador (`i-regador`, inclina e pinga 3 gotas azuis), texto «Regando…», vibração curta e classe `.regou` no cartão; a rega só é registrada 1 s depois (`plRegou`). Vale no cartão (`data-pr`) e em «Reguei agora» do detalhe. Sem animação com `prefers-reduced-motion` (registra na hora). CSS «v618» no fim de `app.css`. O brilho do cartão (`plBrilho`) é discreto e pode estar encoberto por regras `!important` do vidro. Teste: `plantas615-test.mjs` (31 verificações).
