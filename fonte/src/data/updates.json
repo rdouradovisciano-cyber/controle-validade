@@ -1,5 +1,13 @@
 [
  {
+  "t": "2026-11-25T21:40:00-03:00",
+  "itens": [
+   "Perecíveis: área de notas mais limpa. O campo de escrever só abre em «＋ Outra» e os atalhos mostram só os que ainda não foram usados",
+   "Perecíveis: toque numa nota do cartão aberto para mudar o texto e escolher a cor (verde, azul, vermelho, amarelo, laranja, roxo ou cinza)",
+   "Faixa do modo normal ficou menor («Modo normal · voltar») e fora do botão de ler código"
+  ]
+ },
+ {
   "t": "2026-11-25T17:15:00-03:00",
   "itens": [
    "Renato (Admin): novo botão «Ver como usuário normal» no menu Mais mostra o app como o perfil comum; uma faixa roxa na tela volta ao modo Admin"

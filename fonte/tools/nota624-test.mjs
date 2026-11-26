@@ -21,8 +21,8 @@ ok("nota antiga (sem lista) aparece como etiqueta cinza «Etiqueta manual» sem 
 // adicionar 2 notas no mesmo produto
 const abre = id => pg.click(`.pitem[data-id="${id}"] .pi-main`).then(() => pg.waitForTimeout(250));
 await abre("p0");
-await pg.fill(".pitem.open .pi-nota input", "Rebaixa feita"); await pg.keyboard.press("Enter"); await pg.waitForTimeout(400);
-ok("campo fica vazio para adicionar a próxima", await pg.evaluate(() => { const i = document.querySelector(".pitem.open .pi-nota input"); return !i || i.value === ""; }));
+await pg.click(".pitem.open [data-ntmais]"); await pg.waitForTimeout(200); await pg.fill(".pitem.open .nt-novo", "Rebaixa feita"); await pg.keyboard.press("Enter"); await pg.waitForTimeout(400);
+ok("campo fica vazio para adicionar a próxima", await pg.evaluate(() => { const i = document.querySelector(".pitem.open .nt-novo"); return !i || i.value === ""; }));
 if (!(await pg.$(".pitem.open"))) await abre("p0");
 await pg.click('.pitem.open [data-ntf="Na câmara"]'); await pg.waitForTimeout(400);
 let n = await notas(); const e0 = n.p0;
@@ -41,16 +41,25 @@ await pg.screenshot({ path: SHOT + "/n624_lista.png" });
 await abre("p0"); await pg.click('.pitem.open .nt-lista .pi-tagx[data-ntdel="Rebaixa feita"]'); await pg.waitForTimeout(400);
 n = await notas(); ok("× tira só aquela nota", n.p0.l.length === 1 && n.p0.l[0].t === "Na câmara", JSON.stringify(n.p0.l));
 if (!(await pg.$(".pitem.open"))) await abre("p0");
-// o atalho funciona como liga/desliga
-await pg.click('.pitem.open [data-ntf="Na câmara"]'); await pg.waitForTimeout(400);
-n = await notas(); ok("tocar de novo no atalho tira a nota", !n.p0.l.length && !n.p0.t, JSON.stringify(n.p0));
+// v630: tocar na nota abre o editor (texto + cor)
+await pg.click('.pitem.open [data-nted="Na câmara"]'); await pg.waitForTimeout(300);
+ok("editor abre com campo e 7 cores", (await pg.$$(".pitem.open .nt-ed .nt-cor")).length === 7 && !!(await pg.$(".pitem.open [data-ntedt]")));
+await pg.click('.pitem.open [data-ntcor="pm"]'); await pg.waitForTimeout(300);
+n = await notas(); ok("cor escolhida fica gravada (vermelho)", n.p0.l[0].c === "pm", JSON.stringify(n.p0.l));
+ok("etiqueta passa a vermelha", /tp-pm/.test(await pg.evaluate(() => document.querySelector(".pitem.open .nt-lista .pi-tag").className)));
+await pg.fill(".pitem.open [data-ntedt]", "Na câmara fria"); await pg.click(".pitem.open [data-ntok]"); await pg.waitForTimeout(300);
+n = await notas(); ok("texto editado e cor mantida", n.p0.l[0].t === "Na câmara fria" && n.p0.l[0].c === "pm" && n.p0.t === "Na câmara fria", JSON.stringify(n.p0));
+if (!(await pg.$(".pitem.open"))) await abre("p0");
+ok("área limpa: sem campo de texto aberto até tocar em ＋ Outra", !(await pg.$(".pitem.open .nt-novo")) && !!(await pg.$(".pitem.open [data-ntmais]")));
+await pg.screenshot({ path: SHOT + "/n630_aberto.png" });
+await pg.click('.pitem.open .nt-lista .pi-tagx'); await pg.waitForTimeout(400);
+n = await notas(); ok("× tira a última nota", !n.p0.l.length && !n.p0.t, JSON.stringify(n.p0));
 // repetida não duplica; limite de 5
 await abre("p1");
-for (const x of ["A1", "A2", "A2", "A3", "A4", "A5", "A6"]) { await pg.fill(".pitem.open .pi-nota input", x); await pg.keyboard.press("Enter"); await pg.waitForTimeout(250); if (!(await pg.$(".pitem.open"))) await abre("p1"); }
+for (const x of ["A1", "A2", "A2", "A3", "A4", "A5", "A6"]) { if (!(await pg.$(".pitem.open .nt-novo"))) { await pg.click(".pitem.open [data-ntmais]"); await pg.waitForTimeout(150); } await pg.fill(".pitem.open .nt-novo", x); await pg.keyboard.press("Enter"); await pg.waitForTimeout(250); if (!(await pg.$(".pitem.open"))) await abre("p1"); }
 n = await notas(); ok("repetida não duplica e o limite é 5 notas", n.p1.l.length === 5 && !n.p1.l.some(x => x.t === "A6"), JSON.stringify(n.p1.l.map(x => x.t)));
 ok("aviso do limite apareceu", await pg.evaluate(() => /No máximo 5/.test(document.getElementById("toast").innerText)));
 // promoção continua como explosão na foto e fora das etiquetas
-await pg.fill(".pitem.open .pi-nota input", ""); 
 await abre("p1"); 
 // sobrevive a recarregar
 await pg.reload(); await pg.waitForTimeout(4500);
