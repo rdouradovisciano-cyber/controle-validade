@@ -10,7 +10,7 @@ const dt = n => { const d = new Date(); d.setDate(d.getDate() + n); return d.toI
 const ps = Array.from({ length: 12 }, (_, i) => ({ id: "p" + i, name: "Produto " + String(i + 1).padStart(2, "0"), barcode: "78900" + (1000 + i), quantity: "1", expiry: dt(i % 6), category: "Perecíveis", createdAt: Date.now(), addedBy: "T" }));
 const L = (t, c) => ({ t, por: "Ana", em: Date.now(), l: [{ t, por: "Ana", em: Date.now(), ...(c ? { c } : {}) }] });
 const notas = { p0: L("Rebaixa feita"), p1: L("Rebaixa feita"), p2: L("Rebaixa feita"), p3: L("Na câmara"), p4: L("Na câmara"), p5: { t: "Na câmara · Rebaixa feita", por: "Ana", em: Date.now(), l: [{ t: "Na câmara", por: "A", em: 1 }, { t: "Rebaixa feita", por: "A", em: 1 }] } };
-const ctx = await br.newContext({ viewport: { width: 411, height: 860 } });
+const ctx = await br.newContext({ viewport: { width: 411, height: 860 }, hasTouch: true });
 await ctx.addInitScript(([ps, notas]) => { if (localStorage.getItem("s")) return; localStorage.setItem("s", "1"); localStorage.setItem("validamais-dica-deslizar", "1"); localStorage.setItem("validamais-dica-scrub", "1"); localStorage.setItem("validamais-operador", JSON.stringify("Ronaldo Silva")); localStorage.setItem("validamais-perfil", "Perecíveis"); localStorage.setItem("validamais-produtos-v1", JSON.stringify(ps)); localStorage.setItem("validamais-notas", JSON.stringify(notas)); }, [ps, notas]);
 const pg = await ctx.newPage(); const errs = []; pg.on("pageerror", e => errs.push(e.message));
 await pg.goto(`http://localhost:${srv.address().port}/`); await pg.waitForTimeout(4000);
@@ -29,5 +29,12 @@ await pg.click('[data-ntfil=""]'); await pg.waitForTimeout(300); await pg.click(
 n = await nomes(); ok("«Sem nota» mostra os 6 sem etiqueta", n.length === 6 && !n.some(x => ["p0", "p1", "p2", "p3", "p4", "p5"].includes(x)), JSON.stringify(n));
 await pg.click('[data-ntfil=""]'); await pg.waitForTimeout(300);
 ok("«✕ Todos» limpa o filtro", (await nomes()).length === 12);
+// v640: deslizar a faixa de etiquetas não troca de aba
+const swipe = async (x1, y, x2) => { const c = await ctx.newCDPSession(pg); const tp = (x, yy) => [{ x, y: yy }]; await c.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: tp(x1, y) }); for (let i = 1; i <= 8; i++) await c.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: tp(x1 + (x2 - x1) * i / 8, y) }); await c.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] }); await pg.waitForTimeout(500); };
+const yb = await pg.evaluate(() => { const r = document.getElementById("ntFiltro").getBoundingClientRect(); return r.top + r.height / 2; });
+await swipe(330, yb, 40);
+ok("deslizar a faixa de etiquetas NÃO troca de aba", await pg.evaluate(() => (document.body.dataset.tab || "Loja") === "Loja"), await pg.evaluate(() => document.body.dataset.tab));
+await swipe(330, 600, 40);
+ok("deslizar na lista ainda troca de aba (comportamento antigo)", await pg.evaluate(() => document.body.dataset.tab === "Pesaveis"), await pg.evaluate(() => document.body.dataset.tab));
 ok("sem erros de JS", errs.length === 0, errs.join(" | "));
 console.log(res.join("\n")); await br.close(); srv.close();

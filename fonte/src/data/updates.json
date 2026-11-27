@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-27T18:40:00-03:00",
+  "itens": [
+   "Corrigido: deslizar a faixa de etiquetas para o lado não troca mais de aba (Validades/Pesáveis)"
+  ]
+ },
+ {
   "t": "2026-11-27T18:20:00-03:00",
   "itens": [
    "Listas grandes: a barra de rolagem do sistema some e fica só a barra amarela na lateral"
