@@ -2653,3 +2653,7 @@ html:not([data-tema=dark]) .ntf em{background:rgba(255,255,255,.65)}
 .ntf.on{background:var(--tl,#e5b92b);border-color:var(--tl,#e5b92b);color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
 .ntf.on em{background:rgba(0,0,0,.28);color:#fff}
 .ntf-x{--tb:#888;--tf:transparent;--tt:inherit}
+
+/* v639: com a barra rápida ligada, some a barra de rolagem do sistema (só fica uma barra na lateral) */
+html.scrubOn,html.scrubOn body{scrollbar-width:none;-ms-overflow-style:none}
+html.scrubOn::-webkit-scrollbar,html.scrubOn body::-webkit-scrollbar{display:none;width:0;height:0}

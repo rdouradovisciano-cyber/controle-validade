@@ -4080,7 +4080,7 @@ window.addEventListener("scroll", () => { if (window.scrollX > 0) window.scrollT
   const grupoNo = () => { const topo = 140; const gs = [...document.querySelectorAll("#list .pgh")].filter(g => g.getBoundingClientRect().top <= topo); const g = gs[gs.length - 1]; return g ? g.textContent.replace(/\s+/g, " ").trim().slice(0, 28) : ""; };
   const pos = () => { const r = bar.getBoundingClientRect(), t = r.height - th.offsetHeight; th.style.transform = `translateY(${Math.round(Math.min(1, Math.max(0, window.scrollY / maxScroll())) * Math.max(0, t))}px)`; };
   const mostra = () => { const lista = $("list"), n = document.querySelectorAll(IT).length, ver = !!lista && lista.offsetParent !== null && n >= MIN && !document.body.classList.contains("dfocus") && !document.querySelector(".askbg, .modal:not(.hidden)");
-    bar.classList.toggle("on", ver); if (!ver) bolha.classList.remove("on"); return ver; };
+    bar.classList.toggle("on", ver); document.documentElement.classList.toggle("scrubOn", ver); if (!ver) bolha.classList.remove("on"); return ver; };
   const upd = () => { if (ocupado) return; ocupado = true; requestAnimationFrame(() => { ocupado = false; if (mostra()) pos(); }); };
   const vai = ev => { const r = bar.getBoundingClientRect(), f = Math.min(1, Math.max(0, (ev.clientY - r.top - th.offsetHeight / 2) / Math.max(1, r.height - th.offsetHeight)));
     window.scrollTo({ top: f * maxScroll(), behavior: "instant" }); pos();
