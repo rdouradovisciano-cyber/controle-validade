@@ -187,11 +187,12 @@ function ntFiltroPinta(cat) {
   base.forEach(p => { const l = notasDe(p.id); if (!l.length) sem++; l.forEach(x => { const k = norm(x.t), o = m.get(k) || { n: x.t, c: 0, cor: x.c }; o.c++; m.set(k, o); }); });
   [...ntSel].forEach(k => { if (k !== "__sem" && !m.has(k)) ntSel.delete(k); }); if (ntSel.has("__sem") && !sem) ntSel.delete("__sem");
   if (!m.size) { bar.classList.add("hidden"); bar.innerHTML = ""; return; }
-  const ch = [...m.entries()].sort((a, b) => b[1].c - a[1].c).slice(0, 10).map(([k, o]) => { const t = ntTipo(o.n), cor = NT_CORES.some(z => z[0] === o.cor) ? o.cor : t.c;
-    return `<button type="button" class="ntf tp-${cor}${ntSel.has(k) ? " on" : ""}" data-ntfil="${esc(k)}" aria-pressed="${ntSel.has(k)}"><i aria-hidden="true">${t.i}</i>${esc(o.n)}<em>${o.c}</em></button>`; });
-  if (sem) ch.push(`<button type="button" class="ntf tp-ot${ntSel.has("__sem") ? " on" : ""}" data-ntfil="__sem" aria-pressed="${ntSel.has("__sem")}">Sem nota<em>${sem}</em></button>`);
+  const info = new Map(), ch = [...m.entries()].sort((a, b) => b[1].c - a[1].c).slice(0, 12).map(([k, o]) => { const t = ntTipo(o.n), cor = NT_CORES.some(z => z[0] === o.cor) ? o.cor : t.c, ic = t.c === "ot" ? esc([...o.n.trim()].slice(0, 2).join("").toUpperCase()) : t.i; info.set(k, t.c === "ot" ? o.n : t.i + " " + o.n);
+    return `<button type="button" class="ntf tp-${cor}${ntSel.has(k) ? " on" : ""}" data-ntfil="${esc(k)}" aria-pressed="${ntSel.has(k)}" aria-label="${esc(o.n)}, ${o.c} itens" title="${esc(o.n)}"><i aria-hidden="true">${ic}</i><em>${o.c}</em></button>`; });
+  if (sem) { info.set("__sem", "Sem nota"); ch.push(`<button type="button" class="ntf tp-ot${ntSel.has("__sem") ? " on" : ""}" data-ntfil="__sem" aria-pressed="${ntSel.has("__sem")}" aria-label="Sem nota, ${sem} itens" title="Sem nota"><i aria-hidden="true">∅</i><em>${sem}</em></button>`); }
+  const qtd = base.filter(ntOk).length;
   bar.classList.remove("hidden");
-  bar.innerHTML = (ntSel.size ? `<button type="button" class="ntf ntf-x" data-ntfil="">✕ Todos</button>` : "") + ch.join("");
+  bar.innerHTML = ch.join("") + (ntSel.size ? `<button type="button" class="ntf ntf-x" data-ntfil="" aria-label="Limpar filtro">✕</button><div class="ntf-nome" role="status">${[...ntSel].map(k => esc(info.get(k) || k)).join(" + ")} · <b>${qtd}</b> ${qtd === 1 ? "item" : "itens"}</div>` : `<div class="ntf-dica">Toque num ícone para filtrar e ver o nome</div>`);
 }
 document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-ntfil]"); if (!b) return; const k = b.dataset.ntfil; if (!k) ntSel.clear(); else if (ntSel.has(k)) ntSel.delete(k); else ntSel.add(k); render(); });   // ntNovo = id com o campo «outra nota» aberto; ntEd = {id,t,v} nota sendo editada
 function notaEdita(id, t, novoT, cor) { const l = notasDe(id).map(x => norm(x.t) === norm(t) ? { ...x, t: (novoT || x.t).trim().slice(0, 60), ...(cor ? { c: cor } : {}) } : x); notaGrava(id, l); }

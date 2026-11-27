@@ -15,9 +15,9 @@ await ctx.addInitScript(([ps, notas]) => { if (localStorage.getItem("s")) return
 const pg = await ctx.newPage(); const errs = []; pg.on("pageerror", e => errs.push(e.message));
 await pg.goto(`http://localhost:${srv.address().port}/`); await pg.waitForTimeout(4000);
 const nomes = () => pg.evaluate(() => [...document.querySelectorAll("#list article.pitem")].map(a => a.dataset.id));
-const chips = () => pg.evaluate(() => [...document.querySelectorAll("#ntFiltro .ntf")].map(b => b.innerText.replace(/\s+/g, " ").trim()));
+const chips = () => pg.evaluate(() => [...document.querySelectorAll("#ntFiltro .ntf")].map(b => b.getAttribute("aria-label")));
 ok("campo de busca não aparece mais", await pg.evaluate(() => getComputedStyle(document.getElementById("search")).display === "none"));
-let c = await chips(); ok("botões de etiqueta com contagem", c.some(x => /Rebaixa feita 4/.test(x)) && c.some(x => /Na câmara 3/.test(x)) && c.some(x => /Sem nota 6/.test(x)), JSON.stringify(c));
+let c = await chips(); ok("botões de etiqueta com contagem", c.some(x => /Rebaixa feita, 4 itens/.test(x)) && c.some(x => /Na câmara, 3 itens/.test(x)) && c.some(x => /Sem nota, 6 itens/.test(x)), JSON.stringify(c));
 ok("começa com todos os 12 itens", (await nomes()).length === 12);
 await pg.screenshot({ path: SHOT + "/f638_barra.png" });
 await pg.click('[data-ntfil="rebaixa feita"]'); await pg.waitForTimeout(300);
@@ -25,6 +25,7 @@ let n = await nomes(); ok("«Rebaixa feita» mostra só os 4 com essa etiqueta",
 await pg.click('[data-ntfil="na camara"]'); await pg.waitForTimeout(300);
 n = await nomes(); ok("marcar também «Na câmara» soma (qualquer uma das duas)", n.length === 6, JSON.stringify(n));
 await pg.screenshot({ path: SHOT + "/f638_filtrado.png" });
+const nm = await pg.evaluate(() => (document.querySelector(".ntf-nome") || {}).innerText || ""); ok("ao tocar, o nome das etiquetas e a quantidade aparecem", /Rebaixa feita/.test(nm) && /Na câmara/.test(nm) && /6 itens/.test(nm), nm);
 await pg.click('[data-ntfil=""]'); await pg.waitForTimeout(300); await pg.click('[data-ntfil="__sem"]'); await pg.waitForTimeout(300);
 n = await nomes(); ok("«Sem nota» mostra os 6 sem etiqueta", n.length === 6 && !n.some(x => ["p0", "p1", "p2", "p3", "p4", "p5"].includes(x)), JSON.stringify(n));
 await pg.click('[data-ntfil=""]'); await pg.waitForTimeout(300);
