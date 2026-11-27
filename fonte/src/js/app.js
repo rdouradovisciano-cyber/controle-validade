@@ -4033,3 +4033,29 @@ if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) $("iosHint").c
   b.tabIndex = -1; b.onclick = () => { try { window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); } catch (e) { window.scrollTo(0, 0); } };
   window.addEventListener("scroll", upd, { passive: true }); document.addEventListener("click", () => setTimeout(upd, 60), true); window.addEventListener("resize", upd); }
 window.addEventListener("scroll", () => { if (window.scrollX > 0) window.scrollTo(0, window.scrollY); }, { passive: true });
+// v633: barra de rolagem rápida na lateral — arraste o dedo para percorrer a lista toda (mais de ~25 itens)
+(function scrubBarra() {
+  const IT = "#list article.pitem, #list article.product", MIN = 25;
+  const $ = id => document.getElementById(id), esc = t => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const bar = document.createElement("div"); bar.id = "scrub"; bar.setAttribute("aria-hidden", "true");
+  bar.innerHTML = '<i class="scrub-th"></i>'; const bolha = document.createElement("div"); bolha.id = "scrubBolha"; bolha.setAttribute("aria-hidden", "true");
+  document.body.appendChild(bar); document.body.appendChild(bolha);
+  const th = bar.firstChild; let arrasta = false, ultimo = null, ocupado = false;
+  const maxScroll = () => Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  const nomeNo = y => { const els = [...document.querySelectorAll(IT)]; if (!els.length) return ""; const topo = (($("top") || document.querySelector(".top") || {}).offsetHeight || 108) + 10; let f = els.find(e => e.getBoundingClientRect().top >= topo - 12) || els[els.length - 1];
+    const n = f.querySelector(".pi-nome, h3, .pname, b"); const tx = n ? ((n.firstChild && n.firstChild.nodeType === 3 ? n.firstChild.textContent : n.textContent) || "") : ""; return tx.replace(/\s+/g, " ").trim().slice(0, 40); };
+  const grupoNo = () => { const topo = 140; const gs = [...document.querySelectorAll("#list .pgh")].filter(g => g.getBoundingClientRect().top <= topo); const g = gs[gs.length - 1]; return g ? g.textContent.replace(/\s+/g, " ").trim().slice(0, 28) : ""; };
+  const pos = () => { const r = bar.getBoundingClientRect(), t = r.height - th.offsetHeight; th.style.transform = `translateY(${Math.round(Math.min(1, Math.max(0, window.scrollY / maxScroll())) * Math.max(0, t))}px)`; };
+  const mostra = () => { const lista = $("list"), n = document.querySelectorAll(IT).length, ver = !!lista && lista.offsetParent !== null && n >= MIN && !document.body.classList.contains("dfocus") && !document.querySelector(".askbg, .modal:not(.hidden)");
+    bar.classList.toggle("on", ver); if (!ver) bolha.classList.remove("on"); return ver; };
+  const upd = () => { if (ocupado) return; ocupado = true; requestAnimationFrame(() => { ocupado = false; if (mostra()) pos(); }); };
+  const vai = ev => { const r = bar.getBoundingClientRect(), f = Math.min(1, Math.max(0, (ev.clientY - r.top - th.offsetHeight / 2) / Math.max(1, r.height - th.offsetHeight)));
+    window.scrollTo({ top: f * maxScroll(), behavior: "instant" }); pos();
+    const nm = nomeNo(), gp = grupoNo(); bolha.innerHTML = (gp ? `<small>${esc(gp)}</small>` : "") + `<b>${esc(nm)}</b>`; bolha.style.top = Math.min(window.innerHeight - 70, Math.max(r.top, ev.clientY - 28)) + "px"; bolha.classList.add("on");
+    if (nm !== ultimo) { ultimo = nm; try { navigator.vibrate && navigator.vibrate(4); } catch (e) {} } };
+  bar.addEventListener("pointerdown", ev => { arrasta = true; bar.classList.add("drag"); try { bar.setPointerCapture(ev.pointerId); } catch (e) {} ev.preventDefault(); vai(ev); });
+  bar.addEventListener("pointermove", ev => { if (arrasta) { ev.preventDefault(); vai(ev); } });
+  const fim = () => { arrasta = false; ultimo = null; bar.classList.remove("drag"); bolha.classList.remove("on"); };
+  bar.addEventListener("pointerup", fim); bar.addEventListener("pointercancel", fim); bar.addEventListener("lostpointercapture", fim);
+  window.addEventListener("scroll", upd, { passive: true }); window.addEventListener("resize", upd); setInterval(upd, 1200); setTimeout(upd, 800);
+})();

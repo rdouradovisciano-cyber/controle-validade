@@ -2611,3 +2611,15 @@ html[data-tema=dark] .tp-ot{--tf:#2a2a2a;--tb:#4a4a4a;--tt:#e6e6e6}
 .nt-mais{border-style:dashed!important}
 .nt-novo{flex:1 1 140px;min-width:0;padding:8px 10px;border-radius:999px;font-size:15px;font-weight:600}
 #verComoFaixa{left:12px;transform:none;bottom:calc(14px + env(safe-area-inset-bottom));padding:6px 11px;font-size:12px;white-space:nowrap;opacity:.92}
+
+/* v633: barra de rolagem rápida (arrastar com o dedo) */
+#scrub{display:none;position:fixed;right:0;top:calc(var(--top-h) + env(safe-area-inset-top) + 12px);bottom:calc(120px + env(safe-area-inset-bottom));width:34px;z-index:40;touch-action:none;-webkit-user-select:none;user-select:none}
+#scrub.on{display:block}
+#scrub::before{content:"";position:absolute;right:7px;top:0;bottom:0;width:4px;border-radius:4px;background:rgba(255,255,255,.14)}
+html:not([data-tema=dark]) #scrub::before{background:rgba(0,0,0,.14)}
+.scrub-th{position:absolute;right:3px;top:0;width:12px;height:52px;border-radius:8px;background:#e5b92b;box-shadow:0 1px 6px rgba(0,0,0,.45);opacity:.85;transition:width .12s,opacity .12s}
+#scrub.drag .scrub-th{width:18px;opacity:1}
+#scrubBolha{display:none;position:fixed;right:46px;z-index:41;max-width:62vw;padding:8px 12px;border-radius:12px;background:rgba(15,15,20,.94);color:#fff;border:1px solid #e5b92b88;box-shadow:0 4px 14px rgba(0,0,0,.5);pointer-events:none}
+#scrubBolha.on{display:block}
+#scrubBolha small{display:block;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#e5b92b}
+#scrubBolha b{display:block;font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

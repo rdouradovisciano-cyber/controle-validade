@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-27T17:40:00-03:00",
+  "itens": [
+   "Listas grandes: barra de rolagem rápida na lateral direita. Arraste o dedo nela para percorrer a lista toda; uma etiqueta mostra o grupo e o produto onde você está"
+  ]
+ },
+ {
   "t": "2026-11-27T17:30:00-03:00",
   "itens": [
    "Cadastro: não é mais possível ter dois produtos com o mesmo código (EAN, PLU ou doação). Ao bipar, digitar ou salvar, o app avisa na hora e só deixa usar o produto que já existe ou corrigir o código",
