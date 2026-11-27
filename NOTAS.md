@@ -303,3 +303,4 @@ Setor novo, pedido para uso pessoal do Renato (substitui a antiga área Flores).
 - v640: `js/nav.js` (troca de aba por deslize) ignora toques em `.ntfbar` e `#scrub`; teste no filtro638-test (CDP touch). Regra: faixas rolando na horizontal devem entrar na lista `blocked` do nav.js.
 - v641: barra rápida sem trilho (`#scrub::before` oculto); só a alça amarela aparece.
 - v642: filtro de etiquetas compacto: botões só com ícone (tipo «ot» usa as 2 primeiras letras) + número, em linha que quebra (`flex-wrap`, sem rolagem lateral); ao tocar, filtra e a linha `.ntf-nome` mostra os nomes + total de itens; `title`/`aria-label` com o nome; `∅` = Sem nota.
+- v643: filtro de etiquetas em linha única (`.ntf-ln`, nowrap, botões encolhem até ~26px), quantidade como selo no canto superior direito do ícone; nome/total continuam numa linha abaixo ao tocar.

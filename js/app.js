@@ -192,7 +192,7 @@ function ntFiltroPinta(cat) {
   if (sem) { info.set("__sem", "Sem nota"); ch.push(`<button type="button" class="ntf tp-ot${ntSel.has("__sem") ? " on" : ""}" data-ntfil="__sem" aria-pressed="${ntSel.has("__sem")}" aria-label="Sem nota, ${sem} itens" title="Sem nota"><i aria-hidden="true">∅</i><em>${sem}</em></button>`); }
   const qtd = base.filter(ntOk).length;
   bar.classList.remove("hidden");
-  bar.innerHTML = ch.join("") + (ntSel.size ? `<button type="button" class="ntf ntf-x" data-ntfil="" aria-label="Limpar filtro">✕</button><div class="ntf-nome" role="status">${[...ntSel].map(k => esc(info.get(k) || k)).join(" + ")} · <b>${qtd}</b> ${qtd === 1 ? "item" : "itens"}</div>` : `<div class="ntf-dica">Toque num ícone para filtrar e ver o nome</div>`);
+  bar.innerHTML = `<div class="ntf-ln">${ch.join("")}${ntSel.size ? `<button type="button" class="ntf ntf-x" data-ntfil="" aria-label="Limpar filtro"><i aria-hidden="true">✕</i></button>` : ""}</div>` + (ntSel.size ? `<div class="ntf-nome" role="status">${[...ntSel].map(k => esc(info.get(k) || k)).join(" + ")} · <b>${qtd}</b> ${qtd === 1 ? "item" : "itens"}</div>` : `<div class="ntf-dica">Toque num ícone para filtrar e ver o nome</div>`);
 }
 document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-ntfil]"); if (!b) return; const k = b.dataset.ntfil; if (!k) ntSel.clear(); else if (ntSel.has(k)) ntSel.delete(k); else ntSel.add(k); render(); });   // ntNovo = id com o campo «outra nota» aberto; ntEd = {id,t,v} nota sendo editada
 function notaEdita(id, t, novoT, cor) { const l = notasDe(id).map(x => norm(x.t) === norm(t) ? { ...x, t: (novoT || x.t).trim().slice(0, 60), ...(cor ? { c: cor } : {}) } : x); notaGrava(id, l); }
