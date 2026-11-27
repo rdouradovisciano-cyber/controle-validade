@@ -2680,3 +2680,7 @@ html:not([data-tema=dark]) .ntf em{background:#111;color:#fff}
 .ntf.on em{background:#fff;color:#111;border-color:#111}
 .ntf-x{max-width:38px}
 .ntf-nome,.ntf-dica{flex:none;margin-top:6px}
+
+/* v644: «Produto na área» tem ícone próprio (🛒) e cor turquesa */
+.tp-ar{--tf:#d8f3f1;--tb:#8fd6d0;--tl:#0f9d94;--tt:#08403c}
+html[data-tema=dark] .tp-ar{--tf:#10332f;--tb:#2a6b65;--tt:#bdf0ea}

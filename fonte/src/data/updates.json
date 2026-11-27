@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-27T19:35:00-03:00",
+  "itens": [
+   "Etiqueta «Produto na área» agora tem ícone próprio (🛒) e cor turquesa, no cartão e no filtro"
+  ]
+ },
+ {
   "t": "2026-11-27T19:20:00-03:00",
   "itens": [
    "Filtro de etiquetas: só o ícone, com a quantidade no canto superior direito, todos em uma linha só"

@@ -9,7 +9,7 @@ const res = []; const ok = (n, c, x = "") => res.push((c ? "OK   " : "FALHA ") +
 const dt = n => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
 const ps = Array.from({ length: 12 }, (_, i) => ({ id: "p" + i, name: "Produto " + String(i + 1).padStart(2, "0"), barcode: "78900" + (1000 + i), quantity: "1", expiry: dt(i % 6), category: "Perecíveis", createdAt: Date.now(), addedBy: "T" }));
 const L = (t, c) => ({ t, por: "Ana", em: Date.now(), l: [{ t, por: "Ana", em: Date.now(), ...(c ? { c } : {}) }] });
-const notas = { p0: L("Rebaixa feita"), p1: L("Rebaixa feita"), p2: L("Rebaixa feita"), p3: L("Na câmara"), p4: L("Na câmara"), p5: { t: "Na câmara · Rebaixa feita", por: "Ana", em: Date.now(), l: [{ t: "Na câmara", por: "A", em: 1 }, { t: "Rebaixa feita", por: "A", em: 1 }] } };
+const notas = { p0: L("Rebaixa feita"), p1: L("Rebaixa feita"), p2: L("Rebaixa feita"), p3: L("Na câmara"), p4: L("Na câmara"), p6: L("Produto na area"), p5: { t: "Na câmara · Rebaixa feita", por: "Ana", em: Date.now(), l: [{ t: "Na câmara", por: "A", em: 1 }, { t: "Rebaixa feita", por: "A", em: 1 }] } };
 const ctx = await br.newContext({ viewport: { width: 411, height: 860 }, hasTouch: true });
 await ctx.addInitScript(([ps, notas]) => { if (localStorage.getItem("s")) return; localStorage.setItem("s", "1"); localStorage.setItem("validamais-dica-deslizar", "1"); localStorage.setItem("validamais-dica-scrub", "1"); localStorage.setItem("validamais-operador", JSON.stringify("Ronaldo Silva")); localStorage.setItem("validamais-perfil", "Perecíveis"); localStorage.setItem("validamais-produtos-v1", JSON.stringify(ps)); localStorage.setItem("validamais-notas", JSON.stringify(notas)); }, [ps, notas]);
 const pg = await ctx.newPage(); const errs = []; pg.on("pageerror", e => errs.push(e.message));
@@ -17,7 +17,8 @@ await pg.goto(`http://localhost:${srv.address().port}/`); await pg.waitForTimeou
 const nomes = () => pg.evaluate(() => [...document.querySelectorAll("#list article.pitem")].map(a => a.dataset.id));
 const chips = () => pg.evaluate(() => [...document.querySelectorAll("#ntFiltro .ntf")].map(b => b.getAttribute("aria-label")));
 ok("campo de busca não aparece mais", await pg.evaluate(() => getComputedStyle(document.getElementById("search")).display === "none"));
-let c = await chips(); ok("botões de etiqueta com contagem", c.some(x => /Rebaixa feita, 4 itens/.test(x)) && c.some(x => /Na câmara, 3 itens/.test(x)) && c.some(x => /Sem nota, 6 itens/.test(x)), JSON.stringify(c));
+let c = await chips(); ok("botões de etiqueta com contagem", c.some(x => /Rebaixa feita, 4 itens/.test(x)) && c.some(x => /Na câmara, 3 itens/.test(x)) && c.some(x => /Sem nota, 5 itens/.test(x)), JSON.stringify(c));
+ok("«Produto na area» tem ícone 🛒 (não letras)", await pg.evaluate(() => { const b = document.querySelector('[data-ntfil="produto na area"] i'); return !!b && b.textContent === "🛒"; }));
 ok("começa com todos os 12 itens", (await nomes()).length === 12);
 await pg.screenshot({ path: SHOT + "/f638_barra.png" });
 await pg.click('[data-ntfil="rebaixa feita"]'); await pg.waitForTimeout(300);
@@ -27,7 +28,7 @@ n = await nomes(); ok("marcar também «Na câmara» soma (qualquer uma das duas
 await pg.screenshot({ path: SHOT + "/f638_filtrado.png" });
 const nm = await pg.evaluate(() => (document.querySelector(".ntf-nome") || {}).innerText || ""); ok("ao tocar, o nome das etiquetas e a quantidade aparecem", /Rebaixa feita/.test(nm) && /Na câmara/.test(nm) && /6 itens/.test(nm), nm);
 await pg.click('[data-ntfil=""]'); await pg.waitForTimeout(300); await pg.click('[data-ntfil="__sem"]'); await pg.waitForTimeout(300);
-n = await nomes(); ok("«Sem nota» mostra os 6 sem etiqueta", n.length === 6 && !n.some(x => ["p0", "p1", "p2", "p3", "p4", "p5"].includes(x)), JSON.stringify(n));
+n = await nomes(); ok("«Sem nota» mostra os 6 sem etiqueta", n.length === 5 && !n.some(x => ["p0", "p1", "p2", "p3", "p4", "p5", "p6"].includes(x)), JSON.stringify(n));
 await pg.click('[data-ntfil=""]'); await pg.waitForTimeout(300);
 ok("«✕ Todos» limpa o filtro", (await nomes()).length === 12);
 // v640: deslizar a faixa de etiquetas não troca de aba
