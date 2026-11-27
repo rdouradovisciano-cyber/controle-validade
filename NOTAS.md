@@ -301,3 +301,4 @@ Setor novo, pedido para uso pessoal do Renato (substitui a antiga área Flores).
 - v638: **filtro por etiqueta no lugar da busca**: `#search` ficou oculto (`hidden`, valor sempre vazio, ainda referenciado pelo render); faixa `#ntFiltro` (`ntFiltroPinta`, `ntSel`, `ntOk`) com botões das etiquetas existentes + contagem, «Sem nota», «✕ Todos»; marcar várias = qualquer uma; some se não há nenhuma etiqueta; grupos recolhíveis ficam desligados enquanto filtra. Teste: `fonte/tools/filtro638-test.mjs`.
 - v639: com a barra rápida ligada (`html.scrubOn`) a barra de rolagem do sistema é escondida: só uma barra na lateral.
 - v640: `js/nav.js` (troca de aba por deslize) ignora toques em `.ntfbar` e `#scrub`; teste no filtro638-test (CDP touch). Regra: faixas rolando na horizontal devem entrar na lista `blocked` do nav.js.
+- v641: barra rápida sem trilho (`#scrub::before` oculto); só a alça amarela aparece.

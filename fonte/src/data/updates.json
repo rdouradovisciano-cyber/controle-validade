@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-27T18:50:00-03:00",
+  "itens": [
+   "Barra rápida: tirada a linha cinza de fundo; fica só a alça amarela na lateral"
+  ]
+ },
+ {
   "t": "2026-11-27T18:40:00-03:00",
   "itens": [
    "Corrigido: deslizar a faixa de etiquetas para o lado não troca mais de aba (Validades/Pesáveis)"

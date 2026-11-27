@@ -2657,3 +2657,5 @@ html:not([data-tema=dark]) .ntf em{background:rgba(255,255,255,.65)}
 /* v639: com a barra rápida ligada, some a barra de rolagem do sistema (só fica uma barra na lateral) */
 html.scrubOn,html.scrubOn body{scrollbar-width:none;-ms-overflow-style:none}
 html.scrubOn::-webkit-scrollbar,html.scrubOn body::-webkit-scrollbar{display:none;width:0;height:0}
+/* v641: sem trilho — só a alça amarela fica visível */
+#scrub::before{display:none!important}
