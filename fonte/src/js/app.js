@@ -176,7 +176,24 @@ const ntMeta = x => [String(x.por || "").split(" ")[0], ntQuando(x.em)].filter(B
 // v626: só a mensagem (autor e hora continuam gravados, mas não aparecem)
 // v630: cada nota pode ter cor escolhida (x.c); sem escolha vale a cor do tipo
 const NT_CORES = [["rb", "Verde"], ["cm", "Azul"], ["pm", "Vermelho"], ["al", "Amarelo"], ["dc", "Laranja"], ["lc", "Roxo"], ["et", "Cinza"]];
-let ntNovo = null, ntEd = null;   // ntNovo = id com o campo «outra nota» aberto; ntEd = {id,t,v} nota sendo editada
+let ntNovo = null, ntEd = null;
+// v638: filtro por etiqueta no lugar da busca (botões com as etiquetas que existem; marca uma ou mais; «Sem nota»)
+const ntSel = new Set();
+const ntChaves = id => notasDe(id).map(x => norm(x.t));
+const ntOk = p => !ntSel.size || (ntChaves(p.id).length ? ntChaves(p.id).some(k => ntSel.has(k)) : ntSel.has("__sem"));
+function ntFiltroPinta(cat) {
+  const bar = document.getElementById("ntFiltro"); if (!bar) return;
+  const base = products.filter(p => !p.retirado && (!cat || p.category === cat)), m = new Map(); let sem = 0;
+  base.forEach(p => { const l = notasDe(p.id); if (!l.length) sem++; l.forEach(x => { const k = norm(x.t), o = m.get(k) || { n: x.t, c: 0, cor: x.c }; o.c++; m.set(k, o); }); });
+  [...ntSel].forEach(k => { if (k !== "__sem" && !m.has(k)) ntSel.delete(k); }); if (ntSel.has("__sem") && !sem) ntSel.delete("__sem");
+  if (!m.size) { bar.classList.add("hidden"); bar.innerHTML = ""; return; }
+  const ch = [...m.entries()].sort((a, b) => b[1].c - a[1].c).slice(0, 10).map(([k, o]) => { const t = ntTipo(o.n), cor = NT_CORES.some(z => z[0] === o.cor) ? o.cor : t.c;
+    return `<button type="button" class="ntf tp-${cor}${ntSel.has(k) ? " on" : ""}" data-ntfil="${esc(k)}" aria-pressed="${ntSel.has(k)}"><i aria-hidden="true">${t.i}</i>${esc(o.n)}<em>${o.c}</em></button>`; });
+  if (sem) ch.push(`<button type="button" class="ntf tp-ot${ntSel.has("__sem") ? " on" : ""}" data-ntfil="__sem" aria-pressed="${ntSel.has("__sem")}">Sem nota<em>${sem}</em></button>`);
+  bar.classList.remove("hidden");
+  bar.innerHTML = (ntSel.size ? `<button type="button" class="ntf ntf-x" data-ntfil="">✕ Todos</button>` : "") + ch.join("");
+}
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-ntfil]"); if (!b) return; const k = b.dataset.ntfil; if (!k) ntSel.clear(); else if (ntSel.has(k)) ntSel.delete(k); else ntSel.add(k); render(); });   // ntNovo = id com o campo «outra nota» aberto; ntEd = {id,t,v} nota sendo editada
 function notaEdita(id, t, novoT, cor) { const l = notasDe(id).map(x => norm(x.t) === norm(t) ? { ...x, t: (novoT || x.t).trim().slice(0, 60), ...(cor ? { c: cor } : {}) } : x); notaGrava(id, l); }
 const ntTag = (x, ex) => { const k = ntTipo(x.t), c = NT_CORES.some(z => z[0] === x.c) ? x.c : k.c; return `<span class="pi-tag tp-${c}"><i aria-hidden="true">${k.i}</i><b${ex ? ` data-nted="${esc(x.t)}" title="Toque para editar ou mudar a cor"` : ""}>${esc(x.t)}</b>${ex ? `<button type="button" class="pi-tagx" data-ntdel="${esc(x.t)}" aria-label="Tirar a nota ${esc(x.t)}">×</button>` : ""}</span>`; };
 // ícone por tipo de produto (só Perecíveis; dá para desligar em 🎨 Cores e prazos)
@@ -624,7 +641,7 @@ function render() {
       cf.value = [...cf.options].some(o => o.value === cur) ? cur : CATSET; cf.dataset.sig = sig; }
     catInicial = false;   // v622: só a 1ª pintagem é forçada no setor; depois, respeita o escolhido pela pessoa
     cf.classList.toggle("hidden", !oth.length); document.querySelector("#tabLoja .filters").classList.toggle("hidden", !oth.length); $("verTodos").classList.toggle("hidden", !!oth.length); }
-  const q = $("search").value.trim().toLowerCase(), cat = $("categoryFilter").value, st = $("statusFilter").value;
+  const q = $("search").value.trim().toLowerCase(), cat = $("categoryFilter").value, st = $("statusFilter").value; ntFiltroPinta(cat);
   const base = products.filter(p => !p.retirado && (!cat || p.category === cat)), ex = base.filter(p => status(p) === "expired").length, so = base.filter(p => status(p) === "soon").length;
   const ainda = carregando && !products.length;   // Firebase ainda não respondeu: não mostra "0"
   $("countAll").textContent = ainda ? "–" : products.length;
@@ -659,9 +676,9 @@ function render() {
   const nvF = novoF && !q && !retView;
   const agr = cat !== PER || gruposOn();   // Perecíveis: por padrão a lista inteira, só com a cor; o agrupamento por urgência é opção no menu ⋮
   { const mg = $("mnGrupos"); if (mg) { mg.classList.toggle("hidden", CATSET !== PER); $("mnGruposT").textContent = gruposOn() ? "Mostrar lista inteira (só cores)" : "Agrupar por urgência"; } }
-  const recOn = agr && !!cat && !q && !tierF && !nvF && !st && !acaoF && !retView;   // v463: só recolhe quando os títulos de grupo aparecem   // «Últimos lançados» ligado (buscando ou vendo retirados, o filtro fica de lado)
+  const recOn = agr && !!cat && !q && !ntSel.size && !tierF && !nvF && !st && !acaoF && !retView;   // v463: só recolhe quando os títulos de grupo aparecem   // «Últimos lançados» ligado (buscando ou vendo retirados, o filtro fica de lado)
   const rows = retView ? products.filter(p => p.retirado).sort((a, b) => (Number(b.retEm) || 0) - (Number(a.retEm) || 0)) : products.filter(p => q ? ((p.name || "").toLowerCase().includes(q) || (p.barcode || "").includes(q) || String(p.codigo_balanca || "") === q || String(p.codigo_doacao || "").toLowerCase() === q)   // buscando: procura em TODOS os setores, com ou sem validade
-      : (!p.retirado && (!cat || p.category === cat) && !((cat === "FLV" || cat === PER) && daysLeft(p.expiry) === null) && (!st || status(p) === st) && (!tierF || prioDe(p) === tierF) && (!acaoF || (daysLeft(p.expiry) ?? 9) <= 0) && (!nvF || lancMs(p) > 0)))
+      : (!p.retirado && (!cat || p.category === cat) && !((cat === "FLV" || cat === PER) && daysLeft(p.expiry) === null) && (!st || status(p) === st) && (!tierF || prioDe(p) === tierF) && (!acaoF || (daysLeft(p.expiry) ?? 9) <= 0) && (!nvF || lancMs(p) > 0) && ntOk(p)))
     .sort((a, b) => nvF ? lancMs(b) - lancMs(a) : cat ? (a.expiry || "9999").localeCompare(b.expiry || "9999")
       : (a.name || "").localeCompare(b.name || "", "pt-BR", { sensitivity: "base" }) || (a.expiry || "9999").localeCompare(b.expiry || "9999"))
     .slice(0, nvF ? NOVO_N : 9e9);

@@ -2641,3 +2641,15 @@ html:not([data-tema=dark]) #scrub::before{background:rgba(0,0,0,.14)}
 #scrub.dsc-pisca .scrub-th{animation:dscPisca .8s ease-in-out 4;width:22px;opacity:1}
 @keyframes dscPisca{50%{transform:translateY(0) scale(1.35)}}
 @media (prefers-reduced-motion:reduce){.dsc-lista,.dsc-alca,.dsc-dedo,.dsc-bolha{animation:none}.dsc-bolha{opacity:1;transform:translateY(40px)}}
+
+/* v638: filtro por etiqueta no lugar da busca */
+#search{display:none!important}
+.ntfbar{display:flex;gap:7px;overflow-x:auto;white-space:nowrap;margin:0 0 10px;padding:2px 0 4px;touch-action:pan-x;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.ntfbar::-webkit-scrollbar{display:none}
+.ntf{flex:none;display:inline-flex;align-items:center;gap:5px;padding:6px 11px;min-height:34px;border-radius:999px;border:1.5px solid var(--tb,#888);background:var(--tf,rgba(128,128,128,.15));color:var(--tt,inherit);font-size:13px;font-weight:800}
+.ntf i{font-style:normal;font-size:13px}
+.ntf em{font-style:normal;font-size:11.5px;font-weight:900;min-width:18px;padding:1px 5px;border-radius:9px;background:rgba(0,0,0,.18);text-align:center}
+html:not([data-tema=dark]) .ntf em{background:rgba(255,255,255,.65)}
+.ntf.on{background:var(--tl,#e5b92b);border-color:var(--tl,#e5b92b);color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+.ntf.on em{background:rgba(0,0,0,.28);color:#fff}
+.ntf-x{--tb:#888;--tf:transparent;--tt:inherit}

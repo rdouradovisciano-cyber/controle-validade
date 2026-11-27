@@ -1,0 +1,33 @@
+// Teste v638: filtro por etiqueta no lugar da busca: node filtro638-test.mjs <pasta> <capturas>
+import { chromium } from "playwright-core"; import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D = path.resolve(process.argv[2]), SHOT = process.argv[3];
+const srv = http.createServer((q, r) => { let f = path.join(D, q.url.split("?")[0]); if (f.endsWith("/")) f += "index.html"; if (!fs.existsSync(f)) { r.writeHead(404); return r.end(); }
+  let b = fs.readFileSync(f); if (/\.(html|js)$/.test(f)) b = Buffer.from(b.toString().replace(/apiKey:\s*"[^"]*"/g, 'apiKey:"COLE_"').replace(/login:\s*\{\s*email:[^}]*\}/g, "login: null"));
+  r.writeHead(200, { "content-type": { ".html": "text/html", ".js": "text/javascript", ".css": "text/css" }[path.extname(f)] || "application/octet-stream" }); r.end(b); }).listen(0);
+const br = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+const res = []; const ok = (n, c, x = "") => res.push((c ? "OK   " : "FALHA ") + n + (x ? "  → " + x : ""));
+const dt = n => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+const ps = Array.from({ length: 12 }, (_, i) => ({ id: "p" + i, name: "Produto " + String(i + 1).padStart(2, "0"), barcode: "78900" + (1000 + i), quantity: "1", expiry: dt(i % 6), category: "Perecíveis", createdAt: Date.now(), addedBy: "T" }));
+const L = (t, c) => ({ t, por: "Ana", em: Date.now(), l: [{ t, por: "Ana", em: Date.now(), ...(c ? { c } : {}) }] });
+const notas = { p0: L("Rebaixa feita"), p1: L("Rebaixa feita"), p2: L("Rebaixa feita"), p3: L("Na câmara"), p4: L("Na câmara"), p5: { t: "Na câmara · Rebaixa feita", por: "Ana", em: Date.now(), l: [{ t: "Na câmara", por: "A", em: 1 }, { t: "Rebaixa feita", por: "A", em: 1 }] } };
+const ctx = await br.newContext({ viewport: { width: 411, height: 860 } });
+await ctx.addInitScript(([ps, notas]) => { if (localStorage.getItem("s")) return; localStorage.setItem("s", "1"); localStorage.setItem("validamais-dica-deslizar", "1"); localStorage.setItem("validamais-dica-scrub", "1"); localStorage.setItem("validamais-operador", JSON.stringify("Ronaldo Silva")); localStorage.setItem("validamais-perfil", "Perecíveis"); localStorage.setItem("validamais-produtos-v1", JSON.stringify(ps)); localStorage.setItem("validamais-notas", JSON.stringify(notas)); }, [ps, notas]);
+const pg = await ctx.newPage(); const errs = []; pg.on("pageerror", e => errs.push(e.message));
+await pg.goto(`http://localhost:${srv.address().port}/`); await pg.waitForTimeout(4000);
+const nomes = () => pg.evaluate(() => [...document.querySelectorAll("#list article.pitem")].map(a => a.dataset.id));
+const chips = () => pg.evaluate(() => [...document.querySelectorAll("#ntFiltro .ntf")].map(b => b.innerText.replace(/\s+/g, " ").trim()));
+ok("campo de busca não aparece mais", await pg.evaluate(() => getComputedStyle(document.getElementById("search")).display === "none"));
+let c = await chips(); ok("botões de etiqueta com contagem", c.some(x => /Rebaixa feita 4/.test(x)) && c.some(x => /Na câmara 3/.test(x)) && c.some(x => /Sem nota 6/.test(x)), JSON.stringify(c));
+ok("começa com todos os 12 itens", (await nomes()).length === 12);
+await pg.screenshot({ path: SHOT + "/f638_barra.png" });
+await pg.click('[data-ntfil="rebaixa feita"]'); await pg.waitForTimeout(300);
+let n = await nomes(); ok("«Rebaixa feita» mostra só os 4 com essa etiqueta", n.length === 4 && ["p0", "p1", "p2", "p5"].every(x => n.includes(x)), JSON.stringify(n));
+await pg.click('[data-ntfil="na camara"]'); await pg.waitForTimeout(300);
+n = await nomes(); ok("marcar também «Na câmara» soma (qualquer uma das duas)", n.length === 6, JSON.stringify(n));
+await pg.screenshot({ path: SHOT + "/f638_filtrado.png" });
+await pg.click('[data-ntfil=""]'); await pg.waitForTimeout(300); await pg.click('[data-ntfil="__sem"]'); await pg.waitForTimeout(300);
+n = await nomes(); ok("«Sem nota» mostra os 6 sem etiqueta", n.length === 6 && !n.some(x => ["p0", "p1", "p2", "p3", "p4", "p5"].includes(x)), JSON.stringify(n));
+await pg.click('[data-ntfil=""]'); await pg.waitForTimeout(300);
+ok("«✕ Todos» limpa o filtro", (await nomes()).length === 12);
+ok("sem erros de JS", errs.length === 0, errs.join(" | "));
+console.log(res.join("\n")); await br.close(); srv.close();

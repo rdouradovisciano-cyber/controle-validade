@@ -11,10 +11,10 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=637">
+<link rel="stylesheet" href="css/app.css?v=638">
 <title>Valida+ | Controle de validade</title>
-<script src="js/tema.js?v=637"></script>
-<!-- const APP_VERSION = "2026.11.27-637" -->
+<script src="js/tema.js?v=638"></script>
+<!-- const APP_VERSION = "2026.11.27-638" -->
 </head>
 <body data-tab="Loja">
 <div id="splash" role="status" aria-live="polite"><img src="apple-touch-icon.png" alt=""><b>Valida+</b><span class="sp-bar"><i></i></span></div>
@@ -70,7 +70,8 @@
 <section id="tiers" class="tiers" aria-label="Filtrar por urgência"><button type="button" id="tiersBar" class="tbar" aria-expanded="false"><span class="tbl">Urgência</span><span class="tbs" id="tiersSum"></span><span class="tbt" id="tiersTog">▾ ver</span></button><div class="tgrid"><button type="button" data-t="v" class="tv"><b>0</b><span>Vencidos</span></button><button type="button" data-t="h" class="th"><b>0</b><span>Hoje</span></button><button type="button" data-t="a" class="ta"><b>0</b><span>Até 2 dias</span></button><button type="button" data-t="y" class="ty"><b>0</b><span>Até 7 dias</span></button></div></section>
 <section class="stats"><div class="stat"><b id="countAll">0</b><span>Cadastrados</span></div><div class="stat"><b id="countSoon">0</b><span>Vencem em breve</span></div><div class="stat"><b id="countExpired">0</b><span>Vencidos</span></div></section>
 <section class="panel">
-<input id="search" type="search" inputmode="search" autocomplete="off" enterkeyhint="search" placeholder="Buscar na lista" aria-label="Buscar produto na lista de validades">
+<input id="search" type="search" hidden tabindex="-1" aria-hidden="true">
+<div id="ntFiltro" class="ntfbar hidden" role="group" aria-label="Filtrar por etiqueta"></div>
 <div class="filters"><select id="categoryFilter" class="hidden" aria-label="Categoria"></select><select id="statusFilter" class="hidden" aria-label="Status"><option value="">Todos os status</option><option value="expired">Vencidos</option><option value="soon">Vencem em breve</option><option value="ok">Dentro do prazo</option></select></div>
 <button type="button" class="lnk" id="verTodos"></button><button type="button" class="lnk hidden" id="verRetTop"><svg class="ic ti" aria-hidden="true"><use href="#i-voltar"/></svg>Voltar às validades</button>
 <button type="button" class="lnk novobtn" id="novoBtn"><svg class="ic ti" aria-hidden="true"><use href="#i-his"/></svg>Últimos lançados</button>
@@ -241,16 +242,16 @@
 </div>
 </div><div class="toolbar" style="margin-top:14px"><button class="primary" type="submit">Salvar produto</button><button class="primary" type="button" id="saveNext">Salvar e bipar próximo</button><button class="secondary" type="button" id="cancelForm">Cancelar</button></div></form>
 </section></div>
-<script src="js/config.js?v=637"></script>
+<script src="js/config.js?v=638"></script>
 <script src="vendor.js"></script>
-<script src="js/version.js?v=637"></script>
-<script src="js/login.js?v=637"></script>
-<script src="js/app.js?v=637"></script>
-<script src="js/nav.js?v=637"></script>
-<script src="js/operador.js?v=637"></script>
-<script src="js/teclado.js?v=637"></script>
-<script src="js/menu.js?v=637"></script>
-<script src="js/status.js?v=637"></script>
-<script src="js/inventario.js?v=637"></script>
-<script src="js/doacao-busca.js?v=637"></script>
+<script src="js/version.js?v=638"></script>
+<script src="js/login.js?v=638"></script>
+<script src="js/app.js?v=638"></script>
+<script src="js/nav.js?v=638"></script>
+<script src="js/operador.js?v=638"></script>
+<script src="js/teclado.js?v=638"></script>
+<script src="js/menu.js?v=638"></script>
+<script src="js/status.js?v=638"></script>
+<script src="js/inventario.js?v=638"></script>
+<script src="js/doacao-busca.js?v=638"></script>
 </body></html>
