@@ -901,6 +901,29 @@ function nomesOkSalva() { const l = [...nomesOk].slice(0, 2000); store.set(NOK_K
 const GRAM_RE = /\d+(?:[.,]\d+)?\s*(?:g|gr|grs|kg|mg|ml|l|lt|litros?|un|und|unid|unids|unidades?|fatias?|pcs?|p[cç]s?|sach[eê]s?)(?![a-zà-ú])|\b\d+\s*x\s*\d+/i;
 const POR_KG_RE = /(^|[^a-zà-ú])(kg|quilo|quilos|fracionad[oa]s?|granel|pes[aá]vel)(?![a-zà-ú])/i;   // vendido por peso: não precisa de gramagem
 const nomeSemGramagem = n => !GRAM_RE.test(String(n || "")) && !POR_KG_RE.test(String(n || "")) && !nomeOk(n);
+// v632: código repetido — bloqueia e avisa na hora (ao bipar, digitar ou salvar)
+const COD_CAMPOS = [["barcode", "EAN", "barcode"], ["codigo_balanca", "PLU", "cBalanca"], ["codigo_doacao", "Código de doação", "cDoacao"]];
+function codDono(f, v, nome, id, dados) {
+  v = String(v || "").trim(); if (v.length < 4 || (f === "barcode" && isScale(v)) || !String(nome || "").trim()) return null;
+  const orig = id ? (products.find(x => x.id === id) || {}) : {};
+  if (id && orig[f] === v && norm(orig.name || "") === norm(nome || "")) return null;   // item antigo que não mudou: não trava
+  return rawAllAtivos().find(x => x.id !== id && String(x[f] || "").trim() === v && norm(x.name || "") !== norm(nome || "") && setSet(x) === setSet(dados)) || null;
+}
+async function codAviso(f, nomeCod, dono, tirar) {
+  const v = String(dono[f] || "").trim();
+  const r = await askConfirm({ icon: "⛔", title: "Este código já está cadastrado", text: `${nomeCod} ${v} é de «${dono.name}»`, sub: "Não pode haver dois produtos com o mesmo código. Use o produto que já existe" + (tirar ? " ou tire o código deste cadastro." : " ou corrija o código."), ok: `Usar «${nomeBonito(dono.name)}»`, cancel: tirar ? "Tirar o código" : "Corrigir o código" });
+  return r === true;
+}
+let codChecando = false;
+async function codConfere(origem) {   // chamado quando o código ou o nome mudam no formulário
+  if (codChecando || $("productForm").classList.contains("lote")) return; codChecando = true;
+  try { const id = $("docId").value, dados = { category: $("category").value, name: $("name").value };
+    for (const [f, nomeCod, campo] of COD_CAMPOS) {
+      const dono = codDono(f, $(campo).value, $("name").value, id, dados); if (!dono) continue;
+      if (await codAviso(f, nomeCod, dono, origem === "nome")) { $("name").value = String(dono.name).slice(0, 120); COD_CAMPOS.forEach(([g, , c2]) => { if (!$(c2).value && dono[g]) $(c2).value = dono[g]; }); toggleCodes(); }
+      else { $(campo).value = ""; toggleCodes(); try { $(campo).focus(); } catch (e) {} toast("Código repetido: não foi aceito."); }
+      break; }
+  } finally { codChecando = false; } }
 async function save(next) {
   const id = $("docId").value, q = Number(String($("quantity").value).replace(",", "."));
   const data = { barcode: $("barcode").value.trim().slice(0, 32), name: $("name").value.trim().slice(0, 120),
@@ -921,14 +944,11 @@ async function save(next) {
       if (r !== "alt") return;
     }
   }
-  {   // v563: código (EAN / PLU / doação) que já é de outro produto: evita cadastro duplicado
-    const orig = id ? (products.find(x => x.id === id) || {}) : {};
-    for (const [f, nomeCod] of [["barcode", "EAN"], ["codigo_balanca", "PLU"], ["codigo_doacao", "Código de doação"]]) {
-      const v = String(data[f] || "").trim(); if (v.length < 4 || (f === "barcode" && isScale(v)) || (id && orig[f] === v && norm(orig.name || "") === norm(data.name))) continue;
-      const dono = rawAllAtivos().find(x => x.id !== id && String(x[f] || "").trim() === v && norm(x.name || "") !== norm(data.name || "") && setSet(x) === setSet(data)); if (!dono) continue;
-      const r = await askConfirm({ icon: "🔁", title: "Este código já existe", text: `${nomeCod} ${v} é de «${dono.name}»`, sub: `Provavelmente é o mesmo produto. «Usar ${nomeBonito(dono.name)}» lança com o nome que já existe (sem duplicar). «Manter os dois» cria um cadastro separado.`, ok: "Usar o existente", alt: "Manter os dois", cancel: "Corrigir" });
-      if (r === true) { data.name = String(dono.name).slice(0, 120); $("name").value = data.name; if (!data.barcode && dono.barcode) { data.barcode = dono.barcode; } if (!data.codigo_balanca && dono.codigo_balanca) data.codigo_balanca = dono.codigo_balanca; if (!data.codigo_doacao && dono.codigo_doacao) data.codigo_doacao = dono.codigo_doacao; break; }
-      if (r !== "alt") return;
+  {   // v632: um código (EAN / PLU / doação) pertence a UM produto só: não dá mais para «manter os dois»
+    for (const [f, nomeCod] of COD_CAMPOS) {
+      const dono = codDono(f, data[f], data.name, id, data); if (!dono) continue;
+      if (!(await codAviso(f, nomeCod, dono))) return;
+      data.name = String(dono.name).slice(0, 120); $("name").value = data.name; COD_CAMPOS.forEach(([g]) => { if (!data[g] && dono[g]) data[g] = dono[g]; }); break;
     }
   }
   const antes = id ? ((products.find(x => x.id === id) || {}).name || "") : "";
@@ -1254,7 +1274,7 @@ $("saveNext").onclick = () => { if ($("productForm").reportValidity()) save(true
 $("fotoNovo").onclick = e => { if (e.target.closest("[data-fnc]")) $("fnCam").click(); else if (e.target.closest("[data-fng]")) $("fnGal").click(); else if (e.target.closest("[data-fnx]")) fnLimpa(); else if (e.target.closest(".pf-img")) fotoZoom(e.target.closest(".pf-img").getAttribute("src")); };
 $("fotoNovo").onchange = e => { const f = e.target.files && e.target.files[0]; e.target.value = ""; if (!f) return; if (!/^image\//.test(f.type)) return toast("Escolha uma imagem."); fnFile = f; fnPaint(); };
 $("name").addEventListener("input", fnVis);
-$("barcode").oninput = toggleCodes; $("category").onchange = toggleCodes; $("barcode").onchange = () => fillKnown($("barcode").value.trim());
+$("barcode").oninput = toggleCodes; $("category").onchange = toggleCodes; $("barcode").onchange = () => { fillKnown($("barcode").value.trim()); codConfere("codigo"); }; $("name").addEventListener("change", () => codConfere("nome")); $("cBalanca").addEventListener("change", () => codConfere("codigo")); $("cDoacao").addEventListener("change", () => codConfere("codigo"));
 $("qMinus").onclick = () => { const q = Number(String($("quantity").value).replace(",", ".")) || 1; $("quantity").value = Math.max(1, Math.round(q) - 1); };
 $("qPlus").onclick = () => { $("quantity").value = Math.round(Number(String($("quantity").value).replace(",", ".")) || 0) + 1; };
 $("exportScope").onchange = () => $("exportCategory").classList.toggle("hidden", $("exportScope").value !== "category");

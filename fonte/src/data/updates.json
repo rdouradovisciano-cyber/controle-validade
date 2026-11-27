@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-27T17:30:00-03:00",
+  "itens": [
+   "Cadastro: não é mais possível ter dois produtos com o mesmo código (EAN, PLU ou doação). Ao bipar, digitar ou salvar, o app avisa na hora e só deixa usar o produto que já existe ou corrigir o código",
+   "Tirada a opção «Manter os dois» que permitia o código repetido"
+  ]
+ },
+ {
   "t": "2026-11-25T21:40:00-03:00",
   "itens": [
    "Perecíveis: área de notas mais limpa. O campo de escrever só abre em «＋ Outra» e os atalhos mostram só os que ainda não foram usados",
