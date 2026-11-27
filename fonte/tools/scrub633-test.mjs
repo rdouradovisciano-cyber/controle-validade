@@ -8,8 +8,8 @@ const br = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" }
 const res = []; const ok = (n, c, x = "") => res.push((c ? "OK   " : "FALHA ") + n + (x ? "  → " + x : ""));
 const dt = n => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
 const mk = N => Array.from({ length: N }, (_, i) => ({ id: "p" + i, name: "Produto " + String(i + 1).padStart(3, "0"), barcode: "78900" + String(1000 + i), quantity: "1", expiry: dt(i % 20), category: "Perecíveis", createdAt: Date.now(), addedBy: "T" }));
-async function abre(N) { const ctx = await br.newContext({ viewport: { width: 411, height: 860 }, hasTouch: false });
-  await ctx.addInitScript(([ps]) => { localStorage.setItem("validamais-dica-deslizar", "1"); localStorage.setItem("validamais-operador", JSON.stringify("Ronaldo Silva")); localStorage.setItem("validamais-perfil", "Perecíveis"); localStorage.setItem("validamais-produtos-v1", JSON.stringify(ps)); }, [mk(N)]);
+async function abre(N, dica = true) { const ctx = await br.newContext({ viewport: { width: 411, height: 860 }, hasTouch: false });
+  await ctx.addInitScript(([ps, dica]) => { localStorage.setItem("validamais-dica-deslizar", "1"); if (dica) localStorage.setItem("validamais-dica-scrub", "1"); localStorage.setItem("validamais-operador", JSON.stringify("Ronaldo Silva")); localStorage.setItem("validamais-perfil", "Perecíveis"); localStorage.setItem("validamais-produtos-v1", JSON.stringify(ps)); }, [mk(N), dica]);
   const pg = await ctx.newPage(); pg.errs = []; pg.on("pageerror", e => pg.errs.push(e.message)); await pg.goto(`http://localhost:${srv.address().port}/`); await pg.waitForTimeout(4000); return pg; }
 let pg = await abre(8); await pg.waitForTimeout(1500);
 ok("com poucos itens a barra não aparece", await pg.evaluate(() => getComputedStyle(document.getElementById("scrub")).display === "none"));
@@ -33,4 +33,13 @@ ok("arrastar para cima volta ao início", await pg.evaluate(() => window.scrollY
 await pg.evaluate(() => window.scrollTo(0, 3000)); await pg.waitForTimeout(400);
 ok("a alça acompanha a rolagem normal", await pg.evaluate(() => /translateY\((?!0px)/.test(document.querySelector(".scrub-th").style.transform)), await pg.evaluate(() => document.querySelector(".scrub-th").style.transform));
 ok("sem erros de JS", pg.errs.length === 0, pg.errs.join(" | "));
+// apresentação única (v637)
+{ const p2 = await abre(120, false); await p2.waitForTimeout(2500);
+  ok("1ª vez: aparece a apresentação da barra", await p2.evaluate(() => !!document.querySelector(".dica-ov .dsc-demo") && /barra de rolagem/i.test(document.querySelector(".dica-ov").innerText)));
+  await p2.screenshot({ path: SHOT + "/s637_dica.png" });
+  await p2.click(".dsc-ver"); await p2.waitForTimeout(300);
+  ok("«Mostrar onde fica» fecha e faz a barra piscar", await p2.evaluate(() => !document.querySelector(".dica-ov") && document.getElementById("scrub").classList.contains("dsc-pisca")));
+  await p2.reload(); await p2.waitForTimeout(3500);
+  ok("não aparece de novo depois de vista", await p2.evaluate(() => !document.querySelector(".dica-ov")));
+  ok("sem erros de JS (apresentação)", p2.errs.length === 0, p2.errs.join(" | ")); }
 console.log(res.join("\n")); await br.close(); srv.close();

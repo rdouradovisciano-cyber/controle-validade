@@ -2623,3 +2623,21 @@ html:not([data-tema=dark]) #scrub::before{background:rgba(0,0,0,.14)}
 #scrubBolha.on{display:block}
 #scrubBolha small{display:block;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#e5b92b}
 #scrubBolha b{display:block;font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* v637: apresentação da barra de rolagem rápida */
+.dsc-demo{position:relative;height:150px;border-radius:14px;overflow:hidden;background:rgba(128,128,128,.14)}
+.dsc-lista{position:absolute;left:12px;right:46px;top:10px;bottom:10px;display:flex;flex-direction:column;gap:8px;animation:dscLista 3.2s ease-in-out infinite}
+.dsc-lista i{display:block;height:34px;border-radius:9px;background:rgba(128,128,128,.32);flex:none}
+.dsc-barra{position:absolute;right:12px;top:10px;bottom:10px;width:4px;border-radius:4px;background:rgba(128,128,128,.4)}
+.dsc-alca{position:absolute;right:-4px;top:0;width:12px;height:34px;border-radius:8px;background:#e5b92b;animation:dscAlca 3.2s ease-in-out infinite}
+.dsc-dedo{position:absolute;right:2px;top:10px;width:30px;height:30px;margin:0 -2px 0 0;border-radius:50%;background:rgba(255,255,255,.88);border:3px solid #2b2b2b;box-shadow:0 2px 8px rgba(0,0,0,.35);animation:dscDedo 3.2s ease-in-out infinite}
+.dsc-bolha{position:absolute;right:48px;top:10px;padding:5px 10px;border-radius:10px;background:#0f0f14;color:#fff;font-size:13px;font-weight:800;animation:dscBolha 3.2s ease-in-out infinite}
+@keyframes dscAlca{0%,10%{transform:translateY(0)}60%,80%{transform:translateY(96px)}95%,100%{transform:translateY(0)}}
+@keyframes dscDedo{0%,10%{transform:translateY(0);opacity:0}18%{opacity:1}60%,80%{transform:translateY(94px);opacity:1}88%,100%{transform:translateY(94px);opacity:0}}
+@keyframes dscBolha{0%,12%{transform:translateY(0);opacity:0}22%{opacity:1}60%,80%{transform:translateY(94px);opacity:1}90%,100%{transform:translateY(94px);opacity:0}}
+@keyframes dscLista{0%,10%{transform:translateY(0)}60%,80%{transform:translateY(-70px)}95%,100%{transform:translateY(0)}}
+.dsc-bt{display:flex;gap:10px}.dsc-bt button{flex:1}
+#scrub.dsc-pisca::before{background:#e5b92b;width:8px;right:5px}
+#scrub.dsc-pisca .scrub-th{animation:dscPisca .8s ease-in-out 4;width:22px;opacity:1}
+@keyframes dscPisca{50%{transform:translateY(0) scale(1.35)}}
+@media (prefers-reduced-motion:reduce){.dsc-lista,.dsc-alca,.dsc-dedo,.dsc-bolha{animation:none}.dsc-bolha{opacity:1;transform:translateY(40px)}}

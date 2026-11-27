@@ -3891,6 +3891,22 @@ function efeitoTV(el) { return new Promise(res => {
       <div class="dica-demo" aria-hidden="true"><div class="dica-fundo">Retirar</div><div class="dica-row">${im ? `<img src="${esc(im.src)}" alt="">` : '<span class="dica-ph"></span>'}<span>${esc(nome.replace(/NOVO$/, "").trim())}</span></div><i class="dica-dedo"></i></div>
       <p>Arraste o cartão do produto para a <b>direita</b> e solte para <b>tirar o item da loja</b>.<br>Foi sem querer? Toque em <b>Desfazer</b> logo depois.</p><button type="button" class="primary big dica-ok">Entendi</button></div>`;
     const fecha = () => ov.remove(); ov.onclick = e => { if (e.target === ov || e.target.closest(".dica-ok")) fecha(); }; document.body.appendChild(ov); try { ov.querySelector(".dica-ok").focus({ preventScroll: true }); } catch (e) {} }, 700); })();
+// v637: apresentação única da barra de rolagem rápida (aparece sozinha na 1ª vez que a barra existe neste aparelho)
+(function dicaScrub() { const K = "validamais-dica-scrub"; let n = 0;
+  const visto = () => { try { return localStorage.getItem(K) === "1"; } catch (e) { return false; } }, marca = () => { try { localStorage.setItem(K, "1"); } catch (e) {} };
+  if (visto()) return;
+  const tm = setInterval(() => { if (visto() || ++n > 300) { clearInterval(tm); return; }
+    const b = document.getElementById("scrub"); if (!b || !b.classList.contains("on")) return;
+    const sp = document.getElementById("splash"); if (sp && !sp.classList.contains("hidden") && getComputedStyle(sp).display !== "none") return;
+    if (document.querySelector(".askbg,.modal:not(.hidden),.dica-ov")) return;
+    clearInterval(tm); marca();
+    const ov = document.createElement("div"); ov.className = "dica-ov";
+    ov.innerHTML = `<div class="dica-card" role="dialog" aria-modal="true" aria-label="Novo: barra de rolagem rápida"><b class="dica-t">Novo: barra de rolagem rápida</b>
+      <div class="dsc-demo" aria-hidden="true"><div class="dsc-lista"><i></i><i></i><i></i><i></i><i></i></div><div class="dsc-barra"><u class="dsc-alca"></u></div><div class="dsc-bolha">Produto 050</div><s class="dsc-dedo"></s></div>
+      <p>Com muitos produtos, use a <b>barra amarela na lateral direita</b>: <b>encoste o dedo e arraste</b> para cima ou para baixo e percorra a lista toda de uma vez.<br>Uma etiqueta mostra o produto em que você está.</p>
+      <div class="dsc-bt"><button type="button" class="secondary big dsc-ver">Mostrar onde fica</button><button type="button" class="primary big dica-ok">Entendi</button></div></div>`;
+    ov.onclick = e => { if (e.target === ov || e.target.closest(".dica-ok")) ov.remove(); else if (e.target.closest(".dsc-ver")) { ov.remove(); b.classList.add("dsc-pisca"); setTimeout(() => b.classList.remove("dsc-pisca"), 3200); } };
+    document.body.appendChild(ov); try { ov.querySelector(".dica-ok").focus({ preventScroll: true }); } catch (e) {} }, 700); })();
 // ---------- PWA ----------
 // v622: a checagem de atualização do service worker vai para depois da abertura, para não disputar rede com a lista e as fotos
 if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").then(r => { setTimeout(() => r.update().catch(() => {}), 4000); }).catch(console.error));

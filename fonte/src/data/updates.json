@@ -2,7 +2,8 @@
  {
   "t": "2026-11-27T17:40:00-03:00",
   "itens": [
-   "Listas grandes: barra de rolagem rápida na lateral direita. Arraste o dedo nela para percorrer a lista toda; uma etiqueta mostra o grupo e o produto onde você está"
+   "Listas grandes: barra de rolagem rápida na lateral direita. Arraste o dedo nela para percorrer a lista toda; uma etiqueta mostra o grupo e o produto onde você está",
+   "Na 1ª vez, o app mostra uma animação explicando como usar a barra (botão «Mostrar onde fica» faz a barra piscar)"
   ]
  },
  {
