@@ -1,0 +1,37 @@
+// Teste v653: cód. interno ao lado do EAN no cartão aberto: node interno653-test.mjs <pasta> <capturas>
+import { chromium } from "playwright-core"; import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const D = path.resolve(process.argv[2]), SHOT = process.argv[3];
+const srv = http.createServer((q, r) => { let f = path.join(D, q.url.split("?")[0]); if (f.endsWith("/")) f += "index.html"; if (!fs.existsSync(f)) { r.writeHead(404); return r.end(); }
+  let b = fs.readFileSync(f); if (/\.(html|js)$/.test(f)) b = Buffer.from(b.toString().replace(/apiKey:\s*"[^"]*"/g, 'apiKey:"COLE_"').replace(/login:\s*\{\s*email:[^}]*\}/g, "login: null"));
+  r.writeHead(200, { "content-type": { ".html": "text/html", ".js": "text/javascript", ".css": "text/css" }[path.extname(f)] || "application/octet-stream" }); r.end(b); }).listen(0);
+const br = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+const res = []; const ok = (n, c, x = "") => res.push((c ? "OK   " : "FALHA ") + n + (x ? "  → " + x : ""));
+const d0 = new Date(); const dt = n => { const d = new Date(d0); d.setDate(d.getDate() + n); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+const mk = (id, name, bc, di, n) => ({ id, name, barcode: bc, ...(di ? { codigo_doacao: di } : {}), quantity: "1", expiry: dt(n), category: "Perecíveis", createdAt: Date.now(), addedBy: "T" });
+const ps = [mk("p0", "Produto sem interno", "7890000000001", "", 1), mk("p1", "Produto com interno", "7890000000002", "88", 2)];
+const ctx = await br.newContext({ viewport: { width: 380, height: 800 }, hasTouch: true, isMobile: true });
+await ctx.addInitScript(([ps]) => { if (localStorage.getItem("s")) return; localStorage.setItem("s", "1"); localStorage.setItem("validamais-dica-deslizar", "1"); localStorage.setItem("validamais-dica-scrub", "1"); localStorage.setItem("validamais-operador", JSON.stringify("Ronaldo Silva")); localStorage.setItem("validamais-perfil", "Perecíveis"); localStorage.setItem("validamais-produtos-v1", JSON.stringify(ps)); }, [ps]);
+const pg = await ctx.newPage(); const errs = []; pg.on("pageerror", e => errs.push(e.message));
+await pg.goto(`http://localhost:${srv.address().port}/`); await pg.waitForTimeout(4000);
+const abre = id => pg.evaluate(id => { const a = document.querySelector(`#list .pitem[data-id="${id}"]`); if (a && !a.classList.contains("open")) a.querySelector(".pi-main").click(); }, id);
+const prods = () => pg.evaluate(() => JSON.parse(localStorage.getItem("validamais-produtos-v1") || "[]"));
+await abre("p1"); await pg.waitForTimeout(300);
+let t = await pg.evaluate(() => document.querySelector('.pitem.open .pi-cod').innerText.replace(/\s+/g, " "));
+ok("com código interno: mostra «INTERNO 88» ao lado do EAN", /7890000000002/.test(t) && /INTERNO 88/.test(t), t);
+await abre("p0"); await pg.waitForTimeout(300);
+t = await pg.evaluate(() => document.querySelector('.pitem.open .pi-cod').innerText.replace(/\s+/g, " "));
+ok("sem código interno: mostra a opção «＋ Cód. interno»", /Cód\. interno/.test(t) && /7890000000001/.test(t), t);
+await pg.screenshot({ path: SHOT + "/i653_vazio.png" });
+await pg.tap(".pitem.open [data-intadd]"); await pg.waitForTimeout(400);
+ok("toque abre o campo e o card continua aberto", !!(await pg.$(".pitem.open .int-in")));
+await pg.keyboard.type("88"); await pg.tap(".pitem.open [data-intok]"); await pg.waitForTimeout(500);
+let l = await prods(); ok("código repetido (88) é recusado", !(l.find(x => x.id === "p0").codigo_doacao), JSON.stringify(l.find(x => x.id === "p0").codigo_doacao));
+ok("o campo continua aberto para corrigir", !!(await pg.$(".pitem.open .int-in")));
+await pg.fill(".pitem.open .int-in", "ab12"); await pg.keyboard.press("Enter"); await pg.waitForTimeout(600);
+l = await prods(); ok("código novo é salvo em maiúsculas (AB12)", l.find(x => x.id === "p0").codigo_doacao === "AB12", JSON.stringify(l.find(x => x.id === "p0").codigo_doacao));
+if (!(await pg.$(".pitem.open"))) await abre("p0");
+t = await pg.evaluate(() => (document.querySelector('.pitem.open .pi-cod') || { innerText: "" }).innerText.replace(/\s+/g, " "));
+ok("depois de salvar aparece «INTERNO AB12»", /INTERNO AB12/.test(t), t);
+await pg.screenshot({ path: SHOT + "/i653_salvo.png" });
+ok("sem erros de JS", errs.length === 0, errs.join(" | "));
+console.log(res.join("\n")); await br.close(); srv.close();

@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-28T15:30:00-03:00",
+  "itens": [
+   "Cartão aberto: o cód. interno do produto aparece ao lado do EAN. Se não tiver, toque em «＋ Cód. interno» para cadastrar (vale para todos os lotes e não deixa repetir); toque no código para mudar ou apagar"
+  ]
+ },
+ {
   "t": "2026-11-28T14:40:00-03:00",
   "itens": [
    "Corrigido: no cartão aberto, o nome do produto não se sobrepõe mais ao texto de baixo",
