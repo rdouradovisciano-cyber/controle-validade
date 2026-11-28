@@ -1,5 +1,12 @@
 [
  {
+  "t": "2026-11-28T14:40:00-03:00",
+  "itens": [
+   "Corrigido: no cartão aberto, o nome do produto não se sobrepõe mais ao texto de baixo",
+   "Corrigido: o campo «Outra etiqueta» agora tem botão OK e não é apagado quando outro aparelho atualiza a lista enquanto você digita"
+  ]
+ },
+ {
   "t": "2026-11-28T08:45:00-03:00",
   "itens": [
    "Pesáveis: tirado o aviso vermelho «VENCEM HOJE» do topo; ele continua aparecendo nas Validades"
