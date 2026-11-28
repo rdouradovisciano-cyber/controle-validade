@@ -21,39 +21,37 @@ ok("nota antiga (sem lista) aparece como etiqueta cinza «Etiqueta manual» sem 
 // adicionar 2 notas no mesmo produto
 const abre = id => pg.click(`.pitem[data-id="${id}"] .pi-main`).then(() => pg.waitForTimeout(250));
 await abre("p0");
-await pg.click(".pitem.open [data-ntmais]"); await pg.waitForTimeout(200); await pg.fill(".pitem.open .nt-novo", "Rebaixa feita"); await pg.keyboard.press("Enter"); await pg.waitForTimeout(400);
+await pg.click(".pitem.open [data-ntmais]"); await pg.waitForTimeout(200); await pg.fill(".pitem.open .nt-novo", "Gôndola 3"); await pg.keyboard.press("Enter"); await pg.waitForTimeout(400);
 ok("campo fica vazio para adicionar a próxima", await pg.evaluate(() => { const i = document.querySelector(".pitem.open .nt-novo"); return !i || i.value === ""; }));
 if (!(await pg.$(".pitem.open"))) await abre("p0");
-await pg.click('.pitem.open [data-ntf="Na câmara"]'); await pg.waitForTimeout(400);
+await pg.click('.pitem.open [data-ntf="Câmara"]'); await pg.waitForTimeout(400);
 let n = await notas(); const e0 = n.p0;
-ok("duas notas gravadas no mesmo produto", e0 && e0.l && e0.l.length === 2 && e0.l[0].t === "Rebaixa feita" && e0.l[1].t === "Na câmara", JSON.stringify(e0));
+ok("duas notas gravadas no mesmo produto", e0 && e0.l && e0.l.length === 2 && e0.l[0].t === "Gôndola 3" && e0.l[1].t === "Câmara", JSON.stringify(e0));
 ok("cada nota guarda autor e hora", e0.l.every(x => x.por === "Ronaldo Silva" && x.em > 0));
-ok("texto juntado (compatível com versões antigas)", e0.t === "Rebaixa feita · Na câmara");
+ok("texto juntado (compatível com versões antigas)", e0.t === "Gôndola 3 · Câmara");
 await pg.screenshot({ path: SHOT + "/n624_aberto.png" });
-ok("cartão aberto mostra as notas com ×", (await pg.$$(".pitem.open .nt-lista .pi-tag")).length === 2 && (await pg.$$(".pitem.open .pi-tagx")).length === 2);
-// fecha o cartão e confere as etiquetas na lista
+ok("cartão aberto: ícone marcado + etiqueta própria com ×", (await pg.$$(".pitem.open .nt-i.on")).length === 1 && (await pg.$$(".pitem.open .nt-lista .pi-tag")).length === 1 && (await pg.$$(".pitem.open .pi-tagx")).length === 1);
+ok("linha do nome mostra as marcadas", await pg.evaluate(() => /Gôndola 3 · Câmara/.test(document.querySelector(".pitem.open .nt-nm").innerText)));
 await pg.click(".pitem.open .pi-main"); await pg.waitForTimeout(300);
 let t0 = await tags("p0");
-ok("lista mostra 2 etiquetas: verde (rebaixa) e azul (câmara)", t0.length === 2 && /tp-rb/.test(t0[0].cls) && /tp-cm/.test(t0[1].cls), JSON.stringify(t0));
-ok("etiqueta traz ícone e só a mensagem (sem nome nem hora)", t0[0].ic === "🏷️" && t0[1].ic === "❄️" && t0.every(x => x.meta === "") && !(await pg.evaluate(() => /Ronaldo|\d\d:\d\d/.test(document.querySelector(".pi-tags").textContent))), JSON.stringify(t0.map(x => x.meta)));
+ok("lista mostra 2 etiquetas: roxo (gôndola) e azul (câmara)", t0.length === 2 && /tp-lc/.test(t0[0].cls) && /tp-cm/.test(t0[1].cls), JSON.stringify(t0));
+ok("etiqueta traz ícone e só a mensagem (sem nome nem hora)", t0[0].ic === "📍" && t0[1].ic === "❄️" && t0.every(x => x.meta === "") && !(await pg.evaluate(() => /Ronaldo|\d\d:\d\d/.test(document.querySelector(".pi-tags").textContent))), JSON.stringify(t0.map(x => x.meta)));
 await pg.screenshot({ path: SHOT + "/n624_lista.png" });
-// tirar uma
-await abre("p0"); await pg.click('.pitem.open .nt-lista .pi-tagx[data-ntdel="Rebaixa feita"]'); await pg.waitForTimeout(400);
-n = await notas(); ok("× tira só aquela nota", n.p0.l.length === 1 && n.p0.l[0].t === "Na câmara", JSON.stringify(n.p0.l));
-if (!(await pg.$(".pitem.open"))) await abre("p0");
-// v630: tocar na nota abre o editor (texto + cor)
-await pg.click('.pitem.open [data-nted="Na câmara"]'); await pg.waitForTimeout(300);
+// editor (texto + cor) numa etiqueta própria
+await abre("p0"); await pg.click('.pitem.open [data-nted="Gôndola 3"]'); await pg.waitForTimeout(300);
 ok("editor abre com campo e 7 cores", (await pg.$$(".pitem.open .nt-ed .nt-cor")).length === 7 && !!(await pg.$(".pitem.open [data-ntedt]")));
 await pg.click('.pitem.open [data-ntcor="pm"]'); await pg.waitForTimeout(300);
 n = await notas(); ok("cor escolhida fica gravada (vermelho)", n.p0.l[0].c === "pm", JSON.stringify(n.p0.l));
 ok("etiqueta passa a vermelha", /tp-pm/.test(await pg.evaluate(() => document.querySelector(".pitem.open .nt-lista .pi-tag").className)));
-await pg.fill(".pitem.open [data-ntedt]", "Na câmara fria"); await pg.click(".pitem.open [data-ntok]"); await pg.waitForTimeout(300);
-n = await notas(); ok("texto editado e cor mantida", n.p0.l[0].t === "Na câmara fria" && n.p0.l[0].c === "pm" && n.p0.t === "Na câmara fria", JSON.stringify(n.p0));
+await pg.fill(".pitem.open [data-ntedt]", "Gôndola 4"); await pg.click(".pitem.open [data-ntok]"); await pg.waitForTimeout(300);
+n = await notas(); ok("texto editado e cor mantida", n.p0.l[0].t === "Gôndola 4" && n.p0.l[0].c === "pm" && n.p0.t === "Gôndola 4 · Câmara", JSON.stringify(n.p0));
 if (!(await pg.$(".pitem.open"))) await abre("p0");
-ok("área limpa: sem campo de texto aberto até tocar em ＋ Outra", !(await pg.$(".pitem.open .nt-novo")) && !!(await pg.$(".pitem.open [data-ntmais]")));
+ok("área limpa: sem campo de texto aberto até tocar em ＋", !(await pg.$(".pitem.open .nt-novo")) && !!(await pg.$(".pitem.open [data-ntmais]")) && (await pg.$$(".pitem.open .nt-i")).length === 7);
 await pg.screenshot({ path: SHOT + "/n630_aberto.png" });
 await pg.click('.pitem.open .nt-lista .pi-tagx'); await pg.waitForTimeout(400);
-n = await notas(); ok("× tira a última nota", !n.p0.l.length && !n.p0.t, JSON.stringify(n.p0));
+n = await notas(); ok("× tira só aquela nota", n.p0.l.length === 1 && n.p0.l[0].t === "Câmara", JSON.stringify(n.p0.l));
+await pg.click('.pitem.open [data-ntf="Câmara"]'); await pg.waitForTimeout(400);
+n = await notas(); ok("tocar de novo no ícone desmarca", !n.p0.l.length && !n.p0.t, JSON.stringify(n.p0));
 // repetida não duplica; limite de 5
 await abre("p1");
 for (const x of ["A1", "A2", "A2", "A3", "A4", "A5", "A6"]) { if (!(await pg.$(".pitem.open .nt-novo"))) { await pg.click(".pitem.open [data-ntmais]"); await pg.waitForTimeout(150); } await pg.fill(".pitem.open .nt-novo", x); await pg.keyboard.press("Enter"); await pg.waitForTimeout(250); if (!(await pg.$(".pitem.open"))) await abre("p1"); }
