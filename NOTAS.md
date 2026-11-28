@@ -306,3 +306,4 @@ Setor novo, pedido para uso pessoal do Renato (substitui a antiga área Flores).
 - v643: filtro de etiquetas em linha única (`.ntf-ln`, nowrap, botões encolhem até ~26px), quantidade como selo no canto superior direito do ícone; nome/total continuam numa linha abaixo ao tocar.
 - v644: «Produto na área» (e variações: na loja/área de venda) ganhou ícone 🛒 e cor turquesa (`tp-ar`) em `NT_TIPOS`.
 - v645: cartão aberto: etiquetas só com ícones fixos (`NT_FAV`: área, promoção, rebaixa, câmara, etiqueta manual, conferir) + «＋» (campo `.nt-novo` só aparece ao tocar); linha `.nt-nm` mostra os nomes marcados; etiquetas fora dos favoritos aparecem como pílulas editáveis (`.nt-lista`, texto/cor/×). Notas antigas «Na câmara» ≠ «Câmara» (aparecem como pílula). Teste nota624 reescrito.
+- v646/647: nomezinho (9px) embaixo de cada ícone do cartão aberto (`NT_CURTO`: Área, Promo, Rebaixa, Câmara, Etiqueta, Conferir, Outra).
