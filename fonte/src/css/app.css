@@ -2710,3 +2710,5 @@ html:not([data-tema=dark]) .nt-i{background:rgba(0,0,0,.04);border-color:rgba(0,
 .nt-i{height:56px;gap:4px;padding:5px 0 4px;justify-content:center}
 .nt-i i{height:22px;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:22px}
 .nt-i span{font-size:9px;letter-spacing:0;text-overflow:clip;overflow:visible}
+/* v648: na aba Pesáveis some o aviso vermelho «VENCEM HOJE» (continua nas Validades) */
+body[data-tab="Pesaveis"] #todayBanner{display:none!important}

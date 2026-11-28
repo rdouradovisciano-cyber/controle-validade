@@ -1,5 +1,11 @@
 [
  {
+  "t": "2026-11-28T08:45:00-03:00",
+  "itens": [
+   "Pesáveis: tirado o aviso vermelho «VENCEM HOJE» do topo; ele continua aparecendo nas Validades"
+  ]
+ },
+ {
   "t": "2026-11-28T08:25:00-03:00",
   "itens": [
    "Cartão aberto: cada ícone de etiqueta agora tem o nomezinho bem pequeno embaixo (Área, Promo, Rebaixa, Câmara, Etiqueta, Conferir, Outra)"
